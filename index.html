@@ -236,6 +236,7 @@
     <select id="semester-select" style="font-size:14px;padding:6px 10px;border:1px solid #DCE3ED;border-radius:8px;">
       <option value="1">Semester 1 (Mechanics, Heat)</option>
       <option value="2">Semester 2 (Electricity &amp; Magnetism)</option>
+      <option value="3">Semester 3 (Oscillations, Waves &amp; Modern Physics)</option>
     </select>
     <span style="font-size:12px;color:var(--sub);">Affects Student Practice, Question Bank and Notes only — the Research pretest/posttest always stays on the Semester 1 study set.</span>
   </div>
@@ -2004,8 +2005,65 @@ const SEM2_SEED_QUESTIONS_CH18 = [
    optionNotes:["Current decreases, not increases, as frequency rises, since impedance Z grows with XL.","","Although R itself doesn't change, the impedance Z still increases because XL grows with frequency — so the current is not constant.","A rise-then-fall (resonance-like) pattern requires a capacitor in the circuit (as in R-L-C) to create a minimum-impedance condition; a plain R-L circuit has no such peak — Z simply increases monotonically."]}
 ];
 
+const SEM3_TOPICS_CH19 = [
+  "S3-19.1 Characteristics of Simple Harmonic Motion",
+  "S3-19.2 Kinematics of Simple Harmonic Motion",
+  "S3-19.3 Energy in Simple Harmonic Motion",
+  "S3-19.4 Systems in Simple Harmonic Motion",
+  "S3-19.5 Damped Oscillation",
+  "S3-19.6 Forced Oscillation and Resonance"
+];
+
+const SEM3_TOPICS_CH20 = [
+  "S3-20.1 Progressive Waves",
+  "S3-20.2 Wave Intensity",
+  "S3-20.3 Principle of Superposition",
+  "S3-20.4 Standing Waves",
+  "S3-20.5 Electromagnetic Waves"
+];
+
+const SEM3_TOPICS_CH21 = [
+  "S3-21.1 Propagation of Sound Waves",
+  "S3-21.2 Sources of Sound",
+  "S3-21.3 Intensity Level of Sound",
+  "S3-21.4 Beat",
+  "S3-21.5 Doppler Effect"
+];
+
+const SEM3_TOPICS_CH22 = [
+  "S3-22.1 Spherical Mirrors",
+  "S3-22.2 Refraction at Spherical Surfaces",
+  "S3-22.3 Thin Lenses"
+];
+
+const SEM3_TOPICS_CH23 = [
+  "S3-23.1 Huygens's Principle",
+  "S3-23.2 Interference",
+  "S3-23.3 Two-slit Interference Pattern",
+  "S3-23.4 Interference in A Thin Film",
+  "S3-23.5 Diffraction by A Single Slit",
+  "S3-23.6 Diffraction Gratings",
+  "S3-23.7 Polarisation",
+  "S3-23.8 Optical Waveguides"
+];
+
+const SEM3_TOPICS_CH24 = [
+  "S3-24.1 Photon",
+  "S3-24.2 Wave-Particle Duality",
+  "S3-24.3 Atomic Structure",
+  "S3-24.4 X-rays",
+  "S3-24.5 Nanoscience"
+];
+
+const SEM3_TOPICS_CH25 = [
+  "S3-25.1 Nucleus",
+  "S3-25.2 Radioactivity",
+  "S3-25.3 Nuclear Reaction"
+];
+
   const TOPICS_SEM1 = TOPICS.slice();
   const TOPICS_SEM2 = [].concat(SEM2_TOPICS_CH12, SEM2_TOPICS_CH13, SEM2_TOPICS_CH14, SEM2_TOPICS_CH15, SEM2_TOPICS_CH16, SEM2_TOPICS_CH17, SEM2_TOPICS_CH18);
+  const TOPICS_SEM3 = [].concat(SEM3_TOPICS_CH19, SEM3_TOPICS_CH20, SEM3_TOPICS_CH21, SEM3_TOPICS_CH22, SEM3_TOPICS_CH23, SEM3_TOPICS_CH24, SEM3_TOPICS_CH25);
 // STAGING FILE — Semester 2 Batch 2: additional original questions calibrated
 // against real STPM 960/2 past-year exam papers (2021-2025, S2 + U2/repeat
 // forms, supplied as scanned PDFs by Cikgu Suhaili). These are freshly written
@@ -3267,10 +3325,435 @@ const SEM2_BATCH6_QUESTIONS = [
 ];
 
 
+// STAGING FILE — Semester 3 (Oscillations through Nuclear Physics) Batch 1:
+// original question bank built from the newly supplied F6 Semester 3
+// worksheets (Chapters 19-25, with answer keys) covering Oscillations,
+// Waves Motion, Sound Waves, Geometrical Optics, Wave Optics, Quantum
+// Physics and Nuclear Physics. Subtopic structure and difficulty/style
+// calibrated against the worksheets' own section headings and sample
+// questions, but every question here is freshly written with original
+// numbers, scenarios and wording — "inspired by, never verbatim" against
+// both the worksheet and any official exam material. All numeric answers
+// verified by Python calculation before being written. Two questions per
+// subtopic (35 subtopics, 70 questions) to seed the new Semester 3 bank;
+// more can be added in later batches, exactly as was done for Semester 2.
+// Note: Chapter 24 (Quantum Physics)'s worksheet mislabels its own
+// subtopics as "25.x" (a typo — the chapter header itself says
+// "Chapter 24: Quantum Physics", and the official STPM numbering has
+// Quantum Physics as chapter 24, Nuclear Physics as chapter 25). This
+// bank uses the corrected 24.x numbering for Quantum Physics throughout.
+
+
+const SEM3_SEED_QUESTIONS_CH19 = [
+  {id:"s3c19_1",topic:"S3-19.1 Characteristics of Simple Harmonic Motion",difficulty:"easy",
+   question:"Which of the following statements is true regarding a particle performing simple harmonic motion?",
+   options:["The acceleration is always directed towards the equilibrium position, and its magnitude is proportional to the displacement from that position", "The acceleration is constant throughout the motion", "The speed is maximum at the extreme positions of the motion", "The restoring force is independent of the displacement"],correctIndex:0,
+   explanation:"This is the defining characteristic of SHM: a = −ω²x, meaning the acceleration (and the restoring force producing it) is always directed back toward equilibrium and grows in proportion to how far the particle has moved away from it.",
+   optionNotes:["","The acceleration constantly changes in SHM — it is zero at equilibrium and maximum at the extremes, never constant.","Speed is actually MAXIMUM at the equilibrium position (where acceleration is zero) and ZERO at the extreme positions — this option has it backwards.","The restoring force is directly proportional to displacement (F=−kx), not independent of it — this proportionality is what makes the motion simple harmonic in the first place."]},
+  {id:"s3c19_2",topic:"S3-19.1 Characteristics of Simple Harmonic Motion",difficulty:"medium",
+   question:"A particle oscillates in simple harmonic motion between two extreme points X and Y, with O as the midpoint (equilibrium position). At which point(s) is the magnitude of the restoring force a MAXIMUM?",
+   options:["At X and Y", "At O", "Midway between O and either X or Y", "The restoring force is the same at every point of the motion"],correctIndex:0,
+   explanation:"Since F = −kx, the restoring force's magnitude is directly proportional to the displacement from equilibrium. It is therefore largest at the extreme positions X and Y (maximum displacement) and zero at the equilibrium position O.",
+   optionNotes:["","At O, the displacement is zero, so the restoring force is actually at its MINIMUM (zero) there, not its maximum.","The restoring force grows continuously with displacement — it is largest exactly at the extremes, not at some intermediate point.","The restoring force clearly varies with position (it depends directly on displacement x), so it cannot be the same everywhere in the motion."]},
+
+  {id:"s3c19_3",topic:"S3-19.2 Kinematics of Simple Harmonic Motion",difficulty:"medium",
+   question:"A particle performs SHM with amplitude 0.050 m and angular frequency 8.0 rad s⁻¹. What are its maximum velocity and maximum acceleration?",
+   options:["0.40 m s⁻¹; 3.2 m s⁻²","0.40 m s⁻¹; 0.40 m s⁻²","0.0063 m s⁻¹; 0.050 m s⁻²","3.2 m s⁻¹; 0.40 m s⁻²"],correctIndex:0,
+   explanation:"Maximum velocity: vmax = Aω = (0.050)(8.0) = 0.40 m s⁻¹. Maximum acceleration: amax = Aω² = (0.050)(8.0)² = 3.2 m s⁻².",
+   optionNotes:["","This correctly gives vmax but uses ω instead of ω² for amax.","This doesn't follow from correctly computing both vmax=Aω and amax=Aω² with the given values.","This swaps the two results — vmax and amax have been exchanged."]},
+  {id:"s3c19_4",topic:"S3-19.2 Kinematics of Simple Harmonic Motion",difficulty:"hard",
+   question:"A particle performs SHM with amplitude 0.080 m and angular frequency 4.0 rad s⁻¹. What is its speed when its displacement from equilibrium is 0.050 m? (v = ω√(A²−x²))",
+   options:["0.25 m s⁻¹","0.32 m s⁻¹","0.12 m s⁻¹","0.20 m s⁻¹"],correctIndex:0,
+   explanation:"v = ω√(A²−x²) = 4.0√(0.080²−0.050²) = 4.0√(0.0064−0.0025) = 4.0√0.0039 ≈ 4.0(0.0625) ≈ 0.25 m s⁻¹.",
+   optionNotes:["","This doesn't follow from correctly computing √(A²−x²) before multiplying by ω.","This treats A and x as if they should be added rather than combined via the square-root-of-difference-of-squares formula.","This uses (A−x) directly instead of √(A²−x²)."]},
+
+  {id:"s3c19_5",topic:"S3-19.3 Energy in Simple Harmonic Motion",difficulty:"medium",
+   question:"A particle performs SHM with amplitude A. What fraction of its total energy is KINETIC energy when its displacement from equilibrium is A/2?",
+   options:["75%","50%","25%","100%"],correctIndex:0,
+   explanation:"Total energy E = ½mω²A². Potential energy at displacement x: PE = ½mω²x². At x=A/2: PE = ½mω²(A/2)² = E/4. So KE = E − PE = E − E/4 = 3E/4 = 75% of the total energy.",
+   optionNotes:["","This would be the KE fraction at a different displacement — recheck PE=½mω²x² at x=A/2 giving PE=E/4, so KE=3E/4.","This is the PE fraction (25%) mistaken for the KE fraction — they are complementary, not equal.","All the energy is only kinetic at the equilibrium position (x=0), not at x=A/2 where some energy is still potential."]},
+  {id:"s3c19_6",topic:"S3-19.3 Energy in Simple Harmonic Motion",difficulty:"medium",
+   question:"If the amplitude of an SHM oscillator is doubled while its mass and frequency remain unchanged, by what factor does its total energy change?",
+   options:["4","2","8","16"],correctIndex:0,
+   explanation:"Total energy E = ½mω²A² ∝ A². Doubling A multiplies E by 2² = 4.",
+   optionNotes:["","This treats energy as directly proportional to A (not A²) — but E depends on the SQUARE of the amplitude, so doubling A quadruples E, not just doubles it.","This overestimates the effect — recheck that A² gives a factor of 4 (2²), not 8, when A doubles.","This would apply if E depended on A⁴, but it depends on A², so the correct factor is 4, not 16."]},
+
+  {id:"s3c19_7",topic:"S3-19.4 Systems in Simple Harmonic Motion",difficulty:"medium",
+   question:"A simple pendulum has a length of 0.90 m. What is its period of oscillation? (g = 9.81 m s⁻², T = 2π√(L/g))",
+   options:["1.9 s","0.95 s","3.8 s","0.48 s"],correctIndex:0,
+   explanation:"T = 2π√(L/g) = 2π√(0.90/9.81) ≈ 1.9 s.",
+   optionNotes:["","This is half the correct value.","This is double the correct value.","This doesn't match the correct calculation using the given length and g."]},
+  {id:"s3c19_8",topic:"S3-19.4 Systems in Simple Harmonic Motion",difficulty:"medium",
+   question:"A mass of 0.50 kg is attached to a spring of force constant 200 N m⁻¹ and set into SHM. What is the period of oscillation? (T = 2π√(m/k))",
+   options:["0.31 s","0.63 s","0.16 s","3.2 s"],correctIndex:0,
+   explanation:"T = 2π√(m/k) = 2π√(0.50/200) ≈ 0.31 s.",
+   optionNotes:["","This is double the correct value.","This is half the correct value.","This doesn't follow from correctly computing √(m/k) before multiplying by 2π."]},
+
+  {id:"s3c19_9",topic:"S3-19.5 Damped Oscillation",difficulty:"hard",
+   question:"A damped oscillator's amplitude decreases from 0.12 m to 0.075 m over 4.0 s. If the amplitude continues to decay exponentially at the same rate, what will the amplitude be after a further 4.0 s (i.e. at t = 8.0 s from the start)?",
+   options:["0.047 m","0.030 m","0.060 m","0.019 m"],correctIndex:0,
+   explanation:"Amplitude decays as A(t) = A₀e^(−bt). Since the amplitude falls by the same multiplicative factor (0.075/0.12 = 0.625) in every equal time interval, after a further 4.0 s it falls by that same factor again: 0.075 × 0.625 ≈ 0.047 m.",
+   optionNotes:["","This doesn't follow from correctly applying the same decay FACTOR (not a fixed amount) for the second 4.0 s interval.","This incorrectly extrapolates using a constant (linear) rate of decrease, rather than the correct exponential (constant-ratio) decay.","This divides the first amplitude by the ratio instead of multiplying by it a second time."]},
+  {id:"s3c19_10",topic:"S3-19.5 Damped Oscillation",difficulty:"medium",
+   question:"A lightly damped oscillator, a critically damped oscillator, and an overdamped oscillator are each displaced from equilibrium and released. Which correctly describes their subsequent behaviour?",
+   options:["The lightly damped system oscillates with decreasing amplitude; the critically damped system returns to equilibrium in the shortest time without oscillating; the overdamped system returns to equilibrium slowly without oscillating", "All three systems oscillate, but with different decay rates", "The overdamped system returns to equilibrium fastest, followed by critically damped, then lightly damped", "Only the critically damped system oscillates; the other two return to equilibrium directly"],correctIndex:0,
+   explanation:"Light damping allows continued oscillation with a slowly shrinking amplitude. Critical damping is the special boundary case that returns to equilibrium in the minimum possible time without any oscillation. Overdamping also avoids oscillation but returns to equilibrium more slowly than the critically damped case, due to the larger damping force.",
+   optionNotes:["","The critically damped and overdamped systems do NOT oscillate at all — only the lightly (under-)damped system continues to oscillate.","This has the speed ranking backwards — critically damped returns to equilibrium FASTEST among the non-oscillating cases, not the overdamped system.","It is the LIGHTLY damped system that oscillates, not the critically damped one — the critically damped case is specifically defined as the boundary where oscillation just ceases."]},
+
+  {id:"s3c19_11",topic:"S3-19.6 Forced Oscillation and Resonance",difficulty:"medium",
+   question:"A system undergoing forced oscillation shows a maximum amplitude response when the driving frequency equals its own natural frequency. What is this phenomenon called, and what role does damping play in it?",
+   options:["Resonance; increasing the damping reduces the peak amplitude and broadens the resonance curve", "Resonance; damping has no effect on the resonance peak at all", "Interference; increasing the damping sharpens and raises the resonance peak", "Beats; damping only affects the beat frequency, not the amplitude"],correctIndex:0,
+   explanation:"This phenomenon is resonance. Increasing the damping in a system reduces the maximum (peak) amplitude reached at resonance and makes the resonance curve broader (less sharply peaked) — this is why heavily damped systems show a much less dramatic resonance response than lightly damped ones.",
+   optionNotes:["","Damping strongly affects resonance — more damping reduces the peak response and broadens the curve, contrary to this option's claim of no effect.","This is resonance, not interference (which refers to superposition of waves), and damping REDUCES (not sharpens/raises) the resonance peak.","This phenomenon is resonance, not beats (which arise from superposing two close but different frequencies) — and damping affects amplitude response, not a beat frequency, in this context."]},
+  {id:"s3c19_12",topic:"S3-19.6 Forced Oscillation and Resonance",difficulty:"medium",
+   question:"A system has a natural frequency of 5.0 Hz. It is driven by an external periodic force whose frequency can be adjusted. At which driving frequency will the system's oscillation amplitude be GREATEST (assuming light damping)?",
+   options:["5.0 Hz","2.5 Hz","10 Hz","The amplitude is the same at all driving frequencies"],correctIndex:0,
+   explanation:"For a lightly damped system, the amplitude of forced oscillation is greatest when the driving frequency matches the system's own natural frequency — this is the condition for resonance.",
+   optionNotes:["","Driving at half the natural frequency does not produce the maximum amplitude response — the peak occurs specifically at (or very near) the natural frequency itself.","Driving at double the natural frequency also does not produce the maximum response, for the same reason.","The amplitude of forced oscillation varies strongly with driving frequency, peaking sharply near resonance — it is not the same at all frequencies, especially for a lightly damped system."]}
+];
+
+
+const SEM3_SEED_QUESTIONS_CH20 = [
+  {id:"s3c20_1",topic:"S3-20.1 Progressive Waves",difficulty:"medium",
+   question:"A progressive wave travels through air at 340 m s⁻¹ with a frequency of 500 Hz. What is its wavelength?",
+   options:["0.68 m","1.5 m","0.34 m","170 m"],correctIndex:0,
+   explanation:"λ = v/f = 340/500 = 0.68 m.",
+   optionNotes:["","This inverts the ratio (f/v instead of v/f).","This is half the correct value.","This doesn't follow from correctly dividing v by f."]},
+  {id:"s3c20_2",topic:"S3-20.1 Progressive Waves",difficulty:"hard",
+   question:"A progressive wave has wavelength 0.68 m. What is the phase difference between two points on the wave that are 0.25 m apart (along the direction of travel)?",
+   options:["2.3 rad (≈132°)","1.1 rad (≈66°)","4.6 rad (≈264°)","0.37 rad (≈21°)"],correctIndex:0,
+   explanation:"Phase difference = (2π/λ) × Δx = (2π/0.68)(0.25) ≈ 2.3 rad, which is about 132°.",
+   optionNotes:["","This is half the correct value.","This is double the correct value.","This doesn't follow from correctly applying phase = (2π/λ)Δx."]},
+
+  {id:"s3c20_3",topic:"S3-20.2 Wave Intensity",difficulty:"medium",
+   question:"A point source emits waves with intensity 4.0 W m⁻² at a distance of 2.0 m. What is the intensity at a distance of 6.0 m from the source, assuming the wave spreads spherically? (I ∝ 1/r²)",
+   options:["0.44 W m⁻²","1.3 W m⁻²","0.67 W m⁻²","12 W m⁻²"],correctIndex:0,
+   explanation:"I ∝ 1/r², so I2 = I1(r1/r2)² = 4.0(2.0/6.0)² = 4.0(1/9) ≈ 0.44 W m⁻².",
+   optionNotes:["","This doesn't follow from correctly squaring the distance ratio (r1/r2)² before multiplying by I1.","This uses the distance ratio directly (1/r) instead of its square (1/r²).","This incorrectly treats intensity as increasing with distance, when it should decrease for a spherically spreading wave."]},
+  {id:"s3c20_4",topic:"S3-20.2 Wave Intensity",difficulty:"medium",
+   question:"Two point sources radiate sound waves of equal power. Source P is twice as far from an observer as source Q. How does the intensity received from P compare with the intensity received from Q (assuming both spread spherically and no other losses)?",
+   options:["The intensity from P is one quarter of the intensity from Q", "The intensity from P is half the intensity from Q", "The intensity from P is the same as the intensity from Q", "The intensity from P is four times the intensity from Q"],correctIndex:0,
+   explanation:"Since I ∝ 1/r² and P is twice as far away as Q, the intensity from P is (1/2)² = 1/4 of the intensity from Q, for equal source power.",
+   optionNotes:["","This treats intensity as inversely proportional to distance (not distance squared) — but I ∝ 1/r², so doubling the distance reduces intensity to 1/4, not 1/2.","Intensity clearly depends on distance from an inverse-square-law source, so it cannot be the same for sources at different distances.","This has the ratio inverted — being FARTHER away gives a SMALLER (not larger) received intensity."]},
+
+  {id:"s3c20_5",topic:"S3-20.3 Principle of Superposition",difficulty:"medium",
+   question:"Two coherent waves travel to a point P. The path difference between them is 1.8 m, and both waves have wavelength 0.60 m. What type of interference occurs at P?",
+   options:["Constructive interference, since the path difference is exactly 3 whole wavelengths", "Destructive interference, since the path difference is not a whole number of wavelengths", "Constructive interference, since the path difference is exactly 2.5 wavelengths", "Destructive interference, since the path difference is exactly 3 wavelengths"],correctIndex:0,
+   explanation:"Path difference / wavelength = 1.8/0.60 = 3.0, a whole number. A path difference equal to a whole number of wavelengths means the waves arrive in phase, producing CONSTRUCTIVE interference at P.",
+   optionNotes:["","1.8/0.60 = 3.0 IS a whole number of wavelengths, so this option's premise (that it isn't) is incorrect — the interference is constructive, not destructive.","1.8/0.60 = 3.0, not 2.5 — recheck the division.","A whole-number path difference (3 wavelengths here) produces CONSTRUCTIVE interference, not destructive — destructive interference requires a half-integer number of wavelengths."]},
+  {id:"s3c20_6",topic:"S3-20.3 Principle of Superposition",difficulty:"easy",
+   question:"For two coherent waves to produce a stable (observable) interference pattern when superposed, what condition must they satisfy?",
+   options:["They must have the same frequency and a constant phase difference", "They must have different frequencies but the same amplitude", "They must travel in exactly opposite directions", "They must have the same amplitude but can have any frequency"],correctIndex:0,
+   explanation:"A stable, observable interference pattern requires coherent sources: waves of the SAME frequency maintaining a CONSTANT phase difference over time. Without this, the pattern of constructive and destructive interference would shift too rapidly to observe.",
+   optionNotes:["","Different frequencies would cause the phase relationship (and hence the interference pattern) to continuously shift, preventing a stable pattern from being observed.","Interference can be observed for waves travelling in many relative directions (e.g. at an angle, as in two-slit interference), not only when exactly opposite.","Equal amplitude is not the key requirement for a stable pattern (though it does affect the contrast) — a constant frequency and phase relationship is what matters most."]},
+
+  {id:"s3c20_7",topic:"S3-20.4 Standing Waves",difficulty:"medium",
+   question:"A string of length 1.2 m, fixed at both ends, carries transverse waves at 320 m s⁻¹. What is the fundamental frequency of the standing wave that can be set up on this string? (f1 = v/2L)",
+   options:["133 Hz","267 Hz","67 Hz","384 Hz"],correctIndex:0,
+   explanation:"f1 = v/(2L) = 320/(2×1.2) ≈ 133 Hz.",
+   optionNotes:["","This is double the correct value.","This is half the correct value.","This doesn't follow from correctly dividing v by 2L."]},
+  {id:"s3c20_8",topic:"S3-20.4 Standing Waves",difficulty:"medium",
+   question:"Which statement correctly distinguishes a standing (stationary) wave from a progressive wave?",
+   options:["A standing wave does not transport energy along its length, while a progressive wave does", "A standing wave has the same amplitude everywhere along its length, just like a progressive wave", "All particles in a standing wave vibrate with the same phase as all particles in a progressive wave", "A standing wave travels through the medium at the same speed as the progressive waves that formed it"],correctIndex:0,
+   explanation:"A standing wave is formed by the superposition of two progressive waves travelling in opposite directions. Unlike a progressive wave, it does not transport net energy along its length (energy is confined, oscillating between regions) and its amplitude varies with position, from zero at nodes to maximum at antinodes.",
+   optionNotes:["","A standing wave's amplitude VARIES along its length (zero at nodes, maximum at antinodes) — unlike a progressive wave, whose amplitude is uniform along its length.","In a progressive wave, each particle's phase differs from its neighbours (the phase shifts continuously along the wave). In a standing wave, particles between adjacent nodes vibrate IN phase with each other, which is a key structural difference.","A standing wave does not travel through the medium at all — it is a stationary pattern (hence the name), unlike the progressive waves that combine to form it."]},
+
+  {id:"s3c20_9",topic:"S3-20.5 Electromagnetic Waves",difficulty:"medium",
+   question:"An electromagnetic wave travelling through vacuum has an electric field amplitude of 600 V m⁻¹. What is the corresponding magnetic field amplitude? (c = 3.00×10⁸ m s⁻¹, E = cB)",
+   options:["2.0 × 10⁻⁶ T","1.8 × 10¹¹ T","5.0 × 10⁵ T","3.0 × 10⁸ T"],correctIndex:0,
+   explanation:"B = E/c = 600/(3.00×10⁸) ≈ 2.0×10⁻⁶ T.",
+   optionNotes:["","This multiplies E by c instead of dividing.","This doesn't follow from correctly dividing E by c.","This is simply the value of c itself, not the result of the calculation."]},
+  {id:"s3c20_10",topic:"S3-20.5 Electromagnetic Waves",difficulty:"easy",
+   question:"Which correctly orders these electromagnetic waves from LONGEST to SHORTEST wavelength: X-rays, radio waves, visible light, ultraviolet?",
+   options:["Radio waves, visible light, ultraviolet, X-rays", "X-rays, ultraviolet, visible light, radio waves", "Visible light, radio waves, X-rays, ultraviolet", "Ultraviolet, X-rays, radio waves, visible light"],correctIndex:0,
+   explanation:"Across the electromagnetic spectrum, wavelength decreases (and frequency/photon energy increases) in the order: radio waves (longest) → microwaves → infrared → visible light → ultraviolet → X-rays → gamma rays (shortest).",
+   optionNotes:["","This is the spectrum in reverse order — from shortest to longest wavelength, not longest to shortest as the question asks.","This ordering is not consistent with the known electromagnetic spectrum sequence.","This ordering is also inconsistent with the known electromagnetic spectrum sequence."]}
+];
+
+
+const SEM3_SEED_QUESTIONS_CH21 = [
+  {id:"s3c21_1",topic:"S3-21.1 Propagation of Sound Waves",difficulty:"medium",
+   question:"The speed of sound in air at 0°C is 331 m s⁻¹. Using v ∝ √T (where T is absolute temperature), what is the approximate speed of sound in air at 30°C?",
+   options:["349 m s⁻¹","331 m s⁻¹","364 m s⁻¹","301 m s⁻¹"],correctIndex:0,
+   explanation:"v ∝ √T (absolute temperature). v30 = v0 × √(303/273) = 331 × √1.110 ≈ 331 × 1.054 ≈ 349 m s⁻¹.",
+   optionNotes:["","This assumes no change with temperature, but the speed of sound does increase with temperature.","This overestimates the increase — recheck the square-root temperature ratio.","This incorrectly shows a decrease, when speed of sound should increase as temperature rises."]},
+  {id:"s3c21_2",topic:"S3-21.1 Propagation of Sound Waves",difficulty:"easy",
+   question:"Which statement correctly describes the nature of sound waves travelling through air?",
+   options:["Sound waves are longitudinal waves, consisting of alternating regions of compression and rarefaction", "Sound waves are transverse waves, with air particles vibrating perpendicular to the direction of travel", "Sound waves can travel through a vacuum just as effectively as through air", "Sound waves consist of a net flow of air particles from the source to the listener"],correctIndex:0,
+   explanation:"Sound is a longitudinal wave: air particles vibrate back and forth PARALLEL to the direction the wave travels, creating alternating regions of compression (particles bunched together) and rarefaction (particles spread apart).",
+   optionNotes:["","Sound waves are longitudinal, not transverse — the particle vibration is parallel to (not perpendicular to) the direction of wave travel.","Sound requires a material medium (like air) to propagate — unlike electromagnetic waves, it cannot travel through a vacuum.","Air particles oscillate back and forth about fixed average positions; they do not undergo a net flow from source to listener — only the disturbance (energy) propagates, not the particles themselves."]},
+
+  {id:"s3c21_3",topic:"S3-21.2 Sources of Sound",difficulty:"medium",
+   question:"A pipe closed at one end has a length of 0.20 m. If the speed of sound in the pipe is 340 m s⁻¹, what is its fundamental frequency? (f1 = v/4L for a closed pipe)",
+   options:["425 Hz","850 Hz","213 Hz","1700 Hz"],correctIndex:0,
+   explanation:"f1 = v/(4L) = 340/(4×0.20) = 425 Hz.",
+   optionNotes:["","This is double the correct value, as if the open-pipe formula (v/2L) were used instead of the closed-pipe formula (v/4L).","This is half the correct value.","This is four times too large."]},
+  {id:"s3c21_4",topic:"S3-21.2 Sources of Sound",difficulty:"hard",
+   question:"An open pipe of length 0.40 m carries sound at 340 m s⁻¹. A note of frequency 850 Hz is heard from this pipe. Which harmonic does this correspond to? (fn = nv/2L for an open pipe)",
+   options:["The 2nd harmonic","The 1st harmonic (fundamental)","The 3rd harmonic","The 4th harmonic"],correctIndex:0,
+   explanation:"Fundamental frequency f1 = v/(2L) = 340/(2×0.40) = 425 Hz. Since 850/425 = 2, the observed frequency is the 2nd harmonic.",
+   optionNotes:["","The fundamental (1st harmonic) is 425 Hz, not 850 Hz — the given frequency is double the fundamental, corresponding to the 2nd harmonic.","850/425 = 2, not 3 — recheck the division to find which harmonic number this corresponds to.","850/425 = 2, not 4 — recheck the division."]},
+
+  {id:"s3c21_5",topic:"S3-21.3 Intensity Level of Sound",difficulty:"medium",
+   question:"A sound wave has an intensity of 2.5×10⁻⁵ W m⁻². What is its intensity level in decibels? (I₀ = 1.0×10⁻¹² W m⁻², β = 10 log₁₀(I/I₀))",
+   options:["74 dB","25 dB","17 dB","140 dB"],correctIndex:0,
+   explanation:"β = 10 log₁₀(I/I₀) = 10 log₁₀(2.5×10⁻⁵/1.0×10⁻¹²) = 10 log₁₀(2.5×10⁷) ≈ 10(7.40) ≈ 74 dB.",
+   optionNotes:["","This doesn't follow from correctly computing log₁₀(2.5×10⁷) and multiplying by 10.","This is simply the exponent-related figure without the full correct logarithm calculation.","This roughly doubles the correct value, from a possible slip in the logarithm or the multiplying factor."]},
+  {id:"s3c21_6",topic:"S3-21.3 Intensity Level of Sound",difficulty:"hard",
+   question:"A single source produces a sound intensity level of 60 dB at a certain point. If a SECOND identical source (doubling the total intensity) is added at the same point, what is the new intensity level?",
+   options:["63 dB","120 dB","66 dB","61.5 dB"],correctIndex:0,
+   explanation:"Doubling the intensity adds 10 log₁₀(2) ≈ 3.0 dB to the intensity level (since β increases by 10 log₁₀(I2/I1) = 10 log₁₀2). New level = 60 + 3.0 = 63 dB.",
+   optionNotes:["","Decibels do not simply double when intensity doubles — the logarithmic scale means doubling intensity adds only about 3 dB, not doubling the dB value.","This overestimates the increase — doubling intensity adds 10log₁₀(2)≈3dB, not 6dB.","This underestimates the increase slightly — recheck that 10log₁₀(2)≈3.0dB, not 1.5dB."]},
+
+  {id:"s3c21_7",topic:"S3-21.4 Beat",difficulty:"medium",
+   question:"Two tuning forks, of frequencies 440 Hz and 444 Hz, are sounded together. What beat frequency is heard?",
+   options:["4 Hz","442 Hz","884 Hz","2 Hz"],correctIndex:0,
+   explanation:"Beat frequency = |f1 − f2| = |440 − 444| = 4 Hz.",
+   optionNotes:["","This is the AVERAGE of the two frequencies, not the beat frequency (which is their difference).","This is the SUM of the two frequencies, not the beat frequency.","This is half the correct beat frequency."]},
+  {id:"s3c21_8",topic:"S3-21.4 Beat",difficulty:"easy",
+   question:"Beats are produced when two sound waves of slightly different frequencies are superposed. What physically causes the perceived periodic rising and falling of loudness?",
+   options:["The two waves repeatedly drift in and out of phase with each other, alternately interfering constructively and destructively", "The two separate frequencies are heard as a single tone whose pitch rapidly alternates between the two original frequencies", "One of the two waves is completely absorbed and re-emitted periodically by the air", "The amplitude of each individual wave physically changes over time due to the presence of the other wave"],correctIndex:0,
+   explanation:"Because the two waves have slightly different frequencies, their relative phase continuously drifts. At moments when they're in phase, the waves add constructively (loud); at moments when they're out of phase, they largely cancel (quiet) — this periodic alternation is heard as the 'beating' loudness pattern.",
+   optionNotes:["","Beats are a loudness (amplitude) effect from interference, not a perceived rapid switching of pitch between the two original frequencies — the ear still perceives roughly the average frequency, with the LOUDNESS fluctuating.","Beats arise purely from wave superposition, not from any physical process of absorption and re-emission of one wave by the air.","The two individual source waves' own amplitudes do not change — it is the RESULTANT (superposed) amplitude at a given point that varies as their phase relationship drifts, creating the beat pattern."]},
+
+  {id:"s3c21_9",topic:"S3-21.5 Doppler Effect",difficulty:"medium",
+   question:"A source emitting sound of frequency 500 Hz moves towards a stationary observer at 20 m s⁻¹. The speed of sound in air is 340 m s⁻¹. What frequency does the observer hear? (f' = fv/(v−vs))",
+   options:["531 Hz","472 Hz","500 Hz","560 Hz"],correctIndex:0,
+   explanation:"f' = fv/(v−vs) = (500)(340)/(340−20) = 170000/320 ≈ 531 Hz.",
+   optionNotes:["","This uses the formula for a source moving AWAY (v+vs in the denominator), not towards the observer.","This is the unshifted original frequency, ignoring the Doppler effect entirely.","This doesn't follow from correctly computing fv/(v−vs) with the given values."]},
+  {id:"s3c21_10",topic:"S3-21.5 Doppler Effect",difficulty:"medium",
+   question:"A stationary source emits sound of frequency 500 Hz. An observer moves towards the source at 15 m s⁻¹, with the speed of sound in air at 340 m s⁻¹. What frequency does the observer hear? (f' = f(v+vo)/v)",
+   options:["522 Hz","478 Hz","500 Hz","515 Hz"],correctIndex:0,
+   explanation:"f' = f(v+vo)/v = 500(340+15)/340 = 500(355)/340 ≈ 522 Hz.",
+   optionNotes:["","This uses the formula for an observer moving AWAY (v−vo in the numerator), not towards the source.","This is the unshifted original frequency, ignoring the Doppler effect entirely.","This doesn't follow from correctly computing f(v+vo)/v with the given values."]}
+];
+
+
+const SEM3_SEED_QUESTIONS_CH22 = [
+  {id:"s3c22_1",topic:"S3-22.1 Spherical Mirrors",difficulty:"medium",
+   question:"An object is placed 15 cm in front of a concave mirror of focal length 10 cm. What are the image distance and the linear magnification? (1/v + 1/u = 1/f, m = −v/u)",
+   options:["30 cm (real); magnification −2.0", "30 cm (virtual); magnification +2.0", "6.0 cm (real); magnification −0.4", "6.0 cm (virtual); magnification +0.4"],correctIndex:0,
+   explanation:"1/v = 1/f − 1/u = 1/10 − 1/15 = (3−2)/30 = 1/30, so v = 30 cm (positive, meaning a real image in front of the mirror). Magnification m = −v/u = −30/15 = −2.0 (inverted, magnified).",
+   optionNotes:["","The image distance is correct, but a positive v for a concave mirror (using this sign convention) corresponds to a REAL image, not virtual.","This doesn't follow from correctly computing 1/v=1/f−1/u with the given focal length and object distance.","This also doesn't follow from the correct calculation, and has the wrong image nature."]},
+  {id:"s3c22_2",topic:"S3-22.1 Spherical Mirrors",difficulty:"hard",
+   question:"A concave mirror has a radius of curvature R. An object is placed at a distance of 2R from the mirror. What is the linear magnification of the image formed?",
+   options:["1/3","1","3","1/2"],correctIndex:0,
+   explanation:"Focal length f = R/2. Object distance u = 2R. 1/v = 1/f − 1/u = 2/R − 1/(2R) = 4/(2R) − 1/(2R) = 3/(2R), so v = 2R/3. Magnification |m| = v/u = (2R/3)/(2R) = 1/3.",
+   optionNotes:["","This would be the magnification only if the object were placed exactly at the centre of curvature itself (u=R, not 2R).","This overestimates the magnification — recheck the mirror formula with u=2R and f=R/2.","This doesn't follow from the correct calculation using f=R/2 and u=2R."]},
+
+  {id:"s3c22_3",topic:"S3-22.2 Refraction at Spherical Surfaces",difficulty:"medium",
+   question:"A spherical drop of water (refractive index 4/3) has a diameter of 4.0 mm. Treating the far surface as a simple spherical refracting surface viewed from outside along the axis, what is the approximate focal length of this water drop, measured from its centre? (Use f = nR/(n−1) for a single refracting sphere acting as a simple thick lens, as a rough single-surface estimate)",
+   options:["8 mm","6 mm","4 mm","2 mm"],correctIndex:0,
+   explanation:"Using f = nR/(n−1) with n=4/3 and R=2.0 mm (the radius): f = (4/3)(2.0)/((4/3)−1) = (8/3)/(1/3) = 8 mm.",
+   optionNotes:["","This doesn't follow from correctly substituting n=4/3 and R=2.0mm into f=nR/(n−1).","This is the diameter value, not the correctly calculated focal length.","This is simply the radius value, not the result of the focal length formula."]},
+  {id:"s3c22_4",topic:"S3-22.2 Refraction at Spherical Surfaces",difficulty:"hard",
+   question:"Light travels from a medium of refractive index n1 into a medium of refractive index n2 across a spherical boundary. Which general relation correctly connects the object distance u, image distance v, and the radius of curvature R of the boundary (using the standard real-is-positive convention for this formula)?",
+   options:["n1/u + n2/v = (n2−n1)/R", "n1/v + n2/u = (n2−n1)/R", "n1/u − n2/v = (n2−n1)/R", "n1u + n2v = (n2−n1)R"],correctIndex:0,
+   explanation:"The standard refraction-at-a-spherical-surface equation is n1/u + n2/v = (n2−n1)/R, relating the object and image distances (measured according to the sign convention used) to the refractive indices of the two media and the radius of curvature of the surface.",
+   optionNotes:["","This swaps u and v relative to their correct positions (and correct associated refractive indices) in the standard formula.","This uses subtraction where the standard formula uses addition for n1/u and n2/v.","This formula incorrectly multiplies rather than divides by u, v and R — the correct relation involves reciprocals of distances, not the distances directly."]},
+
+  {id:"s3c22_5",topic:"S3-22.3 Thin Lenses",difficulty:"medium",
+   question:"An object is placed 30 cm in front of a thin convex lens of focal length 20 cm. What are the image distance and magnification? (1/v − 1/u = 1/f with u negative for a real object, or equivalently 1/v + 1/u = 1/f for all-positive real-is-positive convention; m = −v/u in the latter convention)",
+   options:["60 cm (real); magnification −2.0", "60 cm (virtual); magnification +2.0", "12 cm (real); magnification −0.4", "12 cm (virtual); magnification +0.4"],correctIndex:0,
+   explanation:"Using 1/v = 1/f − 1/u = 1/20 − 1/30 = (3−2)/60 = 1/60, so v = 60 cm (positive, a real image on the far side of the lens). Magnification m = −v/u = −60/30 = −2.0 (inverted, magnified).",
+   optionNotes:["","The image distance is correct, but a positive v here (real-is-positive convention) corresponds to a REAL image, not virtual.","This doesn't follow from correctly computing 1/v=1/f−1/u with the given focal length and object distance.","This also doesn't follow from the correct calculation, and has the wrong image nature."]},
+  {id:"s3c22_6",topic:"S3-22.3 Thin Lenses",difficulty:"hard",
+   question:"Two thin convex lenses, of focal lengths 25 cm and 40 cm, are placed in contact. What is the focal length of the combination? (1/f = 1/f1 + 1/f2)",
+   options:["15.4 cm","65 cm","32.5 cm","10 cm"],correctIndex:0,
+   explanation:"1/f = 1/f1 + 1/f2 = 1/25 + 1/40 = 0.040 + 0.025 = 0.065, so f = 1/0.065 ≈ 15.4 cm.",
+   optionNotes:["","This simply adds the two focal lengths directly, rather than correctly combining their RECIPROCALS (powers) and then inverting the result.","This is the average of the two focal lengths, which is not how combined lens power works.","This doesn't follow from correctly computing 1/f1+1/f2 and then inverting."]}
+];
+
+
+const SEM3_SEED_QUESTIONS_CH23 = [
+  {id:"s3c23_1",topic:"S3-23.1 Huygens's Principle",difficulty:"easy",
+   question:"According to Huygens's Principle, how is the propagation of a wavefront explained?",
+   options:["Every point on a wavefront acts as a source of secondary spherical wavelets, and the new wavefront is the envelope (tangent surface) of these wavelets a short time later", "Every point on a wavefront emits a single ray that travels in a perfectly straight line until it hits an obstacle", "A wavefront moves forward only because of the medium's own internal pressure gradient, unrelated to secondary wave sources", "Each wavefront is a rigid, unchanging shape that simply translates forward without regenerating itself"],correctIndex:0,
+   explanation:"Huygens's Principle states that every point on an existing wavefront can be regarded as a source of secondary spherical wavelets; the new wavefront position, a short time later, is found as the envelope (common tangent surface) of all these secondary wavelets. This principle is used to explain reflection, refraction, and diffraction.",
+   optionNotes:["","This describes simple ray-tracing, not Huygens's Principle, which specifically involves secondary wavelets spreading from every point and their envelope forming the new wavefront.","Huygens's Principle is a general geometric construction that applies to waves in any medium (including electromagnetic waves in vacuum); it is not based on internal pressure gradients specific to a material medium.","Huygens's Principle explicitly describes the wavefront as being regenerated at every point via new secondary wavelets, not as a rigid, unchanging shape."]},
+  {id:"s3c23_2",topic:"S3-23.1 Huygens's Principle",difficulty:"medium",
+   question:"A point source of light is very far away, so that an observer nearby receives what is effectively a plane wave. What is the shape of the wavefronts reaching the observer, according to Huygens's construction?",
+   options:["Approximately flat (planar), since the small region observed is a tiny part of a sphere of very large radius", "Perfectly spherical, with a small, clearly noticeable radius of curvature", "Perfectly flat everywhere, regardless of distance from any source", "Cubic in shape, due to the geometric nature of Huygens's secondary wavelets"],correctIndex:0,
+   explanation:"A point source produces spherical wavefronts. However, when the source is very far away, the small region of a wavefront that reaches a local observer is only a tiny fraction of an enormous sphere — so locally, it appears essentially flat (planar), which is the standard approximation used for distant sources like the Sun or a laser far from its source.",
+   optionNotes:["","A noticeably spherical wavefront only occurs close to the source — far from the source, the curvature over any small region becomes negligible, making the wavefront appear essentially flat.","Wavefronts from a point source are only exactly flat in the idealised limit of infinite distance — near the source, they are genuinely (and noticeably) spherical, not flat 'regardless of distance'.","Huygens's secondary wavelets are spherical, and their envelope (the resulting wavefront) takes a shape determined by the source geometry and distance — there is no cubic wavefront shape in standard wave optics."]},
+
+  {id:"s3c23_3",topic:"S3-23.2 Interference",difficulty:"medium",
+   question:"At a point where two coherent light waves arrive having travelled a path difference equal to exactly 2.5 wavelengths, what type of interference occurs?",
+   options:["Destructive interference, since 2.5 is a half-integer number of wavelengths", "Constructive interference, since 2.5 is close to a whole number", "Neither — no interference occurs for a non-integer path difference", "It depends on the wavelength of the light used, not just the number of wavelengths"],correctIndex:0,
+   explanation:"A path difference equal to a half-integer number of wavelengths (0.5λ, 1.5λ, 2.5λ, etc.) means the two waves arrive exactly out of phase, producing destructive interference (a dark fringe, for light).",
+   optionNotes:["","2.5 wavelengths is NOT close enough to a whole number to be treated as constructive — it is precisely a half-integer value, which is the exact condition for destructive interference.","Interference occurs for ANY path difference between coherent waves — it is simply constructive, destructive, or somewhere in between, never 'no interference'.","The TYPE of interference (constructive vs destructive) depends only on the path difference measured IN UNITS OF wavelength (i.e. the ratio), not on the specific wavelength value itself — a path difference of exactly 2.5λ is always destructive, for any wavelength λ."]},
+  {id:"s3c23_4",topic:"S3-23.2 Interference",difficulty:"easy",
+   question:"Why can two independent light bulbs, both producing the same colour of light, NOT produce an observable, stable interference pattern?",
+   options:["Because they are not coherent — their light waves have no fixed, constant phase relationship with each other", "Because light bulbs do not emit waves at all, only discrete particles", "Because the two bulbs necessarily emit light of different wavelengths", "Because interference can only occur between waves of different types, such as light and sound"],correctIndex:0,
+   explanation:"Two independent light sources emit light from vast numbers of independently-radiating atoms, with rapidly and randomly changing relative phase. Without a constant phase relationship (coherence), any interference pattern shifts too rapidly to be observed — this is why two-slit experiments use a SINGLE source split into two, ensuring coherence.",
+   optionNotes:["","Light does have a wave nature (as demonstrated by diffraction and interference phenomena) — this isn't the actual reason two independent bulbs fail to interfere observably.","Two bulbs of the 'same colour' can certainly emit light of the same wavelength — the issue is the lack of a CONSTANT phase relationship, not necessarily different wavelengths.","Interference is a general wave phenomenon that can occur between waves of the SAME type (e.g. light with light, sound with sound) — it is not restricted to combining different types of waves, and indeed requires the same type of wave to interfere."]},
+
+  {id:"s3c23_5",topic:"S3-23.3 Two-slit Interference Pattern",difficulty:"medium",
+   question:"In a Young's double-slit experiment, light of wavelength 600 nm falls on two slits separated by 0.30 mm, with a screen 1.5 m away. What is the fringe spacing?",
+   options:["3.0 mm","1.5 mm","6.0 mm","0.75 mm"],correctIndex:0,
+   explanation:"Fringe spacing Δy = λD/d = (600×10⁻⁹)(1.5)/(0.30×10⁻³) = 3.0×10⁻³ m = 3.0 mm.",
+   optionNotes:["","This is half the correct value.","This is double the correct value.","This is a quarter of the correct value."]},
+  {id:"s3c23_6",topic:"S3-23.3 Two-slit Interference Pattern",difficulty:"hard",
+   question:"In a two-slit experiment, a fringe spacing of 2.4 mm is observed on a screen 2.0 m from slits separated by 0.50 mm. What is the wavelength of the light used?",
+   options:["600 nm","480 nm","240 nm","1200 nm"],correctIndex:0,
+   explanation:"Rearranging Δy=λD/d: λ = Δy·d/D = (2.4×10⁻³)(0.50×10⁻³)/(2.0) = 6.0×10⁻⁷ m = 600 nm.",
+   optionNotes:["","This doesn't follow from correctly rearranging Δy=λD/d to solve for λ.","This is 2.5 times too small, consistent with a decimal-place slip.","This is double the correct value."]},
+
+  {id:"s3c23_7",topic:"S3-23.4 Interference in A Thin Film",difficulty:"hard",
+   question:"A thin soap film (refractive index 1.33) in air has a thickness of 120 nm. Accounting for the phase reversal that occurs upon reflection at only the top (air-to-film) surface, for what wavelength does the film show destructive interference in reflected light (lowest order, m=1)? (2nt = mλ)",
+   options:["319 nm","160 nm","638 nm","240 nm"],correctIndex:0,
+   explanation:"For a film with a phase reversal at only ONE surface, the condition for DESTRUCTIVE interference (minimum reflection) is 2nt = mλ. With m=1: λ = 2nt = 2(1.33)(120×10⁻⁹) ≈ 319×10⁻⁹ m = 319 nm.",
+   optionNotes:["","This is about half the correct value, as if the factor of 2 (from the round trip through the film) were omitted.","This is double the correct value.","This doesn't match the correct calculation using 2nt with the given thickness and refractive index."]},
+  {id:"s3c23_8",topic:"S3-23.4 Interference in A Thin Film",difficulty:"medium",
+   question:"Why do thin films such as soap bubbles or oil slicks on water display colourful, shifting patterns rather than a single uniform colour?",
+   options:["Because the film's thickness varies slightly from place to place, so the wavelength that interferes constructively (and is strongly reflected) also varies from place to place", "Because the film material itself is coloured and simply reflects its own natural colour", "Because thin films only ever reflect a single, fixed wavelength everywhere, which happens to look multicoloured to the human eye", "Because the surrounding air refracts white light into a rainbow before it even reaches the film"],correctIndex:0,
+   explanation:"The interference condition (constructive or destructive) for a thin film depends on the film's thickness. Since real thin films (soap bubbles, oil slicks) have thickness that varies slightly across their surface, different wavelengths are reinforced (reflected strongly) at different points — producing the familiar shifting, colourful interference pattern as thickness and viewing angle change.",
+   optionNotes:["","Soap films and oil slicks are themselves colourless/transparent — the colours arise entirely from the thickness-dependent interference effect, not from any intrinsic pigment in the film material.","The whole point of the colourful pattern is that DIFFERENT wavelengths are reflected strongly at different points of varying thickness — it is not a single fixed wavelength everywhere.","The colour effect originates from interference within the thin film itself, based on its thickness, not from the surrounding air acting as a separate prism-like refracting element."]},
+
+  {id:"s3c23_9",topic:"S3-23.5 Diffraction by A Single Slit",difficulty:"medium",
+   question:"Light of wavelength 600 nm passes through a single slit of width 2.0×10⁻⁶ m. At what angle does the first diffraction minimum occur? (a sinθ = mλ)",
+   options:["17.5°","8.7°","35°","5.0°"],correctIndex:0,
+   explanation:"sinθ = mλ/a = (1)(600×10⁻⁹)/(2.0×10⁻⁶) = 0.30, so θ = sin⁻¹(0.30) ≈ 17.5°.",
+   optionNotes:["","This is about half the correct angle.","This is about double the correct angle.","This doesn't follow from correctly computing sin⁻¹(λ/a) with the given values."]},
+  {id:"s3c23_10",topic:"S3-23.5 Diffraction by A Single Slit",difficulty:"medium",
+   question:"If the width of a single slit is DECREASED while the wavelength of light used stays the same, what happens to the width of the central diffraction maximum observed on a distant screen?",
+   options:["It becomes wider", "It becomes narrower", "It stays exactly the same width", "It disappears completely"],correctIndex:0,
+   explanation:"From a sinθ = λ (for the first minimum), a smaller slit width a means a larger angle θ is needed to reach the first minimum — meaning the central bright band spreads out more widely. Narrower slits produce MORE pronounced (wider-spreading) diffraction patterns.",
+   optionNotes:["","This has the relationship backwards — decreasing the slit width INCREASES the diffraction angle (and hence the spread of the central maximum), it does not narrow it.","The width of the diffraction pattern clearly depends on the slit width via sinθ=λ/a — it does not stay the same when the slit width changes.","Diffraction (and the resulting pattern) does not disappear as the slit narrows — if anything, the diffraction effect becomes MORE pronounced and visible for narrower slits, not less."]},
+
+  {id:"s3c23_11",topic:"S3-23.6 Diffraction Gratings",difficulty:"medium",
+   question:"A diffraction grating has 500 lines per millimetre. Sodium light of wavelength 589 nm is used. At what angle is the second-order (m=2) maximum observed? (d sinθ = mλ)",
+   options:["36.1°","18.0°","72.1°","9.0°"],correctIndex:0,
+   explanation:"d = 1/(500 lines/mm) = 2.0×10⁻⁶ m. sinθ = mλ/d = 2(589×10⁻⁹)/(2.0×10⁻⁶) = 0.589, so θ = sin⁻¹(0.589) ≈ 36.1°.",
+   optionNotes:["","This is about half the correct angle.","This is about double the correct angle.","This doesn't follow from correctly computing sin⁻¹(2λ/d) with the given grating spacing and wavelength."]},
+  {id:"s3c23_12",topic:"S3-23.6 Diffraction Gratings",difficulty:"hard",
+   question:"A diffraction grating has a slit spacing of 2.0×10⁻⁶ m. Light of wavelength 589 nm is used. What is the HIGHEST order of diffraction maximum that can be observed with this grating? (sinθ cannot exceed 1)",
+   options:["3rd order (m=3)","4th order (m=4)","2nd order (m=2)","5th order (m=5)"],correctIndex:0,
+   explanation:"The maximum order occurs when sinθ=1: mmax = d/λ = (2.0×10⁻⁶)/(589×10⁻⁹) ≈ 3.4. Since m must be a whole number and cannot exceed this value, the highest observable order is m=3.",
+   optionNotes:["","d/λ ≈ 3.4, which must be rounded DOWN (not up) to the nearest whole number, since sinθ cannot exceed 1 — so m=4 is not achievable.","This underestimates the maximum achievable order — recheck that d/λ≈3.4, so m=3 is achievable (just under the limit), not only m=2.","This substantially overestimates the maximum achievable order."]},
+
+  {id:"s3c23_13",topic:"S3-23.7 Polarisation",difficulty:"medium",
+   question:"Unpolarised light of intensity 100 W m⁻² passes through a polariser, then through a second polariser (analyser) whose transmission axis is at 30° to the first. What is the intensity of light transmitted through the SECOND polariser? (Assume the first polariser transmits half the original intensity; apply Malus's Law, I = I₀cos²θ, to the already-polarised light reaching the second polariser)",
+   options:["37.5 W m⁻²","50 W m⁻²","75 W m⁻²","25 W m⁻²"],correctIndex:0,
+   explanation:"After the first polariser: I1 = 100/2 = 50 W m⁻² (now linearly polarised). Applying Malus's Law for the second polariser: I2 = I1cos²(30°) = 50×(0.866)² = 50×0.75 = 37.5 W m⁻².",
+   optionNotes:["","This is just the intensity after the FIRST polariser, without applying Malus's Law for the second polariser's 30° angle.","This doesn't follow from correctly applying cos²(30°)=0.75 to the 50 W m⁻² reaching the second polariser.","This is half the correct final intensity."]},
+  {id:"s3c23_14",topic:"S3-23.7 Polarisation",difficulty:"hard",
+   question:"At what angle of incidence (the Brewster angle) does light reflected from a glass surface (refractive index 1.50) become completely polarised, when the light travels from air (n=1.00) onto the glass? (tanθB = n2/n1)",
+   options:["56.3°","33.7°","48.6°","41.4°"],correctIndex:0,
+   explanation:"θB = tan⁻¹(n2/n1) = tan⁻¹(1.50/1.00) = tan⁻¹(1.50) ≈ 56.3°.",
+   optionNotes:["","This is the complementary angle (90°−56.3°), from a possible confusion in applying the arctangent.","This doesn't follow from correctly computing tan⁻¹(1.50).","This doesn't match the correct calculation using the given refractive indices."]},
+
+  {id:"s3c23_15",topic:"S3-23.8 Optical Waveguides",difficulty:"medium",
+   question:"An optical fibre has a core of refractive index 1.50 and a cladding of refractive index 1.45. What is the critical angle for total internal reflection at the core-cladding boundary? (θc = sin⁻¹(n2/n1))",
+   options:["75.2°","43.6°","60.0°","30.0°"],correctIndex:0,
+   explanation:"θc = sin⁻¹(ncladding/ncore) = sin⁻¹(1.45/1.50) ≈ 75.2°.",
+   optionNotes:["","This doesn't follow from correctly computing sin⁻¹(1.45/1.50).","This is a common 'round' angle that doesn't match the actual calculation here.","This also doesn't match the correct calculation with the given refractive indices."]},
+  {id:"s3c23_16",topic:"S3-23.8 Optical Waveguides",difficulty:"easy",
+   question:"For an optical fibre to successfully guide light along its length via total internal reflection, what condition must be satisfied?",
+   options:["The refractive index of the core must be GREATER than the refractive index of the cladding, and light must strike the core-cladding boundary at an angle greater than the critical angle", "The refractive index of the core must be LESS than the refractive index of the cladding", "The light must strike the core-cladding boundary at an angle smaller than the critical angle", "The core and cladding must have exactly the same refractive index for total internal reflection to occur"],correctIndex:0,
+   explanation:"Total internal reflection (the basis of fibre-optic light guiding) requires light travelling in the denser medium (the core, with the higher refractive index) to strike the boundary with the less dense medium (the cladding) at an angle of incidence GREATER than the critical angle for that interface.",
+   optionNotes:["","This has the refractive index relationship backwards — the core must have the HIGHER refractive index (not lower) than the cladding for total internal reflection to be possible at all.","Striking the boundary at an angle SMALLER than the critical angle would result in the light partially REFRACTING OUT of the fibre, not being totally internally reflected — the angle must be greater than the critical angle, not smaller.","If the core and cladding had the same refractive index, there would be no boundary effect at all (no critical angle, no total internal reflection) — a DIFFERENCE in refractive index, with the core higher, is essential."]}
+];
+
+
+const SEM3_SEED_QUESTIONS_CH24 = [
+  {id:"s3c24_1",topic:"S3-24.1 Photon",difficulty:"medium",
+   question:"What is the energy of a photon of light with wavelength 450 nm? (h = 6.63×10⁻³⁴ J s, c = 3.00×10⁸ m s⁻¹)",
+   options:["4.42 × 10⁻¹⁹ J","2.21 × 10⁻¹⁹ J","6.63 × 10⁻³⁴ J","1.47 × 10⁻²⁷ J"],correctIndex:0,
+   explanation:"E = hc/λ = (6.63×10⁻³⁴)(3.00×10⁸)/(450×10⁻⁹) ≈ 4.42×10⁻¹⁹ J.",
+   optionNotes:["","This is half the correct value.","This is simply Planck's constant, h, not the calculated photon energy.","This doesn't follow from correctly computing hc/λ with the given wavelength."]},
+  {id:"s3c24_2",topic:"S3-24.1 Photon",difficulty:"hard",
+   question:"In a photoelectric experiment, light of frequency 7.0×10¹⁴ Hz falls on a metal surface with work function 2.3 eV. What is the maximum kinetic energy of the emitted photoelectrons? (h = 6.63×10⁻³⁴ J s, 1 eV = 1.60×10⁻¹⁹ J; KEmax = hf − φ)",
+   options:["0.60 eV","2.90 eV","2.30 eV","5.20 eV"],correctIndex:0,
+   explanation:"Photon energy hf = (6.63×10⁻³⁴)(7.0×10¹⁴)/(1.60×10⁻¹⁹) ≈ 2.90 eV. Maximum kinetic energy KEmax = hf − φ = 2.90 − 2.3 = 0.60 eV.",
+   optionNotes:["","This is just the photon energy hf, without subtracting the work function φ.","This is just the work function, not the resulting maximum kinetic energy.","This adds hf and φ instead of subtracting them."]},
+
+  {id:"s3c24_3",topic:"S3-24.2 Wave-Particle Duality",difficulty:"medium",
+   question:"What is the de Broglie wavelength of an electron (mass 9.11×10⁻³¹ kg) moving at 3.0×10⁶ m s⁻¹? (h = 6.63×10⁻³⁴ J s, λ = h/(mv))",
+   options:["2.4 × 10⁻¹⁰ m","7.3 × 10⁻¹⁰ m","1.2 × 10⁻¹⁰ m","4.8 × 10⁻¹⁰ m"],correctIndex:0,
+   explanation:"λ = h/(mv) = (6.63×10⁻³⁴)/[(9.11×10⁻³¹)(3.0×10⁶)] ≈ 2.4×10⁻¹⁰ m.",
+   optionNotes:["","This doesn't follow from correctly dividing h by the product mv.","This is half the correct value.","This is double the correct value."]},
+  {id:"s3c24_4",topic:"S3-24.2 Wave-Particle Duality",difficulty:"easy",
+   question:"Which TWO phenomena, taken together, provide the clearest evidence that light (and matter) exhibits BOTH wave-like and particle-like behaviour?",
+   options:["Diffraction/interference (wave behaviour) and the photoelectric effect (particle behaviour)", "Reflection and refraction, both of which only ever demonstrate wave behaviour", "The photoelectric effect alone, which demonstrates both wave and particle behaviour simultaneously", "Diffraction alone, which demonstrates only particle behaviour"],correctIndex:0,
+   explanation:"Diffraction and interference patterns (e.g. in Young's double-slit experiment) can only be explained if light behaves as a WAVE. The photoelectric effect (instantaneous emission with a frequency-dependent, not intensity-dependent, threshold) can only be explained if light behaves as discrete PARTICLES (photons). Together, these two phenomena demonstrate light's wave-particle duality.",
+   optionNotes:["","Reflection and refraction can actually be explained reasonably well using EITHER a wave model or a simple particle (ray) model — they don't uniquely demonstrate wave behaviour the way diffraction/interference do, and so are less definitive evidence for duality.","The photoelectric effect by itself demonstrates ONLY the particle nature of light; it needs to be paired with a wave phenomenon like diffraction to demonstrate duality (both behaviours together).","Diffraction by itself demonstrates ONLY the wave nature of light, not particle behaviour — it needs to be paired with a particle phenomenon like the photoelectric effect to show duality."]},
+
+  {id:"s3c24_5",topic:"S3-24.3 Atomic Structure",difficulty:"hard",
+   question:"In the Bohr model of hydrogen, the energy of level n is En = −13.6/n² eV. What is the energy (and hence wavelength) of the photon emitted when an electron falls from n=2 to n=1?",
+   options:["10.2 eV; ≈122 nm","3.4 eV; ≈365 nm","13.6 eV; ≈91 nm","6.8 eV; ≈183 nm"],correctIndex:0,
+   explanation:"E1 = −13.6 eV, E2 = −13.6/4 = −3.4 eV. Energy released = E2−E1 = −3.4−(−13.6) = 10.2 eV. Using E=hc/λ: λ = hc/E ≈ 122 nm (in the ultraviolet).",
+   optionNotes:["","This is the magnitude of E2 alone, not the energy DIFFERENCE between the two levels.","This is the magnitude of E1 alone (the ground state energy), not the transition energy.","This doesn't match the correct difference E2−E1 = 10.2 eV."]},
+  {id:"s3c24_6",topic:"S3-24.3 Atomic Structure",difficulty:"easy",
+   question:"Why do excited atoms of a particular element emit light only at certain specific, discrete wavelengths (forming a line spectrum), rather than a continuous range of wavelengths?",
+   options:["Because electrons in an atom can only occupy discrete, quantised energy levels, so transitions between them release photons of only specific, fixed energies", "Because the atom's electrons move in continuously varying orbits, randomly releasing any amount of energy", "Because only a few electrons in the atom are capable of emitting light at all", "Because the atom's nucleus directly controls which colours of light can be emitted, independent of the electrons"],correctIndex:0,
+   explanation:"In the Bohr model (and quantum mechanics more generally), an atom's electrons can only occupy specific, quantised energy levels. When an electron transitions between two particular levels, it emits (or absorbs) a photon with an energy exactly equal to the difference between those two levels — since only certain energy differences are possible, only certain specific wavelengths of light are emitted, producing a line spectrum.",
+   optionNotes:["","This is the opposite of the correct explanation — it is precisely because electron orbits/energies are NOT continuously variable (they are quantised/discrete) that only specific wavelengths are emitted.","All of an atom's electrons can, in principle, be involved in transitions that emit light — the discreteness of the spectrum comes from the quantisation of energy LEVELS, not from only some electrons being capable of emission.","It is the atom's ELECTRONS (their energy level transitions) that determine the emitted wavelengths, not the nucleus directly controlling colour."]},
+
+  {id:"s3c24_7",topic:"S3-24.4 X-rays",difficulty:"medium",
+   question:"An X-ray tube operates at a potential difference of 25 kV between its cathode and anode. What is the minimum wavelength of X-rays produced? (h = 6.63×10⁻³⁴ J s, c = 3.00×10⁸ m s⁻¹, e = 1.60×10⁻¹⁹ C; λmin = hc/(eV))",
+   options:["5.0 × 10⁻¹¹ m","2.5 × 10⁻¹¹ m","1.0 × 10⁻¹⁰ m","7.5 × 10⁻¹¹ m"],correctIndex:0,
+   explanation:"λmin = hc/(eV) = (6.63×10⁻³⁴)(3.00×10⁸)/[(1.60×10⁻¹⁹)(25000)] ≈ 5.0×10⁻¹¹ m.",
+   optionNotes:["","This is half the correct value.","This is double the correct value.","This is 1.5 times the correct value."]},
+  {id:"s3c24_8",topic:"S3-24.4 X-rays",difficulty:"hard",
+   question:"A beam of X-rays strikes a crystal and produces a first-order (m=1) diffraction maximum at a glancing angle of 15°. If the interplanar spacing of the crystal is 2.8×10⁻¹⁰ m, what is the wavelength of the X-rays? (nλ = 2d sinθ)",
+   options:["1.45 × 10⁻¹⁰ m","2.90 × 10⁻¹⁰ m","0.72 × 10⁻¹⁰ m","5.40 × 10⁻¹⁰ m"],correctIndex:0,
+   explanation:"λ = 2d sinθ/n = 2(2.8×10⁻¹⁰)sin(15°)/1 ≈ 1.45×10⁻¹⁰ m.",
+   optionNotes:["","This is double the correct value, as if the factor of 2 (from Bragg's law) were applied twice or the division step were skipped.","This is half the correct value.","This doesn't follow from correctly applying nλ=2d sinθ with the given angle and spacing."]},
+
+  {id:"s3c24_9",topic:"S3-24.5 Nanoscience",difficulty:"medium",
+   question:"As the physical size of a semiconductor particle is reduced to the nanoscale (quantum confinement regime), what typically happens to its electronic energy levels and optical properties?",
+   options:["The energy levels become more widely spaced and discrete, and the effective bandgap increases, shifting optical absorption/emission towards shorter wavelengths (higher energy)", "The energy levels merge into an unbroken continuum, identical to the bulk material", "The particle's electronic properties become completely independent of its size", "The bandgap decreases, shifting optical absorption/emission towards longer wavelengths (lower energy), regardless of how small the particle becomes"],correctIndex:0,
+   explanation:"Quantum confinement: as a semiconductor particle shrinks toward the nanoscale, the allowed electron energy levels become more widely and discretely spaced (similar to how a smaller 'particle in a box' has more widely spaced energy levels), effectively increasing the bandgap. This shifts the particle's characteristic absorption and emission toward shorter wavelengths (e.g., this is why quantum dots of different sizes glow in different colours).",
+   optionNotes:["","This is backwards — at the nanoscale, discrete QUANTUM effects become MORE pronounced (not merging into a continuum); the continuum of energy levels is characteristic of BULK material, not nanoscale particles.","Nanoscale particles are specifically notable BECAUSE their electronic and optical properties become strongly size-dependent — this is the central feature of nanoscience, not something that becomes irrelevant.","This has the trend backwards — quantum confinement typically INCREASES the effective bandgap as particle size decreases, shifting emission toward SHORTER (not longer) wavelengths."]},
+  {id:"s3c24_10",topic:"S3-24.5 Nanoscience",difficulty:"easy",
+   question:"Why does reducing a material's particle size down to the nanoscale often dramatically change its chemical reactivity?",
+   options:["Because the surface-area-to-volume ratio increases dramatically as particle size decreases, exposing a much larger proportion of atoms at the reactive surface", "Because nanoscale particles contain fewer atoms overall, making each individual atom somehow more reactive", "Because nanoscale particles are not subject to the same laws of chemistry as bulk materials", "Because reducing particle size always increases the material's melting point, which directly causes higher reactivity"],correctIndex:0,
+   explanation:"As a particle's size decreases, its surface-area-to-volume ratio increases sharply (surface area scales as the square of a characteristic length, volume as the cube, so the ratio scales as 1/length). This means a much larger fraction of a nanoparticle's atoms sit at or near its surface, where they are more exposed and available for chemical reactions — explaining the dramatically enhanced reactivity often seen at the nanoscale.",
+   optionNotes:["","Individual atoms do not become intrinsically 'more reactive' at the nanoscale — rather, a LARGER FRACTION of the total atoms are positioned at the exposed surface, where reaction can occur, which is a geometric/structural effect, not a change in each atom's inherent nature.","Nanoscale particles obey the same fundamental laws of chemistry and physics as bulk materials — the different behaviour arises from quantum and surface effects becoming significant at small scales, not from an exemption from normal chemistry.","Reducing particle size to the nanoscale often actually DECREASES melting point (not increases it) due to surface energy effects, and melting point is not the direct cause of enhanced reactivity — the surface-area-to-volume ratio is."]}
+];
+
+
+const SEM3_SEED_QUESTIONS_CH25 = [
+  {id:"s3c25_1",topic:"S3-25.1 Nucleus",difficulty:"medium",
+   question:"The nuclide copper-64 is represented as ₂₉⁶⁴Cu. What is the number of protons and neutrons in this nucleus?",
+   options:["29 protons, 35 neutrons","29 protons, 64 neutrons","35 protons, 29 neutrons","64 protons, 29 neutrons"],correctIndex:0,
+   explanation:"The subscript (29) gives the atomic number Z (number of protons). The mass number A (64) is the total number of nucleons, so the number of neutrons N = A − Z = 64 − 29 = 35.",
+   optionNotes:["","This confuses the mass number (64) with the neutron count directly, rather than computing N=A−Z=35.","This swaps the proton and neutron counts — the subscript 29 IS the proton number, not the neutron number.","This treats the mass number (64) as if it were the proton number, which is incorrect — the proton number is given by the subscript, 29."]},
+  {id:"s3c25_2",topic:"S3-25.1 Nucleus",difficulty:"hard",
+   question:"Using the empirical relation R = R₀A^(1/3) (with R₀ a constant), a nucleus with mass number 64 has a radius R. What is the radius of a nucleus with mass number 216, in terms of R?",
+   options:["1.5R","3R","1.2R","2R"],correctIndex:0,
+   explanation:"R ∝ A^(1/3). Ratio = (216/64)^(1/3) = (3.375)^(1/3) = 1.5. So the new radius is 1.5R.",
+   optionNotes:["","This doesn't follow from correctly taking the cube root of the mass number ratio (216/64=3.375, and 3.375^(1/3)=1.5).","This treats the relationship as if radius were directly proportional to mass number (not its cube root).","This underestimates the correct scaling factor — recheck that (216/64)^(1/3) = 1.5, not 1.2."]},
+
+  {id:"s3c25_3",topic:"S3-25.2 Radioactivity",difficulty:"medium",
+   question:"A radioactive sample has a half-life of 8.0 days. What fraction of the original sample remains after 28 days?",
+   options:["8.8%","12.5%","3.5%","25%"],correctIndex:0,
+   explanation:"Fraction remaining = (1/2)^(t/T½) = (1/2)^(28/8) = (0.5)^3.5 ≈ 0.088, or 8.8%.",
+   optionNotes:["","This would be the fraction remaining after exactly 3 half-lives (24 days), not after 28 days (3.5 half-lives) — the extra half-life interval reduces it further.","This doesn't follow from correctly computing (0.5)^3.5 using the given time and half-life.","This would be the fraction remaining after exactly 2 half-lives (16 days), not 28 days."]},
+  {id:"s3c25_4",topic:"S3-25.2 Radioactivity",difficulty:"hard",
+   question:"A radioactive isotope has a half-life of 12.0 years. A sample initially contains 2.0×10¹⁶ undecayed nuclei. What is the initial activity of this sample, in decays per second? (λ = ln2/T½; A = λN)",
+   options:["3.7 × 10⁷ decays s⁻¹","1.2 × 10¹⁵ decays s⁻¹","1.7 × 10¹⁵ decays s⁻¹","6.0 × 10¹⁴ decays s⁻¹"],correctIndex:0,
+   explanation:"Half-life in seconds: 12.0 × 365 × 24 × 3600 ≈ 3.78×10⁸ s. Decay constant λ = ln2/T½ ≈ 1.83×10⁻⁹ s⁻¹. Activity A = λN = (1.83×10⁻⁹)(2.0×10¹⁶) ≈ 3.7×10⁷ decays s⁻¹.",
+   optionNotes:["","This doesn't follow from correctly converting the half-life to seconds before computing λ and then A=λN.","This doesn't match the correct calculation — recheck the unit conversion from years to seconds.","This also doesn't match the correct calculation using the properly converted half-life."]},
+
+  {id:"s3c25_5",topic:"S3-25.3 Nuclear Reaction",difficulty:"hard",
+   question:"An oxygen-16 nucleus (atomic mass 15.994915 u) is made of 8 protons and 8 neutrons. Using the atomic mass of hydrogen-1 (1.007825 u, representing a proton plus its orbital electron) and the mass of a neutron (1.008665 u), what is the binding energy per nucleon of oxygen-16? (1 u = 931.5 MeV)",
+   options:["7.98 MeV","127.6 MeV","15.96 MeV","3.99 MeV"],correctIndex:0,
+   explanation:"Mass defect Δm = 8(1.007825) + 8(1.008665) − 15.994915 = 8.0626 + 8.0693 − 15.994915 ≈ 0.1370 u. Total binding energy = 0.1370 × 931.5 ≈ 127.6 MeV. Binding energy PER NUCLEON = 127.6/16 ≈ 7.98 MeV.",
+   optionNotes:["","This is the TOTAL binding energy for the whole nucleus, not the binding energy PER NUCLEON (which divides by the mass number, 16).","This doesn't follow from correctly computing the mass defect and total binding energy before dividing by 16 nucleons.","This is half the correct per-nucleon value."]},
+  {id:"s3c25_6",topic:"S3-25.3 Nuclear Reaction",difficulty:"medium",
+   question:"In a certain nuclear reaction, the total mass of the products is 0.0239 u less than the total mass of the reactants. How much energy is released in this reaction? (1 u = 931.5 MeV)",
+   options:["22.3 MeV","9.3 MeV","44.6 MeV","0.0239 MeV"],correctIndex:0,
+   explanation:"Energy released = Δm × 931.5 = 0.0239 × 931.5 ≈ 22.3 MeV (from E=Δmc², using the convenient conversion 1u=931.5 MeV).",
+   optionNotes:["","This doesn't follow from correctly multiplying the mass defect (in u) by the conversion factor 931.5 MeV/u.","This is double the correct value.","This simply restates the mass defect in u without converting it to an energy value using E=Δmc²."]}
+];
+
   const SEED_QUESTIONS_SEM2 = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18, SEM2_BATCH2_QUESTIONS, SEM2_BATCH3_QUESTIONS, SEM2_BATCH4_QUESTIONS, SEM2_BATCH5_QUESTIONS, SEM2_BATCH6_QUESTIONS);
-  const ALL_SEED_QUESTIONS = SEED_QUESTIONS.concat(SEED_QUESTIONS_SEM2);
+  const SEED_QUESTIONS_SEM3 = [].concat(SEM3_SEED_QUESTIONS_CH19, SEM3_SEED_QUESTIONS_CH20, SEM3_SEED_QUESTIONS_CH21, SEM3_SEED_QUESTIONS_CH22, SEM3_SEED_QUESTIONS_CH23, SEM3_SEED_QUESTIONS_CH24, SEM3_SEED_QUESTIONS_CH25);
+  const ALL_SEED_QUESTIONS = SEED_QUESTIONS.concat(SEED_QUESTIONS_SEM2, SEED_QUESTIONS_SEM3);
   let currentSemester = '1';
-  function topicsForSemester(sem){ return sem === '2' ? TOPICS_SEM2 : TOPICS_SEM1; }
+  function topicsForSemester(sem){ return sem === '2' ? TOPICS_SEM2 : sem === '3' ? TOPICS_SEM3 : TOPICS_SEM1; }
 
   function applySemester(sem){
     currentSemester = sem;
