@@ -2509,8 +2509,260 @@ const SEM2_BATCH3_QUESTIONS = [
    optionNotes:["","This is the complementary angle (90°−37°), from inverting the ratio XC/R to R/XC before taking the inverse tangent.","This doesn't follow from tan⁻¹(30/40).","This would apply only if XC equalled R exactly (tanφ=1), which isn't the case here."]}
 ];
 
+// STAGING FILE — Semester 2 Batch 4: further original questions, drawing on
+// additional pages sampled from the real STPM 960/2 past-year papers
+// (S2024, U2022, U2023 forms) not yet used in Batches 1-3. Fresh themes
+// spotted: equilibrium-point charge placement, cancelling potentials from
+// equal/opposite charges, concentric opposing coils, Wheatstone-bridge-style
+// voltmeter readings, velocity-selector speed, Hall-voltage calculation,
+// self-inductance from solenoid dimensions, and R-L series impedance.
+// All freshly written, never copied, with original numbers; every numeric
+// answer verified by a Python calculation before inclusion.
+// One question per Semester 2 subtopic (34 total) — merges with
+// SEED_QUESTIONS_SEM2 + BATCH2 + BATCH3 (170 questions already there).
 
-  const SEED_QUESTIONS_SEM2 = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18, SEM2_BATCH2_QUESTIONS, SEM2_BATCH3_QUESTIONS);
+const SEM2_BATCH4_QUESTIONS = [
+  // --- 12.1 Coulomb's Law ---
+  {id:"s2b4_01",topic:"S2-12.1 Coulomb's Law",difficulty:"medium",
+   question:"A charge +Q is fixed at x = 0 and a charge +4Q is fixed at x = 3d, both on the x-axis. At what point between them should a small positive test charge be placed so that it experiences zero net force?",
+   options:["x = d","x = 1.5d","x = 2d","x = 2.5d"],correctIndex:0,
+   explanation:"For zero net force, the test charge must be equidistant in a 'field-matching' sense from both charges: Q/x² = 4Q/(3d−x)². Taking square roots, 1/x = 2/(3d−x), so 3d−x = 2x, giving 3d = 3x, so x = d (closer to the smaller charge, as expected).",
+   optionNotes:["","This is the exact geometric midpoint, which is NOT where the forces balance since the charges are unequal.","This doesn't satisfy 1/x = 2/(3d−x) when substituted.","This also doesn't satisfy the balance condition — it's too close to the larger charge."]},
+
+  // --- 12.2 Electric Field ---
+  {id:"s2b4_02",topic:"S2-12.2 Electric Field",difficulty:"easy",
+   question:"Which statement about electric field lines is correct?",
+   options:["The density of field lines in a region indicates the relative strength of the field there", "Field lines can cross each other at points where the field is weak", "Field lines always originate on negative charges and terminate on positive charges", "The tangent to a field line always gives the velocity of any charge placed on it"],correctIndex:0,
+   explanation:"Field lines are drawn so that their spacing reflects field strength — closely spaced lines indicate a strong field, widely spaced lines a weak one. This is why field-line diagrams are useful for visualizing field strength variation, not just direction.",
+   optionNotes:["","Field lines never cross, anywhere — if they did, the field would have two directions at that point, which is physically impossible (except at a point of exactly zero field, where direction is undefined, not where two lines genuinely cross).","Field lines originate on POSITIVE charges and terminate on negative charges, not the reverse.","The tangent to a field line gives the direction of the ELECTRIC FIELD (or force on a positive charge) at that point, not necessarily the velocity of a moving charge, which depends on its full motion history."]},
+
+  // --- 12.3 Gauss's Law ---
+  {id:"s2b4_03",topic:"S2-12.3 Gauss's Law",difficulty:"medium",
+   question:"A point charge +Q is located just OUTSIDE a closed spherical surface (the charge is not enclosed). What is the net electric flux through this closed surface?",
+   options:["Zero", "Q/ε₀, the same as if the charge were enclosed", "Q/(2ε₀), half the enclosed value", "It depends on how close the charge is to the surface"],correctIndex:0,
+   explanation:"Gauss's law states that the net flux through a closed surface depends only on the charge ENCLOSED by that surface. Field lines from a charge outside the surface enter and exit the surface an equal number of times, so their net contribution to the flux is zero.",
+   optionNotes:["","This value applies only when the charge IS enclosed by the surface — here it is not, so the flux is zero, not Q/ε₀.","There is no 'half' rule in Gauss's law based on a charge being outside a surface — the flux from an unenclosed charge is exactly zero, not a fraction of the enclosed value.","The net flux through a closed surface from an external charge is always exactly zero, regardless of how close that charge is to the surface — only enclosed charge matters."]},
+
+  // --- 12.4 Electric Potential ---
+  {id:"s2b4_04",topic:"S2-12.4 Electric Potential",difficulty:"medium",
+   question:"A charge of +2.0 µC and a charge of −2.0 µC are each placed 3.0 cm from a point P (both charges the same distance from P, on opposite sides). What is the total electric potential at P due to both charges?",
+   options:["0 V","+1.2 × 10⁶ V","−1.2 × 10⁶ V","5.99 × 10⁵ V"],correctIndex:0,
+   explanation:"Potential is a scalar: V = kq/r for each charge, with V₁ = k(2.0×10⁻⁶)/0.03 ≈ +5.99×10⁵ V and V₂ = k(−2.0×10⁻⁶)/0.03 ≈ −5.99×10⁵ V (same magnitude since equal distance and equal magnitude charge). These cancel exactly: V₁ + V₂ = 0.",
+   optionNotes:["","This value doesn't correspond to any correct combination of the two potentials, which must cancel exactly by symmetry.","Likewise, this doesn't follow from correctly summing two equal-magnitude, opposite-sign potentials.","This is the magnitude of EACH individual potential, not their (zero) sum — remember potential is a scalar, so equal and opposite contributions cancel completely."]},
+
+  // --- 13.1 Capacitance ---
+  {id:"s2b4_05",topic:"S2-13.1 Capacitance",difficulty:"easy",
+   question:"A parallel plate capacitor's plate separation is halved, while the plate area and the dielectric between them remain unchanged. By what factor does its capacitance change?",
+   options:["It doubles","It halves","It stays the same","It quadruples"],correctIndex:0,
+   explanation:"C = εA/d. Since C is inversely proportional to d, halving d doubles C (with A and ε unchanged).",
+   optionNotes:["","This has the relationship backwards — reducing the separation INCREASES capacitance, since C ∝ 1/d.","Capacitance is affected by plate separation — reducing d is not without effect on C.","Since C ∝ 1/d (not 1/d²), halving d only doubles C, it does not quadruple it."]},
+
+  // --- 13.2 Parallel Plate Capacitors ---
+  {id:"s2b4_06",topic:"S2-13.2 Parallel Plate Capacitors",difficulty:"medium",
+   question:"A parallel plate capacitor has plate area 4.0 cm² and carries a charge of 3.0 nC. What is the magnitude of the electric field strength between the plates? (ε₀ = 8.85×10⁻¹² F m⁻¹; assume a vacuum/air gap, E = σ/ε₀)",
+   options:["8.5 × 10⁵ V m⁻¹","4.2 × 10⁵ V m⁻¹","1.7 × 10⁶ V m⁻¹","3.4 × 10³ V m⁻¹"],correctIndex:0,
+   explanation:"Surface charge density σ = Q/A = (3.0×10⁻⁹)/(4.0×10⁻⁴) = 7.5×10⁻⁶ C m⁻². Then E = σ/ε₀ = (7.5×10⁻⁶)/(8.85×10⁻¹²) ≈ 8.5×10⁵ V m⁻¹.",
+   optionNotes:["","This is half the correct value.","This is double the correct value.","This is a hundred times too small, consistent with forgetting to convert cm² to m² in the area."]},
+
+  // --- 13.3 Dielectrics ---
+  {id:"s2b4_07",topic:"S2-13.3 Dielectrics",difficulty:"medium",
+   question:"An ISOLATED charged capacitor (disconnected from any battery, so its charge Q stays constant) has a dielectric of relative permittivity 3 inserted between its plates. By what factor does the energy stored change?",
+   options:["It decreases to one third of its original value", "It increases to three times its original value", "It stays exactly the same", "It decreases to one ninth of its original value"],correctIndex:0,
+   explanation:"With Q held constant (isolated capacitor), energy = Q²/(2C). Inserting the dielectric increases C by a factor of 3, so the energy decreases by the same factor, to one third of its original value.",
+   optionNotes:["","Energy DECREASES for an isolated (constant-charge) capacitor when a dielectric is inserted, because C increases while Q is fixed — this is the opposite of the battery-connected (constant-voltage) case, where energy increases.","The energy is not unaffected — it changes because the relationship E=Q²/(2C) depends on C, which does change when the dielectric is inserted.","Energy ∝ 1/C (for fixed Q), and C increases by a factor of 3 (not 9), so the energy decreases to 1/3, not 1/9."]},
+
+  // --- 13.4 Capacitors in Series and in Parallel ---
+  {id:"s2b4_08",topic:"S2-13.4 Capacitors in Series and in Parallel",difficulty:"hard",
+   question:"Two identical capacitors, each of capacitance C, are connected in series. This series pair is then connected in parallel with a third identical capacitor C. What is the equivalent capacitance of the whole combination, in terms of C?",
+   options:["1.5C","0.5C","3C","0.67C"],correctIndex:0,
+   explanation:"Two capacitors C in series give C/(1+1) = C/2. This series combination (C/2) in parallel with the third capacitor C gives C/2 + C = 1.5C.",
+   optionNotes:["","This is just the series pair's capacitance (C/2) alone, without adding the third parallel capacitor.","This would be the equivalent if all three capacitors were simply in series, which is not this configuration.","This doesn't follow from correctly combining C/2 (series pair) in parallel with C (third capacitor)."]},
+
+  // --- 13.5 Energy Stored in a Charged Capacitor ---
+  {id:"s2b4_09",topic:"S2-13.5 Energy Stored in a Charged Capacitor",difficulty:"medium",
+   question:"A 2.0 µF capacitor is charged to 10 V, and separately a 4.0 µF capacitor is charged to 5.0 V. What is the TOTAL energy stored in the two capacitors before they are connected to each other?",
+   options:["150 µJ","100 µJ","50 µJ","250 µJ"],correctIndex:0,
+   explanation:"E₁ = ½C₁V₁² = ½(2.0×10⁻⁶)(10²) = 100 µJ. E₂ = ½C₂V₂² = ½(4.0×10⁻⁶)(5.0²) = 50 µJ. Total = 100 + 50 = 150 µJ.",
+   optionNotes:["","This is only the energy stored in the first capacitor (100 µJ), missing the second capacitor's contribution.","This is only the energy stored in the second capacitor (50 µJ), missing the first capacitor's contribution.","This doesn't match the sum of the two individually-calculated energies."]},
+
+  // --- 13.6 Charging and Discharging of a Capacitor ---
+  {id:"s2b4_10",topic:"S2-13.6 Charging and Discharging of a Capacitor",difficulty:"easy",
+   question:"A capacitor of capacitance 500 µF is connected in series with a 2.0 kΩ resistor. What is the time constant of this RC circuit?",
+   options:["1.0 s","0.5 s","2.0 s","4.0 s"],correctIndex:0,
+   explanation:"Time constant τ = RC = (2000)(500×10⁻⁶) = 1.0 s.",
+   optionNotes:["","This doesn't follow from correctly multiplying R (in ohms) by C (in farads).","This would result from using half the resistance or half the capacitance value given.","This would result from doubling R or C incorrectly before multiplying."]},
+
+  // --- 14.1 Conduction of Electricity ---
+  {id:"s2b4_11",topic:"S2-14.1 Conduction of Electricity",difficulty:"medium",
+   question:"As the temperature of a metal conductor increases, its resistivity increases mainly because",
+   options:["increased thermal vibration of the lattice ions causes more frequent collisions with free electrons, impeding their drift", "the number density of free electrons, n, decreases significantly with temperature", "the charge on each free electron decreases at higher temperature", "free electrons escape from the metal entirely at higher temperatures, reducing the current"],correctIndex:0,
+   explanation:"In a metal, the free electron density n is essentially constant with temperature. What changes is that the fixed positive ions vibrate more vigorously about their lattice positions as temperature rises, scattering the drifting electrons more frequently and reducing their mean drift velocity for a given field — this is what increases resistivity.",
+   optionNotes:["","The free electron density in a metal does not significantly decrease with temperature in this way — n is approximately constant over normal temperature ranges for a metal.","The electron's charge (e) is a fundamental constant and does not change with temperature.","Free electrons do not escape the metal due to ordinary heating within normal operating temperatures — this is not the mechanism behind increased resistivity."]},
+
+  // --- 14.2 Drift Velocity ---
+  {id:"s2b4_12",topic:"S2-14.2 Drift Velocity",difficulty:"medium",
+   question:"A wire carries a fixed current I. If the wire's diameter is doubled (keeping the same material and the same current I), what happens to the drift velocity of the free electrons?",
+   options:["It decreases to one quarter of its original value", "It decreases to half its original value", "It stays the same", "It increases to four times its original value"],correctIndex:0,
+   explanation:"vd = I/(neA). Doubling the diameter quadruples the cross-sectional area A (since A ∝ diameter²). With I and n fixed, vd ∝ 1/A, so vd decreases to one quarter of its original value.",
+   optionNotes:["","This would be correct if area doubled (not quadrupled) — but area depends on diameter SQUARED, so doubling the diameter quadruples the area.","The drift velocity does change — a wider wire allows the same current to be carried by a slower average drift, since more electrons cross any section per second even at lower speed.","This has the relationship backwards — a LARGER cross-sectional area means a SLOWER required drift velocity for the same current, not faster."]},
+
+  // --- 14.3 Current Density ---
+  {id:"s2b4_13",topic:"S2-14.3 Current Density",difficulty:"medium",
+   question:"A wire of cross-sectional area 0.50 mm² carries a current of 2.0 A. What is the current density in the wire?",
+   options:["4.0 × 10⁶ A m⁻²","4.0 × 10⁴ A m⁻²","2.5 × 10⁻¹ A m⁻²","4.0 × 10⁸ A m⁻²"],correctIndex:0,
+   explanation:"J = I/A = 2.0/(0.50×10⁻⁶) = 4.0×10⁶ A m⁻² (remembering to convert mm² to m²: 0.50 mm² = 0.50×10⁻⁶ m²).",
+   optionNotes:["","This is a hundred times too small, consistent with a unit-conversion slip (treating mm² as cm² rather than correctly converting to m²).","This is the reciprocal relationship applied incorrectly.","This is a hundred times too large, the opposite unit-conversion slip."]},
+
+  // --- 14.4 Electric Conductivity and Resistivity ---
+  {id:"s2b4_14",topic:"S2-14.4 Electric Conductivity and Resistivity",difficulty:"medium",
+   question:"Wire A has length L and cross-sectional area A. Wire B, made of the SAME material, has length 2L and cross-sectional area A/2. What is the ratio of their resistances, R_B : R_A?",
+   options:["4 : 1","2 : 1","1 : 1","8 : 1"],correctIndex:0,
+   explanation:"R = ρL/A. For wire A: R_A = ρL/A. For wire B: R_B = ρ(2L)/(A/2) = 4ρL/A = 4R_A. So R_B : R_A = 4 : 1.",
+   optionNotes:["","This only accounts for the length doubling, missing that the area is also halved, which further increases resistance.","This doesn't follow from correctly combining both the doubled length AND the halved area, both of which increase resistance.","This overestimates the combined effect — recheck that R ∝ L/A gives a factor of 2×2=4, not 2×4=8."]},
+
+  // --- 15.1 Internal Resistance ---
+  {id:"s2b4_15",topic:"S2-15.1 Internal Resistance",difficulty:"medium",
+   question:"Four identical dry cells, each of EMF 1.5 V and internal resistance 0.25 Ω, are connected in series to an external resistor of 5.0 Ω. What is the power dissipated in the external resistor?",
+   options:["5.0 W","3.8 W","4.5 W","6.0 W"],correctIndex:0,
+   explanation:"Total EMF = 4 × 1.5 = 6.0 V. Total internal resistance = 4 × 0.25 = 1.0 Ω. Current I = 6.0/(5.0+1.0) = 1.0 A. Power in external resistor = I²R = (1.0)²(5.0) = 5.0 W.",
+   optionNotes:["","This doesn't follow from correctly computing the total EMF, total internal resistance, current, and then power — recheck each step.","This doesn't match the calculation using the correctly combined series EMF and internal resistance.","This would be the power delivered by the whole circuit (EMF×I = 6.0×1.0), not the power dissipated in just the external resistor."]},
+
+  // --- 15.2 Kirchhoff's Laws ---
+  {id:"s2b4_16",topic:"S2-15.2 Kirchhoff's Laws",difficulty:"hard",
+   question:"A 6.0 V battery (negligible internal resistance) is connected to two parallel branches: branch 1 has a 20 Ω resistor in series with a 10 Ω resistor; branch 2 has a 15 Ω resistor in series with a 15 Ω resistor. An ideal voltmeter is connected between the midpoint of branch 1 (point P, between the 20 Ω and 10 Ω resistors) and the midpoint of branch 2 (point Q, between the two 15 Ω resistors). What does the voltmeter read?",
+   options:["1.0 V","0.5 V","2.0 V","3.0 V"],correctIndex:0,
+   explanation:"Each branch acts as its own potential divider across the full 6.0 V. Branch 1: VP (across the 10 Ω resistor) = 6.0 × 10/30 = 2.0 V. Branch 2: VQ (across one 15 Ω resistor) = 6.0 × 15/30 = 3.0 V. The ideal voltmeter reads the difference: VQ − VP = 3.0 − 2.0 = 1.0 V.",
+   optionNotes:["","This is half the correct reading.","This is double the correct reading.","This would be VQ alone, not the difference VQ − VP that the voltmeter between the two midpoints actually reads."]},
+
+  // --- 15.3 Potential Divider ---
+  {id:"s2b4_17",topic:"S2-15.3 Potential Divider",difficulty:"easy",
+   question:"A 12 V supply is connected across a potential divider made of an 800 Ω resistor (R1) in series with a 400 Ω resistor (R2). What is the output voltage taken across R2?",
+   options:["4.0 V","6.0 V","8.0 V","3.0 V"],correctIndex:0,
+   explanation:"Vout = V × R2/(R1+R2) = 12 × 400/1200 = 4.0 V.",
+   optionNotes:["","This is the voltage that would result if R1 and R2 were equal, which they are not here.","This is the voltage across R1 instead of R2 (12 × 800/1200 = 8.0 V).","This doesn't follow from correctly applying the potential-divider formula with the given resistor values."]},
+
+  // --- 15.4 Potentiometer and Wheatstone Bridge ---
+  {id:"s2b4_18",topic:"S2-15.4 Potentiometer and Wheatstone Bridge",difficulty:"medium",
+   question:"A Wheatstone bridge is balanced with resistors R1 = 8.0 Ω, R2 = 4.0 Ω and R3 = 12 Ω in three of its arms (arranged so that, at balance, R1/R2 = R3/R4). What value of R4 balances the bridge?",
+   options:["6.0 Ω","24 Ω","3.0 Ω","16 Ω"],correctIndex:0,
+   explanation:"At balance, R1/R2 = R3/R4, so R4 = R3×R2/R1 = (12×4.0)/8.0 = 6.0 Ω.",
+   optionNotes:["","This doesn't follow from correctly rearranging the balance condition R1/R2 = R3/R4 to solve for R4.","This inverts the balance ratio before solving, giving too large a value.","This underestimates R4 — recheck the rearrangement of the balance condition."]},
+
+  // --- 16.1 Concept of a Magnetic Field ---
+  {id:"s2b4_19",topic:"S2-16.1 Concept of a Magnetic Field",difficulty:"hard",
+   question:"Two concentric circular coils, of radii 3r and 5r, carry currents I1 and I2 respectively, wound so that their fields at the common centre oppose each other. If the net magnetic field strength at the centre is zero, what is the value of I1/I2?",
+   options:["3/5","5/3","9/25","1"],correctIndex:0,
+   explanation:"Field at the centre of a circular coil of radius R carrying current I is B = μ₀I/(2R). Setting the two (opposing) contributions equal: μ₀I1/(2×3r) = μ₀I2/(2×5r), which simplifies to I1/(3r) = I2/(5r), giving I1/I2 = 3/5.",
+   optionNotes:["","This is the ratio inverted — recheck which coil (the smaller or larger radius) needs the smaller current to balance the field.","This squares the radius ratio, but the centre-field formula depends on radius to the first power only, not its square.","The currents cannot be equal here, since the coils have different radii and therefore need different currents to produce equal and opposite fields at the centre."]},
+
+  // --- 16.2 Force on a Moving Charge ---
+  {id:"s2b4_20",topic:"S2-16.2 Force on a Moving Charge",difficulty:"medium",
+   question:"An electron enters a velocity selector where the electric field strength is 3.0×10⁴ V m⁻¹ and the magnetic field strength is 0.015 T, both perpendicular to each other and to the electron's velocity. The electron passes straight through undeflected. What is the electron's speed?",
+   options:["2.0 × 10⁶ m s⁻¹","4.5 × 10² m s⁻¹","2.0 × 10⁻⁴ m s⁻¹","5.0 × 10⁻⁷ m s⁻¹"],correctIndex:0,
+   explanation:"For the electron to pass straight through, the electric and magnetic forces must balance: eE = evB, so v = E/B = (3.0×10⁴)/(0.015) = 2.0×10⁶ m s⁻¹.",
+   optionNotes:["","This divides B by E instead of E by B.","This is far too small a speed — recheck the division of E by B with the given values.","This doesn't follow from correctly dividing E by B."]},
+
+  // --- 16.3 Force on a Current-Carrying Conductor ---
+  {id:"s2b4_21",topic:"S2-16.3 Force on a Current-Carrying Conductor",difficulty:"medium",
+   question:"A straight wire carrying a current of 20 A flows due east, within a uniform magnetic field of 2.0 T directed into the page. The length of wire within the field is 0.15 m. What is the magnitude of the force on this section of wire?",
+   options:["6.0 N","3.0 N","12 N","0.60 N"],correctIndex:0,
+   explanation:"F = BIL = (2.0)(20)(0.15) = 6.0 N (the wire is perpendicular to the field, so no sinθ factor is needed; by the right-hand rule the force direction is toward the north).",
+   optionNotes:["","This is half the correct value.","This is double the correct value.","This is a tenth of the correct value, from a decimal-place slip."]},
+
+  // --- 16.4 Magnetic Fields Due to Currents ---
+  {id:"s2b4_22",topic:"S2-16.4 Magnetic Fields Due to Currents",difficulty:"medium",
+   question:"Which statement correctly describes how the magnetic field strength B varies with perpendicular distance r from a long, straight current-carrying wire?",
+   options:["B is inversely proportional to r — the graph of B against r is a curve that falls steeply at small r and approaches (but never reaches) zero at large r", "B is directly proportional to r — the graph is a straight line through the origin", "B is independent of r — the graph is a horizontal line", "B is inversely proportional to r² — the graph falls even more steeply than a simple 1/r curve"],correctIndex:0,
+   explanation:"B = μ₀I/(2πr), so B ∝ 1/r. This produces a hyperbola-like curve: very large (in principle) as r→0, falling off steeply at first and then more gradually, asymptotically approaching zero as r increases, but never actually reaching zero.",
+   optionNotes:["","A straight line through the origin describes a DIRECT proportion, but B decreases (not increases) with r for a straight wire — this describes the wrong relationship entirely.","B clearly depends on r — it is not constant, since the formula B=μ₀I/(2πr) has r explicitly in the denominator.","The relationship is B ∝ 1/r (inverse-linear), not 1/r² (inverse-square) — that stronger falloff applies to different situations, such as the field far from a magnetic dipole, not a long straight wire."]},
+
+  // --- 16.5 Force Between Two Current-Carrying Conductors ---
+  {id:"s2b4_23",topic:"S2-16.5 Force Between Two Current-Carrying Conductors",difficulty:"hard",
+   question:"Two long, parallel wires each carry a current of 5.0 A in OPPOSITE directions, separated by a distance of 8.0 cm. What is the force on a 0.40 m length of one wire due to the other?",
+   options:["2.5 × 10⁻⁵ N, repulsive","2.5 × 10⁻⁵ N, attractive","1.25 × 10⁻⁵ N, repulsive","5.0 × 10⁻⁵ N, repulsive"],correctIndex:0,
+   explanation:"F = μ₀I1I2L/(2πd) = (4π×10⁻⁷)(5.0)(5.0)(0.40)/(2π×0.08) = 2.5×10⁻⁵ N. Currents in OPPOSITE directions repel each other (unlike currents in the same direction, which attract).",
+   optionNotes:["","The magnitude 2.5×10⁻⁵ N is correct, but the direction is wrong — currents flowing in OPPOSITE directions repel each other, they do not attract.","This is half the correct magnitude.","This is double the correct magnitude."]},
+
+  // --- 16.6 Determination of the Ratio e/m ---
+  {id:"s2b4_24",topic:"S2-16.6 Determination of the Ratio e/m",difficulty:"hard",
+   question:"In Thomson's method for determining e/m, crossed electric and magnetic fields are first adjusted so the electron beam travels in a straight, undeflected line, before one field is removed to measure the deflection. What is the purpose of this initial 'balanced fields' step?",
+   options:["To determine the electrons' speed from v = E/B, which is needed to calculate e/m from the subsequent deflection measurement", "To measure the charge of the electron directly, independent of its mass", "To eliminate the effect of gravity on the electron beam", "To ensure the magnetic field is exactly zero before taking any measurements"],correctIndex:0,
+   explanation:"Balancing the electric and magnetic forces (eE = evB) lets the speed v be found simply as v = E/B, without needing to know e or m individually. This speed is then combined with the deflection produced when one field is removed (and the known field values) to calculate e/m.",
+   optionNotes:["","This balanced-field step cannot isolate e or m individually — it only yields the ratio e/m when combined with the later deflection measurement, which is precisely why this experiment measures the RATIO, not e or m separately.","Gravity's effect on an electron is utterly negligible compared to the electric and magnetic forces involved, and is not the reason for this balancing step.","The balanced-fields step uses BOTH fields together (not zero magnetic field) specifically to find the beam's speed — setting B to zero would defeat this purpose entirely."]},
+
+  // --- 16.7 Hall Effect ---
+  {id:"s2b4_25",topic:"S2-16.7 Hall Effect",difficulty:"hard",
+   question:"A semiconductor slab of thickness 1.0 mm carries a current of 10 mA in a magnetic field of flux density 0.50 T, perpendicular to the slab's face. If the charge carrier density is 5.0×10²⁰ m⁻³, what is the Hall voltage? (VH = BI/(net), e = 1.6×10⁻¹⁹ C)",
+   options:["62.5 mV","6.25 mV","625 mV","12.5 mV"],correctIndex:0,
+   explanation:"VH = BI/(net) = (0.50)(0.010)/[(5.0×10²⁰)(1.6×10⁻¹⁹)(1.0×10⁻³)] = 0.0050/0.080 = 0.0625 V = 62.5 mV.",
+   optionNotes:["","This is a tenth of the correct value, from a decimal-place slip.","This is ten times too large.","This is a factor of 5 too small."]},
+
+  // --- 17.1 Magnetic Flux ---
+  {id:"s2b4_26",topic:"S2-17.1 Magnetic Flux",difficulty:"easy",
+   question:"A square coil of side 4.0 cm is placed so that its plane is PARALLEL to a uniform magnetic field of flux density 0.25 T (so the normal to the coil is perpendicular to the field). What is the magnetic flux through the coil?",
+   options:["Zero","4.0 × 10⁻⁴ Wb","2.0 × 10⁻⁴ Wb","1.0 × 10⁻³ Wb"],correctIndex:0,
+   explanation:"Φ = BA cosθ, where θ is the angle between the field and the NORMAL to the coil. If the coil's plane is parallel to the field, its normal is perpendicular to the field, so θ=90° and cosθ=0, giving Φ=0.",
+   optionNotes:["","This would be the flux if the coil's plane were perpendicular to the field (θ=0°) instead of parallel to it — recheck which angle corresponds to 'plane parallel to field'.","This doesn't correspond to any correct value for either the parallel (θ=90°) or perpendicular (θ=0°) orientation.","This also doesn't correspond to the parallel-orientation flux, which is exactly zero."]},
+
+  // --- 17.2 Faraday's Law and Lenz's Law ---
+  {id:"s2b4_27",topic:"S2-17.2 Faraday's Law and Lenz's Law",difficulty:"medium",
+   question:"A coil of area 0.020 m² is held with its plane perpendicular to a magnetic field that decreases uniformly from 0.40 T to 0.10 T over 0.50 s. What is the magnitude of the average EMF induced in the coil?",
+   options:["12 mV","6.0 mV","24 mV","3.0 mV"],correctIndex:0,
+   explanation:"EMF = A(ΔB/Δt) = (0.020)(0.40−0.10)/(0.50) = (0.020)(0.30)/(0.50) = 0.012 V = 12 mV.",
+   optionNotes:["","This is half the correct value.","This is double the correct value.","This is a quarter of the correct value."]},
+
+  // --- 17.3 Self Induction ---
+  {id:"s2b4_28",topic:"S2-17.3 Self Induction",difficulty:"hard",
+   question:"A solenoid has 300 turns, a length of 0.25 m, and a cross-sectional area of 3.0×10⁻⁴ m². What is its self-inductance? (L = μ₀N²A/l, μ₀ = 4π×10⁻⁷ T m A⁻¹)",
+   options:["1.4 × 10⁻⁴ H","1.4 × 10⁻³ H","4.5 × 10⁻⁵ H","2.8 × 10⁻⁴ H"],correctIndex:0,
+   explanation:"L = μ₀N²A/l = (4π×10⁻⁷)(300²)(3.0×10⁻⁴)/(0.25) ≈ 1.4×10⁻⁴ H.",
+   optionNotes:["","This is ten times too large, consistent with a decimal-place slip.","This is about a third of the correct value.","This is double the correct value."]},
+
+  // --- 17.4 Energy Stored in an Inductor ---
+  {id:"s2b4_29",topic:"S2-17.4 Energy Stored in an Inductor",difficulty:"medium",
+   question:"An inductor of inductance 0.40 H carries a current that decreases uniformly from 5.0 A to 0 A over 2.0 s. What is the average power released by the inductor's stored energy over this time?",
+   options:["2.5 W","5.0 W","1.25 W","10 W"],correctIndex:0,
+   explanation:"Initial energy stored = ½LI² = ½(0.40)(5.0²) = 5.0 J. This full energy is released as the current falls to zero, so average power = total energy / time = 5.0/2.0 = 2.5 W.",
+   optionNotes:["","This is the initial energy stored (5.0 J), not the average power (which divides by the time taken).","This doesn't follow from correctly computing the initial stored energy and dividing by the time.","This doesn't follow from correctly dividing the stored energy (5.0 J) by the time (2.0 s)."]},
+
+  // --- 17.5 Mutual Induction ---
+  {id:"s2b4_30",topic:"S2-17.5 Mutual Induction",difficulty:"medium",
+   question:"Two coils have self-inductances of 0.20 H and 0.80 H, with a coupling coefficient k = 0.50 between them. What is their mutual inductance? (M = k√(L1L2))",
+   options:["0.20 H","0.40 H","0.10 H","0.08 H"],correctIndex:0,
+   explanation:"M = k√(L1L2) = 0.50 × √(0.20×0.80) = 0.50 × √0.16 = 0.50 × 0.40 = 0.20 H.",
+   optionNotes:["","This omits the coupling coefficient k, using √(L1L2) alone.","This doesn't follow from correctly multiplying k by √(L1L2).","This is a fifth of the correct value."]},
+
+  // --- 18.1 AC Through a Pure Resistor ---
+  {id:"s2b4_31",topic:"S2-18.1 AC Through a Pure Resistor",difficulty:"medium",
+   question:"An a.c. current of r.m.s. value 3.0 A flows through a pure resistor of 60 Ω. What is the peak voltage across the resistor?",
+   options:["255 V","180 V","127 V","360 V"],correctIndex:0,
+   explanation:"Vrms = IrmsR = 3.0×60 = 180 V. Peak voltage V₀ = Vrms×√2 = 180×1.414 ≈ 255 V.",
+   optionNotes:["","This is the r.m.s. voltage (IrmsR), not the peak voltage — remember to multiply by √2 to get the peak value.","This doesn't follow from correctly computing Vrms = IrmsR and then multiplying by √2.","This doesn't match the correct peak-voltage calculation from the given r.m.s. current and resistance."]},
+
+  // --- 18.2 AC Through a Pure Inductor ---
+  {id:"s2b4_32",topic:"S2-18.2 AC Through a Pure Inductor",difficulty:"medium",
+   question:"A pure inductor of inductance 0.20 H is connected to a 50 Hz a.c. supply. What is its reactance?",
+   options:["63 Ω","31 Ω","126 Ω","10 Ω"],correctIndex:0,
+   explanation:"XL = 2πfL = 2π(50)(0.20) ≈ 63 Ω.",
+   optionNotes:["","This is half the correct value.","This is double the correct value.","This omits the factor of 2π entirely, using fL alone."]},
+
+  // --- 18.3 AC Through a Pure Capacitor ---
+  {id:"s2b4_33",topic:"S2-18.3 AC Through a Pure Capacitor",difficulty:"medium",
+   question:"A pure capacitor of capacitance 10 µF is connected to a 60 Hz a.c. supply. What is its reactance?",
+   options:["265 Ω","530 Ω","133 Ω","3.77 Ω"],correctIndex:0,
+   explanation:"XC = 1/(2πfC) = 1/[2π(60)(10×10⁻⁶)] ≈ 265 Ω.",
+   optionNotes:["","This is double the correct value.","This is half the correct value.","This omits the factor of 2π, using 1/(fC) alone."]},
+
+  // --- 18.4 R-C and R-L Series Circuits ---
+  {id:"s2b4_34",topic:"S2-18.4 R-C and R-L Series Circuits",difficulty:"medium",
+   question:"A series R-L circuit has R = 30 Ω and inductive reactance XL = 40 Ω. What is the magnitude of the circuit's impedance?",
+   options:["50 Ω","70 Ω","10 Ω","1200 Ω"],correctIndex:0,
+   explanation:"Z = √(R²+XL²) = √(30²+40²) = √(900+1600) = √2500 = 50 Ω.",
+   optionNotes:["","This simply adds R and XL arithmetically, ignoring that they combine as perpendicular phasor components (via Pythagoras), not by direct addition.","This is R²+XL² without the square root — it gives Z², not Z.","This is R×XL, which has no physical basis as an impedance combination."]}
+];
+
+
+  const SEED_QUESTIONS_SEM2 = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18, SEM2_BATCH2_QUESTIONS, SEM2_BATCH3_QUESTIONS, SEM2_BATCH4_QUESTIONS);
   const ALL_SEED_QUESTIONS = SEED_QUESTIONS.concat(SEED_QUESTIONS_SEM2);
   let currentSemester = '1';
   function topicsForSemester(sem){ return sem === '2' ? TOPICS_SEM2 : TOPICS_SEM1; }
