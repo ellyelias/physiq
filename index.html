@@ -3749,7 +3749,7 @@ const SEM3_SEED_QUESTIONS_CH25 = [
    optionNotes:["","This doesn't follow from correctly multiplying the mass defect (in u) by the conversion factor 931.5 MeV/u.","This is double the correct value.","This simply restates the mass defect in u without converting it to an energy value using E=Δmc²."]}
 ];
 
-  const SEED_QUESTIONS_SEM2 = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18, SEM2_BATCH2_QUESTIONS, SEM2_BATCH3_QUESTIONS, SEM2_BATCH4_QUESTIONS, SEM2_BATCH5_QUESTIONS, SEM2_BATCH6_QUESTIONS);
+  const SEED_QUESTIONS_SEM2_RAW = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18, SEM2_BATCH2_QUESTIONS, SEM2_BATCH3_QUESTIONS, SEM2_BATCH4_QUESTIONS, SEM2_BATCH5_QUESTIONS, SEM2_BATCH6_QUESTIONS);
 // STAGING FILE — Semester 3 Batch 2: 35 more original questions (1 per
 // subtopic across all 7 chapters), bringing each subtopic from 2 to 3
 // questions. Inspired by real STPM 960/3 Paper 3 past-year questions
@@ -3955,7 +3955,408 @@ const SEM3_BATCH2_CH25 = [
    optionNotes:["","This is half the correct value.","This is double the correct value.","This omits the conversion from fissions-per-SECOND to fissions-per-DAY (i.e. forgets to multiply by the 86400 seconds in a day), giving a far-too-small mass."]}
 ];
 
-  const SEED_QUESTIONS_SEM3 = [].concat(SEM3_SEED_QUESTIONS_CH19, SEM3_SEED_QUESTIONS_CH20, SEM3_SEED_QUESTIONS_CH21, SEM3_SEED_QUESTIONS_CH22, SEM3_SEED_QUESTIONS_CH23, SEM3_SEED_QUESTIONS_CH24, SEM3_SEED_QUESTIONS_CH25, SEM3_BATCH2_CH19, SEM3_BATCH2_CH20, SEM3_BATCH2_CH21, SEM3_BATCH2_CH22, SEM3_BATCH2_CH23, SEM3_BATCH2_CH24, SEM3_BATCH2_CH25);
+// STAGING FILE — Semester 3 Batch 3: 70 more original questions (2 per
+// subtopic), bringing each Sem3 subtopic from 3 to 5 questions. Fresh
+// numbers/scenarios inspired by STPM 960/3 style; all numeric answers
+// verified by Python before writing. Correct answer is authored first;
+// the app rebalances option positions deterministically at load.
+
+const SEM3_BATCH3_CH19 = [
+  {id:"s3c19_19",topic:"S3-19.1 Characteristics of Simple Harmonic Motion",difficulty:"medium",
+   question:"For a particle in SHM, a graph of acceleration against displacement is a straight line through the origin with a negative gradient. What does the magnitude of this gradient represent?",
+   options:["The square of the angular frequency, ω²","The angular frequency, ω","The amplitude, A","The period, T"],correctIndex:0,
+   explanation:"Since a = −ω²x, the graph of a against x has gradient −ω². Its magnitude is ω², which also equals k/m for a mass-spring system.",
+   optionNotes:["","The gradient is ω squared, not ω itself — the acceleration relation is a=−ω²x.","The amplitude sets the range of x on the graph but does not determine its gradient.","The period is related to the gradient via T=2π/√(gradient), but is not equal to it."]},
+  {id:"s3c19_20",topic:"S3-19.1 Characteristics of Simple Harmonic Motion",difficulty:"medium",
+   question:"A particle in SHM has displacement x = A sin(ωt). By what phase angle does its velocity lead its displacement?",
+   options:["π/2 rad (90°)","π rad (180°)","0 rad (in phase)","π/4 rad (45°)"],correctIndex:0,
+   explanation:"v = dx/dt = Aω cos(ωt) = Aω sin(ωt + π/2), so the velocity leads the displacement by π/2 rad.",
+   optionNotes:["","A phase difference of π is the relation between displacement and acceleration, not displacement and velocity.","Velocity is zero at the extremes where displacement is maximum, so they cannot be in phase.","The phase difference is a quarter of a cycle (π/2), not an eighth (π/4)."]},
+  {id:"s3c19_21",topic:"S3-19.2 Kinematics of Simple Harmonic Motion",difficulty:"hard",
+   question:"A particle performs SHM of period 2.4 s, starting at equilibrium (x = 0) and moving outward, with x = A sin(ωt). How long does it take to first reach a displacement of A/2?",
+   options:["0.20 s","0.40 s","0.60 s","0.30 s"],correctIndex:0,
+   explanation:"sin(ωt) = 1/2 gives ωt = π/6, so t = (π/6)/ω = T/12 = 2.4/12 = 0.20 s.",
+   optionNotes:["","This is T/6, which would correspond to ωt = π/3 (sin = 0.866), not sin = 0.5.","This is T/4, the time to reach the full amplitude A, not A/2.","This is T/8 (ωt = π/4), where sin = 0.707, not 0.5."]},
+  {id:"s3c19_22",topic:"S3-19.2 Kinematics of Simple Harmonic Motion",difficulty:"medium",
+   question:"A particle oscillates in SHM with amplitude 5.0 cm and period 0.50 s. What is its maximum speed?",
+   options:["0.63 m s⁻¹","0.10 m s⁻¹","0.25 m s⁻¹","1.26 m s⁻¹"],correctIndex:0,
+   explanation:"ω = 2π/T = 4π ≈ 12.57 rad s⁻¹. vmax = Aω = 0.050 × 12.57 ≈ 0.63 m s⁻¹.",
+   optionNotes:["","This is A/T, which omits the factor 2π.","This is A/2T, which omits 2π and halves the result; vmax is Aω = 2πA/T.","This doubles the correct value (uses 4π A/T)."]},
+  {id:"s3c19_23",topic:"S3-19.3 Energy in Simple Harmonic Motion",difficulty:"medium",
+   question:"A 0.40 kg mass on a spring of force constant 160 N m⁻¹ oscillates with amplitude 0.050 m. What is the total energy of the oscillation?",
+   options:["0.20 J","0.40 J","4.0 J","0.010 J"],correctIndex:0,
+   explanation:"E = ½kA² = ½(160)(0.050)² = 0.20 J.",
+   optionNotes:["","This omits the factor ½ in E=½kA².","This is 20 times too large; it does not follow from ½kA² with A = 0.050 m.","This is 20 times too small; recheck ½(160)(0.050)²."]},
+  {id:"s3c19_24",topic:"S3-19.3 Energy in Simple Harmonic Motion",difficulty:"hard",
+   question:"A particle performs SHM with amplitude 0.10 m. At what displacement from equilibrium are its kinetic and potential energies equal?",
+   options:["0.071 m","0.050 m","0.035 m","0.087 m"],correctIndex:0,
+   explanation:"KE = PE means ½kx² = ½·½kA², so x² = A²/2 and x = A/√2 = 0.10/1.414 ≈ 0.071 m.",
+   optionNotes:["","This is A/2, where PE is only a quarter of the total energy, not half.","This is A/(2√2), not the position where PE is half of E.","This corresponds to PE = 0.76E, not 0.5E."]},
+  {id:"s3c19_25",topic:"S3-19.4 Systems in Simple Harmonic Motion",difficulty:"medium",
+   question:"A mass of 0.20 kg on a spring oscillates with period 0.50 s. The mass is replaced by one of 0.80 kg on the same spring. What is the new period?",
+   options:["1.0 s","2.0 s","0.25 s","0.50 s"],correctIndex:0,
+   explanation:"T ∝ √m. Quadrupling the mass doubles the period: T = 0.50 × √4 = 1.0 s.",
+   optionNotes:["","This multiplies the period by 4, treating T as proportional to m instead of √m.","This halves the period, as if heavier mass oscillated faster.","The period depends on mass (T=2π√(m/k)), so it does change."]},
+  {id:"s3c19_26",topic:"S3-19.4 Systems in Simple Harmonic Motion",difficulty:"hard",
+   question:"A simple pendulum has a period of 2.0 s on Earth (g = 9.81 m s⁻²). What is its period on the Moon, where g = 1.62 m s⁻²?",
+   options:["4.9 s","0.81 s","12 s","2.0 s"],correctIndex:0,
+   explanation:"T ∝ 1/√g. T_Moon = 2.0 × √(9.81/1.62) = 2.0 × 2.46 ≈ 4.9 s.",
+   optionNotes:["","This inverts the ratio, giving a shorter period on the Moon.","This treats T as inversely proportional to g rather than to √g.","The period depends on g, so it differs on the Moon."]},
+  {id:"s3c19_27",topic:"S3-19.5 Damped Oscillation",difficulty:"medium",
+   question:"The amplitude of a damped oscillator halves every 3.0 s. If its initial amplitude is 0.080 m, what is the amplitude after 9.0 s?",
+   options:["0.010 m","0.040 m","0.027 m","0.020 m"],correctIndex:0,
+   explanation:"9.0 s is three halving intervals, so A = 0.080 × (½)³ = 0.010 m.",
+   optionNotes:["","This is the amplitude after just one halving interval (3.0 s).","This divides by 3 (linear decay) instead of halving three times.","This is the amplitude after two halving intervals (6.0 s)."]},
+  {id:"s3c19_28",topic:"S3-19.5 Damped Oscillation",difficulty:"easy",
+   question:"A pendulum swinging in air is lightly damped. Which statement about its motion is correct?",
+   options:["The amplitude decreases with time as mechanical energy is dissipated as heat","The frequency increases greatly with time as the amplitude falls","The total mechanical energy stays constant while only the amplitude changes","The amplitude stays constant but the period lengthens"],correctIndex:0,
+   explanation:"Air resistance does negative work on the bob, so mechanical energy is converted to thermal energy and the amplitude decays; for light damping the frequency changes very little.",
+   optionNotes:["","For light damping the frequency is almost unchanged; it does not increase greatly.","Energy is proportional to amplitude squared, so when amplitude falls the energy falls too.","The amplitude does not stay constant under damping."]},
+  {id:"s3c19_29",topic:"S3-19.6 Forced Oscillation and Resonance",difficulty:"medium",
+   question:"A 0.50 kg mass on a spring of force constant 250 N m⁻¹ is driven by a periodic force of adjustable frequency. At approximately which driving frequency is the amplitude greatest (light damping)?",
+   options:["3.6 Hz","22 Hz","0.28 Hz","7.1 Hz"],correctIndex:0,
+   explanation:"Resonance occurs near the natural frequency f = (1/2π)√(k/m) = (1/2π)√(250/0.50) = 22.4/6.283 ≈ 3.6 Hz.",
+   optionNotes:["","This is the angular frequency ω in rad s⁻¹ (≈22.4), not the frequency in Hz.","This is the period-like reciprocal (1/f), not the frequency.","This is double the natural frequency, not at resonance."]},
+  {id:"s3c19_30",topic:"S3-19.6 Forced Oscillation and Resonance",difficulty:"medium",
+   question:"Which change makes the resonance peak of a driven oscillator both higher and sharper?",
+   options:["Decreasing the damping","Increasing the damping","Increasing the driving force frequency far above the natural frequency","Making the system heavier but keeping the damping constant"],correctIndex:0,
+   explanation:"Less damping means less energy is dissipated per cycle, so the resonant amplitude is larger and the resonance curve is narrower (sharper).",
+   optionNotes:["","More damping lowers and broadens the resonance peak.","Driving far from the natural frequency moves away from resonance rather than sharpening it.","Changing the mass alone shifts the natural frequency; it is not the general way to raise and sharpen the peak."]}
+];
+
+const SEM3_BATCH3_CH20 = [
+  {id:"s3c20_16",topic:"S3-20.1 Progressive Waves",difficulty:"hard",
+   question:"A wave on a string is described by y = 0.050 sin[2π(t/0.40 − x/2.0)], with x and y in metres and t in seconds. What is the speed of the wave?",
+   options:["5.0 m s⁻¹","0.20 m s⁻¹","0.80 m s⁻¹","2.5 m s⁻¹"],correctIndex:0,
+   explanation:"Period T = 0.40 s and wavelength λ = 2.0 m, so v = λ/T = 2.0/0.40 = 5.0 m s⁻¹.",
+   optionNotes:["","This is T/λ, the reciprocal of the speed.","This multiplies λ and T instead of dividing.","This is f (2.5 Hz), the frequency, not the speed."]},
+  {id:"s3c20_17",topic:"S3-20.1 Progressive Waves",difficulty:"medium",
+   question:"A progressive wave has a wavelength of 2.0 m. What is the phase difference between two points on the wave that are 0.50 m apart along its direction of travel?",
+   options:["π/2 rad","π rad","π/4 rad","2π rad"],correctIndex:0,
+   explanation:"Phase difference = 2π(Δx/λ) = 2π(0.50/2.0) = π/2 rad.",
+   optionNotes:["","π would correspond to Δx = λ/2 = 1.0 m.","π/4 would correspond to Δx = λ/8 = 0.25 m.","2π corresponds to a separation of a full wavelength, 2.0 m."]},
+  {id:"s3c20_18",topic:"S3-20.2 Wave Intensity",difficulty:"medium",
+   question:"A point source radiates 50 W of sound uniformly in all directions. What is the intensity at a distance of 10 m? (I = P/4πr²)",
+   options:["0.040 W m⁻²","0.50 W m⁻²","0.0040 W m⁻²","5.0 W m⁻²"],correctIndex:0,
+   explanation:"I = P/(4πr²) = 50/(4π × 100) ≈ 0.040 W m⁻².",
+   optionNotes:["","This is P/r² without the 4π.","This is off by a factor of 10 from the correct value.","This is P/r (not P/4πr²)."]},
+  {id:"s3c20_19",topic:"S3-20.2 Wave Intensity",difficulty:"hard",
+   question:"The intensity from a point source is 8.0 W m⁻² at 3.0 m. At what distance is the intensity 2.0 W m⁻²?",
+   options:["6.0 m","12 m","1.5 m","4.5 m"],correctIndex:0,
+   explanation:"I ∝ 1/r². Intensity fell by a factor of 4, so the distance doubled: r = 3.0 × √(8.0/2.0) = 6.0 m.",
+   optionNotes:["","This treats I as proportional to 1/r instead of 1/r².","This moves the point closer, which would raise the intensity.","This does not match the inverse-square relation."]},
+  {id:"s3c20_20",topic:"S3-20.3 Principle of Superposition",difficulty:"medium",
+   question:"Two waves of amplitudes 3.0 cm and 4.0 cm, with a constant phase difference of π/2, are superposed. What is the amplitude of the resultant wave?",
+   options:["5.0 cm","7.0 cm","1.0 cm","3.5 cm"],correctIndex:0,
+   explanation:"For a phase difference of π/2 the amplitudes add in quadrature: A = √(3.0² + 4.0²) = 5.0 cm.",
+   optionNotes:["","7.0 cm applies only to waves exactly in phase.","1.0 cm applies only to waves exactly out of phase (π).","This is just the average of the two amplitudes."]},
+  {id:"s3c20_21",topic:"S3-20.3 Principle of Superposition",difficulty:"medium",
+   question:"Two coherent in-phase sources emit waves of wavelength 0.50 m. A point P is 3.00 m from one source and 3.75 m from the other. What happens at P?",
+   options:["Destructive interference, since the path difference is 1.5λ","Constructive interference, since the path difference is 1.5λ","Constructive interference, since the path difference is 0.75 m","No interference because the distances differ"],correctIndex:0,
+   explanation:"Path difference = 0.75 m = 1.5λ, a half-integer number of wavelengths, so the waves arrive out of phase and interfere destructively.",
+   optionNotes:["","A half-integer number of wavelengths gives destructive, not constructive, interference.","The path difference must be compared with the wavelength; 0.75 m is 1.5λ.","Coherent waves always interfere; differing distances just set the path difference."]},
+  {id:"s3c20_22",topic:"S3-20.4 Standing Waves",difficulty:"medium",
+   question:"A string of length 0.60 m is fixed at both ends and waves travel on it at 240 m s⁻¹. What is the frequency of the third harmonic?",
+   options:["600 Hz","200 Hz","400 Hz","1200 Hz"],correctIndex:0,
+   explanation:"f1 = v/2L = 240/1.2 = 200 Hz, so f3 = 3f1 = 600 Hz.",
+   optionNotes:["","This is the fundamental (first harmonic).","This is the second harmonic.","This is the sixth harmonic."]},
+  {id:"s3c20_23",topic:"S3-20.4 Standing Waves",difficulty:"hard",
+   question:"A standing wave is described by y = 0.040 sin(10x) cos(200t), with x and y in metres and t in seconds. What is the distance between two adjacent nodes?",
+   options:["0.31 m","0.63 m","0.10 m","0.16 m"],correctIndex:0,
+   explanation:"k = 10 rad m⁻¹, so λ = 2π/k ≈ 0.628 m. Adjacent nodes are λ/2 apart: π/10 ≈ 0.31 m.",
+   optionNotes:["","This is the full wavelength, not the node separation (λ/2).","This is 1/k, not π/k.","This is λ/4, the node-to-antinode distance."]},
+  {id:"s3c20_24",topic:"S3-20.5 Electromagnetic Waves",difficulty:"medium",
+   question:"Which statement about a plane electromagnetic wave in vacuum is correct?",
+   options:["The electric and magnetic fields oscillate in phase, perpendicular to each other and to the direction of travel","The electric and magnetic fields oscillate parallel to the direction of travel","The electric and magnetic fields oscillate 90° out of phase","The wave needs a material medium to propagate"],correctIndex:0,
+   explanation:"An EM wave is transverse: E and B are mutually perpendicular, perpendicular to the propagation direction, and in phase, with E = cB.",
+   optionNotes:["","EM waves are transverse, not longitudinal.","In a travelling EM wave E and B reach maxima together (in phase).","EM waves propagate in vacuum, with no medium needed."]},
+  {id:"s3c20_25",topic:"S3-20.5 Electromagnetic Waves",difficulty:"medium",
+   question:"A radio signal is sent to a spacecraft 3.84 × 10⁸ m away. How long does the signal take to travel there? (c = 3.00 × 10⁸ m s⁻¹)",
+   options:["1.28 s","0.78 s","11.5 s","1.15 × 10¹⁷ s"],correctIndex:0,
+   explanation:"t = d/c = 3.84×10⁸/3.00×10⁸ = 1.28 s.",
+   optionNotes:["","This inverts the ratio (c/d).","This does not follow from d/c with the given numbers.","This multiplies d and c instead of dividing."]}
+];
+
+const SEM3_BATCH3_CH21 = [
+  {id:"s3c21_16",topic:"S3-21.1 Propagation of Sound Waves",difficulty:"medium",
+   question:"Why does sound travel faster in steel than in air?",
+   options:["Steel has a far greater elasticity (bulk/Young's modulus) relative to its density, so disturbances are passed on more quickly","Steel is denser, and a denser medium always carries sound faster","Sound in steel is transverse, which is faster than longitudinal","Sound in air is slowed because air particles are lighter"],correctIndex:0,
+   explanation:"Wave speed depends on elastic modulus divided by density (v = √(E/ρ)). Steel's modulus is enormously larger than air's, outweighing its higher density.",
+   optionNotes:["","Higher density alone would slow the wave; it is the large modulus that matters.","Sound waves in fluids and gases are longitudinal; this is not the reason.","Mass alone does not set the speed; the restoring-force (elasticity) to inertia ratio does."]},
+  {id:"s3c21_17",topic:"S3-21.1 Propagation of Sound Waves",difficulty:"medium",
+   question:"A ship's sonar sends a pulse that returns after 0.80 s. If the speed of sound in sea water is 1500 m s⁻¹, how deep is the water beneath the ship?",
+   options:["600 m","1200 m","300 m","1900 m"],correctIndex:0,
+   explanation:"The pulse travels down and back, so depth = vt/2 = 1500 × 0.80/2 = 600 m.",
+   optionNotes:["","This uses the total round-trip distance as the depth.","This halves the correct depth.","This does not follow from vt/2."]},
+  {id:"s3c21_18",topic:"S3-21.2 Sources of Sound",difficulty:"medium",
+   question:"What is the fundamental frequency of an open pipe of length 0.50 m? (speed of sound = 340 m s⁻¹)",
+   options:["340 Hz","170 Hz","680 Hz","510 Hz"],correctIndex:0,
+   explanation:"For an open pipe f1 = v/2L = 340/(2×0.50) = 340 Hz.",
+   optionNotes:["","This is the closed-pipe fundamental v/4L.","This is the second harmonic of the open pipe.","This is the first overtone of a closed pipe (3v/4L)."]},
+  {id:"s3c21_19",topic:"S3-21.2 Sources of Sound",difficulty:"hard",
+   question:"A pipe closed at one end has length 0.50 m (speed of sound 340 m s⁻¹). What is its second-lowest resonant frequency?",
+   options:["510 Hz","340 Hz","680 Hz","170 Hz"],correctIndex:0,
+   explanation:"Closed pipes support only odd harmonics: f1 = v/4L = 170 Hz, f3 = 3f1 = 510 Hz.",
+   optionNotes:["","340 Hz would be the second harmonic, which a closed pipe cannot sustain.","680 Hz is the fourth harmonic, absent in a closed pipe.","This is the lowest (fundamental) frequency."]},
+  {id:"s3c21_20",topic:"S3-21.3 Intensity Level of Sound",difficulty:"medium",
+   question:"A sound has an intensity level of 80 dB. What is its intensity? (I₀ = 1.0 × 10⁻¹² W m⁻²)",
+   options:["1.0 × 10⁻⁴ W m⁻²","8.0 × 10⁻¹¹ W m⁻²","1.0 × 10⁻⁸ W m⁻²","1.0 × 10⁻⁶ W m⁻²"],correctIndex:0,
+   explanation:"80 = 10 log(I/I₀) gives I/I₀ = 10⁸, so I = 10⁻¹² × 10⁸ = 1.0×10⁻⁴ W m⁻².",
+   optionNotes:["","This multiplies the dB by I₀ rather than using the logarithm.","This uses 10⁴ rather than 10⁸ for the ratio.","This uses 10⁶ rather than 10⁸ for the ratio."]},
+  {id:"s3c21_21",topic:"S3-21.3 Intensity Level of Sound",difficulty:"hard",
+   question:"Each of four identical loudspeakers alone produces 70 dB at a listener's position. What is the intensity level when all four operate together (incoherent addition)?",
+   options:["76 dB","280 dB","73 dB","74 dB"],correctIndex:0,
+   explanation:"Intensity quadruples, adding 10 log 4 ≈ 6.0 dB: 70 + 6 = 76 dB.",
+   optionNotes:["","dB values do not add by multiplication.","This corresponds to doubling the intensity (+3 dB).","This corresponds to ×2.5 of intensity, not ×4."]},
+  {id:"s3c21_22",topic:"S3-21.4 Beat",difficulty:"medium",
+   question:"Two sources emit 440 Hz and 436 Hz. What is the time interval between successive loud beats?",
+   options:["0.25 s","0.50 s","4.0 s","0.0023 s"],correctIndex:0,
+   explanation:"Beat frequency = 4 Hz, so the interval between loud beats is 1/4 = 0.25 s.",
+   optionNotes:["","This would be 1/2 Hz.","This is the beat frequency (4 Hz) read as seconds.","This is the period of the 438 Hz mean tone, not the beat period."]},
+  {id:"s3c21_23",topic:"S3-21.4 Beat",difficulty:"hard",
+   question:"A tuning fork of 512 Hz gives 4 beats per second with an unknown fork B. Filing fork B raises its frequency and the beat frequency becomes 6 Hz. What was the original frequency of B?",
+   options:["516 Hz","508 Hz","518 Hz","506 Hz"],correctIndex:0,
+   explanation:"B is either 516 or 508 Hz. Raising B increases the beat frequency only if B was already higher than 512 Hz, so B = 516 Hz.",
+   optionNotes:["","If B were 508 Hz, raising it would reduce the beats towards 512 Hz.","This would have given 6 beats originally.","This would have given 6 beats originally."]},
+  {id:"s3c21_24",topic:"S3-21.5 Doppler Effect",difficulty:"medium",
+   question:"A stationary source emits 600 Hz. An observer moves directly away from it at 20 m s⁻¹. The speed of sound is 340 m s⁻¹. What frequency does the observer hear?",
+   options:["565 Hz","636 Hz","600 Hz","540 Hz"],correctIndex:0,
+   explanation:"f' = f(v − v_o)/v = 600 × 320/340 ≈ 565 Hz.",
+   optionNotes:["","This uses the formula for an observer approaching the source.","This ignores the Doppler effect.","This does not follow from f(v−v_o)/v."]},
+  {id:"s3c21_25",topic:"S3-21.5 Doppler Effect",difficulty:"hard",
+   question:"A siren of frequency 500 Hz moves directly away from a stationary listener at 25 m s⁻¹. What frequency is heard? (speed of sound 340 m s⁻¹)",
+   options:["466 Hz","539 Hz","500 Hz","425 Hz"],correctIndex:0,
+   explanation:"f' = fv/(v + v_s) = 500×340/365 ≈ 466 Hz.",
+   optionNotes:["","This is for a source moving toward the listener.","This ignores the Doppler effect.","This does not follow from fv/(v+v_s)."]}
+];
+
+const SEM3_BATCH3_CH22 = [
+  {id:"s3c22_10",topic:"S3-22.1 Spherical Mirrors",difficulty:"hard",
+   question:"An object is placed 10 cm in front of a concave mirror of focal length 20 cm. Which describes the image?",
+   options:["Virtual, upright, 20 cm behind the mirror, magnification +2.0","Real, inverted, 20 cm in front of the mirror, magnification −2.0","Virtual, upright, 6.7 cm behind the mirror, magnification +0.67","Real, inverted, 6.7 cm in front of the mirror, magnification −0.67"],correctIndex:0,
+   explanation:"1/v = 1/f − 1/u = 1/20 − 1/10 = −1/20, so v = −20 cm (virtual, behind the mirror). m = −v/u = +2.0, upright and magnified, because the object is inside the focal length.",
+   optionNotes:["","A real image would require the object beyond the focal point.","This does not follow from 1/v=1/f−1/u.","This does not follow from 1/v=1/f−1/u."]},
+  {id:"s3c22_11",topic:"S3-22.1 Spherical Mirrors",difficulty:"medium",
+   question:"A concave mirror has a focal length of 12 cm. Where must an object be placed so the real image is the same size as the object?",
+   options:["24 cm from the mirror","12 cm from the mirror","6.0 cm from the mirror","36 cm from the mirror"],correctIndex:0,
+   explanation:"Image and object are equal in size when u = v = 2f = R, i.e. at the centre of curvature, 24 cm.",
+   optionNotes:["","At the focal point no image forms (rays emerge parallel).","Inside the focal length the image is virtual and magnified.","At 3f the image is real and diminished."]},
+  {id:"s3c22_12",topic:"S3-22.2 Refraction at Spherical Surfaces",difficulty:"medium",
+   question:"A fish is 1.2 m below the flat surface of water (n = 1.33). At what apparent depth does it appear to an observer looking vertically down?",
+   options:["0.90 m","1.6 m","1.2 m","0.75 m"],correctIndex:0,
+   explanation:"For a flat surface, apparent depth = real depth × (n_observer/n_object) = 1.2/1.33 ≈ 0.90 m.",
+   optionNotes:["","This multiplies by 1.33 (it would make it appear deeper).","This ignores refraction.","This does not follow from real depth / n."]},
+  {id:"s3c22_13",topic:"S3-22.2 Refraction at Spherical Surfaces",difficulty:"hard",
+   question:"An object is 20 cm from a convex water surface (radius of curvature 10 cm, centre in the water, n = 1.33) in air. Using n₁/u + n₂/v = (n₂ − n₁)/R, where is the image?",
+   options:["78 cm on the object side (virtual)","78 cm inside the water (real)","13 cm inside the water (real)","13 cm on the object side (virtual)"],correctIndex:0,
+   explanation:"1.00/20 + 1.33/v = 0.33/10 = 0.033, so 1.33/v = −0.017 and v ≈ −78 cm: a virtual image on the same side as the object.",
+   optionNotes:["","The sign of v is negative, indicating a virtual image, not a real one in the water.","This does not follow from the equation.","This does not follow from the equation."]},
+  {id:"s3c22_14",topic:"S3-22.3 Thin Lenses",difficulty:"easy",
+   question:"A thin lens has a focal length of 25 cm. What is its power?",
+   options:["4.0 D","0.040 D","25 D","0.25 D"],correctIndex:0,
+   explanation:"P = 1/f with f in metres: 1/0.25 = 4.0 D.",
+   optionNotes:["","This uses f in centimetres: 1/25 = 0.04.","This is the numerical focal length in cm.","This does not follow from 1/f in metres."]},
+  {id:"s3c22_15",topic:"S3-22.3 Thin Lenses",difficulty:"hard",
+   question:"A convex lens of focal length 15 cm produces a real image three times the size of the object. What is the object distance?",
+   options:["20 cm","45 cm","10 cm","60 cm"],correctIndex:0,
+   explanation:"v = 3u, so 1/15 = 1/u + 1/(3u) = 4/(3u), giving u = 20 cm (and v = 60 cm).",
+   optionNotes:["","This is 3f, where the image is smaller than the object.","This is inside the focal length where the image is virtual.","This is the image distance, not the object distance."]}
+];
+
+const SEM3_BATCH3_CH23 = [
+  {id:"s3c23_25",topic:"S3-23.1 Huygens's Principle",difficulty:"medium",
+   question:"Light of wavelength 600 nm in air enters glass of refractive index 1.50. What are its wavelength and frequency in the glass?",
+   options:["400 nm; frequency unchanged","900 nm; frequency unchanged","400 nm; frequency increased by 1.5","600 nm; frequency decreased"],correctIndex:0,
+   explanation:"Frequency is set by the source and stays constant. Speed falls by n, so λ = 600/1.5 = 400 nm — as Huygens wavefront construction at the boundary shows.",
+   optionNotes:["","The wavelength shortens (λ/n), it does not lengthen.","Frequency cannot change on refraction.","The wavelength changes, and frequency stays the same."]},
+  {id:"s3c23_26",topic:"S3-23.1 Huygens's Principle",difficulty:"medium",
+   question:"Which statement about reflection of a plane wave from a flat mirror is supported by Huygens's construction?",
+   options:["The angle of incidence equals the angle of reflection","The reflected wave has a longer wavelength than the incident wave","The reflected wavefront is curved even for a plane incident wave","The reflected wave travels with a different speed in the same medium"],correctIndex:0,
+   explanation:"Secondary wavelets from successive points of the plane wavefront striking the mirror produce a reflected plane wavefront at an angle equal to the incident angle, with unchanged speed and wavelength.",
+   optionNotes:["","Wavelength is unchanged on reflection.","A plane wave reflects from a plane mirror as a plane wave.","Speed is unchanged because the medium is unchanged."]},
+  {id:"s3c23_27",topic:"S3-23.2 Interference",difficulty:"medium",
+   question:"In a double-slit experiment with light of wavelength 480 nm, a point on the screen is 1.2 μm farther from one slit than the other. What is observed there?",
+   options:["A dark fringe (path difference 2.5λ)","A bright fringe (path difference 2.5λ)","A bright fringe (path difference 3.0λ)","A dark fringe (path difference 3.0λ)"],correctIndex:0,
+   explanation:"1.2 μm / 480 nm = 2.5 wavelengths, a half-integer, so destructive interference gives a dark fringe.",
+   optionNotes:["","Bright fringes need an integer number of wavelengths.","The ratio is 2.5, not 3.0.","The ratio is 2.5, not 3.0."]},
+  {id:"s3c23_28",topic:"S3-23.2 Interference",difficulty:"medium",
+   question:"A light wave reflects at the boundary from a medium of lower refractive index to one of higher refractive index. What happens to the phase of the reflected wave?",
+   options:["It changes by π (half a wavelength)","It is unchanged","It changes by π/2","It changes by 2π"],correctIndex:0,
+   explanation:"Reflection from a boundary with a higher-index medium introduces a phase change of π (equivalent to λ/2 path difference). Reflection from a lower-index medium does not.",
+   optionNotes:["","This applies to reflection at a lower-index medium.","A π/2 shift does not occur at an optical boundary.","A 2π shift is equivalent to no change."]},
+  {id:"s3c23_29",topic:"S3-23.3 Two-slit Interference Pattern",difficulty:"medium",
+   question:"A double-slit setup in air gives a fringe spacing of 1.60 mm. The whole apparatus is immersed in water (n = 1.33). What is the new fringe spacing?",
+   options:["1.20 mm","2.13 mm","1.60 mm","0.90 mm"],correctIndex:0,
+   explanation:"Wavelength in water is λ/n, and fringe spacing ∝ λ, so spacing = 1.60/1.33 ≈ 1.20 mm.",
+   optionNotes:["","This multiplies by 1.33; the wavelength shrinks in water, so the fringes get closer.","The fringe spacing depends on wavelength, which changes in water.","This does not follow from λ/n scaling."]},
+  {id:"s3c23_30",topic:"S3-23.3 Two-slit Interference Pattern",difficulty:"hard",
+   question:"In a double-slit experiment, λ = 589 nm, slit separation 0.50 mm, screen distance 2.0 m. What is the distance between the 1st and 5th bright fringes (on the same side)?",
+   options:["9.4 mm","2.4 mm","11.8 mm","7.1 mm"],correctIndex:0,
+   explanation:"Fringe spacing = λD/d = 2.36 mm. Between the 1st and 5th bright fringes there are 4 spacings: 4 × 2.36 ≈ 9.4 mm.",
+   optionNotes:["","This is a single fringe spacing.","This counts 5 spacings instead of 4.","This counts 3 spacings."]},
+  {id:"s3c23_31",topic:"S3-23.4 Interference in A Thin Film",difficulty:"hard",
+   question:"White light shines on a soap film (n = 1.33) in air. What is the minimum thickness for constructive reflection of 560 nm light at normal incidence?",
+   options:["105 nm","210 nm","420 nm","53 nm"],correctIndex:0,
+   explanation:"Only the top surface reflection has a π phase change, so constructive interference needs 2nt = (m + ½)λ. Minimum (m = 0): t = λ/4n = 560/(4×1.33) ≈ 105 nm.",
+   optionNotes:["","This is λ/2n, the condition for destructive interference in this case.","This is λ/n.","This is λ/8n, not matching either condition."]},
+  {id:"s3c23_32",topic:"S3-23.4 Interference in A Thin Film",difficulty:"hard",
+   question:"A lens is coated with magnesium fluoride (n = 1.38) on glass (n = 1.50) to reduce reflection of 550 nm light. What is the minimum coating thickness?",
+   options:["99.6 nm","199 nm","398 nm","49.8 nm"],correctIndex:0,
+   explanation:"Both reflections have a π phase change, so destructive reflection needs 2nt = λ/2, giving t = λ/4n = 550/(4×1.38) ≈ 99.6 nm.",
+   optionNotes:["","This is λ/2n.","This is λ/n.","This is λ/8n."]},
+  {id:"s3c23_33",topic:"S3-23.5 Diffraction by A Single Slit",difficulty:"hard",
+   question:"Light of wavelength 550 nm passes through a single slit 0.20 mm wide onto a screen 1.5 m away. What is the width of the central maximum? (small angles)",
+   options:["8.3 mm","4.1 mm","16.5 mm","0.83 mm"],correctIndex:0,
+   explanation:"Width = 2λD/a = 2(550×10⁻⁹)(1.5)/(0.20×10⁻³) = 8.25×10⁻³ m ≈ 8.3 mm.",
+   optionNotes:["","This is the half-width, λD/a.","This doubles the width again.","This is off by a factor of 10."]},
+  {id:"s3c23_34",topic:"S3-23.5 Diffraction by A Single Slit",difficulty:"hard",
+   question:"Light of wavelength 500 nm falls on a single slit of width 3.0 × 10⁻⁶ m. At what angle is the second diffraction minimum? (a sinθ = mλ)",
+   options:["19°","9.6°","42°","5.7°"],correctIndex:0,
+   explanation:"sinθ = 2λ/a = 2(500×10⁻⁹)/(3.0×10⁻⁶) = 0.333, so θ ≈ 19.5°.",
+   optionNotes:["","This is roughly the first-minimum angle (m = 1).","This does not follow from sinθ = 2λ/a.","This does not follow from sinθ = 2λ/a."]},
+  {id:"s3c23_35",topic:"S3-23.6 Diffraction Gratings",difficulty:"hard",
+   question:"A grating has 600 lines per millimetre. What is the highest order of the maximum for 600 nm light?",
+   options:["2nd order","3rd order","1st order","4th order"],correctIndex:0,
+   explanation:"d = 1/600 mm = 1.67 μm. m_max < d/λ = 1.67/0.60 = 2.78, so the highest order is 2.",
+   optionNotes:["","Order 3 would need sinθ = 1.08 > 1.","The 1st order is not the highest; 2nd also fits.","Order 4 would need sinθ > 1."]},
+  {id:"s3c23_36",topic:"S3-23.6 Diffraction Gratings",difficulty:"medium",
+   question:"A grating with 400 lines per millimetre is illuminated by 500 nm light. At what angle is the second-order maximum?",
+   options:["23.6°","11.5°","30.0°","46.1°"],correctIndex:0,
+   explanation:"d = 1/400 mm = 2.5 μm. sinθ = mλ/d = 2(500 nm)/(2500 nm) = 0.40, so θ ≈ 23.6°.",
+   optionNotes:["","This is roughly the first-order angle.","This does not follow from sinθ = 0.40.","This doubles the correct sine value."]},
+  {id:"s3c23_37",topic:"S3-23.7 Polarisation",difficulty:"medium",
+   question:"Plane-polarised light of intensity 80 W m⁻² passes through an analyser whose axis is at 60° to the polarisation direction. What is the transmitted intensity?",
+   options:["20 W m⁻²","40 W m⁻²","69 W m⁻²","0 W m⁻²"],correctIndex:0,
+   explanation:"Malus's law: I = I₀cos²60° = 80 × 0.25 = 20 W m⁻².",
+   optionNotes:["","This uses cos60° (0.5) without squaring.","This uses cos²30°, not cos²60°.","Light is only fully blocked at 90°."]},
+  {id:"s3c23_38",topic:"S3-23.7 Polarisation",difficulty:"medium",
+   question:"Light in air strikes the surface of water (n = 1.33) at the Brewster angle. What is this angle?",
+   options:["53.1°","36.9°","48.8°","41.2°"],correctIndex:0,
+   explanation:"tanθ_B = n₂/n₁ = 1.33, so θ_B = tan⁻¹(1.33) ≈ 53.1°.",
+   optionNotes:["","This is the complement, 90° − 53.1°.","This is the critical angle of water–air, not the Brewster angle.","This does not follow from tan⁻¹(1.33)."]},
+  {id:"s3c23_39",topic:"S3-23.8 Optical Waveguides",difficulty:"medium",
+   question:"What is the critical angle for light travelling in glass (n = 1.50) towards a glass–air boundary?",
+   options:["41.8°","48.2°","33.7°","56.3°"],correctIndex:0,
+   explanation:"sinθ_c = 1/1.50 = 0.667, so θ_c ≈ 41.8°.",
+   optionNotes:["","This is the complementary angle.","This does not follow from sin⁻¹(1/n).","This is tan⁻¹(1.5), the Brewster angle, not the critical angle."]},
+  {id:"s3c23_40",topic:"S3-23.8 Optical Waveguides",difficulty:"medium",
+   question:"A light pulse travels straight down the axis of a 2.0 km optical fibre whose core has n = 1.50. How long does it take? (c = 3.00 × 10⁸ m s⁻¹)",
+   options:["10 μs","6.7 μs","13 μs","4.0 μs"],correctIndex:0,
+   explanation:"Speed in the core = c/n = 2.0×10⁸ m s⁻¹, so t = 2000/2.0×10⁸ = 1.0×10⁻⁵ s = 10 μs.",
+   optionNotes:["","This uses the speed in vacuum.","This does not follow from L n / c.","This does not follow from L n / c."]}
+];
+
+const SEM3_BATCH3_CH24 = [
+  {id:"s3c24_16",topic:"S3-24.1 Photon",difficulty:"hard",
+   question:"Light of frequency 9.0 × 10¹⁴ Hz falls on a metal of work function 2.0 eV. What is the stopping potential? (h = 6.63×10⁻³⁴ J s, e = 1.60×10⁻¹⁹ C)",
+   options:["1.7 V","3.7 V","2.0 V","5.7 V"],correctIndex:0,
+   explanation:"hf = (6.63×10⁻³⁴)(9.0×10¹⁴)/(1.60×10⁻¹⁹) = 3.73 eV. KEmax = 3.73 − 2.0 = 1.73 eV, so V_s ≈ 1.7 V.",
+   optionNotes:["","This is the photon energy without subtracting the work function.","This is the work function itself.","This adds the work function instead of subtracting."]},
+  {id:"s3c24_17",topic:"S3-24.1 Photon",difficulty:"medium",
+   question:"A metal has a work function of 2.3 eV. What is the threshold wavelength for photoelectric emission? (h = 6.63×10⁻³⁴ J s, c = 3.00×10⁸ m s⁻¹, 1 eV = 1.60×10⁻¹⁹ J)",
+   options:["540 nm","270 nm","1080 nm","380 nm"],correctIndex:0,
+   explanation:"λ₀ = hc/φ = (6.63×10⁻³⁴)(3.00×10⁸)/(2.3×1.60×10⁻¹⁹) ≈ 5.4×10⁻⁷ m = 540 nm.",
+   optionNotes:["","This is half the correct value.","This is double the correct value.","This does not follow from hc/φ."]},
+  {id:"s3c24_18",topic:"S3-24.2 Wave-Particle Duality",difficulty:"hard",
+   question:"An electron is accelerated from rest through 150 V. What is its de Broglie wavelength? (h = 6.63×10⁻³⁴ J s, m = 9.11×10⁻³¹ kg, e = 1.60×10⁻¹⁹ C)",
+   options:["1.0 × 10⁻¹⁰ m","2.0 × 10⁻¹⁰ m","5.0 × 10⁻¹¹ m","1.0 × 10⁻⁹ m"],correctIndex:0,
+   explanation:"p = √(2meV) = √(2×9.11×10⁻³¹×1.60×10⁻¹⁹×150) = 6.6×10⁻²⁴ kg m s⁻¹. λ = h/p ≈ 1.0×10⁻¹⁰ m.",
+   optionNotes:["","This is double the correct value.","This is half the correct value.","This is ten times too large."]},
+  {id:"s3c24_19",topic:"S3-24.2 Wave-Particle Duality",difficulty:"easy",
+   question:"Which experiment gave direct evidence that electrons have wave properties?",
+   options:["Electron diffraction by a crystal (Davisson–Germer)","The photoelectric effect","Rutherford alpha-particle scattering","The Millikan oil-drop experiment"],correctIndex:0,
+   explanation:"Electrons scattered from a crystal produce diffraction patterns, which only waves can do, confirming de Broglie's hypothesis.",
+   optionNotes:["","The photoelectric effect shows the particle nature of light.","Rutherford scattering revealed the nucleus.","Millikan measured the electron charge."]},
+  {id:"s3c24_20",topic:"S3-24.3 Atomic Structure",difficulty:"medium",
+   question:"What is the minimum wavelength of a photon that can ionise a hydrogen atom in its ground state? (ionisation energy 13.6 eV; h = 6.63×10⁻³⁴ J s, c = 3.00×10⁸ m s⁻¹)",
+   options:["91 nm","122 nm","656 nm","46 nm"],correctIndex:0,
+   explanation:"λ = hc/E = (6.63×10⁻³⁴)(3.00×10⁸)/(13.6×1.60×10⁻¹⁹) ≈ 9.1×10⁻⁸ m = 91 nm. Any shorter wavelength also ionises; this is the longest wavelength that does.",
+   optionNotes:["","This is the n=2→1 transition wavelength, which needs 10.2 eV, not 13.6 eV.","This is the H-alpha line from n=3→2.","This is half the correct value."]},
+  {id:"s3c24_21",topic:"S3-24.3 Atomic Structure",difficulty:"hard",
+   question:"What is the wavelength of the photon emitted when a hydrogen electron falls from n = 5 to n = 2? (En = −13.6/n² eV)",
+   options:["435 nm","656 nm","122 nm","486 nm"],correctIndex:0,
+   explanation:"ΔE = 13.6(1/4 − 1/25) = 2.856 eV, so λ = hc/E ≈ 435 nm (violet Balmer line).",
+   optionNotes:["","This is the n=3→2 transition.","This is the n=2→1 transition.","This is the n=4→2 transition."]},
+  {id:"s3c24_22",topic:"S3-24.4 X-rays",difficulty:"medium",
+   question:"An X-ray tube operates at 40 kV. What is the minimum wavelength of the X-rays produced? (h = 6.63×10⁻³⁴ J s, c = 3.00×10⁸ m s⁻¹, e = 1.60×10⁻¹⁹ C)",
+   options:["3.1 × 10⁻¹¹ m","6.2 × 10⁻¹¹ m","1.6 × 10⁻¹¹ m","3.1 × 10⁻¹⁰ m"],correctIndex:0,
+   explanation:"λmin = hc/eV = (6.63×10⁻³⁴)(3.00×10⁸)/(1.60×10⁻¹⁹ × 40000) ≈ 3.1×10⁻¹¹ m.",
+   optionNotes:["","This is double the correct value.","This is half the correct value.","This is ten times too large."]},
+  {id:"s3c24_23",topic:"S3-24.4 X-rays",difficulty:"hard",
+   question:"X-rays of wavelength 0.154 nm give a first-order Bragg maximum at a glancing angle of 20°. What is the spacing between the crystal planes? (nλ = 2d sinθ)",
+   options:["0.225 nm","0.450 nm","0.113 nm","0.077 nm"],correctIndex:0,
+   explanation:"d = λ/(2 sinθ) = 0.154/(2 × 0.342) ≈ 0.225 nm.",
+   optionNotes:["","This omits the factor 2, using d = λ/sinθ instead of d = λ/(2 sinθ).","This does not follow from d=λ/(2sinθ).","This is λ/2."]},
+  {id:"s3c24_24",topic:"S3-24.5 Nanoscience",difficulty:"medium",
+   question:"Semiconductor quantum dots of different sizes glow in different colours. Which statement is correct?",
+   options:["Smaller dots have a larger energy gap and emit shorter-wavelength (bluer) light","Smaller dots have a smaller energy gap and emit redder light","All dots emit the same colour because they are the same material","Larger dots emit bluer light because they contain more atoms"],correctIndex:0,
+   explanation:"Quantum confinement raises the energy gap as the dot gets smaller, so emitted photons have more energy and shorter wavelengths.",
+   optionNotes:["","The energy gap increases (not decreases) as the dot shrinks.","Size controls the gap, so colour differs even for the same material.","Larger dots have smaller gaps and emit redder light."]},
+  {id:"s3c24_25",topic:"S3-24.5 Nanoscience",difficulty:"medium",
+   question:"A scanning tunnelling microscope can image individual atoms. What property does it rely on?",
+   options:["A tunnelling current between tip and surface that is extremely sensitive to their separation","Diffraction of visible light by the tip","The photoelectric emission of electrons by X-rays","Reflection of sound waves by the surface"],correctIndex:0,
+   explanation:"The STM measures a quantum tunnelling current, which depends exponentially on the tip–sample gap, giving atomic-scale height resolution.",
+   optionNotes:["","Visible light cannot resolve atoms because its wavelength is far larger than atomic size.","STM does not rely on X-ray photoemission.","STM does not use sound waves."]}
+];
+
+const SEM3_BATCH3_CH25 = [
+  {id:"s3c25_10",topic:"S3-25.1 Nucleus",difficulty:"medium",
+   question:"Using R = R₀A^(1/3), what is the ratio of the radius of a nucleus with A = 216 to that of a nucleus with A = 27?",
+   options:["2","8","3","1.5"],correctIndex:0,
+   explanation:"Ratio = (216/27)^(1/3) = 8^(1/3) = 2.",
+   optionNotes:["","8 is the ratio of the mass numbers (and of volumes), not radii.","This is the ratio of the cube roots in the wrong order.","This is a different mass-number pair."]},
+  {id:"s3c25_11",topic:"S3-25.1 Nucleus",difficulty:"easy",
+   question:"Around which mass number is the binding energy per nucleon greatest, making those nuclei the most stable?",
+   options:["About A = 56 (iron region)","About A = 4 (helium)","About A = 120 (tin)","About A = 238 (uranium)"],correctIndex:0,
+   explanation:"The binding energy per nucleon curve peaks near iron-56 (~8.8 MeV), which is why fusion of light nuclei and fission of heavy nuclei both release energy.",
+   optionNotes:["","Helium-4 is very stable for its size but lies below the peak.","Tin is on the declining side of the curve.","Uranium has a much lower binding energy per nucleon (~7.6 MeV)."]},
+  {id:"s3c25_12",topic:"S3-25.2 Radioactivity",difficulty:"hard",
+   question:"A sample contains 3.0 × 10¹⁵ nuclei of iodine-131 (half-life 8.0 days). What is its activity? (1 day = 86400 s)",
+   options:["3.0 × 10⁹ Bq","2.1 × 10⁹ Bq","1.0 × 10⁻⁶ Bq","6.0 × 10⁹ Bq"],correctIndex:0,
+   explanation:"λ = ln2/(8.0×86400) = 1.0×10⁻⁶ s⁻¹, so A = λN = (1.0×10⁻⁶)(3.0×10¹⁵) ≈ 3.0×10⁹ Bq.",
+   optionNotes:["","This does not follow from λN with the correct λ.","This is the decay constant, not the activity.","This is double the correct value."]},
+  {id:"s3c25_13",topic:"S3-25.2 Radioactivity",difficulty:"medium",
+   question:"A 40 mg sample of a radioisotope has a half-life of 4.0 hours. What mass remains after 10 hours?",
+   options:["7.1 mg","10 mg","5.0 mg","15 mg"],correctIndex:0,
+   explanation:"10 h is 2.5 half-lives, so m = 40 × (½)^2.5 ≈ 7.1 mg.",
+   optionNotes:["","This is the mass after exactly 2 half-lives.","This is the mass after exactly 3 half-lives.","This does not follow from (½)^2.5."]},
+  {id:"s3c25_14",topic:"S3-25.3 Nuclear Reaction",difficulty:"hard",
+   question:"In ²H + ³H → ⁴He + n the masses are 2.014102 u, 3.016050 u, 4.002603 u and 1.008665 u. How much energy is released? (1 u = 931.5 MeV)",
+   options:["17.6 MeV","0.0189 MeV","8.8 MeV","35.2 MeV"],correctIndex:0,
+   explanation:"Δm = (2.014102 + 3.016050) − (4.002603 + 1.008665) = 0.018884 u. E = 0.018884 × 931.5 ≈ 17.6 MeV.",
+   optionNotes:["","This is the mass defect in u, not converted to MeV.","This is half the correct value.","This is double the correct value."]},
+  {id:"s3c25_15",topic:"S3-25.3 Nuclear Reaction",difficulty:"hard",
+   question:"Radium-226 (226.025410 u) decays to radon-222 (222.017578 u) by emitting an alpha particle (4.002603 u). How much energy is released? (1 u = 931.5 MeV)",
+   options:["4.87 MeV","0.00523 MeV","9.74 MeV","2.44 MeV"],correctIndex:0,
+   explanation:"Δm = 226.025410 − 222.017578 − 4.002603 = 0.005229 u, so E = 0.005229 × 931.5 ≈ 4.87 MeV.",
+   optionNotes:["","This is the mass defect in u, not converted to MeV.","This is double the correct value.","This is half the correct value."]}
+];
+
+
+  const SEED_QUESTIONS_SEM3_RAW = [].concat(SEM3_SEED_QUESTIONS_CH19, SEM3_SEED_QUESTIONS_CH20, SEM3_SEED_QUESTIONS_CH21, SEM3_SEED_QUESTIONS_CH22, SEM3_SEED_QUESTIONS_CH23, SEM3_SEED_QUESTIONS_CH24, SEM3_SEED_QUESTIONS_CH25, SEM3_BATCH2_CH19, SEM3_BATCH2_CH20, SEM3_BATCH2_CH21, SEM3_BATCH2_CH22, SEM3_BATCH2_CH23, SEM3_BATCH2_CH24, SEM3_BATCH2_CH25, SEM3_BATCH3_CH19, SEM3_BATCH3_CH20, SEM3_BATCH3_CH21, SEM3_BATCH3_CH22, SEM3_BATCH3_CH23, SEM3_BATCH3_CH24, SEM3_BATCH3_CH25);
+  // Semester 2/3 seed questions were authored with the correct answer first.
+  // The app does not shuffle option order, so we deterministically move the
+  // correct option to a position derived from the question id. Semester 1 is
+  // never touched (the Research pretest/posttest depends on its fixed items).
+  const SEED_ORIGINAL_OPTIONS = {};
+  function rebalanceSeeds(list){
+    return list.map(q => {
+      SEED_ORIGINAL_OPTIONS[q.id] = JSON.stringify(q.options);
+      const c = q.correctIndex;
+      const positional = q.options.some(o => /^(both|neither|all of|none of|cannot be determined)/i.test(String(o).trim()));
+      if (c !== 0 || positional || !Array.isArray(q.optionNotes) || q.optionNotes.length !== q.options.length) return q;
+      let h = 0;
+      for (let i=0;i<q.id.length;i++) h = (h*31 + q.id.charCodeAt(i)) >>> 0;
+      const target = h % q.options.length;
+      if (target === 0) return q;
+      const opts = q.options.slice(), notes = q.optionNotes.slice();
+      const [co] = opts.splice(0,1), [cn] = notes.splice(0,1);
+      opts.splice(target,0,co); notes.splice(target,0,cn);
+      return Object.assign({}, q, {options:opts, optionNotes:notes, correctIndex:target});
+    });
+  }
+  const SEED_QUESTIONS_SEM2 = rebalanceSeeds(SEED_QUESTIONS_SEM2_RAW);
+  const SEED_QUESTIONS_SEM3 = rebalanceSeeds(SEED_QUESTIONS_SEM3_RAW);
   const ALL_SEED_QUESTIONS = SEED_QUESTIONS.concat(SEED_QUESTIONS_SEM2, SEED_QUESTIONS_SEM3);
   let currentSemester = '1';
   function topicsForSemester(sem){ return sem === '2' ? TOPICS_SEM2 : sem === '3' ? TOPICS_SEM3 : TOPICS_SEM1; }
@@ -4040,9 +4441,21 @@ const SEM3_BATCH2_CH25 = [
       // and later top-ups where new seed questions were added to the app,
       // such as the Chapter 3: Dynamics questions, and the Semester 2
       // question bank).
+      // Migration: Semester 2/3 questions saved earlier with the correct
+      // answer in slot A get their rebalanced option order (only if the saved
+      // copy is still the untouched original, so teacher edits are kept).
+      let rebalancedSaved = false;
+      bank.forEach((q, i) => {
+        if (!SEED_ORIGINAL_OPTIONS[q.id]) return;
+        const sq = SEED_QUESTIONS_SEM2.concat(SEED_QUESTIONS_SEM3).find(x => x.id === q.id);
+        if (sq && JSON.stringify(q.options) === SEED_ORIGINAL_OPTIONS[q.id] && JSON.stringify(sq.options) !== SEED_ORIGINAL_OPTIONS[q.id]){
+          bank[i] = JSON.parse(JSON.stringify(sq));
+          rebalancedSaved = true;
+        }
+      });
       const existingIds = new Set(bank.map(q=>q.id));
       const missing = ALL_SEED_QUESTIONS.filter(sq => !existingIds.has(sq.id));
-      if (missing.length || renamed || fixedS5 || backfilled){
+      if (missing.length || renamed || fixedS5 || backfilled || rebalancedSaved){
         bank = bank.concat(missing);
         await saveBank();
       }
