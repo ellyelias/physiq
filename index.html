@@ -3750,7 +3750,212 @@ const SEM3_SEED_QUESTIONS_CH25 = [
 ];
 
   const SEED_QUESTIONS_SEM2 = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18, SEM2_BATCH2_QUESTIONS, SEM2_BATCH3_QUESTIONS, SEM2_BATCH4_QUESTIONS, SEM2_BATCH5_QUESTIONS, SEM2_BATCH6_QUESTIONS);
-  const SEED_QUESTIONS_SEM3 = [].concat(SEM3_SEED_QUESTIONS_CH19, SEM3_SEED_QUESTIONS_CH20, SEM3_SEED_QUESTIONS_CH21, SEM3_SEED_QUESTIONS_CH22, SEM3_SEED_QUESTIONS_CH23, SEM3_SEED_QUESTIONS_CH24, SEM3_SEED_QUESTIONS_CH25);
+// STAGING FILE — Semester 3 Batch 2: 35 more original questions (1 per
+// subtopic across all 7 chapters), bringing each subtopic from 2 to 3
+// questions. Inspired by real STPM 960/3 Paper 3 past-year questions
+// (sampled across 1999-2025, both structured/essay questions and the
+// newer MCQ-format Section A from 2024/2025) supplied by Cikgu Suhaili,
+// but every question here uses fresh original numbers, scenarios and
+// wording — "inspired by, never verbatim". All numeric answers verified
+// by Python calculation before being written (see session work).
+
+const SEM3_BATCH2_CH19 = [
+  {id:"s3c19_13",topic:"S3-19.1 Characteristics of Simple Harmonic Motion",difficulty:"easy",
+   question:"A particle performs SHM. At the instant its displacement from equilibrium is at its maximum (i.e. the particle is momentarily at an extreme position), what can be said about its velocity and acceleration at that instant?",
+   options:["Velocity is zero; acceleration is at its maximum magnitude", "Velocity is at its maximum; acceleration is zero", "Both velocity and acceleration are zero", "Both velocity and acceleration are at their maximum magnitude"],correctIndex:0,
+   explanation:"At an extreme position, the particle momentarily stops before reversing direction, so velocity is zero. Since acceleration a=−ω²x depends on displacement, and displacement is at its maximum magnitude there, the acceleration is also at its maximum magnitude at that instant.",
+   optionNotes:["","This has it backwards — velocity is MAXIMUM at the equilibrium position (x=0), not at the extremes, and acceleration is zero at equilibrium, not at the extremes.","Velocity and acceleration cannot both be zero at the same instant in SHM (except for a particle permanently at rest) — when one is zero the other is at its extreme.","Velocity and acceleration are never simultaneously at their maximum — velocity is maximum where acceleration is zero (at equilibrium), and vice versa (at the extremes)."]},
+  {id:"s3c19_14",topic:"S3-19.2 Kinematics of Simple Harmonic Motion",difficulty:"hard",
+   question:"A particle performs SHM with amplitude 0.12 m and angular frequency 3.0 rad s⁻¹, starting from the equilibrium position (x=0) at t=0 and moving in the positive direction. What are its displacement and velocity at t = 0.20 s? (x = A sin(ωt), v = Aω cos(ωt))",
+   options:["0.068 m; 0.30 m s⁻¹","0.12 m; 0.30 m s⁻¹","0.068 m; 0.36 m s⁻¹","0.10 m; 0.25 m s⁻¹"],correctIndex:0,
+   explanation:"x = A sin(ωt) = 0.12 sin(0.60 rad) ≈ 0.12(0.565) ≈ 0.068 m. v = Aω cos(ωt) = 0.12(3.0) cos(0.60 rad) ≈ 0.36(0.825) ≈ 0.30 m s⁻¹.",
+   optionNotes:["","This uses the full amplitude A as the displacement, without applying the sin(ωt) factor.","This correctly finds the displacement but omits the cos(ωt) factor when finding velocity, treating Aω as if it were the velocity at every instant (rather than only at t=0).","This doesn't follow from correctly applying x=Asin(ωt) and v=Aωcos(ωt) with ωt=0.60 rad."]},
+  {id:"s3c19_15",topic:"S3-19.3 Energy in Simple Harmonic Motion",difficulty:"medium",
+   question:"A particle performs SHM with amplitude A. What percentage of its total energy is POTENTIAL energy when its displacement from equilibrium is A/4?",
+   options:["6.25%","93.75%","25%","50%"],correctIndex:0,
+   explanation:"PE fraction = (x/A)² = (1/4)² = 1/16 = 6.25% of the total energy. (The remaining 93.75% is kinetic energy at that point.)",
+   optionNotes:["","This is the KINETIC energy fraction (the complement of the potential energy fraction asked for), not the potential energy fraction.","This would be the PE fraction only if the displacement were A/2, not A/4.","This is not consistent with correctly computing (x/A)² at x=A/4."]},
+  {id:"s3c19_16",topic:"S3-19.4 Systems in Simple Harmonic Motion",difficulty:"medium",
+   question:"The period of oscillation of simple pendulum A is twice the period of simple pendulum B. Both pendulums swing with small amplitude at the same location (so g is the same for both). What is the ratio of the length of pendulum A to the length of pendulum B?",
+   options:["4","2","8","1/4"],correctIndex:0,
+   explanation:"Since T=2π√(L/g), T∝√L, so L∝T². If TA=2TB, then LA/LB=(TA/TB)²=2²=4.",
+   optionNotes:["","This treats length as directly proportional to period (not period SQUARED) — but since T∝√L, doubling the period means the length increases by a factor of 2²=4, not just 2.","This would apply if length were proportional to the CUBE of the period, but the actual relationship is L∝T² (from T∝√L), giving a factor of 4, not 8.","This is the inverse of the correct ratio (it gives LB/LA, not LA/LB) — pendulum A, with the LONGER period, must have the GREATER length."]},
+  {id:"s3c19_17",topic:"S3-19.5 Damped Oscillation",difficulty:"medium",
+   question:"Engineers designing a car's suspension system want the car body to return to its normal ride height as quickly as possible after hitting a bump, without bouncing up and down repeatedly. Which type of damping should the suspension be designed to achieve?",
+   options:["Critical damping", "No damping at all (an undamped system)", "Light (under) damping", "The type of damping doesn't matter — only the spring's stiffness determines how quickly the car settles"],correctIndex:0,
+   explanation:"Critical damping returns a displaced system to equilibrium in the shortest possible time without any oscillation — exactly the comfortable, controlled, non-bouncy response a car suspension is designed to achieve.",
+   optionNotes:["","An undamped system would oscillate indefinitely and never settle at all — this is the opposite of what a suspension needs.","Light (under) damping allows the car body to oscillate up and down several times before settling, producing an uncomfortable, bouncy ride — not the quick, non-oscillating return that's wanted.","The TYPE of damping is in fact the key design parameter controlling whether the system oscillates and how quickly it settles — it is not irrelevant compared to spring stiffness."]},
+  {id:"s3c19_18",topic:"S3-19.6 Forced Oscillation and Resonance",difficulty:"medium",
+   question:"Marching soldiers crossing a long footbridge are traditionally ordered to break step (stop marching in unison) rather than continue marching in time. What physical phenomenon is this precaution meant to avoid?",
+   options:["Resonance, in case the soldiers' marching frequency happens to match the bridge's natural frequency", "Beats, from the soldiers' footsteps interfering with the sound of the wind", "The Doppler effect, caused by the soldiers' motion across the bridge", "Diffraction of the bridge's own vibrations around the marching soldiers"],correctIndex:0,
+   explanation:"If the soldiers' marching frequency matched the bridge's natural frequency, the repeated, synchronised force would drive the bridge into resonance, potentially building up a dangerously large oscillation amplitude. Breaking step randomises the driving force and prevents this.",
+   optionNotes:["","Beats are a loudness effect from superposing two close sound frequencies — not a structural concern for a bridge's mechanical vibration.","The Doppler effect concerns a shift in perceived frequency due to relative motion between source and observer — not a mechanism that could damage a bridge's structure.","Diffraction describes waves bending around obstacles or through gaps — it is not the structural hazard that marching in step could create."]}
+];
+
+const SEM3_BATCH2_CH20 = [
+  {id:"s3c20_11",topic:"S3-20.1 Progressive Waves",difficulty:"hard",
+   question:"A progressive wave travelling along a string is represented by y = 0.020 sin(50t − 4.0x), where y and x are in metres and t is in seconds. What are the speed and frequency of this wave? (v = ω/k, f = ω/2π)",
+   options:["12.5 m s⁻¹; 8.0 Hz","4.0 m s⁻¹; 50 Hz","200 m s⁻¹; 8.0 Hz","12.5 m s⁻¹; 50 Hz"],correctIndex:0,
+   explanation:"Comparing to y=A sin(ωt−kx): ω=50 rad s⁻¹, k=4.0 rad m⁻¹. Speed v=ω/k=50/4.0=12.5 m s⁻¹. Frequency f=ω/(2π)=50/(2π)≈8.0 Hz.",
+   optionNotes:["","This simply reads off the coefficients (4.0 and 50) directly as the speed and frequency, without applying v=ω/k and f=ω/2π.","This multiplies ω and k together instead of dividing to find the speed.","This correctly finds the speed but uses ω directly as the frequency, omitting the division by 2π."]},
+  {id:"s3c20_12",topic:"S3-20.2 Wave Intensity",difficulty:"medium",
+   question:"The amplitude of a progressive wave is tripled while its frequency stays the same. By what factor does the wave's intensity change? (I ∝ A²)",
+   options:["9","3","6","27"],correctIndex:0,
+   explanation:"Since I∝A², tripling the amplitude multiplies the intensity by 3²=9.",
+   optionNotes:["","This treats intensity as directly proportional to amplitude (not amplitude SQUARED) — tripling the amplitude actually multiplies intensity by 3²=9, not just 3.","This incorrectly doubles the amplitude factor (2×3) rather than squaring it.","This would apply if intensity depended on A³, but it depends on A², so the correct factor is 9, not 27."]},
+  {id:"s3c20_13",topic:"S3-20.3 Principle of Superposition",difficulty:"hard",
+   question:"Two coherent waves, each of intensity I0, arrive at point P with a path difference of exactly one-third of a wavelength (λ/3). What is the resultant intensity at P, in terms of I0? (I = 4I0cos²(Δφ/2), where Δφ is the phase difference corresponding to the path difference)",
+   options:["I0","4I0","0","2I0"],correctIndex:0,
+   explanation:"A path difference of λ/3 corresponds to a phase difference Δφ=2π/3 rad. I=4I0cos²(Δφ/2)=4I0cos²(π/3)=4I0(0.5)²=4I0(0.25)=I0.",
+   optionNotes:["","This uses the formula's prefactor (4I0) as if cos²(Δφ/2) always equals 1, which is only true for a path difference of a whole number of wavelengths (perfect constructive interference) — not the case here.","This assumes the interference is fully destructive simply because the path difference isn't a whole number of wavelengths, but destructive interference specifically requires a HALF-integer number of wavelengths, not just any non-integer value.","This doesn't follow from correctly evaluating 4I0cos²(π/3) using the given path difference."]},
+  {id:"s3c20_14",topic:"S3-20.4 Standing Waves",difficulty:"medium",
+   question:"A standing wave has a wavelength of 0.80 m. What is the distance between the 2nd node and the 5th node along the wave? (adjacent nodes are separated by λ/2)",
+   options:["1.2 m","0.40 m","1.6 m","2.4 m"],correctIndex:0,
+   explanation:"There are 3 node-to-node gaps between the 2nd and 5th nodes (2→3, 3→4, 4→5), each of length λ/2=0.40 m. Total distance = 3×0.40 = 1.2 m.",
+   optionNotes:["","This uses only a single node-to-node gap (λ/2), rather than the 3 gaps that separate the 2nd and 5th nodes.","This counts 4 gaps instead of the correct 3 — an off-by-one counting error (the gap count is always one less than the difference in node numbers).","This counts 6 gaps instead of the correct 3 — double the correct number of gaps."]},
+  {id:"s3c20_15",topic:"S3-20.5 Electromagnetic Waves",difficulty:"medium",
+   question:"An electromagnetic wave in vacuum has a frequency of 1.5 × 10¹⁴ Hz. What is its wavelength? (c = 3.00 × 10⁸ m s⁻¹)",
+   options:["2.0 × 10⁻⁶ m","4.5 × 10²² m","5.0 × 10⁵ m","1.0 × 10⁻⁶ m"],correctIndex:0,
+   explanation:"λ = c/f = (3.00×10⁸)/(1.5×10¹⁴) = 2.0×10⁻⁶ m (in the infrared region of the spectrum).",
+   optionNotes:["","This multiplies c and f together instead of dividing, producing a nonsensically large value for a wavelength.","This computes f/c instead of c/f, giving the reciprocal of the wavelength rather than the wavelength itself.","This is half the correct value."]}
+];
+
+const SEM3_BATCH2_CH21 = [
+  {id:"s3c21_11",topic:"S3-21.1 Propagation of Sound Waves",difficulty:"hard",
+   question:"A sound wave travelling through air is represented by y = 6.0 × 10⁻⁴ sin(300t − 0.90x), where y and x are in metres and t is in seconds. What are the speed and frequency of this sound wave? (v = ω/k, f = ω/2π)",
+   options:["330 m s⁻¹; 48 Hz","0.90 m s⁻¹; 300 Hz","270 m s⁻¹; 48 Hz","330 m s⁻¹; 300 Hz"],correctIndex:0,
+   explanation:"ω=300 rad s⁻¹, k=0.90 rad m⁻¹. Speed v=ω/k=300/0.90≈333 m s⁻¹≈330 m s⁻¹ (consistent with the typical speed of sound in air). Frequency f=ω/(2π)=300/(2π)≈47.7 Hz≈48 Hz.",
+   optionNotes:["","This simply reads off the coefficients from the equation directly as the speed and frequency, rather than applying v=ω/k and f=ω/2π.","This multiplies ω and k together instead of dividing to find the speed.","This correctly finds the speed but uses ω directly as the frequency, omitting the division by 2π."]},
+  {id:"s3c21_12",topic:"S3-21.2 Sources of Sound",difficulty:"medium",
+   question:"An air column closed at one end resonates at its fundamental frequency when its length is 0.17 m, driven by a sound source of frequency 500 Hz. What is the speed of sound in the air column? (v = 4fL for the fundamental of a closed pipe)",
+   options:["340 m s⁻¹","170 m s⁻¹","85 m s⁻¹","680 m s⁻¹"],correctIndex:0,
+   explanation:"v = 4fL = 4(500)(0.17) = 340 m s⁻¹.",
+   optionNotes:["","This uses v=2fL (the OPEN pipe fundamental relation) instead of v=4fL (the correct relation for a pipe closed at one end).","This uses v=fL, omitting the factor of 4 entirely.","This is double the correct value, as if an extra factor of 2 were included."]},
+  {id:"s3c21_13",topic:"S3-21.3 Intensity Level of Sound",difficulty:"medium",
+   question:"At a certain point, sound source P produces an intensity level that is 10 dB higher than the intensity level produced by sound source Q. What is the ratio of the intensity of P to the intensity of Q?",
+   options:["10","2","100","20"],correctIndex:0,
+   explanation:"Since ΔdB=10log₁₀(IP/IQ), a 10 dB difference means 10=10log₁₀(IP/IQ), so log₁₀(IP/IQ)=1, giving IP/IQ=10¹=10.",
+   optionNotes:["","Doubling intensity corresponds to roughly a 3 dB increase (10log₁₀2≈3), not a 10 dB increase — a 10 dB difference corresponds to a full factor of 10 in intensity, not merely doubling.","This would be the ratio for a 20 dB difference (10²=100), not a 10 dB difference.","This treats the dB difference as if it directly scales the ratio (10 dB → ×20), rather than correctly using ratio=10^(ΔdB/10)."]},
+  {id:"s3c21_14",topic:"S3-21.4 Beat",difficulty:"medium",
+   question:"Tuning fork X has a frequency of 256 Hz. When sounded together with tuning fork Y, a beat frequency of 5 Hz is heard. What are the two possible values of the frequency of tuning fork Y?",
+   options:["251 Hz or 261 Hz","256 Hz or 261 Hz","5 Hz or 256 Hz","261 Hz only"],correctIndex:0,
+   explanation:"The beat frequency is the magnitude of the difference between the two frequencies: |fX−fY|=5 Hz. This is satisfied by fY=256−5=251 Hz OR fY=256+5=261 Hz — without further information, either is consistent with the observed beats.",
+   optionNotes:["","256 Hz would give a beat frequency of 0 Hz (identical forks, no beats) — this cannot be one of the two correct possibilities.","Neither 5 Hz nor 256 Hz-paired-with-itself represents a valid second possible frequency for tuning fork Y consistent with a 5 Hz beat against 256 Hz.","This gives only ONE of the two frequencies consistent with the observed 5 Hz beat — the beat frequency formula |fX−fY|=5 Hz has two solutions, not one."]},
+  {id:"s3c21_15",topic:"S3-21.5 Doppler Effect",difficulty:"medium",
+   question:"A police radar gun determines a vehicle's speed by emitting a radio wave of known frequency toward the vehicle and analysing the frequency of the wave reflected back from it. Which principle allows the vehicle's speed to be determined this way?",
+   options:["The Doppler effect — the reflected wave's frequency is shifted by an amount that depends on the vehicle's speed", "Resonance — the vehicle only reflects the wave if it happens to be moving at its own natural frequency", "Diffraction — the wave bends around the vehicle by an amount that depends on its speed", "Interference — the reflected wave partially cancels out by an amount that depends on the vehicle's speed"],correctIndex:0,
+   explanation:"As the vehicle moves relative to the radar source, the frequency of the wave it reflects back is shifted (the Doppler effect) by an amount that depends on the vehicle's speed — measuring this frequency shift lets the radar calculate the speed.",
+   optionNotes:["","Resonance describes a large-amplitude response when driving frequency matches a system's natural frequency — it has nothing to do with how a radar gun measures vehicle speed.","Diffraction describes the bending/spreading of waves around obstacles or through gaps — it is not the mechanism radar speed detection relies on.","Interference describes the superposition of two or more waves — it is not the mechanism by which radar determines a single vehicle's speed from one reflected wave."]}
+];
+
+const SEM3_BATCH2_CH22 = [
+  {id:"s3c22_7",topic:"S3-22.1 Spherical Mirrors",difficulty:"hard",
+   question:"An object is placed 30 cm in front of a convex mirror of focal length 15 cm (f = −15 cm, using the real-is-positive sign convention where a convex mirror's focal length is negative). What are the image distance and magnification? (1/v = 1/f − 1/u, m = −v/u)",
+   options:["10 cm (virtual); magnification +0.33","10 cm (real); magnification +0.33","30 cm (virtual); magnification +1.0","10 cm (virtual); magnification −0.33"],correctIndex:0,
+   explanation:"1/v = 1/f − 1/u = 1/(−15) − 1/30 = −2/30 − 1/30 = −3/30 = −1/10, so v=−10 cm (negative, meaning a virtual image behind the mirror). Magnification m=−v/u=−(−10)/30=+1/3≈+0.33 (upright, diminished).",
+   optionNotes:["","The image distance and magnification are correct, but a NEGATIVE v in this sign convention corresponds to a VIRTUAL image, not a real one — convex mirrors always form virtual images for real objects.","This doesn't follow from correctly computing 1/v=1/f−1/u with f=−15cm and u=30cm.","The magnification's sign is wrong — a positive magnification (upright image) is correct here, not negative (which would indicate an inverted image, something a convex mirror never produces for a single real object)."]},
+  {id:"s3c22_8",topic:"S3-22.2 Refraction at Spherical Surfaces",difficulty:"hard",
+   question:"Light travels from air (n1 = 1.00) into a glass rod through a convex spherical surface of radius of curvature 2.0 cm (n2 = 1.50 for the glass). An object is placed 8.0 cm from the surface, in the air. Where is the image formed, measured from the surface? (n1/u + n2/v = (n2−n1)/R)",
+   options:["12.0 cm","6.0 cm","16.0 cm","24.0 cm"],correctIndex:0,
+   explanation:"n1/u + n2/v = (n2−n1)/R: 1.00/8.0 + 1.50/v = (1.50−1.00)/2.0 = 0.25. So 1.50/v = 0.25 − 0.125 = 0.125, giving v = 1.50/0.125 = 12.0 cm.",
+   optionNotes:["","This doesn't follow from correctly rearranging n1/u+n2/v=(n2−n1)/R to solve for v with the given values.","This is double the correct value.","This is also inconsistent with the correct calculation using the given radius, object distance and refractive indices."]},
+  {id:"s3c22_9",topic:"S3-22.3 Thin Lenses",difficulty:"medium",
+   question:"A thin biconvex lens is made of glass with refractive index 1.5. Both surfaces have a radius of curvature of 20 cm. What is the focal length of this lens? (1/f = (n−1)(1/r1 − 1/r2), with r1 = +20 cm and r2 = −20 cm for a symmetric biconvex lens)",
+   options:["20 cm","40 cm","10 cm","80 cm"],correctIndex:0,
+   explanation:"1/f = (n−1)(1/r1 − 1/r2) = (0.5)(1/20 − (−1/20)) = (0.5)(2/20) = (0.5)(0.1) = 0.05, so f = 1/0.05 = 20 cm.",
+   optionNotes:["","This is double the correct value, as if only one surface's contribution (1/r1 alone, without subtracting the negative 1/r2) were used, halving the total lens power.","This is half the correct value.","This is four times too large, inconsistent with the correct lensmaker's equation calculation."]}
+];
+
+const SEM3_BATCH2_CH23 = [
+  {id:"s3c23_17",topic:"S3-23.1 Huygens's Principle",difficulty:"medium",
+   question:"Using Huygens's Principle, explain why a wave is observed to bend (spread) around the edge of an obstacle or through a narrow gap — the phenomenon known as diffraction.",
+   options:["Points on the wavefront at the edge of the obstacle or gap act as sources of secondary wavelets, which spread into the 'shadow' region that simple straight-line ray propagation would not reach", "The obstacle reflects part of the wave back into the shadow region, creating the appearance of the wave bending", "Diffraction occurs because the wave's frequency changes as it passes the edge of the obstacle, curving its path", "Diffraction is caused by the wave's speed increasing sharply right at the edge of the obstacle"],correctIndex:0,
+   explanation:"By Huygens's Principle, every point on the wavefront reaching the edge of an obstacle or gap generates its own secondary spherical wavelet. These wavelets spread in all directions, including into the geometric 'shadow' region — their envelope is what produces the observed bending/spreading of the wave known as diffraction.",
+   optionNotes:["","Diffraction is not caused by reflection from the obstacle back into the shadow — it is explained by NEW secondary wavelets spreading forward from the edge, per Huygens's construction.","A wave's frequency does not change simply because it passes an edge or obstacle (frequency is set by the source) — this is not the mechanism behind diffraction.","A wave's speed is set by the properties of the medium it travels through, not by proximity to an obstacle's edge — this is not the correct Huygens-based explanation for diffraction."]},
+  {id:"s3c23_18",topic:"S3-23.2 Interference",difficulty:"hard",
+   question:"In a two-source interference experiment, the two sources have UNEQUAL intensities: source 1 has intensity 4I0 and source 2 has intensity I0. What is the ratio of the maximum to the minimum intensity observed in the resulting interference pattern? (Imax = (√I1 + √I2)², Imin = (√I1 − √I2)²)",
+   options:["9","4","5/3","16"],correctIndex:0,
+   explanation:"√I1=√(4I0)=2√I0, √I2=√I0. Imax=(2√I0+√I0)²=(3√I0)²=9I0. Imin=(2√I0−√I0)²=(√I0)²=I0. Ratio Imax/Imin=9I0/I0=9.",
+   optionNotes:["","This is simply the ratio of the two source intensities (I1/I2=4), not the correctly computed Imax/Imin ratio, which also accounts for how the AMPLITUDES combine.","This doesn't follow from correctly applying the Imax and Imin formulas with the square-root amplitude ratios.","This also doesn't match the correct calculation using Imax=(√I1+√I2)² and Imin=(√I1−√I2)²."]},
+  {id:"s3c23_19",topic:"S3-23.3 Two-slit Interference Pattern",difficulty:"medium",
+   question:"In a two-slit interference experiment, the slit separation is 0.40 mm and the light used has wavelength 500 nm. At what angle from the central axis is the 3rd-order (m=3) bright fringe observed? (d sinθ = mλ)",
+   options:["0.215°","0.072°","0.64°","3.0°"],correctIndex:0,
+   explanation:"sinθ = mλ/d = 3(500×10⁻⁹)/(0.40×10⁻³) = 3.75×10⁻³, so θ = sin⁻¹(3.75×10⁻³) ≈ 0.215°.",
+   optionNotes:["","This uses m=1 (the 1st-order angle) instead of m=3, giving a three-times-too-small angle.","This doesn't follow from correctly computing sin⁻¹(3λ/d) with the given values.","This is roughly 14 times too large, inconsistent with the correct small-angle calculation here."]},
+  {id:"s3c23_20",topic:"S3-23.4 Interference in A Thin Film",difficulty:"hard",
+   question:"An air wedge is illuminated with light of wavelength 600 nm. The wedge angle between the two glass plates forming it is 2.0 × 10⁻⁴ rad. What is the spacing between successive interference fringes observed? (fringe spacing x = λ/(2θ) for a small wedge angle θ)",
+   options:["1.5 mm","3.0 mm","0.75 mm","6.0 mm"],correctIndex:0,
+   explanation:"x = λ/(2θ) = (600×10⁻⁹)/(2×2.0×10⁻⁴) = (600×10⁻⁹)/(4.0×10⁻⁴) = 1.5×10⁻³ m = 1.5 mm.",
+   optionNotes:["","This omits the factor of 2 in the denominator, using x=λ/θ instead of the correct x=λ/(2θ).","This doubles the factor of 2 again (using x=λ/(4θ)), giving half the correct value.","This is four times too large, inconsistent with the correct formula and given values."]},
+  {id:"s3c23_21",topic:"S3-23.5 Diffraction by A Single Slit",difficulty:"medium",
+   question:"Light of wavelength 500 nm passes through a single slit of width 1.0 × 10⁻⁵ m. What is the angular width of the central diffraction maximum (i.e. twice the angle to the first minimum on either side)? (a sinθ = λ for the first minimum)",
+   options:["5.7°","2.9°","11.5°","1.4°"],correctIndex:0,
+   explanation:"First minimum: sinθ1=λ/a=(500×10⁻⁹)/(1.0×10⁻⁵)=0.050, so θ1≈2.87°. The central maximum spans from −θ1 to +θ1, so its total angular width is 2θ1≈5.7°.",
+   optionNotes:["","This gives only the angle to ONE first minimum (θ1), not the full width of the central maximum, which spans from the minimum on one side to the minimum on the other side (2θ1).","This doubles the correct width again, using 4θ1 instead of 2θ1.","This is half of θ1, not the full width 2θ1 that the question asks for."]},
+  {id:"s3c23_22",topic:"S3-23.6 Diffraction Gratings",difficulty:"hard",
+   question:"A laser beam passes perpendicularly through a diffraction grating with 300 lines per millimetre. On a screen 75.0 cm from the grating, the first-order (m=1) bright spot is observed 15.0 cm from the central (zeroth-order) spot. What is the wavelength of the laser light? (Use tanθ = y/D to find the angle to the first-order spot, then d sinθ = mλ)",
+   options:["654 nm","667 nm","600 nm","1310 nm"],correctIndex:0,
+   explanation:"tanθ=y/D=15.0/75.0=0.20, so θ=tan⁻¹(0.20)≈11.31°. Grating spacing d=1/(300 lines/mm)=3.333×10⁻⁶ m. λ=d sinθ=(3.333×10⁻⁶)sin(11.31°)≈6.537×10⁻⁷ m≈654 nm.",
+   optionNotes:["","This uses tanθ=0.20 directly in place of sinθ (a small-angle approximation misapplied at an angle, 11.3°, too large for that approximation to be accurate) — the correct approach finds the actual angle θ first, then takes its sine.","This doesn't follow from correctly computing the angle via tan⁻¹(y/D) and then applying d sinθ=mλ.","This is double the correct value, as if the order m were mistaken for 2 instead of 1."]},
+  {id:"s3c23_23",topic:"S3-23.7 Polarisation",difficulty:"hard",
+   question:"Unpolarised light of intensity I0 passes through three polarisers in succession. The first polariser's transmission axis is vertical. The second is at 45° to the first, and the third is at 90° to the first (i.e. 45° to the second). What fraction of the original intensity I0 emerges after the third polariser? (Treat the first polariser as transmitting exactly I0/2; apply Malus's Law at each subsequent polariser.)",
+   options:["12.5%","0%","25%","50%"],correctIndex:0,
+   explanation:"After polariser 1: I1=I0/2. After polariser 2 (45° from polariser 1): I2=I1cos²(45°)=I1(0.5)=I0/4. After polariser 3 (45° from polariser 2): I3=I2cos²(45°)=I2(0.5)=I0/8=12.5% of I0.",
+   optionNotes:["","This assumes that because the third polariser is at 90° to the first, NO light at all can pass through — but this ignores the crucial role of the MIDDLE polariser, which rotates the light's polarisation axis partway, allowing some light through the third polariser (this is the classic 'three-polariser paradox').","This treats only the first polariser's halving effect, ignoring the additional reduction from the second and third polarisers.","This applies only one of the two 45° Malus's Law reductions (after polariser 2), omitting the identical reduction that also occurs at polariser 3."]},
+  {id:"s3c23_24",topic:"S3-23.8 Optical Waveguides",difficulty:"medium",
+   question:"An optical fibre has a core of refractive index 1.50 and a cladding of refractive index 1.45. What is the numerical aperture (NA) of this fibre? (NA = √(n_core² − n_cladding²))",
+   options:["0.384","0.1475","0.050","1.45"],correctIndex:0,
+   explanation:"NA = √(n_core² − n_cladding²) = √(1.50² − 1.45²) = √(2.2500 − 2.1025) = √0.1475 ≈ 0.384.",
+   optionNotes:["","This is the value of n_core²−n_cladding² itself, without taking the final square root required by the NA formula.","This is simply the difference n_core−n_cladding, not the correctly computed numerical aperture (which depends on the difference of their SQUARES, then a square root).","This is just the cladding's refractive index, not the result of the numerical aperture calculation."]}
+];
+
+const SEM3_BATCH2_CH24 = [
+  {id:"s3c24_11",topic:"S3-24.1 Photon",difficulty:"medium",
+   question:"A common helium-neon (He-Ne) laser emits red light of wavelength 632.8 nm. What is the energy of a single photon of this light, in electron-volts? (h = 6.63×10⁻³⁴ J s, c = 3.00×10⁸ m s⁻¹, 1 eV = 1.60×10⁻¹⁹ J)",
+   options:["1.96 eV","0.51 eV","3.92 eV","0.98 eV"],correctIndex:0,
+   explanation:"E = hc/λ = (6.63×10⁻³⁴)(3.00×10⁸)/(632.8×10⁻⁹) J ÷ (1.60×10⁻¹⁹ J/eV) ≈ 1.96 eV.",
+   optionNotes:["","This doesn't follow from correctly computing hc/λ and converting the result to electron-volts.","This is double the correct value.","This is half the correct value."]},
+  {id:"s3c24_12",topic:"S3-24.2 Wave-Particle Duality",difficulty:"medium",
+   question:"What is the de Broglie wavelength of a proton (mass 1.67×10⁻²⁷ kg) moving at a speed of 2.0×10⁵ m s⁻¹? (h = 6.63×10⁻³⁴ J s, λ = h/(mv))",
+   options:["2.0 × 10⁻¹² m","4.0 × 10⁻¹² m","1.0 × 10⁻¹² m","3.3 × 10⁻²² m"],correctIndex:0,
+   explanation:"λ = h/(mv) = (6.63×10⁻³⁴)/[(1.67×10⁻²⁷)(2.0×10⁵)] ≈ 2.0×10⁻¹² m.",
+   optionNotes:["","This is double the correct value.","This is half the correct value.","This computes h/m only, without dividing by the proton's speed v as well."]},
+  {id:"s3c24_13",topic:"S3-24.3 Atomic Structure",difficulty:"hard",
+   question:"According to the Bohr model, what is the wavelength of the photon emitted when a hydrogen atom's electron transitions from energy level n=3 to n=2? (En = −13.6/n² eV; h=6.63×10⁻³⁴ J s, c=3.00×10⁸ m s⁻¹, 1eV=1.60×10⁻¹⁹ J)",
+   options:["658 nm","122 nm","365 nm","1875 nm"],correctIndex:0,
+   explanation:"E3=−13.6/9≈−1.511 eV, E2=−13.6/4=−3.4 eV. Energy released = E3−E2=−1.511−(−3.4)=1.889 eV. λ=hc/E≈658 nm (close to the well-known H-alpha red spectral line).",
+   optionNotes:["","This is the wavelength of the n=2→1 (Lyman series) transition, not the n=3→2 transition asked for here — a different pair of energy levels.","This value does not correspond to the correctly computed energy difference between n=3 and n=2.","This is actually close to a Paschen-series (n→3) infrared transition wavelength, not the Balmer-series n=3→2 visible-light transition asked for here."]},
+  {id:"s3c24_14",topic:"S3-24.4 X-rays",difficulty:"medium",
+   question:"In an X-ray tube, electrons are accelerated from rest through a potential difference of 20 kV before striking the target. What is the speed of the electrons just before impact? (e=1.60×10⁻¹⁹ C, mass of electron=9.11×10⁻³¹ kg; (1/2)mv² = eV)",
+   options:["8.4 × 10⁷ m s⁻¹","1.2 × 10⁸ m s⁻¹","4.2 × 10⁷ m s⁻¹","7.0 × 10¹⁵ m s⁻¹"],correctIndex:0,
+   explanation:"v = √(2eV/m) = √[2(1.60×10⁻¹⁹)(20000)/(9.11×10⁻³¹)] ≈ 8.4×10⁷ m s⁻¹.",
+   optionNotes:["","This doesn't follow from correctly computing √(2eV/m) with the given accelerating voltage.","This is half the correct value.","This omits the square root entirely, giving the value of 2eV/m itself rather than its square root."]},
+  {id:"s3c24_15",topic:"S3-24.5 Nanoscience",difficulty:"easy",
+   question:"By convention, a material structure is generally classified as being in the 'nano' size regime — where quantum confinement and enhanced surface effects become significant — when at least one of its dimensions falls roughly within which range?",
+   options:["1 nm to 100 nm","1 μm to 100 μm","1 mm to 100 mm","1 pm to 100 pm"],correctIndex:0,
+   explanation:"The nanoscale is conventionally defined as roughly 1 to 100 nanometres — the size range at which quantum confinement effects on electronic structure and a greatly increased surface-area-to-volume ratio become physically significant, distinguishing nanomaterials from ordinary bulk materials.",
+   optionNotes:["","A micrometre range (1-100 μm) is a thousand times larger than the nanoscale — structures this large generally behave as ordinary bulk material, without pronounced quantum confinement effects.","A millimetre range (1-100 mm) is far larger still (a million times the nanoscale) — well within the realm of everyday bulk material behaviour.","A picometre range (1-100 pm) is a thousand times SMALLER than the nanoscale — this is closer to the scale of individual atoms and bond lengths, not the nanostructure size regime."]}
+];
+
+const SEM3_BATCH2_CH25 = [
+  {id:"s3c25_7",topic:"S3-25.1 Nucleus",difficulty:"hard",
+   question:"Using R = R0A^(1/3) with R0 = 1.2 fm, estimate the density of the nucleus of aluminium-27 (A=27). (Take the mass of one nucleon as 1.66×10⁻²⁷ kg, and treat the nucleus as a sphere of volume (4/3)πR³.)",
+   options:["2.3 × 10¹⁷ kg m⁻³","2.3 × 10¹⁴ kg m⁻³","4.5 × 10¹⁷ kg m⁻³","1.2 × 10¹⁷ kg m⁻³"],correctIndex:0,
+   explanation:"R=R0A^(1/3)=1.2×27^(1/3)=1.2×3=3.6 fm=3.6×10⁻¹⁵ m. Volume=(4/3)πR³≈1.954×10⁻⁴³ m³. Mass=27×1.66×10⁻²⁷≈4.48×10⁻²⁶ kg. Density=mass/volume≈2.3×10¹⁷ kg m⁻³ — remarkably, this value is roughly the same for ALL nuclei, since both mass and volume scale with A in the same way.",
+   optionNotes:["","This is off from the correct order of magnitude by a factor of 1000, consistent with a units slip (such as using picometres instead of femtometres somewhere in the radius calculation).","This is roughly double the correct value, inconsistent with the correctly computed mass-to-volume ratio.","This doesn't follow from correctly computing R, volume and mass with the given values of A and R0."]},
+  {id:"s3c25_8",topic:"S3-25.2 Radioactivity",difficulty:"medium",
+   question:"A sample of radioactive material has an activity that has fallen to 1/8 of its original value. If the half-life of the material is 5730 years, how old is the sample?",
+   options:["17190 years","5730 years","11460 years","22920 years"],correctIndex:0,
+   explanation:"1/8 = (1/2)³, so the sample has undergone exactly 3 half-lives. Age = 3 × 5730 = 17190 years.",
+   optionNotes:["","This is the age after only ONE half-life (activity would be 1/2 of the original), not after the three half-lives needed to reach 1/8.","This is the age after TWO half-lives (activity would be 1/4 of the original, not 1/8).","This is the age after FOUR half-lives (activity would be 1/16 of the original, not 1/8) — one half-life too many."]},
+  {id:"s3c25_9",topic:"S3-25.3 Nuclear Reaction",difficulty:"hard",
+   question:"A nuclear reactor generates 3000 MW of power entirely from the fission of U-235, with each fission reaction releasing 200 MeV of energy. What mass of U-235 is consumed per day, assuming all of it undergoes fission? (1 mole of U-235 = 235 g, NA = 6.02×10²³ mol⁻¹, 1 eV=1.60×10⁻¹⁹ J)",
+   options:["3.16 kg","1.58 kg","6.32 kg","0.13 kg"],correctIndex:0,
+   explanation:"Energy per fission = 200×10⁶×1.60×10⁻¹⁹ = 3.2×10⁻¹¹ J. Fissions per second = (3000×10⁶ W)/(3.2×10⁻¹¹ J) = 9.375×10¹⁹ s⁻¹. Atoms consumed per day = 9.375×10¹⁹×86400 ≈ 8.10×10²⁴. Moles = 8.10×10²⁴/6.02×10²³ ≈ 13.46 mol. Mass = 13.46×235 ≈ 3.16×10³ g = 3.16 kg.",
+   optionNotes:["","This is half the correct value.","This is double the correct value.","This omits the conversion from fissions-per-SECOND to fissions-per-DAY (i.e. forgets to multiply by the 86400 seconds in a day), giving a far-too-small mass."]}
+];
+
+  const SEED_QUESTIONS_SEM3 = [].concat(SEM3_SEED_QUESTIONS_CH19, SEM3_SEED_QUESTIONS_CH20, SEM3_SEED_QUESTIONS_CH21, SEM3_SEED_QUESTIONS_CH22, SEM3_SEED_QUESTIONS_CH23, SEM3_SEED_QUESTIONS_CH24, SEM3_SEED_QUESTIONS_CH25, SEM3_BATCH2_CH19, SEM3_BATCH2_CH20, SEM3_BATCH2_CH21, SEM3_BATCH2_CH22, SEM3_BATCH2_CH23, SEM3_BATCH2_CH24, SEM3_BATCH2_CH25);
   const ALL_SEED_QUESTIONS = SEED_QUESTIONS.concat(SEED_QUESTIONS_SEM2, SEED_QUESTIONS_SEM3);
   let currentSemester = '1';
   function topicsForSemester(sem){ return sem === '2' ? TOPICS_SEM2 : sem === '3' ? TOPICS_SEM3 : TOPICS_SEM1; }
