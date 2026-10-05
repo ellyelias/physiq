@@ -2257,8 +2257,260 @@ const SEM2_BATCH2_QUESTIONS = [
    optionNotes:["","This simply adds R and XL arithmetically, ignoring their 90° phase difference (they must be combined as perpendicular phasor components).","This is R²+XL² without the square root — it gives Z², not Z.","This is R×XL, which has no physical basis as an impedance combination."]}
 ];
 
+// STAGING FILE — Semester 2 Batch 3: further original questions, drawing on
+// additional pages sampled from the 10 real STPM 960/2 past-year papers
+// (2021-2025, S2 + U2 forms). Fresh themes spotted in this pass: non-ideal
+// voltmeter loading effects, rheostat-as-potential-divider wiring, mixed
+// capacitor networks, potentiometer circuits with internal resistance,
+// conductivity from wire dimensions, force-at-an-angle, carrier-sign
+// reasoning in the Hall effect, and r.m.s./mean-power relationships in a.c.
+// circuits. All freshly written, never copied, with original numbers; every
+// numeric answer verified by a Python calculation before inclusion.
+// One question per Semester 2 subtopic (34 total) — merges with
+// SEED_QUESTIONS_SEM2 + SEM2_BATCH2_QUESTIONS (136 questions already there).
 
-  const SEED_QUESTIONS_SEM2 = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18, SEM2_BATCH2_QUESTIONS);
+const SEM2_BATCH3_QUESTIONS = [
+  // --- 12.1 Coulomb's Law ---
+  {id:"s2b3_01",topic:"S2-12.1 Coulomb's Law",difficulty:"hard",
+   question:"Two +4 µC charges separated by distance d in a medium of relative permittivity 2 experience a force F. What separation r, between two +2 µC charges in a vacuum (relative permittivity 1), would produce the SAME force F?",
+   options:["r = d/√2","r = d√2","r = 2d","r = d/2"],correctIndex:0,
+   explanation:"F = kq₁q₂/(εᵣr²). Setting the two cases equal: k(4)(4)/(2d²) = k(2)(2)/(1·r²) → 16/(2d²) = 4/r² → 8/d² = 4/r² → r² = d²/2 → r = d/√2.",
+   optionNotes:["","This inverts the relationship between r and d found by equating the two force expressions.","This is too large a separation — recheck that r² = d²/2, not 4d².","This doesn't follow from correctly equating and rearranging the two Coulomb's law expressions."]},
+
+  // --- 12.2 Electric Field ---
+  {id:"s2b3_02",topic:"S2-12.2 Electric Field",difficulty:"medium",
+   question:"Charges +Q and −Q are separated by distance 2d. What is the magnitude of the resultant electric field at the midpoint between them, in terms of E₁ (the field due to a single charge Q at distance d)?",
+   options:["0","E₁","2E₁","E₁/2"],correctIndex:2,
+   explanation:"At the midpoint, both charges are a distance d away, so each contributes a field of magnitude E₁. For unlike charges, both fields point in the SAME direction at the midpoint (from + towards −), so they add: total = E₁ + E₁ = 2E₁.",
+   optionNotes:["The fields do not cancel at the midpoint between unlike charges — they reinforce, since both point the same way there.","This counts only one charge's contribution, missing that the other charge's field adds in the same direction.","","This halves the correct sum instead of adding the two equal contributions."]},
+
+  // --- 12.3 Gauss's Law ---
+  {id:"s2b3_03",topic:"S2-12.3 Gauss's Law",difficulty:"easy",
+   question:"A point charge +Q is first enclosed by a small sphere of radius r, then by a much larger cube that also encloses the same charge. How does the total electric flux through the cube compare with the flux through the sphere?",
+   options:["The flux through the cube is larger","The flux through the sphere is larger","Both are equal, Q/ε₀","The flux through the cube is zero, since it is not spherical"],correctIndex:2,
+   explanation:"By Gauss's law, flux through ANY closed surface depends only on the enclosed charge, Φ=Qenc/ε₀ — not on the surface's shape or size. Since both surfaces enclose the same charge +Q, both give the same flux, Q/ε₀.",
+   optionNotes:["Flux is independent of the surface's size — a larger enclosing surface does not increase the total flux.","Likewise, flux does not depend on which surface is smaller — size and shape are both irrelevant to the total flux.","","Gauss's law holds for a closed surface of ANY shape, not just spheres — a cube enclosing the same charge gives exactly the same flux."]},
+
+  // --- 12.4 Electric Potential ---
+  {id:"s2b3_04",topic:"S2-12.4 Electric Potential",difficulty:"easy",
+   question:"Which statement correctly describes the equipotential surfaces around an isolated point charge?",
+   options:["They are concentric spheres centred on the charge, and no work is done moving a test charge along one of them","They are flat planes perpendicular to the field lines, spaced at equal physical distances","They are the same as the field lines themselves","They only exist if the charge is negative"],correctIndex:0,
+   explanation:"For a point charge, V = kQ/r depends only on distance r from the charge, so every point at the same r lies on the same equipotential — a sphere centred on the charge. Since work done W = qΔV, and ΔV=0 moving along an equipotential, no work is done moving a charge along it (motion stays perpendicular to the field at every point).",
+   optionNotes:["","Equipotential surfaces around a POINT charge are spheres, not flat planes — flat equipotential planes only arise for a uniform field, such as between parallel plates.","Equipotential surfaces are always perpendicular to field lines, never the same as them — field lines point in the direction of steepest potential change, not along constant potential.","Equipotential surfaces exist for both positive and negative charges — the only difference is whether potential decreases or increases with distance from the charge."]},
+
+  // --- 13.1 Capacitance ---
+  {id:"s2b3_05",topic:"S2-13.1 Capacitance",difficulty:"easy",
+   question:"A student charges a capacitor to several different voltages, measuring the corresponding charge stored each time, and plots a graph of charge Q (y-axis) against voltage V (x-axis). The result is a straight line through the origin. What does the GRADIENT of this graph represent?",
+   options:["The capacitance, C","The energy stored","The resistance of the circuit","The electric field strength between the plates"],correctIndex:0,
+   explanation:"Since Q = CV, plotting Q against V gives a straight line through the origin with gradient equal to C — this is in fact one practical way to experimentally determine a capacitor's capacitance.",
+   optionNotes:["","Energy stored (½QV) is represented by the AREA under this graph, not its gradient.","Resistance isn't directly obtainable from a Q-V graph of a capacitor — resistance relates current and voltage in a different kind of component.","Electric field strength depends on the plate separation, which isn't given by this Q-V graph's gradient."]},
+
+  // --- 13.2 Parallel Plate Capacitors ---
+  {id:"s2b3_06",topic:"S2-13.2 Parallel Plate Capacitors",difficulty:"medium",
+   question:"A parallel plate capacitor has plates of area 6.0 cm² separated by 1.5 mm of air, connected to a 12 V battery. What is the energy stored when the capacitor is fully charged? (ε₀ = 8.85×10⁻¹² F m⁻¹)",
+   options:["2.5 × 10⁻¹⁰ J","5.1 × 10⁻¹⁰ J","1.3 × 10⁻¹⁰ J","2.5 × 10⁻¹² J"],correctIndex:0,
+   explanation:"C = ε₀A/d = (8.85×10⁻¹²)(6.0×10⁻⁴)/(1.5×10⁻³) ≈ 3.54×10⁻¹² F. Energy = ½CV² = ½(3.54×10⁻¹²)(12²) ≈ 2.5×10⁻¹⁰ J.",
+   optionNotes:["","This is double the correct value — remember the factor of ½ in E=½CV².","This is about half the correct value.","This is off by a factor of 100 from a decimal-place slip."]},
+
+  // --- 13.3 Dielectrics ---
+  {id:"s2b3_07",topic:"S2-13.3 Dielectrics",difficulty:"medium",
+   question:"A parallel plate capacitor remains connected to a battery (so the potential difference V stays constant) while a dielectric is slowly inserted to completely fill the gap. What happens to the charge stored and the energy stored?",
+   options:["Both the charge and the energy stored increase","Both the charge and the energy stored decrease","The charge increases but the energy stored decreases","The charge stays constant while the energy stored decreases"],correctIndex:0,
+   explanation:"Inserting a dielectric increases C. With V held fixed by the battery, Q=CV increases, and energy = ½CV² also increases (since C increases while V² stays the same).",
+   optionNotes:["","Both quantities increase, not decrease, since C increases while V is held fixed by the battery.","Energy also increases (not decreases) here — both Q and the energy track the increase in C the same way, since V is fixed.","The charge does NOT stay constant in this battery-connected scenario — that would only be true if the capacitor were isolated (disconnected) instead."]},
+
+  // --- 13.4 Capacitors in Series and in Parallel ---
+  {id:"s2b3_08",topic:"S2-13.4 Capacitors in Series and in Parallel",difficulty:"hard",
+   question:"Two identical capacitors, each of capacitance C, are connected in parallel with each other. This parallel pair is then connected in series with a third identical capacitor C. Which statement about the charge distribution is correct?",
+   options:["The charge on the single series capacitor equals the sum of the charges on the two parallel capacitors", "The charge on each of the three capacitors is identical", "The charge on the single series capacitor is less than the charge on either parallel capacitor", "No definite relationship exists between the charges without knowing the applied voltage"],correctIndex:0,
+   explanation:"In a series connection, the same total charge must pass through each series element. That total charge entering the parallel pair then splits equally between the two (identical) parallel capacitors. So the single series capacitor's charge equals the SUM of the two (equal) charges on the parallel pair.",
+   optionNotes:["","The charge is not the same on all three — each parallel capacitor only gets HALF of the charge that the series capacitor carries.","The series capacitor's charge is actually LARGER than each individual parallel capacitor's charge (it equals their sum, not less than either one).","The RATIO of charges (series capacitor's charge = sum of the two parallel ones) holds regardless of the specific applied voltage — only the absolute values depend on voltage, not this structural relationship."]},
+
+  // --- 13.5 Energy Stored in a Charged Capacitor ---
+  {id:"s2b3_09",topic:"S2-13.5 Energy Stored in a Charged Capacitor",difficulty:"medium",
+   question:"A capacitor stores energy E₀ when charged to voltage V₀. If the same capacitor is instead charged to 3V₀, what is the new energy stored, in terms of E₀?",
+   options:["9E₀","3E₀","E₀/9","6E₀"],correctIndex:0,
+   explanation:"E = ½CV². Since E ∝ V², tripling V multiplies the energy by 3² = 9.",
+   optionNotes:["","This only accounts for a linear dependence on V, but energy depends on V², not V.","Energy increases (not decreases) when V increases, since E ∝ V².","This doesn't follow from E ∝ V² — recompute 3² = 9, not 6."]},
+
+  // --- 13.6 Charging and Discharging of a Capacitor ---
+  {id:"s2b3_10",topic:"S2-13.6 Charging and Discharging of a Capacitor",difficulty:"hard",
+   question:"A charged capacitor discharges through a resistor. After a time equal to TWO time constants (t = 2RC), approximately what percentage of the original charge remains? (e⁻² ≈ 0.135)",
+   options:["13.5%","37%","50%","86.5%"],correctIndex:0,
+   explanation:"Q = Q₀e^(−t/RC). At t=2RC, Q = Q₀e⁻² ≈ 0.135Q₀, i.e. about 13.5% of the original charge remains.",
+   optionNotes:["","This is the percentage remaining after ONE time constant (e⁻¹≈0.37), not two.","This is not the correct exponential-decay value for either one or two time constants.","This is the percentage LOST (1−0.135), not the percentage remaining."]},
+
+  // --- 14.1 Conduction of Electricity ---
+  {id:"s2b3_11",topic:"S2-14.1 Conduction of Electricity",difficulty:"medium",
+   question:"Electrical conduction in a metal wire, once a potential difference is applied, results from",
+   options:["the random movement of free electrons at high speed alone", "collisions between free electrons and lattice ions, which alone constitute the current", "the net drift velocity of free electrons, superimposed on their much larger random thermal motion", "the vigorous vibration of the fixed positive ions, which themselves carry the charge"],correctIndex:2,
+   explanation:"Free electrons always have large random thermal velocities, which by themselves produce no net current (equal motion in all directions). Conduction occurs because the applied field superimposes a small net drift velocity on top of this random motion, and it is this small net drift that constitutes the current.",
+   optionNotes:["Random motion alone, with no net drift, produces zero net current — electrons move in all directions equally and cancel out.","Collisions are what cause resistance (by limiting drift velocity); they do not themselves constitute the current — the net drift does.","","The fixed ions vibrate about fixed lattice positions but do not themselves carry charge through the material; mobile electrons are the charge carriers in a metal."]},
+
+  // --- 14.2 Drift Velocity ---
+  {id:"s2b3_12",topic:"S2-14.2 Drift Velocity",difficulty:"medium",
+   question:"For a FIXED current I flowing through a wire of free-electron density n and cross-sectional area A, the drift velocity vd is",
+   options:["directly proportional to n","inversely proportional to n","independent of A","directly proportional to the wire's resistivity"],correctIndex:1,
+   explanation:"I = nAevd, so vd = I/(neA). With I fixed, vd ∝ 1/n — a higher electron density means each electron needs to drift more slowly to carry the same total current.",
+   optionNotes:["The relationship is an inverse, not direct, proportion — more free electrons per unit volume means EACH one can drift more slowly for the same total current.","","vd does depend on A — it is inversely proportional to the cross-sectional area too, not independent of it.","Resistivity does not appear directly in vd = I/(neA) — it affects the relationship between I and V (via resistance), but not this direct drift-velocity-to-current relationship."]},
+
+  // --- 14.3 Current Density ---
+  {id:"s2b3_13",topic:"S2-14.3 Current Density",difficulty:"hard",
+   question:"A copper cable carries a current of 50 A. The free electron density of copper is 8.0×10²⁸ m⁻³ and the drift velocity of the free electrons is 3.0×10⁻⁴ m s⁻¹. What is the radius of the cable? (I = nAev_d)",
+   options:["2.0 mm","1.0 mm","4.1 mm","0.5 mm"],correctIndex:0,
+   explanation:"A = I/(nev_d) = 50/[(8.0×10²⁸)(1.6×10⁻¹⁹)(3.0×10⁻⁴)] ≈ 1.30×10⁻⁵ m². Radius r = √(A/π) ≈ 2.0×10⁻³ m = 2.0 mm.",
+   optionNotes:["","This is about half the correct radius.","This overestimates the radius — recheck the area calculation before taking the square root.","This is about a quarter of the correct radius."]},
+
+  // --- 14.4 Electric Conductivity and Resistivity ---
+  {id:"s2b3_14",topic:"S2-14.4 Electric Conductivity and Resistivity",difficulty:"medium",
+   question:"A wire of length 1.5 m has a cross-sectional area of 0.040 cm² and a resistance of 0.28 Ω. What is its electrical conductivity? (σ = L/(RA))",
+   options:["1.3 × 10⁶ Ω⁻¹ m⁻¹","1.3 × 10⁴ Ω⁻¹ m⁻¹","7.5 × 10⁻⁷ Ω⁻¹ m⁻¹","5.4 × 10⁵ Ω⁻¹ m⁻¹"],correctIndex:0,
+   explanation:"σ = L/(RA) = 1.5/[(0.28)(0.040×10⁻⁴)] ≈ 1.3×10⁶ Ω⁻¹ m⁻¹ (remembering to convert the area from cm² to m²).",
+   optionNotes:["","This is a hundred times too small, consistent with forgetting to convert cm² to m² in the area.","This is the reciprocal relationship applied incorrectly (giving resistivity-like magnitude instead of conductivity).","This doesn't follow from correctly applying σ=L/(RA) with consistent SI units."]},
+
+  // --- 15.1 Internal Resistance ---
+  {id:"s2b3_15",topic:"S2-15.1 Internal Resistance",difficulty:"medium",
+   question:"A battery has EMF 12 V and internal resistance 3 Ω. What value of external resistance R draws the MAXIMUM power from the battery, and what is that maximum power?",
+   options:["R = 3 Ω, P = 12 W","R = 3 Ω, P = 24 W","R = 12 Ω, P = 12 W","R = 6 Ω, P = 8 W"],correctIndex:0,
+   explanation:"Maximum power transfer occurs when R = r = 3 Ω. Then I = EMF/(R+r) = 12/6 = 2.0 A, and P = I²R = (2.0)²(3) = 12 W.",
+   optionNotes:["","This doubles the correct power — recheck P = I²R with I=2.0A and R=3Ω.","This uses the wrong matching resistance; maximum power transfer requires R equal to r (3Ω), not any other value.","This combination doesn't satisfy both the maximum-power condition (R=r) and the resulting power calculation correctly."]},
+
+  // --- 15.2 Kirchhoff's Laws ---
+  {id:"s2b3_16",topic:"S2-15.2 Kirchhoff's Laws",difficulty:"hard",
+   question:"Two resistors, 400 Ω and 200 Ω, are connected in series to a 6.0 V battery of negligible internal resistance. A voltmeter of resistance 600 Ω is connected across the 400 Ω resistor. What does the voltmeter read?",
+   options:["3.3 V","4.0 V","2.4 V","6.0 V"],correctIndex:0,
+   explanation:"The voltmeter (600Ω) in parallel with the 400Ω resistor gives an effective resistance of (400×600)/(400+600)=240Ω. Total circuit resistance = 240+200=440Ω. Current from battery I=6.0/440≈0.01364A. Voltmeter reading = I×240≈3.3V — notably LESS than the 4.0V that an ideal (infinite-resistance) voltmeter would read, because the voltmeter's own finite resistance loads the circuit.",
+   optionNotes:["","This is what an IDEAL voltmeter (infinite resistance, drawing no current) would read — it ignores the loading effect of this voltmeter's own finite 600Ω resistance.","This doesn't match either the ideal or the loaded-voltmeter calculation correctly.","This is the full supply voltage, ignoring that it divides between the two resistors in the circuit."]},
+
+  // --- 15.3 Potential Divider ---
+  {id:"s2b3_17",topic:"S2-15.3 Potential Divider",difficulty:"medium",
+   question:"A variable resistor (rheostat) is to control a bulb's brightness continuously, from completely OFF to full brightness. Which wiring approach correctly achieves this full range?",
+   options:["Connecting the rheostat as a potential divider (its full track across the supply, with the bulb connected between the slider and one end)", "Connecting the rheostat in simple series with the bulb, using only two of its three terminals", "Connecting the rheostat directly in parallel with the bulb", "Any two-terminal series connection of a variable resistor achieves the same full range as a potential-divider connection"],correctIndex:0,
+   explanation:"A simple series (two-terminal) rheostat can only reduce current down to a minimum set by its maximum resistance — it generally cannot bring the bulb's voltage all the way down to exactly zero unless the rheostat's resistance range is very large compared to the bulb's. Wiring it as a three-terminal potential divider lets the output voltage (and hence brightness) be continuously adjusted all the way from 0 V (slider at one end) up to the full supply voltage (slider at the other end).",
+   optionNotes:["","A simple series connection generally cannot reduce the bulb's voltage all the way to zero — some current always flows unless the rheostat's resistance is effectively infinite.","Connecting it in parallel with the bulb does not control the bulb's brightness in a useful continuous way — it does not vary the voltage across the bulb through its working range.","A simple two-terminal series connection does NOT achieve the same full OFF-to-full-brightness range as a three-terminal potential-divider connection — this is precisely why the divider connection is preferred for this purpose."]},
+
+  // --- 15.4 Potentiometer and Wheatstone Bridge ---
+  {id:"s2b3_18",topic:"S2-15.4 Potentiometer and Wheatstone Bridge",difficulty:"hard",
+   question:"A potentiometer consists of a cell of EMF 1.5 V with internal resistance 1.0 Ω, a slide wire of resistance 5.0 Ω, and a resistor R, all connected in series. What value of R is needed to produce a potential difference of 60.0 mV across the slide wire?",
+   options:["119 Ω","125 Ω","110 Ω","144 Ω"],correctIndex:0,
+   explanation:"Required current through the slide wire: I = 0.060/5.0 = 0.012 A. Total circuit resistance needed: EMF/I = 1.5/0.012 = 125 Ω. Since this total already includes the internal resistance (1.0 Ω) and slide wire (5.0 Ω): R = 125 − 1.0 − 5.0 = 119 Ω.",
+   optionNotes:["","This is the TOTAL required resistance (125 Ω), before subtracting the internal resistance and slide wire resistance already in the circuit.","This doesn't follow from correctly subtracting both the internal resistance and slide wire resistance from the total.","This doesn't match the calculation from the given EMF, target voltage and known resistances."]},
+
+  // --- 16.1 Concept of a Magnetic Field ---
+  {id:"s2b3_19",topic:"S2-16.1 Concept of a Magnetic Field",difficulty:"medium",
+   question:"Inside a long solenoid, far from its ends, the magnetic field is",
+   options:["uniform in magnitude and direction, parallel to the solenoid's axis", "strongest near the walls of the solenoid and zero along the axis", "radially directed, pointing outward from the axis", "zero everywhere inside, with all the field confined outside the solenoid"],correctIndex:0,
+   explanation:"A key practical feature of a long solenoid (used e.g. to create a controlled uniform field for experiments) is that, away from its ends, the magnetic field inside is very nearly uniform in both magnitude and direction, running parallel to the central axis.",
+   optionNotes:["","The field strength does not vary like this inside a long solenoid — it's approximately uniform throughout the interior cross-section, not concentrated near the walls.","The field inside a solenoid runs along the axis (axial direction), not radially outward from it.","The field is actually strong and fairly uniform INSIDE a long solenoid; it is the field OUTSIDE that is comparatively weak, not the reverse."]},
+
+  // --- 16.2 Force on a Moving Charge ---
+  {id:"s2b3_20",topic:"S2-16.2 Force on a Moving Charge",difficulty:"medium",
+   question:"Two charged particles, X and Y, enter a uniform magnetic field perpendicular to B with the SAME speed and the SAME magnitude of charge. Particle Y follows a circular path of twice the radius of particle X's path. Compare their masses.",
+   options:["mY = 2mX","mY = mX/2","mY = 4mX","mY = mX"],correctIndex:0,
+   explanation:"r = mv/(qB). With v, q and B the same for both particles, r ∝ m. Since rY = 2rX, it follows that mY = 2mX.",
+   optionNotes:["","This has the ratio inverted — a LARGER radius corresponds to a LARGER mass, not a smaller one.","r ∝ m (linearly, not as a square), so a doubled radius means double the mass, not four times.","The masses cannot be equal, since the two particles follow circular paths of different radii under identical speed, charge and field conditions."]},
+
+  // --- 16.3 Force on a Current-Carrying Conductor ---
+  {id:"s2b3_21",topic:"S2-16.3 Force on a Current-Carrying Conductor",difficulty:"medium",
+   question:"A straight wire carrying a current of 5.0 A is placed at an angle of 30° to a uniform magnetic field of flux density 0.40 T. If the length of wire within the field is 0.50 m, what is the force on the wire?",
+   options:["0.50 N","1.0 N","0.87 N","0.25 N"],correctIndex:0,
+   explanation:"F = BIL sinθ = (0.40)(5.0)(0.50)sin30° = (0.40)(5.0)(0.50)(0.5) = 0.50 N.",
+   optionNotes:["","This omits the sinθ factor entirely (using θ=90° instead of 30°).","This uses cos30° instead of sin30°.","This is half the correct value, as if an extra factor of ½ were applied."]},
+
+  // --- 16.4 Magnetic Fields Due to Currents ---
+  {id:"s2b3_22",topic:"S2-16.4 Magnetic Fields Due to Currents",difficulty:"medium",
+   question:"What is the magnetic field strength at a perpendicular distance of 10 cm from a long straight wire carrying a current of 6.0 A? (μ₀ = 4π×10⁻⁷ T m A⁻¹)",
+   options:["1.2 × 10⁻⁵ T","2.4 × 10⁻⁵ T","6.0 × 10⁻⁶ T","1.2 × 10⁻⁷ T"],correctIndex:0,
+   explanation:"B = μ₀I/(2πd) = (4π×10⁻⁷)(6.0)/(2π×0.10) = 1.2×10⁻⁵ T.",
+   optionNotes:["","This is double the correct value.","This is half the correct value.","This is a hundred times too small — a decimal-place slip."]},
+
+  // --- 16.5 Force Between Two Current-Carrying Conductors ---
+  {id:"s2b3_23",topic:"S2-16.5 Force Between Two Current-Carrying Conductors",difficulty:"hard",
+   question:"Two long parallel wires, M and N, are 5.0 cm apart. M carries a current of 4.0 A. The force per unit length between them, due to the current in N, is measured as 6.0×10⁻⁵ N m⁻¹. What is the current in N? (μ₀ = 4π×10⁻⁷ T m A⁻¹)",
+   options:["3.75 A","2.0 A","7.5 A","1.5 A"],correctIndex:0,
+   explanation:"F/L = μ₀I_MI_N/(2πd), so I_N = (F/L)(2πd)/(μ₀I_M) = (6.0×10⁻⁵)(2π×0.05)/[(4π×10⁻⁷)(4.0)] ≈ 3.75 A.",
+   optionNotes:["","This doesn't follow from correctly rearranging the force-per-length formula for I_N.","This overestimates the current — recheck the rearrangement of F/L = μ₀I_MI_N/(2πd).","This underestimates the current needed to produce the given force per unit length."]},
+
+  // --- 16.6 Determination of the Ratio e/m ---
+  {id:"s2b3_24",topic:"S2-16.6 Determination of the Ratio e/m",difficulty:"medium",
+   question:"Why was determining the ratio e/m, rather than e or m individually, the significant achievement of early experiments like Thomson's (using combined electric and magnetic fields on a cathode-ray beam)?",
+   options:["Because such experiments measure only the combined effect of charge and mass on the particle's motion, and cannot separate the two without an independent measurement of one of them", "Because e and m cannot be defined independently of each other for any charged particle", "Because the ratio e/m is always a larger, more easily measured quantity than either e or m alone", "Because magnetic and electric fields only exist in combination, never separately"],correctIndex:0,
+   explanation:"In these experiments, the particle's deflection depends on e and m only through their ratio e/m (since both the electric and magnetic forces scale with charge, and acceleration depends on force divided by mass) — so only this ratio can be extracted. A separate, independent measurement of e alone (e.g. Millikan's oil-drop experiment) was needed before m could be calculated from the ratio.",
+   optionNotes:["","e and m are each well-defined physical properties of a particle individually; it's specifically the DEFLECTION EXPERIMENT's physics that only reveals their ratio, not a fundamental inseparability of the quantities themselves.","This is not the reason — e/m being easier to measure is a consequence of the experimental method, not an inherent property of the ratio's size.","Electric and magnetic fields can certainly be produced and studied independently of one another; this experiment simply uses both together by choice, to enable the e/m measurement."]},
+
+  // --- 16.7 Hall Effect ---
+  {id:"s2b3_25",topic:"S2-16.7 Hall Effect",difficulty:"medium",
+   question:"A Hall-effect experiment is performed on a current-carrying metal strip in a magnetic field, giving a Hall voltage consistent with negative charge carriers (electrons), as expected for a metal. If the SAME experiment (same current direction, same field direction) were instead performed on a p-type semiconductor strip, where the majority charge carriers are positive holes, how would the Hall voltage compare?",
+   options:["It would be reversed in sign, since the majority carriers have opposite sign", "It would be exactly the same, since Hall voltage does not depend on carrier sign", "It would always be larger in magnitude, regardless of carrier density", "No Hall voltage would be produced at all, since holes are not real charge carriers"],correctIndex:0,
+   explanation:"The Hall effect's sign directly reflects the sign of the dominant mobile charge carrier: positive carriers (holes) accumulate on the opposite face compared to negative carriers (electrons) under the same current and field directions, reversing the polarity of the Hall voltage — this is in fact how the Hall effect is used to determine whether a semiconductor is n-type or p-type.",
+   optionNotes:["","The Hall voltage's sign is fundamentally determined by the carrier's sign — it is one of the Hall effect's most important diagnostic uses, not something it is independent of.","The magnitude depends on carrier density (among other factors) and isn't guaranteed to always be larger for a semiconductor; it can be smaller or larger depending on the specific densities involved.","Holes are a well-established and real effective positive charge carrier in semiconductor physics, fully capable of producing a measurable Hall voltage."]},
+
+  // --- 17.1 Magnetic Flux ---
+  {id:"s2b3_26",topic:"S2-17.1 Magnetic Flux",difficulty:"medium",
+   question:"A circular coil of radius 5.0 cm has its normal at 60° to a uniform magnetic field of flux density 0.30 T. What is the magnetic flux through the coil?",
+   options:["1.2 × 10⁻³ Wb","2.4 × 10⁻³ Wb","4.7 × 10⁻³ Wb","6.0 × 10⁻⁴ Wb"],correctIndex:0,
+   explanation:"Φ = BA cosθ = (0.30)(π×0.05²)(cos60°) = (0.30)(7.85×10⁻³)(0.5) ≈ 1.2×10⁻³ Wb.",
+   optionNotes:["","This omits the cos60° factor (using θ=0° instead of 60°).","This uses sin60° instead of cos60°.","This is a fifth of the correct value, from a different arithmetic slip."]},
+
+  // --- 17.2 Faraday's Law and Lenz's Law ---
+  {id:"s2b3_27",topic:"S2-17.2 Faraday's Law and Lenz's Law",difficulty:"medium",
+   question:"A bar magnet's south pole approaches a coil face-on. By Lenz's law, the near face of the coil becomes which pole, and why?",
+   options:["A south pole, to repel the approaching magnet (opposing the change)", "A north pole, to attract the approaching magnet (assisting the change)", "A south pole, to attract the approaching magnet", "No definite pole forms, since the coil's induced field has no fixed direction"],correctIndex:0,
+   explanation:"By Lenz's law, the induced current opposes the change producing it — since a south pole is approaching, the coil's near face must also become a south pole, so that like poles repel and oppose the magnet's approach, consistent with conservation of energy.",
+   optionNotes:["","If the coil's near face became a north pole, it would attract the approaching south pole, accelerating the change and violating energy conservation — Lenz's law forbids this.","Like poles repel, not attract, so a south-pole near face does not attract the approaching south pole — it opposes it by repulsion instead.","The induced current's direction (and hence the resulting pole) is precisely determined by Lenz's law for any given approach direction — it is not arbitrary or undefined."]},
+
+  // --- 17.3 Self Induction ---
+  {id:"s2b3_28",topic:"S2-17.3 Self Induction",difficulty:"medium",
+   question:"A solenoid's self-inductance is given by L = μ₀N²A/l. If the solenoid is stretched to TWICE its original length (same N turns and same cross-sectional area A, now wound more sparsely), what happens to its self-inductance?",
+   options:["It is halved","It is doubled","It is quadrupled","It stays unchanged"],correctIndex:0,
+   explanation:"L ∝ 1/l (for fixed N and A). Doubling the length l halves the self-inductance.",
+   optionNotes:["","L decreases, not increases, as the solenoid is stretched out (made less densely wound).","L ∝ 1/l (a simple inverse, not inverse-square), so doubling l only halves L, it doesn't quarter or quadruple it.","L does depend on length — it is not unaffected by stretching the solenoid, since the winding density per unit length changes."]},
+
+  // --- 17.4 Energy Stored in an Inductor ---
+  {id:"s2b3_29",topic:"S2-17.4 Energy Stored in an Inductor",difficulty:"medium",
+   question:"Two inductors, of inductance 2.0 H and 8.0 H, each carry the SAME current I. Compare their stored energies, E(8H) and E(2H).",
+   options:["E(8H) = 4 × E(2H)","E(8H) = 2 × E(2H)","E(8H) = E(2H)/4","E(8H) = 16 × E(2H)"],correctIndex:0,
+   explanation:"E = ½LI². For the same current I, E ∝ L. Since 8.0H is 4 times 2.0H, E(8H) = 4 × E(2H).",
+   optionNotes:["","This only accounts for L being 4 times larger as if the relationship were a square-root one, rather than E ∝ L being a direct proportion already giving a clean factor of 4.","This has the relationship backwards — the LARGER inductance stores MORE energy for the same current, not less.","This would apply only if energy depended on L², but E = ½LI² depends on L to the first power (for fixed I), not L²."]},
+
+  // --- 17.5 Mutual Induction ---
+  {id:"s2b3_30",topic:"S2-17.5 Mutual Induction",difficulty:"medium",
+   question:"The mutual inductance between a primary and secondary coil is 0.6 H. The current in the primary changes uniformly from 0 to 3.0 A in 0.5 s. What average EMF is induced in the secondary coil?",
+   options:["3.6 V","1.8 V","0.9 V","5.0 V"],correctIndex:0,
+   explanation:"EMF = M(ΔI/Δt) = 0.6 × (3.0/0.5) = 0.6 × 6.0 = 3.6 V.",
+   optionNotes:["","This is half the correct value.","This is a quarter of the correct value.","This divides M by ΔI/Δt instead of multiplying them."]},
+
+  // --- 18.1 AC Through a Pure Resistor ---
+  {id:"s2b3_31",topic:"S2-18.1 AC Through a Pure Resistor",difficulty:"medium",
+   question:"An a.c. voltage source has a peak voltage of 170 V, connected to a pure resistor of 50 Ω. What is the mean (average) power dissipated?",
+   options:["289 W","578 W","144 W","170 W"],correctIndex:0,
+   explanation:"Vrms = V₀/√2 = 170/1.414 ≈ 120.2 V. Mean power = Vrms²/R = (120.2)²/50 ≈ 289 W.",
+   optionNotes:["","This is double the correct value, as if peak voltage were used directly instead of r.m.s. voltage in the power formula.","This is half the correct value.","This uses the peak voltage directly as if it were the mean power value, without squaring or dividing by R at all."]},
+
+  // --- 18.2 AC Through a Pure Inductor ---
+  {id:"s2b3_32",topic:"S2-18.2 AC Through a Pure Inductor",difficulty:"medium",
+   question:"A pure inductor of reactance 40 Ω is connected to an a.c. supply of r.m.s. voltage 20 V. What is the r.m.s. current through the inductor?",
+   options:["0.5 A","2.0 A","0.25 A","800 A"],correctIndex:0,
+   explanation:"Irms = Vrms/XL = 20/40 = 0.5 A (r.m.s. voltage and current relate through reactance exactly as they would through resistance in a d.c. circuit).",
+   optionNotes:["","This inverts the ratio (XL/Vrms instead of Vrms/XL).","This is half the correct value.","This multiplies instead of dividing Vrms by XL."]},
+
+  // --- 18.3 AC Through a Pure Capacitor ---
+  {id:"s2b3_33",topic:"S2-18.3 AC Through a Pure Capacitor",difficulty:"medium",
+   question:"A pure capacitor of reactance 200 Ω is connected to an a.c. supply of r.m.s. voltage 50 V. What is the r.m.s. current through the capacitor?",
+   options:["0.25 A","4.0 A","0.5 A","10,000 A"],correctIndex:0,
+   explanation:"Irms = Vrms/XC = 50/200 = 0.25 A.",
+   optionNotes:["","This inverts the ratio (XC/Vrms instead of Vrms/XC).","This is double the correct value.","This multiplies instead of dividing Vrms by XC."]},
+
+  // --- 18.4 R-C and R-L Series Circuits ---
+  {id:"s2b3_34",topic:"S2-18.4 R-C and R-L Series Circuits",difficulty:"medium",
+   question:"In a series R-C circuit, R = 40 Ω and XC = 30 Ω. What is the phase angle by which the current LEADS the voltage? (tanφ = XC/R)",
+   options:["37°","53°","30°","45°"],correctIndex:0,
+   explanation:"tanφ = XC/R = 30/40 = 0.75, so φ = tan⁻¹(0.75) ≈ 37°.",
+   optionNotes:["","This is the complementary angle (90°−37°), from inverting the ratio XC/R to R/XC before taking the inverse tangent.","This doesn't follow from tan⁻¹(30/40).","This would apply only if XC equalled R exactly (tanφ=1), which isn't the case here."]}
+];
+
+
+  const SEED_QUESTIONS_SEM2 = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18, SEM2_BATCH2_QUESTIONS, SEM2_BATCH3_QUESTIONS);
   const ALL_SEED_QUESTIONS = SEED_QUESTIONS.concat(SEED_QUESTIONS_SEM2);
   let currentSemester = '1';
   function topicsForSemester(sem){ return sem === '2' ? TOPICS_SEM2 : TOPICS_SEM1; }
