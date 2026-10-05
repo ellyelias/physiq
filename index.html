@@ -231,6 +231,15 @@
     <button class="tab" data-tab="notes">Notes</button>
   </div>
 
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 16px;">
+    <label for="semester-select" style="font-size:12.5px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;">Semester:</label>
+    <select id="semester-select" style="font-size:14px;padding:6px 10px;border:1px solid #DCE3ED;border-radius:8px;">
+      <option value="1">Semester 1 (Mechanics, Heat)</option>
+      <option value="2">Semester 2 (Electricity &amp; Magnetism)</option>
+    </select>
+    <span style="font-size:12px;color:var(--sub);">Affects Student Practice, Question Bank and Notes only — the Research pretest/posttest always stays on the Semester 1 study set.</span>
+  </div>
+
   <!-- ===================== GUIDE / README PANEL ===================== -->
   <div class="panel active" id="panel-guide">
 
@@ -531,7 +540,7 @@
     }
   };
 
-  const TOPICS = [
+  let TOPICS = [
     "1.1 Physical Quantities & Units",
     "1.2 Scalars and Vectors",
     "1.3 Uncertainties in Measurements",
@@ -1326,6 +1335,699 @@
 {"id":"th43","topic":"11.2 Thermodynamic Processes","difficulty":"hard","question":"A cylinder with an adjustable piston contains 4.00 mol of diatomic gas, initially at 0.100 m³ and 1.20×10⁵ Pa. The volume of the gas is then increased adiabatically to 0.65 m³. Determine the initial and final temperatures of the gas. (R = 8.31 J mol⁻¹ K⁻¹, γ = 1.40 for diatomic gas)","options":["Initial = 270.7 K, Final = 128.0 K","Initial = 360.9 K, Final = 170.6 K","Initial = 451.1 K, Final = 213.3 K","Initial = 360.9 K, Final = 255.9 K"],"correctIndex":1,"explanation":"Initial temperature: T1 = p1V1/(nR) = (1.20×10⁵)(0.100)/[(4.00)(8.31)] = 12000/33.24 ≈ 360.9 K. For adiabatic expansion, p1V1^γ = p2V2^γ, so p2 = p1(V1/V2)^1.40 = (1.20×10⁵)(0.100/0.65)^1.40 ≈ 8724 Pa. Final temperature T2 = p2V2/(nR) = (8724)(0.65)/33.24 ≈ 170.6 K.","optionNotes":["These temperatures are too low, consistent with an arithmetic slip in computing the initial temperature and carrying it through.","","These temperatures are too high, consistent with an arithmetic slip in computing the initial temperature.","The initial temperature is correct, but the final temperature comes from an arithmetic slip in applying the adiabatic relation."]},
 {"id":"th44","topic":"11.1 First Law of Thermodynamics","difficulty":"medium","question":"For the same process (4.00 mol diatomic gas, initial temperature 360.9 K, final temperature 170.6 K after adiabatic expansion), determine the change in internal energy of the gas. (R = 8.31 J mol⁻¹ K⁻¹)","options":["−7.91×10³ J","−1.19×10⁴ J","−1.58×10⁴ J","−1.98×10⁴ J"],"correctIndex":2,"explanation":"For a diatomic gas, ΔU = (5/2)nRΔT = (5/2)(4.00)(8.31)(170.6−360.9) = (2.5)(4.00)(8.31)(−190.3) ≈ −1.58×10⁴ J.","optionNotes":["This is half the correct magnitude, consistent with using (5/4)nRΔT instead of (5/2)nRΔT.","This is about three-quarters of the correct magnitude, consistent with a rounding slip.","","This is about 1.25 times the correct magnitude, consistent with an arithmetic slip."]}];
 
+  // =====================================================================
+  // SEMESTER 2 — Electricity & Magnetism (Chapters 12-18, app numbering)
+  // Topics are prefixed "S2-" to avoid colliding with Semester 1 topic
+  // strings (e.g. Sem1 "12.1 Conduction..." vs Sem2 "S2-12.1 Coulomb's...").
+  // =====================================================================
+// STAGING FILE — Semester 2, Chapter 12: Electrostatics (official syllabus Ch13)
+// Topics follow app's existing (official-1) numbering convention, namespaced "S2-12.x"
+// to avoid colliding with the live Sem1 "12.1 Conduction..." topic string.
+// NOT yet merged into index.html — holding until the semester-selector architecture
+// is designed, so we don't risk disrupting the live Sem1 pretest/posttest study.
+
+const SEM2_TOPICS_CH12 = [
+  "S2-12.1 Coulomb's Law",
+  "S2-12.2 Electric Field",
+  "S2-12.3 Gauss's Law",
+  "S2-12.4 Electric Potential"
+];
+
+const SEM2_SEED_QUESTIONS_CH12 = [
+  // --- 12.1 Coulomb's Law ---
+  {id:"s2c12_1",topic:SEM2_TOPICS_CH12[0],difficulty:"easy",
+   question:"Two point charges +2 µC and +2 µC are separated by 0.3 m in air. If the separation is doubled, the electrostatic force between them becomes",
+   options:["4 times smaller","2 times smaller","Unchanged","4 times larger"],correctIndex:0,
+   explanation:"Coulomb's law gives F ∝ 1/r². Doubling r reduces F by a factor of 2² = 4.",
+   optionNotes:["","This would be the case if F ∝ 1/r, but Coulomb's law is an inverse-square relationship.","The force does change — it is inversely proportional to the square of the separation, not independent of it.","Doubling the separation decreases the force; it would only increase if the separation were halved instead."]},
+  {id:"s2c12_2",topic:SEM2_TOPICS_CH12[0],difficulty:"medium",
+   question:"A point charge of +3 µC experiences a force of 0.6 N when placed in the electric field of a fixed charge Q at a separation of 0.1 m in a vacuum. What is the magnitude of Q?",
+   options:["2.2 × 10⁻⁷ C","2.2 × 10⁻⁵ C","6.7 × 10⁻⁶ C","6.0 × 10⁻³ C"],correctIndex:1,
+   explanation:"F = kQq/r² ⟹ Q = Fr²/(kq) = (0.6 × 0.1²)/(8.99×10⁹ × 3×10⁻⁶) ≈ 2.2×10⁻⁵ C.",
+   optionNotes:["This is off by two orders of magnitude — check that r² is used, not r, in the rearranged formula.","","This comes from dividing q by r² instead of multiplying F by r² before dividing by kq.","This results from omitting Coulomb's constant k entirely from the rearrangement."]},
+  {id:"s2c12_3",topic:SEM2_TOPICS_CH12[0],difficulty:"hard",
+   question:"Two identical small charged spheres, each of mass m, hang from insulating threads of equal length and repel each other so that each thread makes a small angle θ with the vertical. If placed in oil of relative permittivity εr instead of air (with charge and geometry unchanged), the equilibrium angle θ",
+   options:["increases","decreases","stays exactly the same","becomes 90°"],correctIndex:1,
+   explanation:"Coulomb's force decreases by a factor of εr in a medium of higher permittivity (F = Q²/4πε₀εᵣr²), so the horizontal repulsive force weakens relative to the unchanged weight, pulling the spheres (and hence the angle) closer to vertical.",
+   optionNotes:["The electrostatic repulsion weakens in a denser dielectric, not strengthens, so the angle cannot increase.","","The force is scaled down by εᵣ > 1, so the balance of forces does shift and θ must change.","Nothing in this scenario drives the spheres to a 90° extreme; the change in θ is a small decrease, not a jump to a limiting case."]},
+
+  // --- 12.2 Electric Field ---
+  {id:"s2c12_4",topic:SEM2_TOPICS_CH12[1],difficulty:"easy",
+   question:"An electric field line diagram shows lines pointing radially outward from a point charge and becoming more widely spaced further from the charge. This spacing indicates that",
+   options:["the field strength is constant everywhere","the field strength decreases with distance from the charge","the charge is negative","the field has no defined direction"],correctIndex:1,
+   explanation:"Field line density represents field strength; lines spreading out (becoming less dense) with distance show that E decreases as r increases, consistent with E ∝ 1/r².",
+   optionNotes:["If field strength were constant, the lines would stay evenly spaced rather than spreading out.","","Outward-pointing lines indicate a positive source charge; a negative charge's lines point inward.","Each field line has a clear direction (tangent to the line), shown here as radially outward."]},
+  {id:"s2c12_5",topic:SEM2_TOPICS_CH12[1],difficulty:"medium",
+   question:"Point charges +Q and −Q are fixed at opposite ends of a diagonal of a square. At the centre of the square, the resultant electric field points",
+   options:["from the +Q charge towards the −Q charge, along the diagonal","from the −Q charge towards the +Q charge, along the diagonal","perpendicular to the diagonal joining the two charges","is zero, since the charges are equal and opposite"],correctIndex:0,
+   explanation:"At the centre, the field due to +Q points away from +Q (towards −Q), and the field due to −Q also points towards −Q (since field lines point into negative charges). Both contributions point the same way along the diagonal, so they add rather than cancel.",
+   optionNotes:["","This reverses the direction — field lines point away from positive charge and into negative charge, both consistently towards the −Q end.","The two contributions both lie along the diagonal joining the charges, not perpendicular to it.","The two fields reinforce rather than cancel because they point in the same direction at the centre, unlike the case of two like charges."]},
+  {id:"s2c12_6",topic:SEM2_TOPICS_CH12[1],difficulty:"hard",
+   question:"A small test charge +q₀ is released from rest at a point in a uniform electric field E (pointing in the +x direction) between two oppositely charged parallel plates. Which statement correctly describes its subsequent motion, assuming gravity is negligible?",
+   options:["It undergoes simple harmonic motion along x","It moves with constant velocity along x","It accelerates uniformly in the +x direction","It remains at rest since the field is uniform"],correctIndex:2,
+   explanation:"A uniform field exerts a constant force F = q₀E on the charge, giving constant acceleration a = q₀E/m in the +x direction — directly analogous to uniform gravitational free-fall.",
+   optionNotes:["SHM requires a restoring force proportional to displacement; a uniform field gives a constant force, not one that reverses direction.","A constant nonzero force on the charge means it cannot move at constant velocity from rest — it must accelerate.","","A uniform field still exerts a nonzero force on any charge placed in it, so the test charge does not simply stay at rest."]},
+
+  // --- 12.3 Gauss's Law ---
+  {id:"s2c12_7",topic:SEM2_TOPICS_CH12[2],difficulty:"easy",
+   question:"According to Gauss's law, the electric flux through a closed surface depends on",
+   options:["the shape of the surface only","the net charge enclosed by the surface only","the surface area only","the distance of the charges from the surface"],correctIndex:1,
+   explanation:"Gauss's law states ΦE = Qenclosed/ε₀ — the flux through any closed surface depends only on the net enclosed charge, regardless of the surface's shape, size, or the exact position of charges inside it.",
+   optionNotes:["Flux is independent of the surface's shape — only the enclosed charge matters.","","Flux does not depend on surface area directly; a larger surface enclosing the same charge gives the same total flux.","As long as a charge remains enclosed, its exact distance from the surface does not change the total flux through the closed surface."]},
+  {id:"s2c12_8",topic:SEM2_TOPICS_CH12[2],difficulty:"medium",
+   question:"A solid conducting sphere carries a net charge +Q and is in electrostatic equilibrium. Using Gauss's law with a spherical surface drawn just inside the conductor's surface, the electric field inside the bulk of the conductor is found to be",
+   options:["Q/4πε₀r², same as outside","zero, because the enclosed charge within the conductor's bulk is zero","maximum at the centre","dependent on the shape of the sphere's outer surface"],correctIndex:1,
+   explanation:"In electrostatic equilibrium, all excess charge on a conductor resides on its outer surface, so any Gaussian surface drawn strictly inside the conductor encloses zero net charge, giving E = 0 inside the conducting material.",
+   optionNotes:["That formula describes the field outside the sphere (treating it as a point charge), not the field inside the conducting material.","","The field is zero throughout the conductor's interior, not concentrated at the centre.","For this symmetric case the conclusion (E = 0 inside) follows purely from the enclosed charge being zero, independent of outer-surface shape."]},
+  {id:"s2c12_9",topic:SEM2_TOPICS_CH12[2],difficulty:"hard",
+   question:"An infinite line of charge has a uniform linear charge density λ. Using a cylindrical Gaussian surface of radius r and length L coaxial with the line, the electric field at distance r from the line is found to be proportional to",
+   options:["1/r","1/r²","r","r²"],correctIndex:0,
+   explanation:"Gauss's law gives E(2πrL) = λL/ε₀, so E = λ/(2πε₀r) — the field from an infinite line charge falls off as 1/r, not 1/r² as for a point charge, because the symmetry here is cylindrical rather than spherical.",
+   optionNotes:["","This is the point-charge (spherical symmetry) result; a line of charge has cylindrical symmetry, which gives a different power of r.","E decreasing with distance means a negative, not positive, power of r.","E does not grow with distance from the line; it falls off as the enclosing cylindrical surface area increases."]},
+
+  // --- 12.4 Electric Potential ---
+  {id:"s2c12_10",topic:SEM2_TOPICS_CH12[3],difficulty:"easy",
+   question:"A positive charge is moved from point A to point B along a path inside a uniform electric field, where B is farther along the field direction than A. The electric potential at B compared with A is",
+   options:["higher than at A","lower than at A","the same as at A","undefined, since potential only applies to point charges"],correctIndex:1,
+   explanation:"Electric potential decreases in the direction of the electric field (E = −dV/dx), so moving further along the field direction means moving to a point of lower potential.",
+   optionNotes:["Potential decreases, not increases, when moving further along the direction the field points.","","The potential does change between A and B since they are at different positions along the field direction, not equal.","Electric potential is defined at any point in a field, whether created by a point charge, a uniform field, or any other charge distribution."]},
+  {id:"s2c12_11",topic:SEM2_TOPICS_CH12[3],difficulty:"medium",
+   question:"Point charges +4 µC and −4 µC are fixed 0.2 m apart. What is the electric potential at the midpoint between them?",
+   options:["0 V","3.6 × 10⁵ V","−3.6 × 10⁵ V","7.2 × 10⁵ V"],correctIndex:0,
+   explanation:"At the midpoint, both charges are equidistant (0.1 m), so V = kQ₁/r + kQ₂/r = k(4×10⁻⁶)/0.1 + k(−4×10⁻⁶)/0.1 = 0, since potential is a scalar and the two equal-magnitude opposite charges cancel exactly.",
+   optionNotes:["","This is the magnitude of the potential due to just one of the charges alone — it ignores that potential is a scalar sum and the two contributions cancel.","Same error as above with the sign of only one charge kept — the midpoint potential is exactly zero, not negative.","Doubling one charge's contribution ignores that the two potentials are equal and opposite, summing to zero rather than reinforcing."]},
+  {id:"s2c12_12",topic:SEM2_TOPICS_CH12[3],difficulty:"hard",
+   question:"A charge of +5 µC is moved from a point where the potential is 200 V to a point where the potential is 50 V, against no resistive forces other than the electric field. The work done by the electric field on the charge is",
+   options:["+7.5 × 10⁻⁴ J","−7.5 × 10⁻⁴ J","+1.0 × 10⁻³ J","−1.0 × 10⁻³ J"],correctIndex:0,
+   explanation:"Work done by the field W = q(V_initial − V_final) = 5×10⁻⁶ × (200 − 50) = 5×10⁻⁶ × 150 = 7.5×10⁻⁴ J. The field does positive work since the positive charge moves from high to low potential, in the direction the field would naturally push it.",
+   optionNotes:["","The sign is wrong — a positive charge moving from higher to lower potential has positive work done on it by the field, not negative.","This uses the full potential difference (200 V) rather than the actual change (200−50 = 150 V).","Same magnitude error as above, combined with an incorrect sign."]}
+];
+
+// 12 questions total (3 per subtopic), matching Sem1's established style/difficulty mix
+// and the optionNotes schema (empty string "" at the correctIndex position).
+// STAGING FILE — Semester 2, Chapter 13: Capacitors (official syllabus Ch14)
+// Same staging convention as sem2_ch12_electrostatics.js — not yet merged into index.html.
+
+const SEM2_TOPICS_CH13 = [
+  "S2-13.1 Capacitance",
+  "S2-13.2 Parallel Plate Capacitors",
+  "S2-13.3 Dielectrics",
+  "S2-13.4 Capacitors in Series and in Parallel",
+  "S2-13.5 Energy Stored in a Charged Capacitor",
+  "S2-13.6 Charging and Discharging of a Capacitor"
+];
+
+const SEM2_SEED_QUESTIONS_CH13 = [
+  // --- 13.1 Capacitance ---
+  {id:"s2c13_1",topic:SEM2_TOPICS_CH13[0],difficulty:"easy",
+   question:"A capacitor stores 6 × 10⁻⁴ C of charge when the potential difference across it is 12 V. What is its capacitance?",
+   options:["5 × 10⁻⁵ F","2 × 10⁴ F","7.2 × 10⁻³ F","5 × 10⁻³ F"],correctIndex:0,
+   explanation:"C = Q/V = 6×10⁻⁴/12 = 5×10⁻⁵ F.",
+   optionNotes:["","This inverts the ratio (V/Q instead of Q/V).","This multiplies Q and V instead of dividing.","This is off by a factor of 100 from a misplaced decimal in the division."]},
+  {id:"s2c13_2",topic:SEM2_TOPICS_CH13[0],difficulty:"medium",
+   question:"A capacitor is charged by a battery to a certain potential difference, then disconnected from the battery. If the capacitance is subsequently doubled (by some external means) while the isolated charge stays fixed, the potential difference across the capacitor becomes",
+   options:["doubled","halved","unchanged","quadrupled"],correctIndex:1,
+   explanation:"With Q fixed (isolated, no battery), V = Q/C. Doubling C halves V.",
+   optionNotes:["Since Q is fixed and C increases, V must decrease, not increase.","","V is not independent of C here — with Q constant, V = Q/C changes whenever C changes.","Doubling C only halves V; it does not quadruple it, since V ∝ 1/C, not 1/C²."]},
+  {id:"s2c13_3",topic:SEM2_TOPICS_CH13[0],difficulty:"hard",
+   question:"The capacitance of an isolated conducting sphere of radius r in a vacuum is given by C = 4πε₀r. If two identical isolated spheres, each of capacitance C₀, are brought into contact and then separated far apart again, each retaining half the total original charge, the capacitance of each sphere afterward is",
+   options:["C₀/2","C₀","2C₀","4C₀"],correctIndex:1,
+   explanation:"Capacitance of an isolated sphere depends only on its geometry (C = 4πε₀r), not on the charge it carries. Since each sphere's physical size is unchanged, its capacitance remains C₀ even though the charge on it has changed.",
+   optionNotes:["Capacitance for an isolated sphere depends on radius, not on charge, so halving the charge does not halve C.","","","Nothing physically increases either sphere's radius, so C cannot increase from the original C₀."]},
+
+  // --- 13.2 Parallel Plate Capacitors ---
+  {id:"s2c13_4",topic:SEM2_TOPICS_CH13[1],difficulty:"easy",
+   question:"A parallel plate capacitor's capacitance can be increased by",
+   options:["increasing the separation between the plates","decreasing the area of the plates","increasing the area of the plates","removing the dielectric between the plates"],correctIndex:2,
+   explanation:"C = ε₀A/d, so capacitance increases with larger plate area A (and decreases with larger separation d).",
+   optionNotes:["Increasing separation d decreases C, since C ∝ 1/d.","Decreasing area A decreases C, since C ∝ A.","","Removing the dielectric (replacing it with vacuum/air, which has the lowest relative permittivity) would decrease, not increase, C."]},
+  {id:"s2c13_5",topic:SEM2_TOPICS_CH13[1],difficulty:"medium",
+   question:"A parallel plate capacitor connected to a battery maintains a constant potential difference V. If the plate separation is increased while still connected to the battery, the charge stored on the capacitor",
+   options:["increases","decreases","stays the same","increases then decreases"],correctIndex:1,
+   explanation:"With V fixed by the battery, Q = CV. Increasing separation d decreases C (since C ∝ 1/d), and so Q = CV decreases as well.",
+   optionNotes:["C decreases as d increases, and with V fixed, Q = CV must also decrease, not increase.","","Q is not independent of C here; since V is held fixed by the battery, any change in C directly changes Q.","There is no mechanism here for a non-monotonic change — C simply decreases steadily as d increases, so Q only decreases."]},
+  {id:"s2c13_6",topic:SEM2_TOPICS_CH13[1],difficulty:"hard",
+   question:"A parallel plate capacitor with air between the plates has capacitance C₀. The plate separation is halved, and simultaneously the plate area is doubled. The new capacitance is",
+   options:["C₀","2C₀","4C₀","C₀/2"],correctIndex:2,
+   explanation:"C = ε₀A/d. Doubling A multiplies C by 2; halving d multiplies C by another 2. Combined: C_new = 2 × 2 × C₀ = 4C₀.",
+   optionNotes:["This ignores that both changes (area doubling and separation halving) each independently increase C — their effects combine rather than cancel.","This accounts for only one of the two changes, not both acting together.","","This has the effect of the changes backwards — both changes increase C, they don't combine to decrease it."]},
+
+  // --- 13.3 Dielectrics ---
+  {id:"s2c13_7",topic:SEM2_TOPICS_CH13[2],difficulty:"easy",
+   question:"Inserting a dielectric material between the plates of a parallel plate capacitor (completely filling the gap) causes the capacitance to",
+   options:["decrease","increase by a factor equal to the dielectric constant","remain unchanged","become zero"],correctIndex:1,
+   explanation:"C = εᵣε₀A/d. Since the relative permittivity (dielectric constant) εᵣ > 1 for any dielectric material, inserting it multiplies the capacitance by εᵣ compared to the vacuum/air case.",
+   optionNotes:["Capacitance increases with a dielectric, since εᵣ > 1, not decreases.","","C is multiplied by εᵣ, which is not 1 for a real dielectric, so it does change.","A dielectric does not short out or eliminate the capacitor's ability to store charge; it increases it."]},
+  {id:"s2c13_8",topic:SEM2_TOPICS_CH13[2],difficulty:"medium",
+   question:"A dielectric placed in an external electric field becomes polarised. This polarisation creates an internal electric field that",
+   options:["points in the same direction as the external field, reinforcing it","points opposite to the external field, partially cancelling it","has no effect on the net field inside the dielectric","is always exactly equal and opposite to the external field, giving zero net field"],correctIndex:1,
+   explanation:"Polarisation aligns bound charges so that the induced field opposes the external field, reducing (but, for a typical dielectric, not eliminating) the net field inside the material — this is why the electric field between capacitor plates is reduced when a dielectric is inserted with charge held fixed.",
+   optionNotes:["A reinforcing (aligned) induced field would increase the net field, but dielectrics reduce the net internal field instead.","","The polarisation field is precisely what reduces the net internal field — it is not a null effect.","Only in a perfect conductor would the induced field exactly cancel the external one; a dielectric only partially reduces it."]},
+  {id:"s2c13_9",topic:SEM2_TOPICS_CH13[2],difficulty:"hard",
+   question:"A parallel plate capacitor is charged to charge Q with air between the plates, then isolated from the battery. A dielectric slab of relative permittivity 4 is then inserted, completely filling the gap. What happens to the potential difference across the plates and the electric field between them?",
+   options:["Both quarter","Both quadruple","Both stay the same","Both halve"],correctIndex:0,
+   explanation:"With Q fixed (isolated), inserting a dielectric raises C to 4C₀, so V = Q/C drops to V₀/4. Since E = V/d, and d is unchanged, E also drops to a quarter of its original value.",
+   optionNotes:["","Capacitance increases (not decreases) with the dielectric, so for fixed Q, V and E must decrease, not increase.","Both V and E do change — the dielectric changes the capacitance, which directly affects V = Q/C for a fixed charge.","The reduction factor matches the dielectric constant exactly (divided by 4), not simply halved."]},
+
+  // --- 13.4 Capacitors in Series and in Parallel ---
+  {id:"s2c13_10",topic:SEM2_TOPICS_CH13[3],difficulty:"easy",
+   question:"Two capacitors of 4 µF and 6 µF are connected in parallel. What is their combined capacitance?",
+   options:["2.4 µF","10 µF","24 µF","5 µF"],correctIndex:1,
+   explanation:"For parallel capacitors, capacitances simply add: C = 4 + 6 = 10 µF.",
+   optionNotes:["This is the series-combination result (product over sum), not the parallel result.","","This multiplies the two capacitances instead of adding them.","This is a simple average of the two values, not the correct parallel-combination rule."]},
+  {id:"s2c13_11",topic:SEM2_TOPICS_CH13[3],difficulty:"medium",
+   question:"Two capacitors of 3 µF and 6 µF are connected in series across a 12 V battery. What is the potential difference across the 3 µF capacitor?",
+   options:["4 V","6 V","8 V","12 V"],correctIndex:2,
+   explanation:"In series, charge Q is the same on both: C_total = (3×6)/(3+6) = 2 µF, so Q = CV = 2×12 = 24 µC. Then V₃ = Q/C₃ = 24/3 = 8 V.",
+   optionNotes:["This would be V across the 6 µF capacitor if the values were swapped — recheck which capacitor the 24 µC charge is divided by.","This doesn't follow from Q = 24 µC divided by either capacitor value correctly.","","This is the full battery voltage, which ignores that the voltage divides unequally between the two series capacitors in inverse proportion to their capacitance."]},
+  {id:"s2c13_12",topic:SEM2_TOPICS_CH13[3],difficulty:"hard",
+   question:"Three identical capacitors, each of capacitance C, can be combined to give several different equivalent capacitances. Which of the following values is NOT achievable using all three capacitors together (in any series/parallel combination)?",
+   options:["3C","C/3","3C/2","5C/3"],correctIndex:3,
+   explanation:"All three in parallel gives 3C; all three in series gives C/3; two in parallel then in series with the third gives (2C×C)/(2C+C) = 2C/3, and two in series then in parallel with the third gives C/2 + C = 3C/2. The value 5C/3 does not arise from any series/parallel arrangement of three equal capacitors.",
+   optionNotes:["3C is achievable: all three capacitors connected in parallel.","C/3 is achievable: all three capacitors connected in series.","3C/2 is achievable: two capacitors in series (giving C/2), combined in parallel with the third.",""]},
+
+  // --- 13.5 Energy Stored in a Charged Capacitor ---
+  {id:"s2c13_13",topic:SEM2_TOPICS_CH13[4],difficulty:"easy",
+   question:"A 20 µF capacitor is charged to a potential difference of 100 V. What is the energy stored in the capacitor?",
+   options:["0.1 J","0.2 J","2 × 10⁻³ J","2000 J"],correctIndex:0,
+   explanation:"E = ½CV² = ½ × 20×10⁻⁶ × 100² = ½ × 20×10⁻⁶ × 10000 = 0.1 J.",
+   optionNotes:["","This is double the correct value — remember the factor of ½ in E = ½CV².","This uses V instead of V² in the formula.","This omits the 10⁻⁶ factor from converting µF to F."]},
+  {id:"s2c13_14",topic:SEM2_TOPICS_CH13[4],difficulty:"medium",
+   question:"A charged capacitor of capacitance C and energy E₀ is connected in parallel to an identical uncharged capacitor of the same capacitance C. After the charge redistributes between them, the total energy stored in the two capacitors is",
+   options:["2E₀","E₀","E₀/2","E₀/4"],correctIndex:2,
+   explanation:"Charge Q is shared equally (identical capacitors), so each ends up with Q/2 and V/2. Total energy = 2 × ½C(V/2)² = ½CV²/2 = E₀/2. The 'missing' energy is dissipated as heat/radiation during the brief redistribution current.",
+   optionNotes:["Energy is not conserved in this irreversible charge-sharing process — connecting the capacitors dissipates some energy, so the total cannot double.","Total energy decreases due to dissipation during redistribution; it does not stay exactly at E₀.","","The total drops to half of E₀, not a quarter — recompute using V/2 and two capacitors, not one."]},
+  {id:"s2c13_15",topic:SEM2_TOPICS_CH13[4],difficulty:"hard",
+   question:"A capacitor is charged by a battery of EMF V through a resistor. By the time the capacitor is fully charged, the energy supplied by the battery compared with the energy finally stored in the capacitor is",
+   options:["exactly equal","exactly twice the stored energy, due to resistive heating","always less than the stored energy","independent of the resistance"],correctIndex:1,
+   explanation:"The battery supplies total energy QV, but the capacitor only stores ½QV; the other half (½QV) is dissipated as heat in the resistor, regardless of the resistance's value (only the rate of charging depends on R, not the total energy split).",
+   optionNotes:["The battery supplies QV while the capacitor stores only ½QV — exactly half is lost to resistive heating, so the two are not equal.","","The battery's total energy supplied is always QV, which is always more than the ½QV stored — not less.","The 50:50 energy split holds for any resistance value; only option B correctly states this, not D's claim that resistance is irrelevant to the comparison itself being made."]},
+
+  // --- 13.6 Charging and Discharging of a Capacitor ---
+  {id:"s2c13_16",topic:SEM2_TOPICS_CH13[5],difficulty:"easy",
+   question:"In an RC discharging circuit, the time constant τ = RC represents the time taken for the charge on the capacitor to fall to",
+   options:["zero","half of its initial value","1/e (about 37%) of its initial value","e times its initial value"],correctIndex:2,
+   explanation:"For exponential decay Q = Q₀e^(−t/RC), at t = RC = τ, Q = Q₀e⁻¹ ≈ 0.37Q₀ — about 37% of the initial charge.",
+   optionNotes:["The charge never reaches exactly zero in a finite time for ideal exponential decay — it only approaches zero asymptotically.","This describes the half-life, which corresponds to t = RC·ln2 ≈ 0.69RC, not t = RC exactly.","","Charge decreases during discharge, so it cannot become e times (about 2.7×) larger than its initial value."]},
+  {id:"s2c13_17",topic:SEM2_TOPICS_CH13[5],difficulty:"medium",
+   question:"A capacitor is charged through a resistor R from a battery of EMF V. If R is doubled (with C and V unchanged), how does the time to reach a given fraction of full charge compare to before?",
+   options:["It is halved","It is unchanged","It is doubled","It becomes four times longer"],correctIndex:2,
+   explanation:"The charging time to reach any given fraction of Q₀ is proportional to the time constant τ = RC. Doubling R doubles τ, and so doubles the time taken to reach that same fractional charge.",
+   optionNotes:["Doubling R increases τ, which lengthens — not shortens — the charging time.","The time constant τ = RC depends directly on R, so changing R does change the charging time.","","Since τ ∝ R (linearly, not R²), doubling R exactly doubles the time, not quadruples it."]},
+  {id:"s2c13_18",topic:SEM2_TOPICS_CH13[5],difficulty:"hard",
+   question:"A fully charged capacitor C discharges through a resistor R. At the instant discharge begins, the initial discharge current is I₀ = V₀/R. The current falls to exactly half of I₀ at a time t equal to",
+   options:["RC","RC ln2","RC/2","RC/ln2"],correctIndex:1,
+   explanation:"Discharge current follows I = I₀e^(−t/RC). Setting I = I₀/2 gives e^(−t/RC) = ½, so −t/RC = ln(½) = −ln2, giving t = RC ln2.",
+   optionNotes:["t = RC corresponds to the current falling to 1/e (≈37%) of I₀, not exactly half.","","This has the factor of ln2 in the wrong place in the ratio.","This inverts where ln2 should appear — it should multiply RC, not divide it."]}
+];
+// STAGING FILE — Semester 2, Chapter 14: Electric Current (official syllabus Ch15)
+
+const SEM2_TOPICS_CH14 = [
+  "S2-14.1 Conduction of Electricity",
+  "S2-14.2 Drift Velocity",
+  "S2-14.3 Current Density",
+  "S2-14.4 Electric Conductivity and Resistivity"
+];
+
+const SEM2_SEED_QUESTIONS_CH14 = [
+  // --- 14.1 Conduction of Electricity ---
+  {id:"s2c14_1",topic:SEM2_TOPICS_CH14[0],difficulty:"easy",
+   question:"According to the free-electron model of conduction in a metal, as temperature increases, the resistance of the metal generally",
+   options:["decreases, because more free electrons are released","increases, because lattice vibrations increase and scatter electrons more often","stays the same, since the number of free electrons is fixed","decreases to zero at any temperature above absolute zero"],correctIndex:1,
+   explanation:"In a metal, the number of free electrons is already very large and roughly constant with temperature; what changes is that increased lattice vibration causes more frequent electron-lattice collisions, reducing the mean free time and increasing resistance.",
+   optionNotes:["A metal's free electron density is essentially fixed by its atomic structure, not released in greater numbers by heating.","","Resistance does change with temperature in a metal — it increases, due to increased lattice scattering, not stays fixed.","Resistance only drops to zero in special superconducting materials near absolute zero, not in an ordinary metal at any temperature."]},
+  {id:"s2c14_2",topic:SEM2_TOPICS_CH14[0],difficulty:"medium",
+   question:"A uniform wire carries a steady current. Which statement about the free electrons in the wire is correct?",
+   options:["All free electrons move at the same constant drift velocity with no random motion","Free electrons move with high random thermal velocities, superimposed with a much smaller net drift velocity due to the field","Free electrons are stationary; only the electric field moves through the wire","Free electrons move in straight lines without any collisions"],correctIndex:1,
+   explanation:"Free electrons have large random thermal velocities (of order 10⁵–10⁶ m/s) in all directions due to thermal energy; the applied field adds a small net drift velocity (typically mm/s) in the direction opposing the field, which is what constitutes the current.",
+   optionNotes:["Electrons do have significant random thermal motion; it does not vanish under current flow — only a small net drift is added on top of it.","","Free electrons themselves carry the charge and do move (via drift), even though it's the field's effect that propagates almost instantly.","Electrons undergo frequent collisions with the lattice, which is precisely what causes resistance and limits drift velocity."]},
+  {id:"s2c14_3",topic:SEM2_TOPICS_CH14[0],difficulty:"hard",
+   question:"A semiconductor's conductivity increases significantly with temperature, unlike a metal's. This is best explained by the fact that in a semiconductor, as temperature rises,",
+   options:["the lattice vibrations decrease, reducing scattering","the mean free time increases faster than the charge carrier density","the increase in the number of charge carriers (electrons and holes) outweighs the increased scattering effect","the charge on each carrier increases"],correctIndex:2,
+   explanation:"In a semiconductor, rising temperature frees many more electrons from the valence band (creating electron-hole pairs), dramatically increasing carrier density; this effect dominates over the (smaller) increase in scattering, so net conductivity rises — opposite to a metal, where carrier density is already saturated and only scattering increases.",
+   optionNotes:["Lattice vibrations actually increase with temperature in a semiconductor just as in a metal; this isn't the driving mechanism for the conductivity increase.","Mean free time decreases (not increases) as scattering goes up with temperature; it's the carrier density increase that dominates instead.","","The charge on an individual electron or hole (e) is a fixed physical constant and does not change with temperature."]},
+
+  // --- 14.2 Drift Velocity ---
+  {id:"s2c14_4",topic:SEM2_TOPICS_CH14[1],difficulty:"easy",
+   question:"A lamp connected in a circuit lights up almost instantaneously when switched on, even though the drift velocity of electrons is only a fraction of a millimetre per second. This is because",
+   options:["the electrons travel to the lamp at the speed of light","the electric field that drives the electrons is established throughout the circuit almost instantly","the lamp does not actually require electrons to reach it to light up","the drift velocity near the switch is much higher than elsewhere in the circuit"],correctIndex:1,
+   explanation:"The electric field (and its effect on every free electron already present throughout the wire) propagates through the circuit at close to the speed of light, so electrons everywhere in the circuit — not just those near the switch — begin drifting almost immediately, even though each individual electron's drift is very slow.",
+   optionNotes:["It is the field's influence, not the electrons themselves, that propagates near light speed; individual electron drift remains slow.","","The lamp lighting up does depend on charge carriers moving through the filament to carry current and produce heat/light.","Drift velocity depends on current density and carrier density, which are approximately uniform along a uniform wire — it isn't especially high near the switch."]},
+  {id:"s2c14_5",topic:SEM2_TOPICS_CH14[1],difficulty:"medium",
+   question:"A wire of cross-sectional area A carries current I with free electron number density n and drift velocity vd. If the same current I flows through a second wire of the same material but with cross-sectional area 2A, the drift velocity in the second wire is",
+   options:["2vd","vd","vd/2","4vd"],correctIndex:2,
+   explanation:"I = nAvde (charge e, same material so same n). For constant I, vd ∝ 1/A. Doubling A halves vd.",
+   optionNotes:["This doubles vd, but I = nAevd fixed means vd must decrease (not increase) when A increases, to keep I the same.","vd does change — it isn't independent of cross-sectional area when current is held fixed.","","Since vd ∝ 1/A (not 1/A²), doubling A only halves vd, it doesn't quarter it."]},
+  {id:"s2c14_6",topic:SEM2_TOPICS_CH14[1],difficulty:"hard",
+   question:"Two wires P and Q are made of the same material, carry the same current I, but wire P has half the cross-sectional area of wire Q. Compare the drift velocities vP and vQ.",
+   options:["vP = vQ","vP = 2vQ","vP = vQ/2","vP = 4vQ"],correctIndex:1,
+   explanation:"I = nAve, same material (same n) and same I. So A·v is constant: AP·vP = AQ·vQ. Since AP = AQ/2, vP = vQ·(AQ/AP) = 2vQ.",
+   optionNotes:["Drift velocity is not equal — since AP is smaller than AQ for the same current, vP must be correspondingly larger.","","This has the ratio inverted — the narrower wire (P) has the larger drift velocity, not the smaller.","The relationship between v and A is a simple inverse proportion here, not an inverse-square relationship."]},
+
+  // --- 14.3 Current Density ---
+  {id:"s2c14_7",topic:SEM2_TOPICS_CH14[2],difficulty:"easy",
+   question:"A wire of cross-sectional area 2 × 10⁻⁶ m² carries a current of 4 A. What is the current density in the wire?",
+   options:["2 × 10⁶ A m⁻²","8 × 10⁻⁶ A m⁻²","0.5 × 10⁶ A m⁻²","2 × 10⁵ A m⁻²"],correctIndex:0,
+   explanation:"J = I/A = 4/(2×10⁻⁶) = 2×10⁶ A m⁻².",
+   optionNotes:["","This multiplies I and A instead of dividing.","This inverts the ratio (A/I instead of I/A).","This is off by a factor of 10 from a decimal-place slip in the division."]},
+  {id:"s2c14_8",topic:SEM2_TOPICS_CH14[2],difficulty:"medium",
+   question:"A tapering wire has a larger cross-sectional area at end P than at end Q, and carries a steady current I along its length. Comparing the current density at P and Q,",
+   options:["current density is the same at P and Q since the current I is the same throughout","current density is greater at Q, where the area is smaller","current density is greater at P, where the area is larger","current density cannot be defined for a non-uniform wire"],correctIndex:1,
+   explanation:"Although the current I is the same throughout the wire (conservation of charge), current density J = I/A varies inversely with the local cross-sectional area, so J is larger where the wire is narrower (at Q).",
+   optionNotes:["While I is indeed constant along the wire, J = I/A is not — it depends on the local area, which differs between P and Q.","","J is larger where A is smaller, so it is greater at Q, not at P.","Current density is perfectly well defined at any cross-section, uniform or not — it's simply I divided by the local area at that section."]},
+  {id:"s2c14_9",topic:SEM2_TOPICS_CH14[2],difficulty:"hard",
+   question:"A cylindrical conductor's cross-sectional area is reduced uniformly to a third of its original value along its entire length, while the same current I continues to flow through it. Compared with the original current density J₀, the new current density is",
+   options:["J₀/3","3J₀","J₀","9J₀"],correctIndex:1,
+   explanation:"J = I/A. With I unchanged and A reduced to A₀/3, J_new = I/(A₀/3) = 3(I/A₀) = 3J₀.",
+   optionNotes:["This has the ratio inverted — a smaller area with the same current gives a larger, not smaller, current density.","","Current density does change here; it isn't preserved when the area shrinks while current stays fixed.","J scales as 1/A, a simple inverse relationship — not as 1/A² — so reducing A to a third triples J, it doesn't give 9 times."]},
+
+  // --- 14.4 Electric Conductivity and Resistivity ---
+  {id:"s2c14_10",topic:SEM2_TOPICS_CH14[3],difficulty:"easy",
+   question:"A wire has resistivity ρ, length L and cross-sectional area A. If the wire is stretched uniformly to twice its original length (with volume, and hence the resistivity of the material, unchanged), its new resistance compared to the original resistance R is",
+   options:["2R","4R","R/2","R/4"],correctIndex:1,
+   explanation:"R = ρL/A. Stretching to length 2L conserves volume (AL = constant), so new area A' = A/2. New resistance R' = ρ(2L)/(A/2) = 4ρL/A = 4R.",
+   optionNotes:["This accounts for the length doubling but misses that the area also halves (from volume conservation), which further increases resistance.","","Resistance increases upon stretching (both effects act the same way), it doesn't decrease.","Same direction error as above — stretching increases resistance, it does not decrease it."]},
+  {id:"s2c14_11",topic:SEM2_TOPICS_CH14[3],difficulty:"medium",
+   question:"Two wires, X and Y, are made of different materials with resistivities ρX = 2ρY, but have identical length and cross-sectional area. Comparing their conductivities,",
+   options:["σX = 2σY","σX = σY/2","σX = σY","σX = 4σY"],correctIndex:1,
+   explanation:"Conductivity σ = 1/ρ. Since ρX = 2ρY, σX = 1/(2ρY) = ½(1/ρY) = σY/2.",
+   optionNotes:["This has the relationship inverted — a higher resistivity means a lower, not higher, conductivity.","","Since resistivities differ, conductivities must differ too — they cannot be equal.","The relationship σ = 1/ρ is a simple reciprocal, not a squared one, so the factor is ½, not ¼."]},
+  {id:"s2c14_12",topic:SEM2_TOPICS_CH14[3],difficulty:"hard",
+   question:"The resistivity of a metal increases approximately linearly with temperature over a moderate range, while the resistivity of an intrinsic semiconductor decreases roughly exponentially with increasing temperature. This contrast arises mainly because",
+   options:["metals have a fixed, essentially temperature-independent charge carrier density while semiconductors have a carrier density that grows rapidly with temperature","semiconductors have no free charge carriers at any temperature","metals' charge carrier density decreases with temperature","semiconductors' lattice vibrations decrease with increasing temperature"],correctIndex:0,
+   explanation:"A metal's free electron density is essentially fixed (set by its atomic structure), so resistivity there is governed almost entirely by increased lattice scattering with temperature. A semiconductor's carrier density, by contrast, grows exponentially with temperature as more electron-hole pairs are thermally generated, and this effect dominates over the (also increasing) scattering, driving resistivity down overall.",
+   optionNotes:["","Intrinsic semiconductors do have free carriers, generated thermally across the band gap — just far fewer at low temperature than a metal has.","A metal's carrier density is essentially constant with temperature, not decreasing — it's the scattering rate that changes.","Lattice vibrations increase with temperature in a semiconductor too, just as in a metal; it's the carrier-density effect that dominates and reverses the overall trend."]}
+];
+// STAGING FILE — Semester 2, Chapter 15: Direct Current Circuits (official syllabus Ch16)
+
+const SEM2_TOPICS_CH15 = [
+  "S2-15.1 Internal Resistance",
+  "S2-15.2 Kirchhoff's Laws",
+  "S2-15.3 Potential Divider",
+  "S2-15.4 Potentiometer and Wheatstone Bridge"
+];
+
+const SEM2_SEED_QUESTIONS_CH15 = [
+  // --- 15.1 Internal Resistance ---
+  {id:"s2c15_1",topic:SEM2_TOPICS_CH15[0],difficulty:"easy",
+   question:"A battery of EMF 6.0 V and internal resistance 0.5 Ω drives a current of 2.0 A through an external resistor. What is the terminal potential difference of the battery?",
+   options:["5.0 V","6.0 V","7.0 V","1.0 V"],correctIndex:0,
+   explanation:"Terminal p.d. = EMF − I×r = 6.0 − (2.0 × 0.5) = 6.0 − 1.0 = 5.0 V.",
+   optionNotes:["","This is the EMF itself, ignoring the voltage drop across the internal resistance entirely.","This adds the internal drop instead of subtracting it.","This is just the voltage dropped across the internal resistance (I×r), not the terminal p.d."]},
+  {id:"s2c15_2",topic:SEM2_TOPICS_CH15[0],difficulty:"medium",
+   question:"A cell's terminal p.d. is measured as 1.4 V when supplying 0.2 A, and 1.2 V when supplying 0.6 A to different external resistors. What is the internal resistance of the cell?",
+   options:["0.5 Ω","2.0 Ω","3.0 Ω","0.33 Ω"],correctIndex:0,
+   explanation:"V = E − Ir for both cases: 1.4 = E − 0.2r and 1.2 = E − 0.6r. Subtracting: 0.2 = 0.4r, so r = 0.5 Ω.",
+   optionNotes:["","This is 4 times the correct value — recheck the subtraction of the two simultaneous equations.","This inverts the ratio of the differences (0.4/0.2 rather than 0.2/0.4).","This is the reciprocal of the correct answer."]},
+  {id:"s2c15_3",topic:SEM2_TOPICS_CH15[0],difficulty:"hard",
+   question:"A battery with EMF E and internal resistance r is connected to an external variable resistor R. The power delivered to the external resistor R is maximum when",
+   options:["R = 0","R = r","R is as large as possible","R = 2r"],correctIndex:1,
+   explanation:"Power delivered to R is P = I²R = [E/(R+r)]²R. Differentiating with respect to R and setting dP/dR = 0 gives R = r as the condition for maximum power transfer.",
+   optionNotes:["At R = 0, the current is maximum but no power is delivered to R itself (all power dissipates in r) — P = I²R = 0 when R = 0.","","As R → ∞, the current I → 0, so P = I²R → 0 as well — power delivered to R does not keep increasing indefinitely.","R = 2r does not satisfy the maximum-power condition found by differentiating P with respect to R; the correct condition is R = r exactly."]},
+
+  // --- 15.2 Kirchhoff's Laws ---
+  {id:"s2c15_4",topic:SEM2_TOPICS_CH15[1],difficulty:"easy",
+   question:"Kirchhoff's first law (junction rule) is a direct consequence of which fundamental physical principle?",
+   options:["Conservation of energy","Conservation of charge","Conservation of momentum","Conservation of angular momentum"],correctIndex:1,
+   explanation:"Kirchhoff's current law states that the total current entering a junction equals the total current leaving it — this follows directly from conservation of charge, since charge cannot accumulate indefinitely at a junction in steady-state current flow.",
+   optionNotes:["Conservation of energy underlies Kirchhoff's second (voltage) law, not the junction rule.","","Momentum conservation is unrelated to the flow of charge through a circuit junction.","Angular momentum conservation has no bearing on current distribution at a junction."]},
+  {id:"s2c15_5",topic:SEM2_TOPICS_CH15[1],difficulty:"medium",
+   question:"At a junction in a circuit, three wires meet: current of 5 A flows in, current of 2 A flows out through one wire. What is the current in the third wire, and in which direction?",
+   options:["3 A, flowing in","3 A, flowing out","7 A, flowing out","7 A, flowing in"],correctIndex:1,
+   explanation:"By Kirchhoff's current law, total current in = total current out. 5 A in; 2 A already out; so the third wire must carry 5 − 2 = 3 A out to balance the junction.",
+   optionNotes:["If 3 A flowed in as well, total current in (5+3=8 A) would not equal the 2 A flowing out, violating charge conservation.","","Adding the currents (5+2=7 A) doesn't apply here; only the difference balances the junction.","Same arithmetic error as above, with the direction also reversed."]},
+  {id:"s2c15_6",topic:SEM2_TOPICS_CH15[1],difficulty:"hard",
+   question:"In applying Kirchhoff's second law (voltage law) to a closed loop containing a cell and several resistors, the sum of all EMFs around the loop equals",
+   options:["zero, always","the sum of all IR voltage drops around the loop","the total resistance of the loop","the total current flowing in the loop"],correctIndex:1,
+   explanation:"Kirchhoff's voltage law states that around any closed loop, the sum of EMFs equals the sum of IR potential drops (ΣE = ΣIR) — it is an energy-conservation statement, not simply zero (that form, ΣE − ΣIR = 0, is equivalent but the other options misstate it).",
+   optionNotes:["Stating it as simply 'zero, always' without reference to the IR drops is incomplete and could be misapplied; the correct relation equates ΣE to ΣIR.","","Resistance alone (without current) doesn't represent a voltage; it's the IR products that must be summed.","Current by itself isn't a voltage; it must be multiplied by resistance to give the voltage drops that balance the EMFs."]},
+
+  // --- 15.3 Potential Divider ---
+  {id:"s2c15_7",topic:SEM2_TOPICS_CH15[2],difficulty:"easy",
+   question:"A 12 V supply is connected across two resistors of 2 kΩ and 4 kΩ in series, forming a potential divider. What is the voltage across the 4 kΩ resistor?",
+   options:["4 V","6 V","8 V","12 V"],correctIndex:2,
+   explanation:"Voltage divides in proportion to resistance: V₄kΩ = 12 × 4/(2+4) = 12 × 4/6 = 8 V.",
+   optionNotes:["This is the voltage across the 2 kΩ resistor, not the 4 kΩ one.","This doesn't match either resistor's correct fractional share of the 12 V.","","This is the full supply voltage, ignoring that it divides between the two series resistors."]},
+  {id:"s2c15_8",topic:SEM2_TOPICS_CH15[2],difficulty:"medium",
+   question:"A potential divider made of two fixed resistors is used to supply a lower voltage to a load. If a load resistor is now connected in parallel with the lower resistor of the divider (drawing additional current), the output voltage across that resistor",
+   options:["increases above the no-load value","stays exactly the same as the no-load value","decreases below the no-load value","becomes zero"],correctIndex:2,
+   explanation:"Adding a load in parallel with the lower resistor reduces the effective resistance of that branch, which reduces its share of the total voltage compared to the unloaded (no-load) case — this is the well-known 'loading effect' of a potential divider.",
+   optionNotes:["Loading a potential divider reduces, not increases, the output voltage compared to the no-load case.","The output voltage is only unaffected by loading in the idealised case of infinite load resistance; a finite load resistor does change it.","","The output voltage drops but does not go to zero unless the load resistance is zero (a short circuit), not simply 'connected in parallel'."]},
+  {id:"s2c15_9",topic:SEM2_TOPICS_CH15[2],difficulty:"hard",
+   question:"A potential divider uses a fixed resistor R1 in series with a thermistor R2, whose resistance decreases as temperature increases. The output voltage is taken across R2. As temperature increases, the output voltage",
+   options:["increases","decreases","stays constant","first increases then decreases"],correctIndex:1,
+   explanation:"Output voltage across R2 is V_out = V × R2/(R1+R2). As temperature rises, R2 decreases, which decreases this fraction (both the numerator R2 shrinks and R2's share of the total R1+R2 shrinks), so V_out decreases.",
+   optionNotes:["","","V_out depends directly on R2, which changes with temperature — it cannot remain constant.","There is no physical mechanism here causing a reversal; R2 decreases monotonically with temperature, so V_out decreases monotonically too."]},
+
+  // --- 15.4 Potentiometer and Wheatstone Bridge ---
+  {id:"s2c15_10",topic:SEM2_TOPICS_CH15[3],difficulty:"easy",
+   question:"In a potentiometer experiment, a balance point is found when the galvanometer shows zero deflection. This condition means",
+   options:["there is maximum current flowing through the galvanometer branch","there is no potential difference across the galvanometer branch","the driver cell's EMF equals zero","the sliding wire has zero resistance at that point"],correctIndex:1,
+   explanation:"Zero deflection means no current flows through the galvanometer, which happens precisely when there is no potential difference across that branch — i.e., the EMF being measured exactly balances the potential drop across the corresponding length of the slide wire.",
+   optionNotes:["Zero deflection means zero current through the galvanometer, which is the opposite of maximum current.","","The driver cell's EMF is what drives current through the slide wire in the first place; it is not zero during a valid balance.","The slide wire has a fixed, nonzero resistance per unit length throughout; the balance point is about zero p.d., not zero resistance at that specific point."]},
+  {id:"s2c15_11",topic:SEM2_TOPICS_CH15[3],difficulty:"medium",
+   question:"A Wheatstone bridge is balanced with resistors P, Q, R, and S arranged so that the galvanometer shows zero deflection. Which condition must be satisfied?",
+   options:["P + Q = R + S","P/Q = R/S","P × Q = R × S","P − Q = R − S"],correctIndex:1,
+   explanation:"At balance, the Wheatstone bridge condition is P/Q = R/S (the ratios of adjacent arms must be equal), which ensures the potential at the two midpoints of the bridge is identical, giving zero current through the galvanometer.",
+   optionNotes:["Adding the resistances does not correspond to the actual balance condition, which is a ratio relationship, not a sum relationship.","","Multiplying the resistances is not the correct balance condition for a Wheatstone bridge.","Subtracting the resistances does not correspond to the balance condition either; the relevant comparison is a ratio, not a difference."]},
+  {id:"s2c15_12",topic:SEM2_TOPICS_CH15[3],difficulty:"hard",
+   question:"A potentiometer is used to compare the EMFs of two cells. With cell 1 alone, the balance length is 60 cm; with cell 2 alone (same driver circuit, same slide wire), the balance length is 45 cm. What is the ratio E1 : E2?",
+   options:["60 : 45 = 4 : 3","45 : 60 = 3 : 4","60 × 45","1 : 1, since both use the same slide wire"],correctIndex:0,
+   explanation:"In a potentiometer, EMF is directly proportional to balance length (since the potential gradient along the slide wire is constant for a fixed driver circuit): E1/E2 = l1/l2 = 60/45 = 4/3.",
+   optionNotes:["","This inverts the ratio — the larger balance length corresponds to the larger EMF, not the smaller.","Multiplying the two lengths is not a meaningful comparison for EMF ratios; the ratio of the lengths themselves is what matters.","The balance lengths differ (60 cm vs 45 cm), which directly indicates the EMFs are different, not equal, despite using the same slide wire."]}
+];
+// STAGING FILE — Semester 2, Chapter 16: Magnetic Fields (official syllabus Ch17)
+
+const SEM2_TOPICS_CH16 = [
+  "S2-16.1 Concept of a Magnetic Field",
+  "S2-16.2 Force on a Moving Charge",
+  "S2-16.3 Force on a Current-Carrying Conductor",
+  "S2-16.4 Magnetic Fields Due to Currents",
+  "S2-16.5 Force Between Two Current-Carrying Conductors",
+  "S2-16.6 Determination of the Ratio e/m",
+  "S2-16.7 Hall Effect"
+];
+
+const SEM2_SEED_QUESTIONS_CH16 = [
+  // --- 16.1 Concept of a Magnetic Field ---
+  {id:"s2c16_1",topic:SEM2_TOPICS_CH16[0],difficulty:"easy",
+   question:"Which of the following does NOT produce a magnetic field?",
+   options:["A stationary point charge","A current-carrying wire","A bar magnet","A charged particle moving at constant velocity"],correctIndex:0,
+   explanation:"A stationary charge produces only an electric field, no magnetic field — magnetic fields are produced by moving charges (currents) or by the aligned magnetic moments in a permanent magnet.",
+   optionNotes:["","A current is simply charge in motion, and moving charge is exactly the source of magnetic fields.","A permanent magnet's field arises from the net alignment of countless atomic current loops (electron spin/orbital motion).","Any moving charge, even a single particle moving at constant velocity, generates a magnetic field around it."]},
+  {id:"s2c16_2",topic:SEM2_TOPICS_CH16[0],difficulty:"medium",
+   question:"Magnetic field lines around a bar magnet and around a current-carrying wire share which common property?",
+   options:["They begin on north poles and end on south poles, like electric field lines begin and end on charges","They always form closed loops with no beginning or end","They point directly towards the source, like electric field lines around a point charge","They can begin or end anywhere depending on the material"],correctIndex:1,
+   explanation:"Unlike electric field lines (which begin/end on charges), magnetic field lines always form closed loops — a direct consequence of there being no magnetic monopoles; field lines emerge from a north pole and curve back to enter a south pole, continuing inside the magnet to close the loop.",
+   optionNotes:["This describes electric field lines (open, beginning/ending on charge); magnetic field lines have no such starting/ending points — they close on themselves.","","Magnetic field lines form loops around the source, not radial lines pointing toward it, which is how electric field lines around a point charge behave.","Field lines are determined entirely by the magnetic field geometry, not arbitrarily by the material; they always close into loops regardless of material."]},
+  {id:"s2c16_3",topic:SEM2_TOPICS_CH16[0],difficulty:"hard",
+   question:"A compass needle near a long straight current-carrying wire responds to the field B ∝ I/r. If the current in the wire is doubled AND the compass is moved to twice the original distance from the wire, the new field strength compared to the original is",
+   options:["the same as the original","half the original","twice the original","four times the original"],correctIndex:0,
+   explanation:"B ∝ I/r. Doubling I doubles B; separately, doubling r halves B. Applying both changes together, the two effects exactly cancel, leaving the field strength unchanged.",
+   optionNotes:["","Halving would result from only the distance change acting alone, ignoring that the current change compensates for it.","Doubling would result from only the current change acting alone, ignoring that the distance change compensates for it.","Quadrupling would require both changes to act in the same direction (both increasing B), but increasing r decreases B, canceling the increase from I."]},
+
+  // --- 16.2 Force on a Moving Charge ---
+  {id:"s2c16_4",topic:SEM2_TOPICS_CH16[1],difficulty:"easy",
+   question:"A positive charge moves with velocity v directly along the direction of a uniform magnetic field B. The magnetic force on the charge is",
+   options:["qvB, perpendicular to both v and B","zero, since v is parallel to B","qvB, in the direction of v","qvB, in the direction of B"],correctIndex:1,
+   explanation:"The magnetic force is F = qv × B, which has magnitude qvB sinθ, where θ is the angle between v and B. When v is parallel to B, θ = 0°, so sinθ = 0 and the force is zero.",
+   optionNotes:["The cross product qv × B is zero when v and B are parallel (sinθ = 0), not maximal.","","F = qv × B is a vector (cross) product, not a product in the direction of v.","Likewise, F is not directed along B; and in this parallel case, the force is zero regardless of direction."]},
+  {id:"s2c16_5",topic:SEM2_TOPICS_CH16[1],difficulty:"medium",
+   question:"A charged particle moves in a circular path in a region of uniform magnetic field, with the field perpendicular to its velocity at all times. If the particle's speed is doubled while B and its charge stay the same, the radius of its circular path becomes",
+   options:["unchanged","doubled","halved","quadrupled"],correctIndex:1,
+   explanation:"For circular motion in a magnetic field, the magnetic force provides centripetal force: qvB = mv²/r, so r = mv/(qB). Since r ∝ v, doubling v doubles r.",
+   optionNotes:["r is directly proportional to v, so it is not independent of speed.","","This reverses the proportionality — r increases, not decreases, when v increases.","r ∝ v (linearly), not v², so doubling v only doubles r, it doesn't quadruple it."]},
+  {id:"s2c16_6",topic:SEM2_TOPICS_CH16[1],difficulty:"hard",
+   question:"A proton and an alpha particle (charge +2e, mass approximately 4 times the proton's mass) enter the same uniform magnetic field perpendicular to B with the same speed v. Compare the radii of their circular paths, r_proton : r_alpha.",
+   options:["1 : 2","1 : 1","2 : 1","1 : 4"],correctIndex:0,
+   explanation:"r = mv/(qB). r_proton = m_p v/(eB); r_alpha = (4m_p)v/(2eB) = 2m_p v/(eB). Ratio r_proton : r_alpha = m_p : 2m_p = 1 : 2.",
+   optionNotes:["","This would hold only if both mass and charge scaled identically for the alpha particle, but mass scales by 4 while charge only scales by 2.","This has the ratio inverted.","This ignores that the alpha particle's doubled charge partially compensates for its quadrupled mass, rather than leaving the full factor-of-4 mass difference uncompensated."]},
+
+  // --- 16.3 Force on a Current-Carrying Conductor ---
+  {id:"s2c16_7",topic:SEM2_TOPICS_CH16[2],difficulty:"easy",
+   question:"A straight current-carrying wire of length 0.5 m carries a current of 4 A and is placed perpendicular to a uniform magnetic field of flux density 0.2 T. What is the magnitude of the force on the wire?",
+   options:["0.4 N","2.5 N","0.1 N","1.6 N"],correctIndex:0,
+   explanation:"F = BIL = 0.2 × 4 × 0.5 = 0.4 N (since the wire is perpendicular to B, sinθ = 1).",
+   optionNotes:["","This divides instead of multiplying the three quantities.","This is a quarter of the correct value, as if only part of the length or current were used.","This is 4 times too large, roughly as if an extra factor of 4 was introduced."]},
+  {id:"s2c16_8",topic:SEM2_TOPICS_CH16[2],difficulty:"medium",
+   question:"A current-carrying wire is placed at an angle θ (not 90°) to a uniform magnetic field. As θ decreases from 90° towards 0°, the force on the wire",
+   options:["increases continuously","decreases continuously to zero at θ = 0°","stays constant regardless of θ","first decreases then increases"],correctIndex:1,
+   explanation:"F = BIL sinθ. As θ decreases from 90° to 0°, sinθ decreases monotonically from 1 to 0, so the force decreases continuously, reaching exactly zero when the wire is parallel to the field.",
+   optionNotes:["F depends on sinθ, which decreases (not increases) as θ decreases toward 0°.","","F = BIL sinθ depends directly on θ; it is not constant unless θ itself is held fixed.","sinθ changes monotonically over this range (0° to 90°), with no reversal in direction of change."]},
+  {id:"s2c16_9",topic:SEM2_TOPICS_CH16[2],difficulty:"hard",
+   question:"A rigid rectangular current loop carrying current I is placed in a uniform magnetic field B, with the plane of the loop initially parallel to B. The net force on the loop (sum over all four sides) at this orientation is",
+   options:["zero, but the net torque is generally nonzero","nonzero, pushing the loop sideways","nonzero, pulling the loop towards the field source","zero, and the net torque is also zero in this orientation"],correctIndex:0,
+   explanation:"For any closed current loop in a uniform field, the forces on opposite sides are equal and opposite (regardless of orientation), so the net force is always zero. However, when the loop's plane is parallel to B, the forces on the two sides perpendicular to B are not collinear, producing a net torque that tends to rotate the loop — this is the basic principle of a DC motor.",
+   optionNotes:["","A uniform field exerts equal and opposite forces on opposite sides of any closed loop, so there is no net sideways push.","Likewise, there is no net pulling force on a current loop in a uniform field — only within a non-uniform field could such an effect arise.","While net force is indeed zero, the torque is generally nonzero at this orientation — that is precisely what makes this the position of maximum torque in a motor."]},
+
+  // --- 16.4 Magnetic Fields Due to Currents ---
+  {id:"s2c16_10",topic:SEM2_TOPICS_CH16[3],difficulty:"easy",
+   question:"The magnetic field strength at the centre of a circular current loop of radius r carrying current I is proportional to",
+   options:["I/r","I·r","I/r²","I²/r"],correctIndex:0,
+   explanation:"For a circular loop, B = μ₀I/(2r) at the centre — directly proportional to I and inversely proportional to r.",
+   optionNotes:["","B decreases with larger radius, not increases proportionally with it.","B ∝ 1/r, not 1/r² — the relationship is a simple inverse proportion for this geometry.","B is proportional to I, not I² — doubling the current simply doubles B."]},
+  {id:"s2c16_11",topic:SEM2_TOPICS_CH16[3],difficulty:"medium",
+   question:"A long solenoid with n turns per unit length carries current I. If the number of turns per unit length is doubled (by winding the coil twice as densely over the same length, using twice as much wire) while I stays the same, the magnetic field strength inside the solenoid",
+   options:["doubles","halves","stays the same","quadruples"],correctIndex:0,
+   explanation:"For a long solenoid, B = μ₀nI, directly proportional to n (turns per unit length). Doubling n doubles B.",
+   optionNotes:["","B is directly, not inversely, proportional to n.","B does depend on n — it is not independent of the turn density.","B ∝ n (linearly), not n², so doubling n only doubles B."]},
+  {id:"s2c16_12",topic:SEM2_TOPICS_CH16[3],difficulty:"hard",
+   question:"Two long straight parallel wires, both carrying current directly out of the page, are separated by a distance d. At the midpoint between them, the resultant magnetic field (from both wires combined) is",
+   options:["zero, since the fields exactly cancel at the midpoint","twice the field from a single wire at distance d/2","equal to the field from a single wire at distance d","undefined, since the two fields are perpendicular"],correctIndex:0,
+   explanation:"By the right-hand rule, both wires (carrying current out of the page) produce a field that circles counterclockwise around each wire. At the midpoint, the field from the left wire points one way while the field from the right wire points the opposite way — equal in magnitude (same distance d/2 from each) and opposite in direction, so they cancel exactly.",
+   optionNotes:["","The two fields at the midpoint are equal in magnitude but opposite in direction, so they cancel rather than reinforce — the net field is zero, not double a single wire's contribution.","Same reasoning — the fields oppose rather than add, so the net is not simply equal to one wire's field either.","The two fields are exactly antiparallel (not perpendicular) at the midpoint, by symmetry of the two parallel currents in the same direction."]},
+
+  // --- 16.5 Force Between Two Current-Carrying Conductors ---
+  {id:"s2c16_13",topic:SEM2_TOPICS_CH16[4],difficulty:"easy",
+   question:"Two long parallel wires carry current in the same direction. The force between them is",
+   options:["attractive","repulsive","zero","perpendicular to both wires, neither attractive nor repulsive"],correctIndex:0,
+   explanation:"Two parallel currents flowing in the same direction attract each other — this follows from each wire's magnetic field exerting a force on the other's current via F = IL × B, which can be shown to point towards the other wire for parallel (same-direction) currents.",
+   optionNotes:["","Repulsion occurs when the currents flow in opposite directions, not the same direction.","The force is nonzero whenever both wires carry current and are not infinitely far apart.","The force acts along the line joining the wires (towards or away from each other); it still has a definite attractive or repulsive sense — it isn't neutral."]},
+  {id:"s2c16_14",topic:SEM2_TOPICS_CH16[4],difficulty:"medium",
+   question:"Two long parallel wires separated by distance d carry currents I₁ and I₂ respectively. If both currents are doubled and the separation is also doubled, the force per unit length between them becomes",
+   options:["unchanged","doubled","halved","quadrupled"],correctIndex:1,
+   explanation:"Force per unit length F/L = μ₀I₁I₂/(2πd). Doubling both currents multiplies the numerator by 4; doubling d multiplies the denominator by 2. Net effect: ×4/×2 = ×2, so the force per unit length doubles.",
+   optionNotes:["The two changes do not cancel exactly — the quadrupling from the currents outweighs the halving from the increased separation, leaving a net doubling.","","Halving would be the result if only the distance change were applied; the current changes outweigh this.","Quadrupling would be the result if only the current changes were applied without accounting for the increased separation, which partially offsets it."]},
+  {id:"s2c16_15",topic:SEM2_TOPICS_CH16[4],difficulty:"hard",
+   question:"The traditional force-based definition of the ampere is based on the force per unit length between two infinitely long, straight, parallel conductors one metre apart in a vacuum, each carrying the same current. This force per unit length is defined to be",
+   options:["exactly 1 N per metre","exactly 2 × 10⁻⁷ N per metre","exactly μ₀ N per metre","dependent on the material of the conductors"],correctIndex:1,
+   explanation:"Historically, one ampere was defined as the current that, flowing in each of two infinite parallel wires 1 m apart in vacuum, produces a force of exactly 2×10⁻⁷ N per metre of length between them — chosen so that μ₀ comes out to exactly 4π×10⁻⁷ H/m under that older SI definition.",
+   optionNotes:["1 N/m is far too large a force for this defining scenario; the defined value is many orders of magnitude smaller.","","μ₀ itself (4π×10⁻⁷) is not the defined force value — it's the permeability constant that appears in the force formula, not the force per unit length itself.","The force between current-carrying conductors in vacuum (the defining scenario) does not depend on any conductor material — only on the currents and geometry."]},
+
+  // --- 16.6 Determination of the Ratio e/m ---
+  {id:"s2c16_16",topic:SEM2_TOPICS_CH16[5],difficulty:"easy",
+   question:"In a Thomson-type experiment to determine e/m for electrons, electrons are deflected by combined electric and magnetic fields. The purpose of balancing the electric and magnetic forces (so the beam travels undeflected) is to",
+   options:["determine the electron's charge directly","determine the electron's mass directly","determine the electron's velocity, independent of e/m","measure the magnetic flux density directly"],correctIndex:2,
+   explanation:"When the electric force qE and magnetic force qvB balance exactly (undeflected beam), qE = qvB, so v = E/B — this gives the electron's velocity without needing to know e, m, or q individually, which is then used in a second measurement (e.g. deflection by B alone) to find e/m.",
+   optionNotes:["The charge is not determined directly from this balance condition alone — it cancels out of the velocity equation entirely.","Likewise, mass does not appear in the balance condition v = E/B; it cancels out just as charge does.","","While B is set and known/measured as part of the apparatus, the specific purpose of the balance condition itself is to extract v, not to measure B."]},
+  {id:"s2c16_17",topic:SEM2_TOPICS_CH16[5],difficulty:"medium",
+   question:"In the determination of e/m using a magnetic field alone (circular path method), the key measured quantities needed, besides the magnetic flux density B, are",
+   options:["the accelerating voltage V and the radius r of the circular path","the electron's rest mass only","the wavelength of the electron beam","the temperature of the cathode"],correctIndex:0,
+   explanation:"Using energy conservation (eV = ½mv²) combined with the circular motion condition (evB = mv²/r), e/m can be expressed purely in terms of the measurable quantities V, B and r: e/m = 2V/(B²r²).",
+   optionNotes:["","The rest mass is not separately known in this method — it's the ratio e/m, not m alone, that's being determined, and m cancels out algebraically along with e until only V, B, r remain.","Wavelength relates to wave/quantum behavior of electrons (e.g. in electron diffraction), not to this classical circular-motion method for e/m.","Cathode temperature affects the rate of electron emission (thermionic emission), not the e/m determination itself, which depends on the beam's dynamics once emitted."]},
+  {id:"s2c16_18",topic:SEM2_TOPICS_CH16[5],difficulty:"hard",
+   question:"In an e/m determination experiment, if the accelerating voltage V is accidentally measured as 10% too high (all other readings correct), the calculated value of e/m using e/m = 2V/(B²r²) will be",
+   options:["10% too high","10% too low","about 5% too high","unaffected, since e/m is a universal constant"],correctIndex:0,
+   explanation:"Since e/m ∝ V directly (first power, no square root or square involved), a 10% overestimate in V directly produces a 10% overestimate in the calculated e/m.",
+   optionNotes:["","The error direction is the same as V's error, not opposite, since the relationship is a direct (not inverse) proportion.","The relationship e/m ∝ V is linear (first power), not a square-root relationship, so the percentage error carries through fully, not halved.","e/m is indeed a universal constant in reality, but a measurement error in V still produces a corresponding error in the experimentally calculated value — the question asks about the calculated result, not the true constant."]},
+
+  // --- 16.7 Hall Effect ---
+  {id:"s2c16_19",topic:SEM2_TOPICS_CH16[6],difficulty:"easy",
+   question:"The Hall effect is used to determine which property of the charge carriers in a conducting sample?",
+   options:["Their mass","Their sign (positive or negative) and their density","Their specific heat capacity","Their melting point"],correctIndex:1,
+   explanation:"The Hall effect produces a transverse voltage whose polarity reveals whether the moving charge carriers are positive or negative, and whose magnitude (combined with known current and sample dimensions) allows the carrier density to be calculated.",
+   optionNotes:["The Hall effect does not directly reveal the carrier's mass; it depends on charge sign and density, not mass.","","Specific heat capacity is a thermal property unrelated to the Hall voltage mechanism.","Melting point is a thermal/structural property with no connection to the Hall effect's charge-carrier analysis."]},
+  {id:"s2c16_20",topic:SEM2_TOPICS_CH16[6],difficulty:"medium",
+   question:"A current-carrying slab is placed in a magnetic field, producing a Hall voltage VH. If the current through the slab is doubled while everything else (B, slab dimensions, carrier density) stays the same, VH becomes",
+   options:["doubled","halved","unchanged","quadrupled"],correctIndex:0,
+   explanation:"Hall voltage VH = IB/(ned), where e is the elementary charge, n is carrier density, and d is the slab thickness. With B, n, d constant, VH ∝ I directly, so doubling I doubles VH.",
+   optionNotes:["","VH is directly, not inversely, proportional to I.","VH does depend on I; it isn't independent of the current through the slab.","VH ∝ I (first power, not squared), so doubling I only doubles VH."]},
+  {id:"s2c16_21",topic:SEM2_TOPICS_CH16[6],difficulty:"hard",
+   question:"Two slabs, X and Y, of the same material, carry the same current I in the same magnetic field B, but slab X is twice as thick as slab Y. Comparing their Hall voltages, VH(X) and VH(Y),",
+   options:["VH(X) = VH(Y)","VH(X) = 2·VH(Y)","VH(X) = VH(Y)/2","VH(X) = 4·VH(Y)"],correctIndex:2,
+   explanation:"VH = IB/(ned), so VH ∝ 1/d for fixed I, B, n (same material means same carrier density n). Since X is twice as thick as Y, VH(X) = VH(Y)/2.",
+   optionNotes:["The Hall voltages are not equal, since the slab thicknesses differ and VH depends on thickness.","This reverses the relationship — the thicker slab (X) has the smaller, not larger, Hall voltage.","","VH ∝ 1/d (a simple inverse proportion), not 1/d², so doubling the thickness only halves VH, it doesn't quarter it."]}
+];
+// STAGING FILE — Semester 2, Chapter 17: Electromagnetic Induction (official syllabus Ch18)
+
+const SEM2_TOPICS_CH17 = [
+  "S2-17.1 Magnetic Flux",
+  "S2-17.2 Faraday's Law and Lenz's Law",
+  "S2-17.3 Self Induction",
+  "S2-17.4 Energy Stored in an Inductor",
+  "S2-17.5 Mutual Induction"
+];
+
+const SEM2_SEED_QUESTIONS_CH17 = [
+  // --- 17.1 Magnetic Flux ---
+  {id:"s2c17_1",topic:SEM2_TOPICS_CH17[0],difficulty:"easy",
+   question:"A flat coil of area 0.02 m² is placed with its plane perpendicular to a uniform magnetic field of flux density 0.5 T. What is the magnetic flux through the coil?",
+   options:["0.01 Wb","0.025 Wb","10 Wb","0.1 Wb"],correctIndex:0,
+   explanation:"Φ = BA cosθ. With the plane perpendicular to B, the normal to the plane is parallel to B, so θ = 0° and cosθ = 1: Φ = 0.5 × 0.02 = 0.01 Wb.",
+   optionNotes:["","This divides B by A instead of multiplying.","This is 1000 times too large — a unit/decimal slip.","This is 10 times too large."]},
+  {id:"s2c17_2",topic:SEM2_TOPICS_CH17[0],difficulty:"medium",
+   question:"A coil of area A is rotated in a uniform magnetic field B so that the angle between the field and the normal to the coil's plane changes from 0° to 60°. The magnetic flux through the coil",
+   options:["stays the same","decreases to half its original value","decreases to zero","increases"],correctIndex:1,
+   explanation:"Φ = BA cosθ. At θ=0°, Φ₀ = BA. At θ=60°, Φ = BA cos60° = BA × 0.5 = Φ₀/2 — the flux decreases to exactly half.",
+   optionNotes:["Flux does change with θ since cosθ changes from 1 to 0.5 — it is not independent of orientation.","","Flux reaches zero only at θ=90°, not at θ=60° — cos60° = 0.5, not 0.","Flux decreases (cosθ decreases as θ increases from 0°), it does not increase."]},
+  {id:"s2c17_3",topic:SEM2_TOPICS_CH17[0],difficulty:"hard",
+   question:"A rigid wire loop of fixed area is placed in a non-uniform magnetic field such that the field strength varies across the loop's area, but the loop's orientation and position are fixed. To correctly calculate the total magnetic flux through the loop in this case, one must",
+   options:["simply multiply the field value at the centre of the loop by the total area","integrate B·dA over the entire area, accounting for the spatial variation of B","use only the maximum field value within the loop's area","the flux cannot be defined unless the field is uniform"],correctIndex:1,
+   explanation:"The simple formula Φ = BA cosθ only holds for a uniform field over a flat area. For a non-uniform field, flux must be found by integrating the normal component of B over every infinitesimal area element: Φ = ∫B·dA.",
+   optionNotes:["Using only the centre value ignores the variation of B across the loop and gives an inaccurate flux except in special symmetric cases.","","Using the maximum value would systematically overestimate the true flux, since most of the area experiences a smaller field.","Flux is a well-defined quantity for any field configuration, uniform or not — it's simply calculated by integration rather than a single multiplication in the non-uniform case."]},
+
+  // --- 17.2 Faraday's Law and Lenz's Law ---
+  {id:"s2c17_4",topic:SEM2_TOPICS_CH17[1],difficulty:"easy",
+   question:"According to Faraday's law, the EMF induced in a coil is directly proportional to",
+   options:["the magnetic flux through the coil","the rate of change of magnetic flux through the coil","the resistance of the coil","the area of the coil only"],correctIndex:1,
+   explanation:"Faraday's law states EMF = −N(dΦ/dt) — the induced EMF depends on how fast the flux is changing, not on the flux's absolute value.",
+   optionNotes:["A constant (unchanging) flux, however large, induces no EMF at all — it's the rate of change that matters, not the flux itself.","","Coil resistance affects the induced current (via Ohm's law) but is not part of Faraday's EMF law itself.","Area alone, without reference to a changing field or changing orientation, does not determine the induced EMF."]},
+  {id:"s2c17_5",topic:SEM2_TOPICS_CH17[1],difficulty:"medium",
+   question:"A bar magnet is pushed towards a closed coil, north pole first. By Lenz's law, the induced current in the coil flows in a direction such that it",
+   options:["creates a magnetic field that attracts the magnet, pulling it in faster","creates a magnetic field that opposes the motion, repelling the approaching magnet","has no particular direction — direction is undefined by Lenz's law","flows in the same direction regardless of which pole approaches"],correctIndex:1,
+   explanation:"Lenz's law states the induced current opposes the change that produces it (conservation of energy) — as the north pole approaches, the coil's near face develops an induced north pole too, repelling the incoming magnet and opposing its motion.",
+   optionNotes:["If the induced field attracted the magnet, this would accelerate the change that caused it, violating energy conservation — Lenz's law rules this out.","","Lenz's law precisely specifies the direction (opposing the change) via the induced current's handedness — it is not left undefined.","The direction of induced current depends on which pole approaches (and whether it approaches or recedes) — a south pole approaching induces current in the opposite sense to a north pole approaching."]},
+  {id:"s2c17_6",topic:SEM2_TOPICS_CH17[1],difficulty:"hard",
+   question:"A conducting rod of length L slides with velocity v along two parallel rails in a uniform magnetic field B perpendicular to the plane of the rails, completing a circuit. The induced EMF in this setup is given by BLv. If the rod's velocity is suddenly doubled while B and L remain the same, the power dissipated in a fixed resistance R connected across the rails becomes",
+   options:["doubled","4 times the original","halved","unchanged"],correctIndex:1,
+   explanation:"EMF = BLv, so doubling v doubles the EMF. Power dissipated P = EMF²/R, which depends on the square of the EMF, so doubling the EMF quadruples the power: P_new = (2×EMF)²/R = 4×EMF²/R = 4P₀.",
+   optionNotes:["This only accounts for the EMF doubling, not that power depends on the square of EMF.","","Power increases (since EMF increases), it does not decrease.","Power does change — since EMF = BLv depends directly on v, doubling v changes the EMF and hence the power dissipated."]},
+
+  // --- 17.3 Self Induction ---
+  {id:"s2c17_7",topic:SEM2_TOPICS_CH17[2],difficulty:"easy",
+   question:"Self-inductance of a coil is defined as the ratio of",
+   options:["the EMF induced in the coil to the current flowing through it","the magnetic flux linkage in the coil to the current producing it","the resistance of the coil to its length","the energy stored to the coil's physical volume"],correctIndex:1,
+   explanation:"Self-inductance L is defined by L = NΦ/I — the total flux linkage (NΦ) through the coil per unit current flowing through that same coil (which produces the flux).",
+   optionNotes:["EMF relates to inductance via EMF = −L(dI/dt), but inductance itself is defined via flux linkage divided by current, not EMF divided by current.","","Resistance and length relate to a wire's resistivity properties, unrelated to the definition of self-inductance.","Energy stored (½LI²) is a consequence of inductance, not its defining ratio; volume doesn't enter the definition of L directly."]},
+  {id:"s2c17_8",topic:SEM2_TOPICS_CH17[2],difficulty:"medium",
+   question:"A solenoid has self-inductance L₀. If the number of turns is doubled while keeping the same length and cross-sectional area (so the coil is wound twice as densely), the new self-inductance is approximately",
+   options:["L₀","2L₀","4L₀","L₀/2"],correctIndex:2,
+   explanation:"For a solenoid, L = μ₀N²A/l, proportional to N². Doubling N multiplies L by 2² = 4.",
+   optionNotes:["Inductance does depend on the number of turns — it is not unchanged when N changes.","This only accounts for a linear dependence on N, but L depends on N², not N.","","Doubling N increases (not decreases) L, since more turns means more flux linkage per unit current."]},
+  {id:"s2c17_9",topic:SEM2_TOPICS_CH17[2],difficulty:"hard",
+   question:"A coil with self-inductance L carries a current that is changing at a rate dI/dt. The direction of the self-induced EMF, according to Lenz's law, is such that it",
+   options:["always acts to increase the current further in the same direction it was already changing","always opposes the change in current — opposing an increase, and opposing a decrease","depends only on the magnitude of L, not on whether the current is increasing or decreasing","is zero whenever the current itself is nonzero, regardless of how it's changing"],correctIndex:1,
+   explanation:"Self-induced EMF = −L(dI/dt): the negative sign reflects Lenz's law — the self-induced EMF always opposes whatever change is occurring, acting against a growing current (opposing the increase) and against a shrinking current (opposing the decrease, i.e. trying to maintain it).",
+   optionNotes:["If the self-induced EMF reinforced the change, this would violate energy conservation by allowing current to build without limit from no external source.","","The direction (opposing increase vs. opposing decrease) flips depending on whether the current is rising or falling — L's magnitude alone doesn't determine this.","The self-induced EMF is zero only when dI/dt = 0 (steady current), not simply whenever I itself is nonzero."]},
+
+  // --- 17.4 Energy Stored in an Inductor ---
+  {id:"s2c17_10",topic:SEM2_TOPICS_CH17[3],difficulty:"easy",
+   question:"An inductor of inductance 0.4 H carries a current of 5 A. What is the energy stored in its magnetic field?",
+   options:["1.0 J","5.0 J","2.0 J","10.0 J"],correctIndex:1,
+   explanation:"Energy stored E = ½LI² = ½ × 0.4 × 5² = ½ × 0.4 × 25 = 5.0 J.",
+   optionNotes:["This omits the 25 (I²) factor, using only a fraction of L instead.","","This is off by a factor of roughly 2.5 from a partial calculation.","This is double the correct value — remember the factor of ½ in E = ½LI²."]},
+  {id:"s2c17_11",topic:SEM2_TOPICS_CH17[3],difficulty:"medium",
+   question:"An inductor stores energy E₀ while carrying current I₀. If the current through the same inductor is tripled, the energy stored becomes",
+   options:["3E₀","9E₀","E₀/3","E₀/9"],correctIndex:1,
+   explanation:"E = ½LI². Since E ∝ I², tripling I multiplies the energy by 3² = 9.",
+   optionNotes:["This only accounts for a linear dependence on I, but energy depends on I², not I.","","Energy increases (not decreases) when current increases, since E ∝ I².","Same direction error as above, combined with the wrong power."]},
+  {id:"s2c17_12",topic:SEM2_TOPICS_CH17[3],difficulty:"hard",
+   question:"An inductor L carrying current I is storing energy ½LI² in its magnetic field. If the current is reduced to zero very suddenly by opening a switch with no alternative current path, the large spark or arc often observed across the switch contacts is best explained by",
+   options:["the energy simply vanishing without consequence","the self-induced EMF becoming very large, since EMF = −L(dI/dt) and dI/dt is enormous for a sudden change","the inductor's resistance causing a voltage surge","the magnetic field reversing direction abruptly"],correctIndex:1,
+   explanation:"Energy is conserved — it does not vanish. As the switch opens, the current (and hence flux) tries to change almost instantaneously, making dI/dt extremely large; since the induced EMF = −L(dI/dt), this produces a very large voltage spike across the gap, large enough to ionise the air and produce a visible spark/arc, which is how the stored magnetic energy is actually dissipated.",
+   optionNotes:["Energy must be conserved; the stored magnetic energy has to go somewhere — it is dissipated via the spark (and some resistive heating), not lost without trace.","","An ideal inductor has no resistance of its own; the effect here comes from the induced EMF due to rapidly changing current, not resistive heating in the inductor itself.","The field does collapse towards zero as current drops, but it is the rate of this collapse (via Faraday's/self-induction law), not a field reversal, that produces the large EMF."]},
+
+  // --- 17.5 Mutual Induction ---
+  {id:"s2c17_13",topic:SEM2_TOPICS_CH17[4],difficulty:"easy",
+   question:"Mutual inductance between two coils is defined as the ratio of",
+   options:["the flux linkage in one coil to the current flowing in the other coil that produces it","the current in one coil to the current in the other coil","the resistance of one coil to the resistance of the other","the physical distance between the two coils to their combined area"],correctIndex:0,
+   explanation:"Mutual inductance M is defined by M = N₂Φ₂₁/I₁ — the flux linkage induced in coil 2 due to the current I₁ flowing in coil 1 (or equivalently, the symmetric relation swapping 1 and 2).",
+   optionNotes:["","A ratio of currents in the two coils is not how mutual inductance is defined — it relates flux linkage in one coil to current in the other.","Mutual inductance depends on the geometry and coupling of the coils, not on their individual resistances.","While physical separation does affect the coupling (and hence M) indirectly, mutual inductance is not itself defined as this distance-to-area ratio."]},
+  {id:"s2c17_14",topic:SEM2_TOPICS_CH17[4],difficulty:"medium",
+   question:"Two coils, P and Q, are placed close together so that changing the current in P induces an EMF in Q. If the current in P is increased at a constant, steady rate, the induced EMF in Q",
+   options:["is constant (nonzero) throughout, as long as the rate of change of current in P stays constant","increases steadily over time","decreases steadily over time","is zero, since mutual induction requires alternating current specifically"],correctIndex:0,
+   explanation:"The mutually induced EMF in Q is EMF = −M(dI₁/dt). As long as dI₁/dt (the rate of change of current in P) remains constant, the induced EMF in Q also remains constant — mutual induction depends on the rate of change of current, not on whether that current is alternating specifically.",
+   optionNotes:["","EMF in Q tracks dI₁/dt, not I₁ itself — since dI₁/dt is constant here, the EMF doesn't grow over time.","Likewise, EMF in Q does not decrease here, since the rate of change in P's current isn't decreasing.","Mutual induction occurs whenever current changes, whether linearly increasing, decreasing, or alternating — AC is simply the most common practical case, not a strict requirement."]},
+  {id:"s2c17_15",topic:SEM2_TOPICS_CH17[4],difficulty:"hard",
+   question:"A transformer relies on mutual induction between its primary and secondary coils. If the number of turns in the secondary coil is increased while the primary coil and the alternating current driving it remain unchanged, the EMF induced in the secondary coil",
+   options:["decreases","stays exactly the same","increases","becomes zero"],correctIndex:2,
+   explanation:"The secondary EMF is EMF₂ = −M(dI₁/dt), and mutual inductance M depends on the number of turns in both coils (M ∝ N₁N₂ for ideal coupling). Increasing N₂ (secondary turns) increases M, and hence increases the induced EMF in the secondary for the same changing primary current.",
+   optionNotes:["Increasing secondary turns increases, rather than decreases, the mutual inductance and hence the induced EMF.","The EMF does depend on N₂ through M ∝ N₁N₂; it is not independent of the secondary turns count.","","The induced EMF remains nonzero and in fact grows larger, as long as the primary current continues to change — it does not vanish just because N₂ changed."]}
+];
+// STAGING FILE — Semester 2, Chapter 18: Alternating Current Circuits (official syllabus Ch19)
+// Final chapter of the Semester 2 question bank build.
+
+const SEM2_TOPICS_CH18 = [
+  "S2-18.1 AC Through a Pure Resistor",
+  "S2-18.2 AC Through a Pure Inductor",
+  "S2-18.3 AC Through a Pure Capacitor",
+  "S2-18.4 R-C and R-L Series Circuits"
+];
+
+const SEM2_SEED_QUESTIONS_CH18 = [
+  // --- 18.1 AC Through a Pure Resistor ---
+  {id:"s2c18_1",topic:SEM2_TOPICS_CH18[0],difficulty:"easy",
+   question:"An alternating voltage is given by V = 100 sin(314t) volts. What is the r.m.s. value of this voltage?",
+   options:["50 V","70.7 V","100 V","141.4 V"],correctIndex:1,
+   explanation:"For a sinusoidal voltage, Vrms = V₀/√2 = 100/1.414 ≈ 70.7 V.",
+   optionNotes:["This is half the peak value, not the peak divided by √2.","","This is the peak voltage itself, not the r.m.s. value.","This is V₀×√2, which inverts the correct relationship."]},
+  {id:"s2c18_2",topic:SEM2_TOPICS_CH18[0],difficulty:"medium",
+   question:"An a.c. source with r.m.s. voltage 10 V is connected across a pure resistor of 5 Ω. What is the average power dissipated in the resistor?",
+   options:["10 W","20 W","2 W","200 W"],correctIndex:1,
+   explanation:"For a pure resistor, mean power P = Vrms²/R = 10²/5 = 100/5 = 20 W (r.m.s. values can be used directly in power formulas exactly as with DC).",
+   optionNotes:["This uses Vrms/R directly, omitting that power requires V²/R, not V/R.","","This inverts the ratio R/Vrms² instead of Vrms²/R.","This is off by a factor of 10 — a decimal-place slip."]},
+  {id:"s2c18_3",topic:SEM2_TOPICS_CH18[0],difficulty:"hard",
+   question:"A pure resistor carries an alternating current I = I₀ sin(ωt). The instantaneous power dissipated, P(t) = I²R, oscillates as a function of time at",
+   options:["the same frequency ω as the current","twice the frequency of the current, and always non-negative","twice the frequency of the current, oscillating between positive and negative values","zero frequency — the instantaneous power is constant"],correctIndex:1,
+   explanation:"P(t) = I₀²R sin²(ωt) = I₀²R × ½(1−cos2ωt), which oscillates at angular frequency 2ω (double the current's frequency) around a nonzero average, and since sin² is never negative, instantaneous power in a pure resistor is always ≥ 0 — heat is dissipated continuously, never 'returned'.",
+   optionNotes:["sin²(ωt) oscillates at 2ω due to the double-angle identity, not at the same frequency ω as the current itself.","","Since sin²(ωt) ≥ 0 always, the instantaneous power in a resistor never goes negative — unlike in a pure inductor or capacitor, where energy is alternately stored and returned.","Instantaneous power is not constant; only the average (mean) power over a full cycle is constant — the instantaneous value does oscillate."]},
+
+  // --- 18.2 AC Through a Pure Inductor ---
+  {id:"s2c18_4",topic:SEM2_TOPICS_CH18[1],difficulty:"easy",
+   question:"In a pure inductor carrying alternating current, the current lags behind the applied voltage by a phase angle of",
+   options:["0°","45°","90°","180°"],correctIndex:2,
+   explanation:"For a pure inductor, V = L(dI/dt) means that if I = I₀sin(ωt), then V = I₀ωL cos(ωt) = V₀sin(ωt+90°) — so the current lags the voltage by exactly 90° (a quarter cycle).",
+   optionNotes:["0° phase difference would mean current and voltage are in phase, as in a pure resistor — not the case for an inductor.","45° is the characteristic phase angle in certain R-L or R-C combinations at specific frequencies, not for a pure inductor alone.","","180° would mean current and voltage are exactly out of phase (opposite sign at all times), which is not the inductor's behaviour."]},
+  {id:"s2c18_5",topic:SEM2_TOPICS_CH18[1],difficulty:"medium",
+   question:"The reactance of a pure inductor is given by XL = ωL = 2πfL. If the frequency of the a.c. supply is doubled while the inductance stays the same, the inductive reactance becomes",
+   options:["halved","doubled","unchanged","quadrupled"],correctIndex:1,
+   explanation:"XL ∝ f directly (for fixed L), so doubling f doubles XL.",
+   optionNotes:["XL increases, not decreases, with increasing frequency.","","XL does depend on frequency — it is not independent of f.","XL ∝ f (linearly, not f²), so doubling f only doubles XL, it doesn't quadruple it."]},
+  {id:"s2c18_6",topic:SEM2_TOPICS_CH18[1],difficulty:"hard",
+   question:"A pure inductor is connected to an a.c. source. Over one complete cycle, the net energy transferred from the source to the inductor is",
+   options:["positive, since the inductor continuously absorbs energy","negative, since the inductor continuously supplies energy back to the source","zero, since energy is alternately stored in and released from the magnetic field each half-cycle","equal to I₀²XL, the same as the formula for a resistor"],correctIndex:2,
+   explanation:"A pure inductor has no resistance, so it dissipates no energy as heat. Over each cycle, it stores energy in its magnetic field as current rises, then returns that exact same energy to the circuit as current falls — the net energy transfer over a full cycle is exactly zero.",
+   optionNotes:["If the inductor continuously absorbed energy without returning any, it would require dissipation, which a pure (resistance-free) inductor cannot provide.","Likewise, there's no mechanism for a pure inductor to be a net supplier of energy over a full cycle — it only exchanges energy with the source, storing and returning it equally.","","The formula I²R (or an analogous I²XL) represents real power dissipation, which only applies to resistive elements — a pure inductor dissipates no real power at all."]},
+
+  // --- 18.3 AC Through a Pure Capacitor ---
+  {id:"s2c18_7",topic:SEM2_TOPICS_CH18[2],difficulty:"easy",
+   question:"In a pure capacitor carrying alternating current, the current leads the applied voltage by a phase angle of",
+   options:["90°","0°","45°","180°"],correctIndex:0,
+   explanation:"For a pure capacitor, I = C(dV/dt), so if V = V₀sin(ωt), then I = V₀ωC cos(ωt) = I₀sin(ωt+90°) — the current leads the voltage by 90°, opposite to the inductor case where current lags.",
+   optionNotes:["","0° would mean current and voltage are in phase, which describes a pure resistor, not a capacitor.","45° is not the phase relationship for a pure capacitor alone; it can arise in certain mixed R-C circuits at specific conditions.","180° would mean current and voltage are exactly opposite in sign at all times, which does not describe the capacitor's behaviour."]},
+  {id:"s2c18_8",topic:SEM2_TOPICS_CH18[2],difficulty:"medium",
+   question:"The capacitive reactance is given by XC = 1/(ωC) = 1/(2πfC). If the frequency of the a.c. supply is doubled while capacitance stays the same, the capacitive reactance becomes",
+   options:["doubled","halved","unchanged","quadrupled"],correctIndex:1,
+   explanation:"XC ∝ 1/f, an inverse relationship (unlike the inductor's direct proportionality). Doubling f halves XC.",
+   optionNotes:["XC decreases, not increases, with increasing frequency — this is the opposite trend to inductive reactance.","","XC does change with frequency — it is not independent of f.","XC ∝ 1/f (a simple inverse, not inverse-square), so doubling f only halves XC, it doesn't quarter it."]},
+  {id:"s2c18_9",topic:SEM2_TOPICS_CH18[2],difficulty:"hard",
+   question:"As the frequency of the a.c. supply applied to a pure capacitor approaches zero (approaching d.c.), the capacitive reactance XC and the current through the capacitor behave as follows:",
+   options:["XC approaches zero; current approaches a maximum","XC approaches infinity; current approaches zero","XC stays constant; current stays constant","XC approaches zero; current also approaches zero"],correctIndex:1,
+   explanation:"XC = 1/(ωC) → ∞ as ω (and hence frequency) → 0. With a near-infinite reactance, the current I = V/XC → 0 — consistent with the physical fact that a capacitor blocks true d.c. current once fully charged.",
+   optionNotes:["This has the trend backwards — XC grows, not shrinks, as frequency decreases toward zero.","","Both XC and current do change dramatically as frequency approaches zero; neither stays constant.","XC grows without bound (not toward zero) as frequency approaches zero, which is exactly why the current drops to zero — a capacitor ultimately blocks d.c."]},
+
+  // --- 18.4 R-C and R-L Series Circuits ---
+  {id:"s2c18_10",topic:SEM2_TOPICS_CH18[3],difficulty:"easy",
+   question:"In a series R-L circuit connected to an a.c. source, the impedance Z is given by",
+   options:["R + XL","√(R² + XL²)","R × XL","R² + XL²"],correctIndex:1,
+   explanation:"Since the voltage across R and the voltage across L are 90° out of phase with each other, they must be combined as perpendicular vector (phasor) components, giving Z = √(R² + XL²) — not a simple arithmetic sum.",
+   optionNotes:["Simply adding R and XL ignores their 90° phase difference; they cannot be added arithmetically like resistances in series DC circuits.","","Multiplying R and XL has no physical basis as an impedance combination rule.","This omits the square root — it gives Z², not Z itself."]},
+  {id:"s2c18_11",topic:SEM2_TOPICS_CH18[3],difficulty:"medium",
+   question:"In a series R-C circuit, the phase angle φ by which the current leads the voltage is given by tanφ = XC/R. If the resistance R is increased while XC stays the same, the phase angle φ",
+   options:["increases towards 90°","decreases towards 0°","stays exactly the same","becomes exactly 45° regardless of R"],correctIndex:1,
+   explanation:"tanφ = XC/R. Increasing R (with XC fixed) decreases this ratio, so φ decreases — approaching 0° as R becomes very large (the circuit behaves more like a pure resistor, with current and voltage nearly in phase).",
+   optionNotes:["φ moves towards 0°, not 90°, as R increases — a very large resistance makes the circuit behave more resistively, reducing the phase lead rather than increasing it.","","φ does depend on the ratio XC/R, so changing R does change φ — it cannot stay fixed.","φ = 45° only in the special case R = XC exactly; it is not a fixed value regardless of R."]},
+  {id:"s2c18_12",topic:SEM2_TOPICS_CH18[3],difficulty:"hard",
+   question:"A series R-L circuit is connected to an a.c. source of fixed r.m.s. voltage but variable frequency. As the frequency increases from a very low value to a very high value, the current in the circuit",
+   options:["increases continuously throughout","decreases continuously throughout","stays constant, since R is unchanged","first increases, then decreases"],correctIndex:1,
+   explanation:"Impedance Z = √(R²+XL²), and XL = 2πfL increases with frequency. As f rises, Z increases monotonically, so the current I = Vrms/Z decreases continuously across the entire frequency range (there is no resonance peak in a simple series R-L circuit, unlike an R-L-C circuit).",
+   optionNotes:["Current decreases, not increases, as frequency rises, since impedance Z grows with XL.","","Although R itself doesn't change, the impedance Z still increases because XL grows with frequency — so the current is not constant.","A rise-then-fall (resonance-like) pattern requires a capacitor in the circuit (as in R-L-C) to create a minimum-impedance condition; a plain R-L circuit has no such peak — Z simply increases monotonically."]}
+];
+
+  const TOPICS_SEM1 = TOPICS.slice();
+  const TOPICS_SEM2 = [].concat(SEM2_TOPICS_CH12, SEM2_TOPICS_CH13, SEM2_TOPICS_CH14, SEM2_TOPICS_CH15, SEM2_TOPICS_CH16, SEM2_TOPICS_CH17, SEM2_TOPICS_CH18);
+  const SEED_QUESTIONS_SEM2 = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18);
+  const ALL_SEED_QUESTIONS = SEED_QUESTIONS.concat(SEED_QUESTIONS_SEM2);
+  let currentSemester = '1';
+  function topicsForSemester(sem){ return sem === '2' ? TOPICS_SEM2 : TOPICS_SEM1; }
+
+  function applySemester(sem){
+    currentSemester = sem;
+    TOPICS = topicsForSemester(sem);
+    try{ populateTopicSelects(); }catch(e){ console.error('populateTopicSelects failed', e); }
+    try{ renderBankList(); }catch(e){ console.error('renderBankList failed', e); }
+    try{ populateStudentTopics(); }catch(e){ console.error('populateStudentTopics failed', e); }
+    try{ populateNotesSelect(); }catch(e){ console.error('populateNotesSelect failed', e); }
+  }
+
+  const semesterSelectEl = document.getElementById('semester-select');
+  if (semesterSelectEl){
+    semesterSelectEl.addEventListener('change', (e)=>{
+      applySemester(e.target.value);
+      try{ localStorage.setItem('physiq-ui-semester', e.target.value); }catch(err){}
+    });
+  }
+
   let bank = [];
   let editingId = null;
   let quizState = null; // {questions, index, correctCount, answers:[]}
@@ -1376,7 +2078,7 @@
       let backfilled = false;
       bank.forEach(q => {
         if (!Array.isArray(q.optionNotes)){
-          const seedMatch = SEED_QUESTIONS.find(sq => sq.id === q.id);
+          const seedMatch = ALL_SEED_QUESTIONS.find(sq => sq.id === q.id);
           if (seedMatch && Array.isArray(seedMatch.optionNotes)){
             q.optionNotes = seedMatch.optionNotes.slice();
           } else {
@@ -1387,9 +2089,10 @@
       });
       // Merge in any seed questions not already present (covers first run,
       // and later top-ups where new seed questions were added to the app,
-      // such as the Chapter 3: Dynamics questions).
+      // such as the Chapter 3: Dynamics questions, and the Semester 2
+      // question bank).
       const existingIds = new Set(bank.map(q=>q.id));
-      const missing = SEED_QUESTIONS.filter(sq => !existingIds.has(sq.id));
+      const missing = ALL_SEED_QUESTIONS.filter(sq => !existingIds.has(sq.id));
       if (missing.length || renamed || fixedS5 || backfilled){
         bank = bank.concat(missing);
         await saveBank();
@@ -1401,7 +2104,7 @@
     // (storage unavailable, migration hiccup, etc.), guarantee the app
     // still has questions to show by falling back to the built-in seed set.
     if (!bank || !bank.length){
-      bank = SEED_QUESTIONS.slice();
+      bank = ALL_SEED_QUESTIONS.slice();
     }
   }
 
@@ -2123,6 +2826,12 @@ const NOTES_CONTENT = {
 
 
   (async function init(){
+    try{
+      const savedSem = localStorage.getItem('physiq-ui-semester') || '1';
+      currentSemester = savedSem;
+      TOPICS = topicsForSemester(savedSem);
+      if (semesterSelectEl) semesterSelectEl.value = savedSem;
+    }catch(e){ console.error('semester restore failed', e); }
     try{ populateTopicSelects(); }catch(e){ console.error('populateTopicSelects failed', e); }
     await loadBank(); // never throws — always leaves `bank` populated
     try{ renderBankList(); }catch(e){ console.error('renderBankList failed', e); }
