@@ -299,7 +299,7 @@
           <div style="flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:var(--orange);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;">1</div>
           <div style="flex:1 1 auto;border:1px solid var(--line);border-radius:10px;padding:14px 16px;">
             <h3 style="margin:0 0 4px;color:var(--navy);font-size:15px;">Pretest — once, at the very start</h3>
-            <p style="margin:0;font-size:13.5px;line-height:1.55;">Open the <b>Research · Pretest/Posttest</b> tab first — before Student Practice or Notes. Enter your <b>full name</b> (same spelling every time), choose your <b>batch</b> (STPM 2026 or STPM 2027) and your <b>semester</b> (1, 2 or 3), then complete that semester's Pretest.</p>
+            <p style="margin:0;font-size:13.5px;line-height:1.55;">Open the <b>Research · Pretest/Posttest</b> tab first — before Student Practice or Notes. Choose your <b>batch</b> (STPM 2026, STPM 2027, or Guest), pick your <b>name</b> from the list (Guests type their full name), and choose your <b>semester</b> (1, 2 or 3), then complete that semester's Pretest.</p>
           </div>
         </div>
 
@@ -453,14 +453,18 @@
     <div class="card" id="rtest-intro">
 <h2>Kajian tindakan — pretest &amp; posttest</h2>
 <p class="sub" id="rtest-desc" style="margin-top:-6px;">Choose your batch and semester below. Each semester has its own fixed test (one question per topic), used to measure your progress across this study. Each test can only be taken <strong>once</strong>. Answers and explanations are not shown question-by-question — only your final score, so this behaves like a real test instrument.</p>
-<label>Your full name (as your teacher has it)</label>
-<input type="text" id="rtest-name" placeholder="e.g. Ahmad bin Ali">
 <label>Your batch</label>
 <select id="rtest-batch">
 <option value="">Choose your batch…</option>
 <option value="STPM 2026">Batch STPM 2026</option>
 <option value="STPM 2027">Batch STPM 2027</option>
+<option value="Guest">Guest</option>
 </select>
+<div id="rtest-name-wrap" style="display:none;">
+<label id="rtest-name-label">Your name</label>
+<select id="rtest-pick"></select>
+<input type="text" id="rtest-name" placeholder="Type your full name" style="display:none;">
+</div>
 <label>Semester</label>
 <select id="rtest-sem">
 <option value="">Choose your semester…</option>
@@ -5099,19 +5103,45 @@ const SEM3_BATCH3_CH25 = [
   $('#rtest-sem').addEventListener('change', updateResearchDesc);
   updateResearchDesc();
 
+  // Class lists: students pick their own name, so spelling is always identical.
+  const ROSTER = {
+    'STPM 2026': ['Hiew Jun Ven','Rajveer Singh','Tan Xin Ji'],
+    'STPM 2027': ['Damia binti Affandi','Esyraf bin Eddy','Loh Jeng Yin Aaron','Milashini a/p Ramu','Ng Siqi','Nur Rabbiha binti Shahrudin']
+  };
+  function syncNameField(){
+    const b = $('#rtest-batch').value, wrap = $('#rtest-name-wrap'), pick = $('#rtest-pick'), inp = $('#rtest-name');
+    if (!b){ wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    if (b === 'Guest'){
+      pick.style.display = 'none'; inp.style.display = '';
+      $('#rtest-name-label').textContent = 'Your full name (Guest)';
+    } else {
+      inp.style.display = 'none'; pick.style.display = '';
+      $('#rtest-name-label').textContent = 'Choose your name';
+      pick.innerHTML = '<option value="">Choose your name…</option>' + ROSTER[b].map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    }
+  }
+  const getRName = () => $('#rtest-batch').value === 'Guest' ? $('#rtest-name').value : $('#rtest-pick').value;
+  $('#rtest-batch').addEventListener('change', syncNameField);
+  syncNameField();
+
   async function startResearchTest(type){
-    const nameInput = $('#rtest-name');
-    const name = nameInput.value;
+    const name = getRName();
     const status = $('#rtest-status');
+    if (!$('#rtest-batch').value){
+      status.textContent = 'Please choose your batch first.';
+      status.style.color = 'var(--red)';
+      return;
+    }
     if (!normName(name)){
-      status.textContent = 'Please enter your full name first.';
+      status.textContent = $('#rtest-batch').value === 'Guest' ? 'Please enter your full name first.' : 'Please choose your name from the list.';
       status.style.color = 'var(--red)';
       return;
     }
     const batch = $('#rtest-batch').value;
     const semester = parseInt($('#rtest-sem').value, 10);
     if (!batch){
-      status.textContent = 'Please choose your batch (STPM 2026 or STPM 2027).';
+      status.textContent = 'Please choose your batch (STPM 2026, STPM 2027 or Guest).';
       status.style.color = 'var(--red)';
       return;
     }
@@ -5133,11 +5163,11 @@ const SEM3_BATCH3_CH25 = [
     }
     const typeLabel = type === 'pretest' ? 'Pretest' : 'Posttest';
     let ok = true;
-    try{ ok = window.confirm(`Start the ${SEM_META[semester].label} ${typeLabel}?\n\nName: ${name.trim()}\nBatch: STPM ${batch.replace(/^STPM /,'')}\n\nEach test can only be taken ONCE. Check your name is spelled correctly.`); }catch(e){}
+    try{ ok = window.confirm(`Start the ${SEM_META[semester].label} ${typeLabel}?\n\nName: ${name.trim()}\nBatch: ${batch}\n\nEach test can only be taken ONCE. Check your name is spelled correctly.`); }catch(e){}
     if (!ok){ status.textContent = ''; return; }
     status.textContent = '';
     try{ localStorage.setItem('physiq-research-batch', batch); localStorage.setItem('physiq-research-sem', String(semester)); }catch(e){}
-    rtestState = {type, name: name.trim(), batch, semester, group: 'Batch ' + batch, questions, index:0, correctCount:0, answers:[]};
+    rtestState = {type, name: name.trim(), batch, semester, group: batch === 'Guest' ? 'Guest' : 'Batch ' + batch, questions, index:0, correctCount:0, answers:[]};
     $('#rtest-intro').style.display = 'none';
     $('#rteacher-lock-card').style.display = 'none';
     $('#rteacher-dash-card').style.display = 'none';
