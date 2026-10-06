@@ -500,6 +500,7 @@
         <p class="score-label" id="rtest-score-pct-label"></p>
       </div>
       <div class="breakdown" id="rtest-summary-breakdown"></div>
+      <div id="rtest-extra"></div>
       <p class="status-msg">Your result has been recorded for your teacher. Thank you.</p>
       <p class="status-msg" style="margin-top:6px;">The Posttest uses a different set of questions on the same topics. Take it after your teacher tells you your revision period is over — choose the same batch, name and semester, then press <b>Take the Posttest</b>.</p>
       <div class="btn-row" style="margin-top:14px;"><button class="btn-primary" id="rtest-home-btn">Back to Research home</button></div>
@@ -5091,11 +5092,11 @@ const SEM3_BATCH3_CH25 = [
     const sem = parseInt($('#rtest-sem').value, 10);
     const desc = $('#rtest-desc');
     if (!sem){
-      desc.innerHTML = 'Choose your batch and semester below. Each semester has its own fixed test (one question per topic), used to measure your progress across this study. Each test can only be taken <strong>once</strong>. Answers and explanations are not shown question-by-question — only your final score, so this behaves like a real test instrument.';
+      desc.innerHTML = 'Choose your batch and semester below. Each semester has its own fixed test (one question per topic), used to measure your progress across this study. Each test can only be taken <strong>once</strong>. Answers and explanations are not shown question-by-question — only your score by topic. After the Pretest you will see which topics to revise; after the Posttest you will get a full review with worked solutions.';
       return;
     }
     const n = TEST_FORMS_BY_SEM[sem].pretest.length;
-    desc.innerHTML = `A fixed, ${n}-item test covering all of ${SEM_META[sem].label} (Chapters ${SEM_META[sem].chapters}, one question per topic), used to measure your progress across this study. Each test can only be taken <strong>once</strong>. Answers and explanations are not shown question-by-question — only your final score, so this behaves like a real test instrument.`;
+    desc.innerHTML = `A fixed, ${n}-item test covering all of ${SEM_META[sem].label} (Chapters ${SEM_META[sem].chapters}, one question per topic), used to measure your progress across this study. Each test can only be taken <strong>once</strong>. Answers and explanations are not shown question-by-question — only your score by topic. After the Pretest you will see which topics to revise; after the Posttest you will get a full review with worked solutions.`;
   }
   try{
     const sb = localStorage.getItem('physiq-research-batch'), ss = localStorage.getItem('physiq-research-sem');
@@ -5219,7 +5220,7 @@ const SEM3_BATCH3_CH25 = [
     const q = questions[index];
     const isCorrect = selectedIdx === q.correctIndex;
     if (isCorrect) rtestState.correctCount++;
-    rtestState.answers.push({topic:q.topic, correct:isCorrect});
+    rtestState.answers.push({topic:q.topic, correct:isCorrect, selected:selectedIdx});
 
     // Pure test mode: no correct/incorrect reveal, no explanation —
     // only mark which option the student picked, then let them move on.
@@ -5241,6 +5242,70 @@ const SEM3_BATCH3_CH25 = [
       renderResearchQuestion();
     }
   });
+
+  // After the pretest: weak topics + links (no questions or answers revealed).
+  // After the posttest: full review of every question with working (data is already recorded by then).
+  function goStudy(topic, mode){
+    const sem = String(rtestState.semester);
+    if (String(currentSemester) !== sem && semesterSelectEl){
+      semesterSelectEl.value = sem;
+      semesterSelectEl.dispatchEvent(new Event('change'));
+    }
+    const tabBtn = $$('.tab').find(t=>t.dataset.tab === 'notes');
+    if (tabBtn) tabBtn.click();
+    const sel = $('#notes-topic-select');
+    if (Array.from(sel.options).some(o=>o.value === topic)){ sel.value = topic; renderNotesContent(); }
+    if (mode === 'practise') $('#notes-practise-btn').click();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function buildResearchExtra(byTopic){
+    const box = $('#rtest-extra');
+    box.innerHTML = '';
+    const st = rtestState;
+    if (st.type === 'pretest'){
+      const weak = Object.entries(byTopic).filter(([t,v])=>v.correct < v.total).map(([t])=>t);
+      let h = '<h3 style="margin:18px 0 6px;color:var(--navy);">Topics to revise</h3>';
+      if (!weak.length){
+        h += '<p class="status-msg">You got every topic right. Keep it up — the Posttest will check this again later.</p>';
+      } else {
+        h += '<p class="status-msg" style="margin:0 0 8px;">These topics need work. Questions and answers are kept hidden so the Posttest stays fair, but you can study each topic now. After your Posttest you will see a full review with worked solutions.</p>';
+        h += weak.map((t,i)=>`<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);">
+          <span style="flex:1 1 180px;font-weight:700;color:var(--navy);">${escapeHtml(stripSem(t))}</span>
+          <button class="btn-primary rt-go" data-i="${i}" data-mode="notes" style="padding:6px 12px;font-size:13px;">Read notes</button>
+          <button class="btn-primary rt-go" data-i="${i}" data-mode="practise" style="padding:6px 12px;font-size:13px;">Practise</button>
+        </div>`).join('');
+      }
+      box.innerHTML = h;
+      box.querySelectorAll('.rt-go').forEach(b=>b.addEventListener('click', ()=>goStudy(weak[parseInt(b.dataset.i,10)], b.dataset.mode)));
+      return;
+    }
+    // posttest: full review
+    const rows = st.questions.map((q,i)=>{
+      const a = st.answers[i] || {};
+      const ok = !!a.correct;
+      const rich = mathify;
+      const opts = q.options.map((o,k)=>{
+        const isC = k === q.correctIndex, isS = k === a.selected;
+        const style = isC ? 'background:#e6f4ea;border-color:#2e7d32;' : (isS ? 'background:#fdeaea;border-color:#c62828;' : '');
+        const tag = isC ? ' ✓ correct answer' : (isS ? ' ✗ your answer' : '');
+        return `<div style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:4px 0;${style}">${String.fromCharCode(65+k)}. ${rich(escapeHtml(o))}<b style="font-size:12px;">${tag}</b></div>`;
+      }).join('');
+      let notes = '';
+      if (Array.isArray(q.optionNotes)) q.optionNotes.forEach((n,k)=>{ if (k !== q.correctIndex && n) notes += `<div style="margin-top:6px;"><b>${String.fromCharCode(65+k)}.</b> ${rich(escapeHtml(n))}</div>`; });
+      const exp = rich(escapeHtml(q.explanation||'').replace(/^(Formula|Working|Answer|Key point|Reason|Note):/gm,'<b>$1:</b>'));
+      const dg = (st.semester > 1 && window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
+      return `<details style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;"${ok?'':' open'}>
+        <summary style="cursor:pointer;font-weight:700;color:${ok?'#2e7d32':'#c62828'};">Q${i+1} · ${ok?'Correct':'Wrong'} · ${escapeHtml(stripSem(q.topic))}</summary>
+        <div style="margin-top:8px;white-space:pre-wrap;">${rich(escapeHtml(q.question))}</div>
+        ${dg ? `<div style="margin:8px 0;">${dg}</div>` : ''}
+        <div style="margin-top:8px;">${opts}</div>
+        <div style="margin-top:10px;white-space:pre-wrap;"><b>Solution:</b> ${exp}</div>
+        ${notes ? `<div style="margin-top:10px;font-weight:700;color:var(--navy);">Why the other options are wrong:</div>${notes}` : ''}
+      </details>`;
+    }).join('');
+    box.innerHTML = `<h3 style="margin:18px 0 6px;color:var(--navy);">Review your Posttest</h3><p class="status-msg" style="margin:0 0 4px;">Wrong answers are opened for you. Tap any question to see the worked solution. This review is only available now — it disappears when you leave this page.</p>${rows}`;
+  }
 
   async function finishResearchTest(){
     $('#rtest-quiz-card').style.display = 'none';
@@ -5265,6 +5330,8 @@ const SEM3_BATCH3_CH25 = [
         <span class="bd-frac">${v.correct}/${v.total}</span>
       </div>
     `).join('');
+
+    buildResearchExtra(byTopic);
 
     const results = await loadTestResults();
     results.push({
