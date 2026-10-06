@@ -194,9 +194,9 @@
     #notes-content .ftable td:nth-child(2){background:#f1f5fb !important;}
     #notes-content .ftable td:nth-child(3){padding-bottom:9px;}
   }
-  #notes-content sup,#notes-content sub,#quiz-qtext sup,#quiz-qtext sub,#quiz-choices sup,#quiz-choices sub,#quiz-explain sup,#quiz-explain sub,.qtext sup,.qtext sub{font-size:.72em;line-height:0;position:relative;vertical-align:baseline;}
-  #notes-content sup,#quiz-qtext sup,#quiz-choices sup,#quiz-explain sup,.qtext sup{top:-.5em;}
-  #notes-content sub,#quiz-qtext sub,#quiz-choices sub,#quiz-explain sub,.qtext sub{top:.28em;}
+  #notes-content sup,#notes-content sub,#rtest-qtext sup,#rtest-qtext sub,#rtest-choices sup,#rtest-choices sub,#quiz-qtext sup,#quiz-qtext sub,#quiz-choices sup,#quiz-choices sub,#quiz-explain sup,#quiz-explain sub,.qtext sup,.qtext sub{font-size:.72em;line-height:0;position:relative;vertical-align:baseline;}
+  #notes-content sup,#rtest-qtext sup,#rtest-choices sup,#quiz-qtext sup,#quiz-choices sup,#quiz-explain sup,.qtext sup{top:-.5em;}
+  #notes-content sub,#rtest-qtext sub,#rtest-choices sub,#quiz-qtext sub,#quiz-choices sub,#quiz-explain sub,.qtext sub{top:.28em;}
   .frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .18em;line-height:1.2;font-size:.96em;}
   .frac .n{display:block;padding:0 .25em .06em;border-bottom:1.4px solid currentColor;}
   .frac .d{display:block;padding:.06em .25em 0;}
@@ -272,7 +272,7 @@
     <button class="tab" data-tab="teacher" id="teacher-tab" style="display:none;">Teacher · Question Bank</button>
   </div>
 
-  <div style="margin:0 0 18px;">
+  <div id="semester-bar" style="margin:0 0 18px;">
     <label for="semester-select" style="display:block;font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Semester</label>
     <select id="semester-select" style="width:100%;font-family:inherit;font-size:16px;font-weight:700;color:var(--navy);padding:13px 10px;border:2px solid var(--navy);border-radius:10px;background:#fff;">
       <option value="1">Sem 1 · Mechanics &amp; Heat</option>
@@ -285,7 +285,7 @@
   <div class="panel active" id="panel-guide">
 
     <div class="card" style="padding-top:22px;">
-      <p style="font-family:Consolas,'Courier New',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:700;margin:0 0 6px;">STPM Semester 1 · Physics · Student Guide</p>
+      <p style="font-family:Consolas,'Courier New',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:700;margin:0 0 6px;">STPM Physics · Student Guide</p>
       <h2 style="margin:0 0 6px;color:var(--navy);font-size:26px;">How to use PhysiQ for our study</h2>
       <p style="margin:0;color:var(--sub);">Follow the steps below that match your situation.</p>
     </div>
@@ -299,7 +299,7 @@
           <div style="flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:var(--orange);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;">1</div>
           <div style="flex:1 1 auto;border:1px solid var(--line);border-radius:10px;padding:14px 16px;">
             <h3 style="margin:0 0 4px;color:var(--navy);font-size:15px;">Pretest — once, at the very start</h3>
-            <p style="margin:0;font-size:13.5px;line-height:1.55;">Open the <b>Research · Pretest/Posttest</b> tab first — before Student Practice or Notes. Enter your <b>full name</b> (same spelling every time) and your group, then complete the Pretest.</p>
+            <p style="margin:0;font-size:13.5px;line-height:1.55;">Open the <b>Research · Pretest/Posttest</b> tab first — before Student Practice or Notes. Enter your <b>full name</b> (same spelling every time), choose your <b>batch</b> (STPM 2026 or STPM 2027) and your <b>semester</b> (1, 2 or 3), then complete that semester's Pretest.</p>
           </div>
         </div>
 
@@ -315,12 +315,12 @@
           <div style="flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:var(--orange);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;">3</div>
           <div style="flex:1 1 auto;border:1px solid var(--line);border-radius:10px;padding:14px 16px;">
             <h3 style="margin:0 0 4px;color:var(--navy);font-size:15px;">Posttest — once, when your teacher says the study has ended</h3>
-            <p style="margin:0;font-size:13.5px;line-height:1.55;">Go back to <b>Research · Pretest/Posttest</b> and complete the Posttest. Use the <b>exact same name and group</b> as your Pretest.</p>
+            <p style="margin:0;font-size:13.5px;line-height:1.55;">Go back to <b>Research · Pretest/Posttest</b> and complete the Posttest for the same semester. Use the <b>exact same name, batch and semester</b> as your Pretest.</p>
           </div>
         </div>
       </div>
 
-      <div class="note-trap" style="margin-top:16px;">Each test (Pretest/Posttest) can only be taken ONCE under the name you register. The app blocks a second attempt automatically — so don't rush, and make sure your name is typed correctly.</div>
+      <div class="note-trap" style="margin-top:16px;">Each test (Pretest/Posttest) can only be taken ONCE per semester under the name you register. The app blocks a second attempt automatically — so don't rush, and make sure your name is typed correctly.</div>
     </div>
 
     <div class="card">
@@ -451,20 +451,28 @@
   <div class="panel" id="panel-research">
 
     <div class="card" id="rtest-intro">
-      <h2>Kajian tindakan — pretest &amp; posttest</h2>
-      <p class="sub" style="margin-top:-6px;">A fixed, 29-item test covering all 12 chapters (one question per topic), used to measure your progress across this study. Each test can only be taken <strong>once</strong>. Answers and explanations are not shown question-by-question — only your final score, so this behaves like a real test instrument.</p>
-      <label>Your full name (as your teacher has it)</label>
-      <input type="text" id="rtest-name" placeholder="e.g. Ahmad bin Ali">
-      <label>Your group</label>
-      <select id="rtest-group">
-        <option value="Main" selected>Main group</option>
-        <option value="Ulangan">Ulangan (repeat/resit)</option>
-      </select>
-      <div class="btn-row" style="margin-top:14px;">
-        <button class="btn-primary" id="rtest-start-pre">Take the Pretest</button>
-        <button class="btn-primary" id="rtest-start-post">Take the Posttest</button>
-      </div>
-      <p class="status-msg" id="rtest-status"></p>
+<h2>Kajian tindakan — pretest &amp; posttest</h2>
+<p class="sub" id="rtest-desc" style="margin-top:-6px;">Choose your batch and semester below. Each semester has its own fixed test (one question per topic), used to measure your progress across this study. Each test can only be taken <strong>once</strong>. Answers and explanations are not shown question-by-question — only your final score, so this behaves like a real test instrument.</p>
+<label>Your full name (as your teacher has it)</label>
+<input type="text" id="rtest-name" placeholder="e.g. Ahmad bin Ali">
+<label>Your batch</label>
+<select id="rtest-batch">
+<option value="">Choose your batch…</option>
+<option value="STPM 2026">Batch STPM 2026</option>
+<option value="STPM 2027">Batch STPM 2027</option>
+</select>
+<label>Semester</label>
+<select id="rtest-sem">
+<option value="">Choose your semester…</option>
+<option value="1">Semester 1 — Mechanics &amp; Heat</option>
+<option value="2">Semester 2 — Electricity &amp; Magnetism</option>
+<option value="3">Semester 3 — Oscillations, Waves &amp; Modern Physics</option>
+</select>
+<div class="btn-row" style="margin-top:14px;">
+<button class="btn-primary" id="rtest-start-pre">Take the Pretest</button>
+<button class="btn-primary" id="rtest-start-post">Take the Posttest</button>
+</div>
+<p class="status-msg" id="rtest-status"></p>
     </div>
 
     <div class="card" id="rtest-quiz-card" style="display:none;">
@@ -475,6 +483,7 @@
       <div class="progress-track"><div class="progress-fill" id="rtest-progress-fill" style="width:0%"></div></div>
       <span class="qtag" id="rtest-qtag">TOPIC</span>
       <div class="qbox" id="rtest-qtext"></div>
+<div class="dgfig" id="rtest-diagram"></div>
       <div id="rtest-choices"></div>
       <div class="btn-row">
         <button class="btn-primary" id="rtest-next-btn" style="display:none;">Next question →</button>
@@ -503,7 +512,16 @@
 
     <div class="card" id="rteacher-dash-card" style="display:none;">
       <h2>Results — all students <span id="rdash-count" style="color:var(--sub);font-weight:400;"></span></h2>
-      <div class="btn-row" style="margin-top:0;">
+      <div class="btn-row" style="margin-top:0;flex-wrap:wrap;">
+        <select id="rdash-f-sem" style="flex:1 1 150px;width:auto;">
+          <option value="">All semesters</option>
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+          <option value="3">Semester 3</option>
+        </select>
+        <select id="rdash-f-group" style="flex:1 1 150px;width:auto;"><option value="">All batches / groups</option></select>
+      </div>
+      <div class="btn-row" style="margin-top:10px;">
         <button class="btn-ghost" id="rdash-export">Export CSV</button>
         <button class="btn-ghost" id="rdash-refresh">Refresh</button>
       </div>
@@ -3879,7 +3897,50 @@ const SEM2_BATCH7_QUESTIONS = (function(){
   ];
 })();
 
-  const SEED_QUESTIONS_SEM2_RAW = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18, SEM2_BATCH2_QUESTIONS, SEM2_BATCH3_QUESTIONS, SEM2_BATCH4_QUESTIONS, SEM2_BATCH5_QUESTIONS, SEM2_BATCH6_QUESTIONS, SEM2_BATCH7_QUESTIONS);
+  // Two extra medium items (chapter 18) written so the Semester 2 pretest/posttest forms are parallel.
+  const SEM2_TESTFORM_QUESTIONS = [
+ {
+  "id": "s2tf_18_1",
+  "topic": "S2-18.2 AC Through a Pure Inductor",
+  "difficulty": "medium",
+  "question": "An inductor of inductance 0.30 H is connected to an a.c. supply of frequency 40 Hz. What is its inductive reactance? (X_L = 2πfL)",
+  "options": [
+   "75.4 Ω",
+   "37.7 Ω",
+   "151 Ω",
+   "12 Ω"
+  ],
+  "correctIndex": 0,
+  "explanation": "Formula: X_L = 2πfL\nWorking: X_L = 2π(40)(0.30) = 75.4 Ω\nAnswer: 75.4 Ω",
+  "optionNotes": [
+   "",
+   "This is πfL; the factor 2 in 2πfL was left out.",
+   "This doubles the correct value, 4πfL.",
+   "This is fL only; the factor 2π was left out."
+  ]
+ },
+ {
+  "id": "s2tf_18_2",
+  "topic": "S2-18.4 R-C and R-L Series Circuits",
+  "difficulty": "medium",
+  "question": "A series R-L circuit has resistance R = 45 Ω and inductive reactance X_L = 60 Ω. What is the impedance of the circuit?",
+  "options": [
+   "75 Ω",
+   "105 Ω",
+   "15 Ω",
+   "2700 Ω"
+  ],
+  "correctIndex": 0,
+  "explanation": "Formula: Z = √(R² + X_L²)\nWorking: Z = √(45² + 60²) = √5625 = 75 Ω\nAnswer: 75 Ω",
+  "optionNotes": [
+   "",
+   "This adds R and X_L arithmetically; they are 90° out of phase and must be added as phasors.",
+   "This subtracts X_L − R, which is not the impedance of a series R-L circuit.",
+   "This multiplies R and X_L, which has no meaning for impedance."
+  ]
+ }
+];
+  const SEED_QUESTIONS_SEM2_RAW = [].concat(SEM2_SEED_QUESTIONS_CH12, SEM2_SEED_QUESTIONS_CH13, SEM2_SEED_QUESTIONS_CH14, SEM2_SEED_QUESTIONS_CH15, SEM2_SEED_QUESTIONS_CH16, SEM2_SEED_QUESTIONS_CH17, SEM2_SEED_QUESTIONS_CH18, SEM2_BATCH2_QUESTIONS, SEM2_BATCH3_QUESTIONS, SEM2_BATCH4_QUESTIONS, SEM2_BATCH5_QUESTIONS, SEM2_BATCH6_QUESTIONS, SEM2_BATCH7_QUESTIONS, SEM2_TESTFORM_QUESTIONS);
 // STAGING FILE — Semester 3 Batch 2: 35 more original questions (1 per
 // subtopic across all 7 chapters), bringing each subtopic from 2 to 3
 // questions. Inspired by real STPM 960/3 Paper 3 past-year questions
@@ -4651,8 +4712,15 @@ const SEM3_BATCH3_CH25 = [
       tab.classList.add('active');
       $$('.panel').forEach(p=>p.classList.remove('active'));
       document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+      syncSemesterBar();
     });
   });
+  // The global semester choice only drives Notes / Practice / Question Bank; the Research tab
+  // has its own semester choice, so hide the global one there to avoid confusion.
+  function syncSemesterBar(){
+    const bar = document.getElementById('semester-bar'), r = document.getElementById('panel-research');
+    if (bar && r) bar.style.display = r.classList.contains('active') ? 'none' : '';
+  }
 
   // ---------- teacher: topic dropdowns ----------
   function populateTopicSelects(){
@@ -4963,6 +5031,24 @@ const SEM3_BATCH3_CH25 = [
     pretest: ["s2","s6","s10","s14","s17","d2","d8","d12","d14","w3","w8","w12","cm2","cm7","gv2","gv6","gv8","rb2","rb6","rb9","st2","st6","df3","df7","kt2","kt6","th2","th6","ht2"],
     posttest: ["s3","s7","s11","s15","s51","d3","d9","cl2","d15","w4","w9","w13","cm3","cm9","gl1","gf2","gv9","rb3","rb13","rb10","st3","st13","df5","df8","kt3","kt7","th3","th7","ht3"]
   };
+  // One pair of parallel forms per semester (one item per topic). Semester 1 is the
+  // original instrument and must not change while that study is running.
+  const TEST_FORMS_BY_SEM = {
+    1: TEST_FORMS,
+    2: {
+      pretest: ["s2b7_01", "s2b3_02", "s2b7_05", "s2b7_08", "s2b2_05", "s2b3_06", "s2b6_07", "s2b6_08", "s2b7_17", "s2b7_19", "s2b4_11", "s2b4_12", "s2b2_13", "s2b3_14", "s2b2_15", "s2b2_16", "s2b7_34", "s2b4_18", "s2c16_2", "s2c16_5", "s2b3_21", "s2b3_22", "s2b2_23", "s2b2_24", "s2b5_25", "s2b5_26", "s2b6_27", "s2b3_28", "s2b6_29", "s2b3_30", "s2b3_31", "s2b2_32", "s2b2_33", "s2b2_34"],
+      posttest: ["s2c12_2", "s2c12_5", "s2b2_03", "s2c12_12", "s2c13_2", "s2b5_06", "s2b7_13", "s2b7_15", "s2b4_09", "s2b5_10", "s2b5_11", "s2b7_24", "s2b4_13", "s2b5_14", "s2c15_2", "s2b7_32", "s2c15_9", "s2b7_36", "s2b2_19", "s2b3_20", "s2b7_41", "s2b7_43", "s2b7_45", "s2b6_24", "s2b6_25", "s2b2_26", "s2b7_53", "s2c17_8", "s2b7_58", "s2b7_59", "s2b5_31", "s2tf_18_1", "s2b7_65", "s2tf_18_2"]
+    },
+    3: {
+      pretest: ["s3c19_2", "s3c19_3", "s3c19_5", "s3c19_16", "s3c19_10", "s3c19_11", "s3c20_2", "s3c20_3", "s3c20_5", "s3c20_7", "s3c20_9", "s3c21_1", "s3c21_3", "s3c21_5", "s3c21_7", "s3c21_10", "s3c22_1", "s3c22_8", "s3c22_5", "s3c23_2", "s3c23_3", "s3c23_6", "s3c23_31", "s3c23_9", "s3c23_11", "s3c23_38", "s3c23_15", "s3c24_1", "s3c24_3", "s3c24_13", "s3c24_7", "s3c24_9", "s3c25_2", "s3c25_3", "s3c25_14"],
+      posttest: ["s3c19_19", "s3c19_22", "s3c19_15", "s3c19_25", "s3c19_17", "s3c19_30", "s3c20_17", "s3c20_4", "s3c20_21", "s3c20_22", "s3c20_15", "s3c21_17", "s3c21_18", "s3c21_20", "s3c21_22", "s3c21_24", "s3c22_10", "s3c22_3", "s3c22_15", "s3c23_26", "s3c23_27", "s3c23_5", "s3c23_32", "s3c23_21", "s3c23_36", "s3c23_14", "s3c23_39", "s3c24_11", "s3c24_12", "s3c24_21", "s3c24_22", "s3c24_24", "s3c25_10", "s3c25_13", "s3c25_15"]
+    }
+  };
+  const SEM_META = {
+    1: {label:'Semester 1', chapters:'1–12'},
+    2: {label:'Semester 2', chapters:'12–18'},
+    3: {label:'Semester 3', chapters:'19–25'}
+  };
   const TEACHER_PIN = '2026';
   let rtestState = null;
 
@@ -4979,15 +5065,39 @@ const SEM3_BATCH3_CH25 = [
 
   function normName(n){ return (n||'').trim().toLowerCase().replace(/\s+/g,' '); }
 
-  async function hasAlreadyTaken(name, type){
+  // Results saved before semesters existed (no "semester" field) belong to Semester 1.
+  const resSem = r => parseInt(r.semester, 10) || 1;
+
+  async function hasAlreadyTaken(name, type, semester){
     const results = await loadTestResults();
-    return results.some(r => normName(r.name) === normName(name) && r.type === type);
+    return results.some(r => normName(r.name) === normName(name) && r.type === type && resSem(r) === semester);
   }
 
-  function buildResearchQuestions(type){
-    const ids = TEST_FORMS[type];
+  function buildResearchQuestions(type, semester){
+    const ids = (TEST_FORMS_BY_SEM[semester] || TEST_FORMS)[type];
     return ids.map(id => bank.find(q=>q.id===id)).filter(Boolean);
   }
+
+  const stripSem = t => String(t).replace(/^S[23]-/, '');
+
+  // Batch / semester choice is remembered on the device (never the name).
+  function updateResearchDesc(){
+    const sem = parseInt($('#rtest-sem').value, 10);
+    const desc = $('#rtest-desc');
+    if (!sem){
+      desc.innerHTML = 'Choose your batch and semester below. Each semester has its own fixed test (one question per topic), used to measure your progress across this study. Each test can only be taken <strong>once</strong>. Answers and explanations are not shown question-by-question — only your final score, so this behaves like a real test instrument.';
+      return;
+    }
+    const n = TEST_FORMS_BY_SEM[sem].pretest.length;
+    desc.innerHTML = `A fixed, ${n}-item test covering all of ${SEM_META[sem].label} (Chapters ${SEM_META[sem].chapters}, one question per topic), used to measure your progress across this study. Each test can only be taken <strong>once</strong>. Answers and explanations are not shown question-by-question — only your final score, so this behaves like a real test instrument.`;
+  }
+  try{
+    const sb = localStorage.getItem('physiq-research-batch'), ss = localStorage.getItem('physiq-research-sem');
+    if (sb && Array.from($('#rtest-batch').options).some(o=>o.value===sb)) $('#rtest-batch').value = sb;
+    if (ss && Array.from($('#rtest-sem').options).some(o=>o.value===ss)) $('#rtest-sem').value = ss;
+  }catch(e){}
+  $('#rtest-sem').addEventListener('change', updateResearchDesc);
+  updateResearchDesc();
 
   async function startResearchTest(type){
     const nameInput = $('#rtest-name');
@@ -4998,20 +5108,36 @@ const SEM3_BATCH3_CH25 = [
       status.style.color = 'var(--red)';
       return;
     }
-    if (await hasAlreadyTaken(name, type)){
-      status.textContent = `You've already completed the ${type === 'pretest' ? 'Pretest' : 'Posttest'}. Each test can only be taken once. Contact your teacher if you think this is an error.`;
+    const batch = $('#rtest-batch').value;
+    const semester = parseInt($('#rtest-sem').value, 10);
+    if (!batch){
+      status.textContent = 'Please choose your batch (STPM 2026 or STPM 2027).';
       status.style.color = 'var(--red)';
       return;
     }
-    const questions = buildResearchQuestions(type);
+    if (!semester){
+      status.textContent = 'Please choose your semester (1, 2 or 3).';
+      status.style.color = 'var(--red)';
+      return;
+    }
+    if (await hasAlreadyTaken(name, type, semester)){
+      status.textContent = `You've already completed the ${SEM_META[semester].label} ${type === 'pretest' ? 'Pretest' : 'Posttest'}. Each test can only be taken once. Contact your teacher if you think this is an error.`;
+      status.style.color = 'var(--red)';
+      return;
+    }
+    const questions = buildResearchQuestions(type, semester);
     if (!questions.length){
       status.textContent = 'Test questions are not available right now — please tell your teacher.';
       status.style.color = 'var(--red)';
       return;
     }
+    const typeLabel = type === 'pretest' ? 'Pretest' : 'Posttest';
+    let ok = true;
+    try{ ok = window.confirm(`Start the ${SEM_META[semester].label} ${typeLabel}?\n\nName: ${name.trim()}\nBatch: STPM ${batch.replace(/^STPM /,'')}\n\nEach test can only be taken ONCE. Check your name is spelled correctly.`); }catch(e){}
+    if (!ok){ status.textContent = ''; return; }
     status.textContent = '';
-    const group = $('#rtest-group').value || 'Main';
-    rtestState = {type, name: name.trim(), group, questions, index:0, correctCount:0, answers:[]};
+    try{ localStorage.setItem('physiq-research-batch', batch); localStorage.setItem('physiq-research-sem', String(semester)); }catch(e){}
+    rtestState = {type, name: name.trim(), batch, semester, group: 'Batch ' + batch, questions, index:0, correctCount:0, answers:[]};
     $('#rtest-intro').style.display = 'none';
     $('#rteacher-lock-card').style.display = 'none';
     $('#rteacher-dash-card').style.display = 'none';
@@ -5028,13 +5154,18 @@ const SEM3_BATCH3_CH25 = [
     const q = questions[index];
     $('#rtest-qcounter').textContent = `Q${index+1} / ${questions.length}`;
     $('#rtest-progress-fill').style.width = `${(index/questions.length)*100}%`;
-    $('#rtest-label-badge').textContent = type === 'pretest' ? 'PRETEST' : 'POSTTEST';
-    $('#rtest-qtag').innerHTML = `${q.topic} ${diffPillHTML(q.difficulty)}`;
-    $('#rtest-qtext').textContent = q.question;
+    $('#rtest-label-badge').textContent = (type === 'pretest' ? 'PRETEST' : 'POSTTEST') + ' · SEM ' + rtestState.semester;
+    $('#rtest-qtag').innerHTML = `${stripSem(q.topic)} ${diffPillHTML(q.difficulty)}`;
+    // Semester 1 keeps its original plain rendering (study already running); Semesters 2-3
+    // use the same maths typography and drawn diagrams as Student Practice.
+    const rich = rtestState.semester > 1;
+    if (rich) $('#rtest-qtext').innerHTML = mathify(escapeHtml(q.question));
+    else $('#rtest-qtext').textContent = q.question;
+    $('#rtest-diagram').innerHTML = (rich && window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
 
     const choicesEl = $('#rtest-choices');
     choicesEl.innerHTML = q.options.map((opt,i)=>`
-      <button class="rchoice" data-idx="${i}">${String.fromCharCode(65+i)}. ${escapeHtml(opt)}</button>
+      <button class="rchoice" data-idx="${i}">${String.fromCharCode(65+i)}. ${rich ? mathify(escapeHtml(opt)) : escapeHtml(opt)}</button>
     `).join('');
     $('#rtest-next-btn').style.display = 'none';
 
@@ -5079,7 +5210,7 @@ const SEM3_BATCH3_CH25 = [
     const correct = rtestState.correctCount;
     $('#rtest-score-got').textContent = correct;
     $('#rtest-score-total').textContent = total;
-    $('#rtest-score-pct-label').textContent = `${Math.round((correct/total)*100)}% correct — ${rtestState.type === 'pretest' ? 'Pretest' : 'Posttest'}`;
+    $('#rtest-score-pct-label').textContent = `${Math.round((correct/total)*100)}% correct — ${SEM_META[rtestState.semester].label} ${rtestState.type === 'pretest' ? 'Pretest' : 'Posttest'}`;
 
     const byTopic = {};
     rtestState.answers.forEach(a=>{
@@ -5089,7 +5220,7 @@ const SEM3_BATCH3_CH25 = [
     });
     $('#rtest-summary-breakdown').innerHTML = Object.entries(byTopic).map(([topic,v])=>`
       <div class="bd-row">
-        <span class="bd-topic">${topic}</span>
+        <span class="bd-topic">${stripSem(topic)}</span>
         <div class="bd-bar"><div class="bd-fill" style="width:${(v.correct/v.total)*100}%"></div></div>
         <span class="bd-frac">${v.correct}/${v.total}</span>
       </div>
@@ -5098,7 +5229,9 @@ const SEM3_BATCH3_CH25 = [
     const results = await loadTestResults();
     results.push({
       name: rtestState.name,
-      group: rtestState.group || 'Main',
+      group: rtestState.group,
+      batch: rtestState.batch,
+      semester: rtestState.semester,
       type: rtestState.type,
       score: correct,
       total,
@@ -5147,31 +5280,48 @@ const SEM3_BATCH3_CH25 = [
   }
 
   async function renderDashboard(){
-    const results = await loadTestResults();
-    $('#rdash-count').textContent = `(${results.length} submission${results.length===1?'':'s'})`;
+    const all = await loadTestResults();
+    const grpOf = r => r.group || 'Main';   // records saved before batches existed were Main / Ulangan
+
+    // filter controls (group list comes from the data; keep the current choice)
+    const gSel = $('#rdash-f-group');
+    const groups = Array.from(new Set(all.map(grpOf))).sort();
+    const prevGroup = gSel.value;
+    gSel.innerHTML = '<option value="">All batches / groups</option>' + groups.map(g=>`<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+    if (groups.includes(prevGroup)) gSel.value = prevGroup;
+    const semF = $('#rdash-f-sem').value, grpF = gSel.value;
+
+    const results = all.filter(r => (!semF || String(resSem(r)) === semF) && (!grpF || grpOf(r) === grpF));
+    $('#rdash-count').textContent = (results.length === all.length)
+      ? `(${all.length} submission${all.length===1?'':'s'})`
+      : `(${results.length} of ${all.length} submissions)`;
 
     const byStudent = {};
     results.forEach(r=>{
-      const key = normName(r.name);
-      byStudent[key] = byStudent[key] || {name: r.name, group: r.group || 'Main', pretest:null, posttest:null};
+      const key = normName(r.name) + '|' + resSem(r);
+      byStudent[key] = byStudent[key] || {name: r.name, semester: resSem(r), group: grpOf(r), pretest:null, posttest:null};
       byStudent[key][r.type] = r;
       if (r.name && r.name.length) byStudent[key].name = r.name;
-      // Prefer the pretest's recorded group if there's a mismatch between the
-      // two submissions, since that's usually entered first/more carefully.
+      // Prefer the pretest's recorded group if the two submissions disagree.
       if (r.type === 'pretest' && r.group) byStudent[key].group = r.group;
       else if (!byStudent[key].pretest && r.group) byStudent[key].group = r.group;
     });
 
-    const students = Object.values(byStudent).sort((a,b)=>a.name.localeCompare(b.name));
-    const mainStudents = students.filter(s=>s.group !== 'Ulangan');
-    const ulanganStudents = students.filter(s=>s.group === 'Ulangan');
+    const students = Object.values(byStudent).sort((a,b)=> a.semester - b.semester || a.name.localeCompare(b.name));
 
-    const overall = computeCohortStats(students);
-    let summaryHtml = cohortStatsRowsHTML('All students combined', overall);
-    if (ulanganStudents.length){
-      summaryHtml += `<p class="status-msg" style="margin:10px 0 0;">Ulangan (repeat) students have prior exposure to this material, so their gain scores aren't directly comparable to first-time students — shown separately below rather than folded into one number.</p>`;
-      summaryHtml += cohortStatsRowsHTML('Main group only', computeCohortStats(mainStudents));
-      summaryHtml += cohortStatsRowsHTML('Ulangan group only', computeCohortStats(ulanganStudents));
+    // One summary block per semester (the tests differ, so semesters are never pooled).
+    let summaryHtml = '';
+    [1,2,3].forEach(sem=>{
+      const inSem = students.filter(s=>s.semester === sem);
+      if (!inSem.length) return;
+      summaryHtml += cohortStatsRowsHTML(`Semester ${sem} — all students`, computeCohortStats(inSem));
+      const gs = Array.from(new Set(inSem.map(s=>s.group))).sort();
+      if (gs.length > 1) gs.forEach(g=>{
+        summaryHtml += cohortStatsRowsHTML(`Semester ${sem} · ${escapeHtml(g)}`, computeCohortStats(inSem.filter(s=>s.group === g)));
+      });
+    });
+    if (students.some(s=>s.group === 'Ulangan')){
+      summaryHtml += `<p class="status-msg" style="margin:10px 0 0;">Ulangan (repeat) students have prior exposure to this material, so their gain scores aren't directly comparable to first-time students.</p>`;
     }
     $('#rdash-summary').innerHTML = summaryHtml;
 
@@ -5186,7 +5336,8 @@ const SEM3_BATCH3_CH25 = [
         <thead>
           <tr style="text-align:left;border-bottom:2px solid var(--line);">
             <th style="padding:6px 8px;">Student</th>
-            <th style="padding:6px 8px;">Group</th>
+            <th style="padding:6px 8px;">Sem</th>
+            <th style="padding:6px 8px;">Batch / group</th>
             <th style="padding:6px 8px;">Pretest</th>
             <th style="padding:6px 8px;">Posttest</th>
             <th style="padding:6px 8px;">Gain</th>
@@ -5200,6 +5351,7 @@ const SEM3_BATCH3_CH25 = [
             const gain = diff !== null ? `${diff >= 0 ? '+' : ''}${diff}%` : '—';
             return `<tr style="border-bottom:1px solid var(--line);">
               <td style="padding:6px 8px;font-weight:700;color:var(--navy);">${escapeHtml(s.name)}</td>
+              <td style="padding:6px 8px;">${s.semester}</td>
               <td style="padding:6px 8px;">${escapeHtml(s.group)}</td>
               <td style="padding:6px 8px;">${pre}</td>
               <td style="padding:6px 8px;">${post}</td>
@@ -5213,13 +5365,17 @@ const SEM3_BATCH3_CH25 = [
     window._rdashStudents = students;
   }
 
+  $('#rdash-f-sem').addEventListener('change', renderDashboard);
+  $('#rdash-f-group').addEventListener('change', renderDashboard);
+
   $('#rdash-export').addEventListener('click', async ()=>{
     const students = window._rdashStudents || [];
     if (!students.length) return;
-    const rows = [['Student','Group','Pretest score','Pretest total','Pretest %','Posttest score','Posttest total','Posttest %','Gain %']];
+    const rows = [['Student','Semester','Batch / group','Pretest score','Pretest total','Pretest %','Posttest score','Posttest total','Posttest %','Gain %']];
     students.forEach(s=>{
       rows.push([
         s.name,
+        s.semester || 1,
         s.group || 'Main',
         s.pretest ? s.pretest.score : '',
         s.pretest ? s.pretest.total : '',
