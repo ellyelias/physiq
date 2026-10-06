@@ -240,7 +240,7 @@
   <div class="tabs">
     <button class="tab active" data-tab="guide">Guide</button>
     <button class="tab" data-tab="student">Student Practice</button>
-    <button class="tab" data-tab="teacher">Teacher · Question Bank</button>
+    <button class="tab" data-tab="teacher" id="teacher-tab" style="display:none;">Teacher · Question Bank</button>
     <button class="tab" data-tab="research">Research · Pretest/Posttest</button>
     <button class="tab" data-tab="notes">Notes</button>
   </div>
@@ -4753,7 +4753,7 @@ const SEM3_BATCH3_CH25 = [
         <input type="checkbox" value="${t}" checked>
         ${t} <span style="color:var(--sub);font-weight:400;">(${counts[t]})</span>
       </label>
-    `).join('') || '<p class="empty">No questions available yet — ask your teacher to add some in the Question Bank tab.</p>';
+    `).join('') || '<p class="empty">No questions available yet — please tell your teacher.</p>';
 
     $$('.topic-check input').forEach(cb=>{
       cb.addEventListener('change', ()=>{
@@ -5556,6 +5556,16 @@ const NOTES_EXTRA = (function(){
     window.scrollTo({top:0, behavior:'smooth'});
   });
 
+
+  // Teacher tab is hidden from students; open the app with ?teacher=1 once to reveal it on this device.
+  try{
+    const qs = new URLSearchParams(location.search);
+    if (qs.get('teacher') === '1') localStorage.setItem('physiq-teacher-mode','1');
+    if (qs.get('teacher') === '0') localStorage.removeItem('physiq-teacher-mode');
+    if (localStorage.getItem('physiq-teacher-mode') === '1'){
+      const tt = document.getElementById('teacher-tab'); if (tt) tt.style.display = '';
+    }
+  }catch(e){}
 
   (async function init(){
     try{
