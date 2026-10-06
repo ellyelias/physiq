@@ -167,14 +167,14 @@
   #notes-content li{margin-bottom:7px;font-size:14px;line-height:1.55;}
   #notes-content p{font-size:14px;line-height:1.55;margin:0 0 12px;}
   #notes-content b{color:var(--navy);}
-  #notes-content sup,#notes-content sub{font-size:.72em;line-height:0;position:relative;vertical-align:baseline;}
-  #notes-content sup{top:-.5em;}
-  #notes-content sub{top:.28em;}
-  #notes-content .frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .18em;line-height:1.2;font-size:.96em;}
-  #notes-content .frac .n{display:block;padding:0 .25em .06em;border-bottom:1.4px solid currentColor;}
-  #notes-content .frac .d{display:block;padding:.06em .25em 0;}
-  #notes-content .sqrt .rad{border-top:1.4px solid currentColor;padding:0 .12em;margin-left:1px;}
-  #notes-content svg.inf{width:1.3em;height:.65em;vertical-align:-.04em;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
+  #notes-content sup,#notes-content sub,#quiz-qtext sup,#quiz-qtext sub,#quiz-choices sup,#quiz-choices sub,#quiz-explain sup,#quiz-explain sub,.qtext sup,.qtext sub{font-size:.72em;line-height:0;position:relative;vertical-align:baseline;}
+  #notes-content sup,#quiz-qtext sup,#quiz-choices sup,#quiz-explain sup,.qtext sup{top:-.5em;}
+  #notes-content sub,#quiz-qtext sub,#quiz-choices sub,#quiz-explain sub,.qtext sub{top:.28em;}
+  .frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .18em;line-height:1.2;font-size:.96em;}
+  .frac .n{display:block;padding:0 .25em .06em;border-bottom:1.4px solid currentColor;}
+  .frac .d{display:block;padding:.06em .25em 0;}
+  .sqrt .rad{border-top:1.4px solid currentColor;padding:0 .12em;margin-left:1px;}
+  svg.inf{width:1.3em;height:.65em;vertical-align:-.04em;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
   .note-trap{background:var(--orange-tint);border-left:3px solid var(--orange);padding:9px 12px;border-radius:0 6px 6px 0;margin:10px 0;font-size:13.5px;line-height:1.5;color:var(--ink);}
   .note-trick{background:var(--navy-tint);border-left:3px solid var(--navy);padding:9px 12px;border-radius:0 6px 6px 0;margin:10px 0;font-size:13.5px;line-height:1.5;color:var(--ink);}
   .dgfig{margin:12px 0 4px;text-align:center;}
@@ -4645,7 +4645,7 @@ const SEM3_BATCH3_CH25 = [
         <div class="qitem-top">
           <div>
             <span class="qtag">${q.topic}</span>${diffPillHTML(q.difficulty)}
-            <p class="qtext">${escapeHtml(q.question)}</p>
+            <p class="qtext">${mathify(escapeHtml(q.question))}</p>
           </div>
           <div class="qitem-actions">
             <button class="icon-btn edit-q">Edit</button>
@@ -4826,12 +4826,12 @@ const SEM3_BATCH3_CH25 = [
     const acc = answeredSoFar ? Math.round((quizState.correctCount/answeredSoFar)*100) : 0;
     $('#accuracy-badge').textContent = `± ${acc}% so far`;
     $('#quiz-qtag').innerHTML = `${q.topic} ${diffPillHTML(q.difficulty)}`;
-    $('#quiz-qtext').textContent = q.question;
+    $('#quiz-qtext').innerHTML = mathify(escapeHtml(q.question));
     $('#quiz-diagram').innerHTML = (window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
 
     const choicesEl = $('#quiz-choices');
     choicesEl.innerHTML = q.options.map((opt,i)=>`
-      <button class="choice" data-idx="${i}">${String.fromCharCode(65+i)}. ${escapeHtml(opt)}</button>
+      <button class="choice" data-idx="${i}">${String.fromCharCode(65+i)}. ${mathify(escapeHtml(opt))}</button>
     `).join('');
     $('#quiz-explain').classList.remove('show');
     $('#quiz-explain').innerHTML = '';
@@ -4860,11 +4860,11 @@ const SEM3_BATCH3_CH25 = [
     if (Array.isArray(q.optionNotes)){
       q.optionNotes.forEach((note, i) => {
         if (i !== q.correctIndex && note){
-          notesHtml += `<div style="margin-top:6px;"><b>${String.fromCharCode(65+i)}.</b> ${escapeHtml(note)}</div>`;
+          notesHtml += `<div style="margin-top:6px;"><b>${String.fromCharCode(65+i)}.</b> ${mathify(escapeHtml(note))}</div>`;
         }
       });
     }
-    const expHtml = escapeHtml(q.explanation).replace(/^(Formula|Working|Answer|Key point|Reason|Note):/gm, '<b>$1:</b>');
+    const expHtml = mathify(escapeHtml(q.explanation).replace(/^(Formula|Working|Answer|Key point|Reason|Note):/gm, '<b>$1:</b>'));
     explainEl.innerHTML = `<b>${isCorrect ? 'Correct.' : 'Not quite.'}</b>${q.explanation.indexOf('\n') > -1 ? '\n' : ' '}${expHtml}` +
       (notesHtml ? `<div style="margin-top:10px;font-weight:700;color:var(--navy);">Why the other options are wrong:</div>${notesHtml}` : '');
     explainEl.classList.add('show');
@@ -5475,24 +5475,34 @@ const NOTES_EXTRA = (function(){
     const SUPMAP={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'−','⁺':'+','ⁿ':'n'};
     const SUBMAP={'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9','ₐ':'a','ₑ':'e','ₒ':'o','ₓ':'x','ₙ':'n','ₘ':'m','ₖ':'k','ₗ':'l','ₚ':'p','ₛ':'s','ₜ':'t','₊':'+','₋':'−'};
     const INF='<svg class="inf" viewBox="0 0 24 12" role="img" aria-label="infinity"><path d="M12 6C10 1.6 4.6 1.6 3.6 6S10 10.4 12 6C14 1.6 19.4 1.6 20.4 6S14 10.4 12 6Z"/></svg>';
-    const UNITS=/^(?:m\/s|km\/h|N\/m|N\/C|V\/m|F\/m|H\/m|J\/K|J\/kg|J\/mol|W\/m|C\/m|C\/s|A\/m|rad\/s|kg\/m|g\/cm|g\/mol|mol\/L|T\/s|Wb\/m|V\/s|N\/kg|m\/min|cm\/s|kg\/s|J\/s|N\/A)$/;
+    const UNITS=/^(?:m\/s|km\/h|N\/m|N\/C|V\/m|F\/m|H\/m|J\/K|J\/kg|J\/mol|W\/m|C\/m|C\/s|A\/m|rad\/s|kg\/m|g\/cm|g\/mol|mol\/L|T\/s|Wb\/m|V\/s|N\/kg|m\/min|rev\/s|rev\/min|kg\/mol|km\/s|mm\/s|rad\/min|cm\/s|kg\/s|J\/s|N\/A)$/;
     const A='(?:(?:sin|cos|tan|cot|sec|ln|log|exp)\\s?[A-Za-zΑ-Ωα-ω0-9]|[A-Za-zΑ-Ωα-ωπ0-9½¼¾|⟨⟩]|\\.(?=\\d)|[∂′°]|<su[bp]>[^<]*</su[bp]>)+';
     const G='\\((?:[^()/<>]|<su[bp]>[^<]*</su[bp]>)*\\)(?:<sup>[^<]*</sup>)?';
-    const FR=new RegExp('('+A+'|'+G+')/('+A+'|'+G+')','g');
+    const GB='\\[(?:[^\\[\\]/<>]|\\([^()]*\\)|<su[bp]>[^<]*</su[bp]>)*\\]';
+    const FR=new RegExp('((?:'+A+'|'+G+'|'+GB+')+)/((?:'+A+'|'+G+'|'+GB+')+)','g');
     const strip=s=>s.replace(/<su[bp]>[^<]*<\/su[bp]>/g,'');
-    const plain=s=>strip(s).replace(/^\(|\)$/g,'');
-    function isWord(s){ return /^(?:[a-z]{4,}|Lyman|Balmer|Paschen)$/.test(plain(s)); }
-    const unp=s=>/^\(.*\)$/.test(s)?s.slice(1,-1):s;
+    const plain=s=>strip(s).replace(/^[(\[]|[)\]]$/g,'');
+    function isWord(s){ const p=plain(s); return /^[a-z]{4,}$/.test(p)||(/^[A-Z][a-z]+$/.test(p)&&!/^(?:Vin|Vout|Pa|Hz|Wb)$/.test(p)); }
+    const unp=s=>{
+      if(!/^[(\[]/.test(s)||!/[)\]]$/.test(s)) return s;
+      let d=0; for(let i=0;i<s.length;i++){ const c=s[i]; if(c==='('||c==='[') d++; else if(c===')'||c===']'){ d--; if(d===0&&i<s.length-1) return s; } }
+      return s.slice(1,-1);
+    };
     function frac(n,d){ const u=x=>x.indexOf('<span class="frac"')===0?x:unp(x); return '<span class="frac"><span class="n">'+u(n)+'</span><span class="d">'+u(d)+'</span></span>'; }
     function seg(t){
+      // literal fix-ups for ambiguous plain-text notation in older questions
+      t=t.replace(/([A-Za-z])'_/g,'$1′_');
+      t=t.replace(/W_by_gas/g,'W_{by gas}').replace(/F_([AB])-on-([AB])/g,'F_{$1 on $2}')
+         .replace(/m_([AB])([vu])_([AB])/g,'m_$1 $2_$3').replace(/k_([XY])A_([XY])ΔT/g,'k_$1 A_$2 ΔT')
+         .replace(/GM_Em_M/g,'GM_E m_M').replace(/GM_Em\(/g,'GM_E m(').replace(/I_MI_N/g,'I_M I_N').replace(/\bsqrt\(/g,'√(');
       // unicode super/subscripts -> real tags
       t=t.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ]+/g,m=>'<sup>'+[...m].map(c=>SUPMAP[c]).join('')+'</sup>');
       t=t.replace(/[₀₁₂₃₄₅₆₇₈₉ₐₑₒₓₙₘₖₗₚₛₜ₊₋]+/g,m=>'<sub>'+[...m].map(c=>SUBMAP[c]).join('')+'</sub>');
       // ascii forms
       t=t.replace(/_\{([^}]+)\}/g,(m,a)=>'<sub>'+a+'</sub>');
-      t=t.replace(/([A-Za-zΑ-Ωα-ωπ0-9\)′])_([A-Za-z0-9]+)/g,(m,a,b)=>a+'<sub>'+b+'</sub>');
+      t=t.replace(/([A-Za-zΑ-Ωα-ωπ0-9\)′'])_([A-Za-z0-9]+)/g,(m,a,b)=>a+'<sub>'+b+'</sub>');
       t=t.replace(/\^\(([^()]+)\)/g,(m,a)=>'<sup>'+a.replace(/^-/,'−')+'</sup>');
-      t=t.replace(/\^([-+−]?[A-Za-z0-9]+)/g,(m,a)=>'<sup>'+a.replace(/^-/,'−')+'</sup>');
+      t=t.replace(/\^([-+−]?[A-Za-zΑ-Ωα-ω0-9]+(?:\.\d+)?)/g,(m,a)=>'<sup>'+a.replace(/^-/,'−')+'</sup>');
       // fractions (leave slashes inside exponents/subscripts alone)
       const hold=[];
       t=t.replace(/<su[bp]>[^<]*\/[^<]*<\/su[bp]>/g,m=>{hold.push(m);return '\uE000'+(hold.length-1)+'\uE001';});
@@ -5509,7 +5519,7 @@ const NOTES_EXTRA = (function(){
       t=t.replace(/\((<span class="frac"><span class="n">[^<]*(?:<su[bp]>[^<]*<\/su[bp]>[^<]*)*<\/span><span class="d">[^<]*(?:<su[bp]>[^<]*<\/su[bp]>[^<]*)*<\/span><\/span>)\)(?!<sup>)/g,'$1');
       // square roots
       t=t.replace(/√\(((?:[^()]|\([^()]*\))*)\)/g,(m,a)=>'<span class="sqrt">√<span class="rad">'+a+'</span></span>');
-      t=t.replace(/√([A-Za-z0-9π]+(?:<su[bp]>[^<]*<\/su[bp]>)?)/g,(m,a)=>'<span class="sqrt">√<span class="rad">'+a+'</span></span>');
+      t=t.replace(/√([A-Za-z0-9π]+(?:\.\d+)?(?:<su[bp]>[^<]*<\/su[bp]>)?)/g,(m,a)=>'<span class="sqrt">√<span class="rad">'+a+'</span></span>');
       t=t.replace(/∞/g,INF);
       return t;
     }
