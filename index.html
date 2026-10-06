@@ -167,6 +167,14 @@
   #notes-content li{margin-bottom:7px;font-size:14px;line-height:1.55;}
   #notes-content p{font-size:14px;line-height:1.55;margin:0 0 12px;}
   #notes-content b{color:var(--navy);}
+  #notes-content sup,#notes-content sub{font-size:.72em;line-height:0;position:relative;vertical-align:baseline;}
+  #notes-content sup{top:-.5em;}
+  #notes-content sub{top:.28em;}
+  #notes-content .frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .18em;line-height:1.2;font-size:.96em;}
+  #notes-content .frac .n{display:block;padding:0 .25em .06em;border-bottom:1.4px solid currentColor;}
+  #notes-content .frac .d{display:block;padding:.06em .25em 0;}
+  #notes-content .sqrt .rad{border-top:1.4px solid currentColor;padding:0 .12em;margin-left:1px;}
+  #notes-content svg.inf{width:1.3em;height:.65em;vertical-align:-.04em;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
   .note-trap{background:var(--orange-tint);border-left:3px solid var(--orange);padding:9px 12px;border-radius:0 6px 6px 0;margin:10px 0;font-size:13.5px;line-height:1.5;color:var(--ink);}
   .note-trick{background:var(--navy-tint);border-left:3px solid var(--navy);padding:9px 12px;border-radius:0 6px 6px 0;margin:10px 0;font-size:13.5px;line-height:1.5;color:var(--ink);}
   .dgfig{margin:12px 0 4px;text-align:center;}
@@ -5462,6 +5470,52 @@ const NOTES_EXTRA = (function(){
     renderNotesContent();
   }
 
+  // ---------- notes typography: real sub/superscripts, stacked fractions, bold infinity ----------
+  function mathify(html){
+    const SUPMAP={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'−','⁺':'+','ⁿ':'n'};
+    const SUBMAP={'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9','ₐ':'a','ₑ':'e','ₒ':'o','ₓ':'x','ₙ':'n','ₘ':'m','ₖ':'k','ₗ':'l','ₚ':'p','ₛ':'s','ₜ':'t','₊':'+','₋':'−'};
+    const INF='<svg class="inf" viewBox="0 0 24 12" role="img" aria-label="infinity"><path d="M12 6C10 1.6 4.6 1.6 3.6 6S10 10.4 12 6C14 1.6 19.4 1.6 20.4 6S14 10.4 12 6Z"/></svg>';
+    const UNITS=/^(?:m\/s|km\/h|N\/m|N\/C|V\/m|F\/m|H\/m|J\/K|J\/kg|J\/mol|W\/m|C\/m|C\/s|A\/m|rad\/s|kg\/m|g\/cm|g\/mol|mol\/L|T\/s|Wb\/m|V\/s|N\/kg|m\/min|cm\/s|kg\/s|J\/s|N\/A)$/;
+    const A='(?:(?:sin|cos|tan|cot|sec|ln|log|exp)\\s?[A-Za-zΑ-Ωα-ω0-9]|[A-Za-zΑ-Ωα-ωπ0-9½¼¾|⟨⟩]|\\.(?=\\d)|[∂′°]|<su[bp]>[^<]*</su[bp]>)+';
+    const G='\\((?:[^()/<>]|<su[bp]>[^<]*</su[bp]>)*\\)(?:<sup>[^<]*</sup>)?';
+    const FR=new RegExp('('+A+'|'+G+')/('+A+'|'+G+')','g');
+    const strip=s=>s.replace(/<su[bp]>[^<]*<\/su[bp]>/g,'');
+    const plain=s=>strip(s).replace(/^\(|\)$/g,'');
+    function isWord(s){ return /^(?:[a-z]{4,}|Lyman|Balmer|Paschen)$/.test(plain(s)); }
+    const unp=s=>/^\(.*\)$/.test(s)?s.slice(1,-1):s;
+    function frac(n,d){ const u=x=>x.indexOf('<span class="frac"')===0?x:unp(x); return '<span class="frac"><span class="n">'+u(n)+'</span><span class="d">'+u(d)+'</span></span>'; }
+    function seg(t){
+      // unicode super/subscripts -> real tags
+      t=t.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ]+/g,m=>'<sup>'+[...m].map(c=>SUPMAP[c]).join('')+'</sup>');
+      t=t.replace(/[₀₁₂₃₄₅₆₇₈₉ₐₑₒₓₙₘₖₗₚₛₜ₊₋]+/g,m=>'<sub>'+[...m].map(c=>SUBMAP[c]).join('')+'</sub>');
+      // ascii forms
+      t=t.replace(/_\{([^}]+)\}/g,(m,a)=>'<sub>'+a+'</sub>');
+      t=t.replace(/([A-Za-zΑ-Ωα-ωπ0-9\)′])_([A-Za-z0-9]+)/g,(m,a,b)=>a+'<sub>'+b+'</sub>');
+      t=t.replace(/\^\(([^()]+)\)/g,(m,a)=>'<sup>'+a.replace(/^-/,'−')+'</sup>');
+      t=t.replace(/\^([-+−]?[A-Za-z0-9]+)/g,(m,a)=>'<sup>'+a.replace(/^-/,'−')+'</sup>');
+      // fractions (leave slashes inside exponents/subscripts alone)
+      const hold=[];
+      t=t.replace(/<su[bp]>[^<]*\/[^<]*<\/su[bp]>/g,m=>{hold.push(m);return '\uE000'+(hold.length-1)+'\uE001';});
+      t=t.replace(FR,(m,n,d)=>{
+        if(UNITS.test(strip(n)+'/'+strip(d))||/^(?:J|W|N|C|V)\/\((?:kg|mol|m|K|s|A|g)[\s·](?:kg|mol|m|K|s|A|g)\)$/.test(strip(n)+'/'+strip(d))) return m;
+        if(isWord(n)||isWord(d)) return m;
+        if(!/[A-Za-zΑ-Ωα-ωπ0-9]/.test(plain(n))||!/[A-Za-zΑ-Ωα-ωπ0-9]/.test(plain(d))) return m;
+        return frac(n,d);
+      });
+      t=t.replace(/\uE000(\d+)\uE001/g,(m,i)=>hold[+i]);
+      // nested: (a/b)/(c/d)
+      t=t.replace(/\((<span class="frac">(?:(?!<\/span><\/span>).)*<\/span><\/span>)\)\/\((<span class="frac">(?:(?!<\/span><\/span>).)*<\/span><\/span>)\)/g,(m,a,b)=>frac(a,b));
+      // lone bracketed fraction (not followed by a power) -> drop brackets
+      t=t.replace(/\((<span class="frac"><span class="n">[^<]*(?:<su[bp]>[^<]*<\/su[bp]>[^<]*)*<\/span><span class="d">[^<]*(?:<su[bp]>[^<]*<\/su[bp]>[^<]*)*<\/span><\/span>)\)(?!<sup>)/g,'$1');
+      // square roots
+      t=t.replace(/√\(((?:[^()]|\([^()]*\))*)\)/g,(m,a)=>'<span class="sqrt">√<span class="rad">'+a+'</span></span>');
+      t=t.replace(/√([A-Za-z0-9π]+(?:<su[bp]>[^<]*<\/su[bp]>)?)/g,(m,a)=>'<span class="sqrt">√<span class="rad">'+a+'</span></span>');
+      t=t.replace(/∞/g,INF);
+      return t;
+    }
+    return String(html).split(/(<[^>]+>)/).map((p,i)=>i%2?p:seg(p)).join('');
+  }
+
   function renderNotesContent(){
     const key = $('#notes-topic-select').value;
     let title = key, body;
@@ -5471,7 +5525,7 @@ const NOTES_EXTRA = (function(){
     } else {
       body = NOTES_CONTENT[key] || '<p class="empty">Notes for this topic are coming soon.</p>';
     }
-    $('#notes-content').innerHTML = `<h2>${escapeHtml(title.replace(/^S[23]-/, ''))}</h2>` + body;
+    $('#notes-content').innerHTML = `<h2>${escapeHtml(title.replace(/^S[23]-/, ''))}</h2>` + mathify(body);
   }
 
   $('#notes-practise-btn').addEventListener('click', ()=>{
