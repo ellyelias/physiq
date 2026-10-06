@@ -223,9 +223,9 @@
 <div class="app">
 
   <div class="masthead">
-    <p class="eyebrow">STPM Semester 1 · Physics</p>
+    <p class="eyebrow" id="masthead-eyebrow">STPM Semester 1 · Physics</p>
     <h1>PhysiQ <span style="color:var(--orange);">by Cikgu Suhaili</span></h1>
-    <p class="sub">Chapters 1–12 · Full Semester 1 syllabus</p>
+    <p class="sub" id="masthead-sub">Chapters 1–12 · Full Semester 1 syllabus</p>
     <div class="scale"></div>
   </div>
 
@@ -4455,9 +4455,20 @@ const SEM3_BATCH3_CH25 = [
   let currentSemester = '1';
   function topicsForSemester(sem){ return sem === '2' ? TOPICS_SEM2 : sem === '3' ? TOPICS_SEM3 : TOPICS_SEM1; }
 
+  function updateMasthead(sem){
+    try{
+      const MH = {'1':'1–12','2':'12–18','3':'19–25'};
+      const n = MH[sem] ? sem : '1';
+      const e1 = document.getElementById('masthead-eyebrow'), e2 = document.getElementById('masthead-sub');
+      if (e1) e1.textContent = 'STPM Semester ' + n + ' · Physics';
+      if (e2) e2.textContent = 'Chapters ' + MH[n] + ' · Full Semester ' + n + ' syllabus';
+    }catch(e){}
+  }
+
   function applySemester(sem){
     currentSemester = sem;
     TOPICS = topicsForSemester(sem);
+    updateMasthead(sem);
     try{ populateTopicSelects(); }catch(e){ console.error('populateTopicSelects failed', e); }
     try{ renderBankList(); }catch(e){ console.error('renderBankList failed', e); }
     try{ populateStudentTopics(); }catch(e){ console.error('populateStudentTopics failed', e); }
@@ -5488,6 +5499,7 @@ const NOTES_EXTRA = (function(){
       currentSemester = savedSem;
       TOPICS = topicsForSemester(savedSem);
       if (semesterSelectEl) semesterSelectEl.value = savedSem;
+      updateMasthead(savedSem);
     }catch(e){ console.error('semester restore failed', e); }
     try{ populateTopicSelects(); }catch(e){ console.error('populateTopicSelects failed', e); }
     await loadBank(); // never throws — always leaves `bank` populated
