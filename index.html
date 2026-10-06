@@ -501,6 +501,8 @@
       </div>
       <div class="breakdown" id="rtest-summary-breakdown"></div>
       <p class="status-msg">Your result has been recorded for your teacher. Thank you.</p>
+      <p class="status-msg" style="margin-top:6px;">The Posttest uses a different set of questions on the same topics. Take it after your teacher tells you your revision period is over — choose the same batch, name and semester, then press <b>Take the Posttest</b>.</p>
+      <div class="btn-row" style="margin-top:14px;"><button class="btn-primary" id="rtest-home-btn">Back to Research home</button></div>
     </div>
 
     <div class="card" id="rteacher-lock-card">
@@ -5176,6 +5178,14 @@ const SEM3_BATCH3_CH25 = [
     renderResearchQuestion();
   }
 
+  $('#rtest-home-btn').addEventListener('click', ()=>{
+    $('#rtest-summary-card').style.display = 'none';
+    $('#rtest-intro').style.display = '';
+    $('#rteacher-lock-card').style.display = '';
+    $('#rtest-pick').value = ''; $('#rtest-name').value = '';
+    $('#rtest-status').textContent = '';
+    window.scrollTo(0,0);
+  });
   $('#rtest-start-pre').addEventListener('click', ()=>startResearchTest('pretest'));
   $('#rtest-start-post').addEventListener('click', ()=>startResearchTest('posttest'));
 
