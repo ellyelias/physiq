@@ -453,6 +453,19 @@
     <div class="card" id="tt-home">
       <h2>Chapter &amp; semester tests</h2>
       <p class="sub" style="margin-top:-6px;">Practice tests of <b>20 questions</b> in STPM style: <b>10 hard, 5 medium, 5 easy</b>. No answers are shown while you sit the test. At the end you get your score, your weak topics and a full review with worked solutions. These tests are separate from the Research pretest/posttest and your results are kept only on this device.</p>
+      <h3 style="margin:16px 0 6px;color:var(--navy);">Who is taking the test?</h3>
+      <p class="status-msg" style="margin:0 0 6px;">Your teacher can see your scores and how long each test took. Choose your batch and name (Guests type their name).</p>
+      <select id="tt-batch">
+        <option value="">Choose your batch…</option>
+        <option value="STPM 2026">Batch STPM 2026</option>
+        <option value="STPM 2027">Batch STPM 2027</option>
+        <option value="Guest">Guest</option>
+      </select>
+      <div id="tt-name-wrap" style="display:none;margin-top:8px;">
+        <select id="tt-pick"></select>
+        <input type="text" id="tt-name" placeholder="Type your full name" style="display:none;">
+      </div>
+      <p class="status-msg" id="tt-status" style="margin:8px 0 0;"></p>
       <h3 style="margin:16px 0 6px;color:var(--navy);">Chapter tests — <span id="tt-sem-label"></span></h3>
       <div id="tt-chapter-list"></div>
       <h3 style="margin:22px 0 6px;color:var(--navy);">Semester tests — <span id="tt-sem-label2"></span></h3>
@@ -581,6 +594,12 @@
       <p class="status-msg" style="margin:0 0 8px;">Pick a student to see every topic in their semester: whether the Pretest and Posttest have been taken, and whether each topic was answered correctly.</p>
       <select id="rdash-cl-pick"><option value="">Choose a student…</option></select>
       <div id="rdash-checklist" style="margin-top:12px;overflow-x:auto;"></div>
+      <h3 style="margin:26px 0 6px;color:var(--navy);">Chapter &amp; semester tests</h3>
+      <p class="status-msg" style="margin:0 0 8px;">Each cell shows the student's best score for that test, the time taken on that attempt, and the number of attempts. The semester and batch filters above apply here too. Scores are also saved to the <b>Tests</b> sheet in your Google Sheet.</p>
+      <div class="btn-row" style="margin-top:0;"><button class="btn-ghost" id="tdash-export">Export tests CSV</button><span class="status-msg" id="tdash-sync" style="align-self:center;margin:0 0 0 8px;"></span></div>
+      <div id="tdash-matrix" style="margin-top:12px;overflow-x:auto;"></div>
+      <h4 style="margin:18px 0 6px;color:var(--navy);">Recent attempts</h4>
+      <div id="tdash-log" style="overflow-x:auto;"></div>
       <div id="rdash-csv-fallback" style="display:none;margin-top:14px;">
         <label>Download isn't available in this view — select all the text below (tap it, then "Select all") and copy it into Excel/Google Sheets as CSV.</label>
         <textarea id="rdash-csv-text" readonly style="width:100%;height:160px;font-family:Consolas,monospace;font-size:12px;" onclick="this.select()"></textarea>
@@ -5486,6 +5505,7 @@ const SEM3_BATCH3_CH25 = [
       $('#rdash-table').innerHTML = '<p class="empty">No submissions yet.</p>';
       window._rdashStudents = [];
       fillChecklistPicker([], semF, grpF);
+      renderTestsDash(semF, grpF);
       return;
     }
 
@@ -5522,6 +5542,7 @@ const SEM3_BATCH3_CH25 = [
 
     window._rdashStudents = students;
     fillChecklistPicker(students, semF, grpF);
+    renderTestsDash(semF, grpF);
   }
 
   // ---------- per-student topic checklist ----------
@@ -5985,6 +6006,72 @@ const NOTES_EXTRA = (function(){
   }
   function ttIdsToQuestions(ids){ return ids.map(id => bank.find(q=>q.id===id)).filter(Boolean); }
 
+  // ----- attempts: saved locally first, then sent to the Google Sheet (retried until it succeeds) -----
+  const TT_LOCAL_KEY = 'physiq-test-attempts';
+  const fmtDur = sec => {
+    sec = Math.round(Number(sec)||0);
+    const m = Math.floor(sec/60), r = sec % 60;
+    return m ? `${m}m ${String(r).padStart(2,'0')}s` : `${r}s`;
+  };
+  function ttLocal(){ try{ return JSON.parse(localStorage.getItem(TT_LOCAL_KEY)||'[]'); }catch(e){ return []; } }
+  function ttLocalSave(arr){ try{ localStorage.setItem(TT_LOCAL_KEY, JSON.stringify(arr.slice(-300))); }catch(e){} }
+  async function ttSync(){
+    if (!GAS_READY) return false;
+    const arr = ttLocal(); let changed = false, allOk = true;
+    for (const a of arr){
+      if (a.synced) continue;
+      try{
+        const res = await fetch(GAS_WEBAPP_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+          body: JSON.stringify({action:'append-test', key:'tt-append-compat', value:'', row:a.row})});
+        const j = await res.json();
+        if (j && j.ok){ a.synced = true; changed = true; } else allOk = false;
+      }catch(e){ allOk = false; }
+    }
+    if (changed) ttLocalSave(arr);
+    return allOk;
+  }
+  // All attempts: the Google Sheet is authoritative; anything not yet uploaded from this device is added.
+  async function ttLoadAll(){
+    let remote = null;
+    if (GAS_READY){
+      try{
+        const res = await fetch(GAS_WEBAPP_URL + '?action=list-tests');
+        const j = await res.json();
+        if (j && j.ok && Array.isArray(j.rows)) remote = j.rows;
+      }catch(e){}
+    }
+    const norm = r => {
+      const o = Object.assign({}, r);
+      ['byTopic','perQuestion'].forEach(k=>{ if (typeof o[k] === 'string'){ try{ o[k] = JSON.parse(o[k]); }catch(e){ o[k] = null; } } });
+      ['semester','score','total','percentage','durationSec','elapsedSec'].forEach(k=>{ o[k] = Number(o[k]) || 0; });
+      o.timestamp = o.timestamp ? new Date(o.timestamp).toISOString() : '';
+      return o;
+    };
+    const map = {};
+    (remote || []).forEach(r=>{ map[String(r.id)] = norm(r); });
+    ttLocal().forEach(a=>{ if (!map[String(a.row.id)]) map[String(a.row.id)] = norm(a.row); });
+    return {rows: Object.values(map).sort((a,b)=> String(b.timestamp).localeCompare(String(a.timestamp))), remoteOk: remote !== null};
+  }
+
+  // ----- who is taking the test -----
+  function ttSyncNameField(){
+    const b = $('#tt-batch').value, wrap = $('#tt-name-wrap');
+    if (!b){ wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    if (b === 'Guest'){ $('#tt-pick').style.display = 'none'; $('#tt-name').style.display = ''; }
+    else {
+      $('#tt-name').style.display = 'none'; $('#tt-pick').style.display = '';
+      $('#tt-pick').innerHTML = '<option value="">Choose your name…</option>' + ROSTER[b].map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    }
+  }
+  const ttGetName = () => ($('#tt-batch').value === 'Guest' ? $('#tt-name').value : $('#tt-pick').value).trim();
+  try{
+    const sb = localStorage.getItem('physiq-tests-batch');
+    if (sb && Array.from($('#tt-batch').options).some(o=>o.value===sb)) $('#tt-batch').value = sb;
+  }catch(e){}
+  $('#tt-batch').addEventListener('change', ()=>{ try{ localStorage.setItem('physiq-tests-batch', $('#tt-batch').value); }catch(e){} ttSyncNameField(); });
+  ttSyncNameField();
+
   function populateTestsPanel(){
     const sem = String(currentSemester || '1');
     const best = ttBest();
@@ -6012,9 +6099,17 @@ const NOTES_EXTRA = (function(){
     const ids = kind === 'c' ? TEST_SETS.chapters[key] : TEST_SETS.sets[key.split(':')[0]][key.split(':')[1]];
     const questions = ttIdsToQuestions(ids || []);
     if (!questions.length){ alert('This test is not available right now.'); return; }
+    const who = ttGetName(), batch = $('#tt-batch').value;
+    if (!batch || !who){
+      $('#tt-status').textContent = batch ? (batch === 'Guest' ? 'Please type your full name first.' : 'Please choose your name from the list.') : 'Please choose your batch and name first.';
+      $('#tt-status').style.color = 'var(--red)';
+      $('#tt-batch').scrollIntoView({block:'center', behavior:'smooth'});
+      return;
+    }
+    $('#tt-status').textContent = '';
     const sem = key.split(':')[0];
     const title = kind === 'c' ? ('Chapter ' + key.split(':')[1] + ' test') : ('Semester ' + sem + ' · Set ' + key.split(':')[1]);
-    ttState = {kind, key, sem:parseInt(sem,10), title, questions, index:0, correct:0, answers:[]};
+    ttState = {kind, key, sem:parseInt(sem,10), title, questions, index:0, correct:0, answers:[], who, batch, startedAt:Date.now(), qShownAt:0};
     $('#tt-home').style.display = 'none';
     $('#tt-summary-card').style.display = 'none';
     $('#tt-quiz-card').style.display = 'block';
@@ -6033,10 +6128,12 @@ const NOTES_EXTRA = (function(){
     const el = $('#tt-choices');
     el.innerHTML = q.options.map((o,i)=>`<button class="rchoice" data-idx="${i}">${String.fromCharCode(65+i)}. ${mathify(escapeHtml(o))}</button>`).join('');
     $('#tt-next-btn').style.display = 'none';
+    ttState.qShownAt = Date.now();
     el.querySelectorAll('.rchoice').forEach(btn=>btn.addEventListener('click', ()=>{
       const sel = parseInt(btn.dataset.idx,10), ok = sel === q.correctIndex;
+      const secs = Math.round((Date.now() - ttState.qShownAt)/1000);
       if (ok) ttState.correct++;
-      ttState.answers.push({q, selected:sel, correct:ok});
+      ttState.answers.push({q, selected:sel, correct:ok, secs});
       el.querySelectorAll('.rchoice').forEach((b,i)=>{ b.disabled = true; if (i === sel) b.classList.add('picked'); });
       $('#tt-next-btn').style.display = 'inline-block';
       $('#tt-next-btn').textContent = (index === questions.length-1) ? 'Finish test →' : 'Next question →';
@@ -6071,6 +6168,23 @@ const NOTES_EXTRA = (function(){
     $('#tt-score-total').textContent = total;
     $('#tt-score-label').textContent = `${Math.round(got/total*100)}% correct — ${st.title}`;
     ttSaveBest((st.kind === 'c' ? 'c:' : 's:') + st.key, got, total);
+    const answerSecs = st.answers.reduce((n,a)=>n+(a.secs||0),0), elapsed = Math.round((Date.now()-st.startedAt)/1000);
+    $('#tt-score-label').textContent += ` · time ${fmtDur(answerSecs)}`;
+    const dcount = d => { const x = st.answers.filter(a=>a.q.difficulty===d); return x.filter(a=>a.correct).length + '/' + x.length; };
+    const tkey = {}; st.answers.forEach(a=>{ const t = tkey[a.q.topic] = tkey[a.q.topic] || {correct:0,total:0}; t.total++; if (a.correct) t.correct++; });
+    const row = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,8),
+      timestamp: new Date().toISOString(), name: st.who, batch: st.batch,
+      group: st.batch === 'Guest' ? 'Guest' : 'Batch ' + st.batch,
+      semester: st.sem, kind: st.kind === 'c' ? 'chapter' : 'semester',
+      test: st.kind === 'c' ? 'Ch ' + st.key.split(':')[1] : 'Set ' + st.key.split(':')[1],
+      title: st.title, score: got, total, percentage: Math.round(got/total*100),
+      durationSec: answerSecs, elapsedSec: elapsed,
+      easy: dcount('easy'), medium: dcount('medium'), hard: dcount('hard'),
+      byTopic: tkey, perQuestion: st.answers.map(a=>({id:a.q.id, ok:a.correct?1:0, s:a.secs||0}))
+    };
+    const loc = ttLocal(); loc.push({row, synced:false}); ttLocalSave(loc);
+    ttSync();
 
     const bar = (name, v) => `<div class="bd-row"><span class="bd-topic">${name}</span><div class="bd-bar"><div class="bd-fill" style="width:${v.total ? v.correct/v.total*100 : 0}%"></div></div><span class="bd-frac">${v.correct}/${v.total}</span></div>`;
     const byD = {easy:{correct:0,total:0}, medium:{correct:0,total:0}, hard:{correct:0,total:0}};
@@ -6108,6 +6222,69 @@ const NOTES_EXTRA = (function(){
     $('#tt-review').innerHTML = `<h3 style="margin:18px 0 6px;color:var(--navy);">Full review</h3><p class="status-msg" style="margin:0 0 4px;">Wrong answers are opened for you. Tap any question for the worked solution.</p>${rows}`;
     window.scrollTo(0,0);
   }
+
+  // ----- teacher view of chapter / semester tests -----
+  async function renderTestsDash(semF, grpF){
+    const box = $('#tdash-matrix'); if (!box) return;
+    box.innerHTML = '<p class="status-msg">Loading…</p>';
+    await ttSync();
+    const {rows, remoteOk} = await ttLoadAll();
+    $('#tdash-sync').textContent = remoteOk ? 'Synced with Google Sheet' : 'Google Sheet not reachable — showing this device only';
+    const grpOf = r => r.group || 'Guest';
+    const att = rows.filter(r => (!semF || String(r.semester) === semF) && (!grpF || grpOf(r) === grpF));
+    window._tdashRows = att;
+    let html = '';
+    [1,2,3].forEach(sem=>{
+      if (semF && String(sem) !== semF) return;
+      const mine = att.filter(r=>r.semester === sem);
+      // students: those with attempts, plus class-list students who have none yet
+      const st = {};
+      mine.forEach(r=>{ const k = normName(r.name); st[k] = st[k] || {name:r.name, group:grpOf(r), att:[]}; st[k].att.push(r); });
+      Object.keys(ROSTER).forEach(b=>{
+        const g = 'Batch ' + b; if (grpF && grpF !== g) return;
+        ROSTER[b].forEach(n=>{ const k = normName(n); if (!st[k]) st[k] = {name:n, group:g, att:[]}; });
+      });
+      const list = Object.values(st).sort((a,b)=>a.group.localeCompare(b.group) || a.name.localeCompare(b.name));
+      if (!list.length) return;
+      const chKeys = Object.keys(TEST_SETS.chapters).filter(k=>k.split(':')[0] === String(sem)).sort((a,b)=>parseInt(a.split(':')[1],10)-parseInt(b.split(':')[1],10));
+      const cols = chKeys.map(k=>({label:'Ch '+k.split(':')[1], test:'Ch '+k.split(':')[1], kind:'chapter'})).concat(['A','B','C'].map(n=>({label:'Set '+n, test:'Set '+n, kind:'semester'})));
+      const th = (t)=>`<th style="padding:6px 6px;text-align:center;white-space:nowrap;">${t}</th>`;
+      const body = list.map(s=>{
+        const cells = cols.map(c=>{
+          const a = s.att.filter(r=>r.kind === c.kind && r.test === c.test);
+          if (!a.length) return '<td style="padding:6px;text-align:center;color:var(--sub);">—</td>';
+          const best = a.reduce((m,r)=> r.percentage > m.percentage ? r : m, a[0]);
+          return `<td style="padding:6px;text-align:center;white-space:nowrap;background:${best.percentage>=75?'#e6f4ea':best.percentage>=50?'#fff6e0':'#fdeaea'};" title="${a.length} attempt(s)"><b>${best.percentage}%</b><br><span style="font-size:11px;">${fmtDur(best.durationSec)}${a.length>1?' · ×'+a.length:''}</span></td>`;
+        }).join('');
+        const done = cols.filter(c=>s.att.some(r=>r.kind===c.kind && r.test===c.test)).length;
+        const totT = s.att.reduce((n,r)=>n+r.durationSec,0);
+        return `<tr style="border-bottom:1px solid var(--line);"><td style="padding:6px 8px;font-weight:700;color:var(--navy);white-space:nowrap;position:sticky;left:0;background:var(--card,#fff);">${escapeHtml(s.name)}<br><span style="font-weight:400;font-size:11px;color:var(--sub);">${escapeHtml(s.group)}</span></td>${cells}<td style="padding:6px;text-align:center;white-space:nowrap;"><b>${done}/${cols.length}</b><br><span style="font-size:11px;">${fmtDur(totT)}</span></td></tr>`;
+      }).join('');
+      // class average time per test
+      const avg = cols.map(c=>{
+        const a = mine.filter(r=>r.kind===c.kind && r.test===c.test);
+        return `<td style="padding:6px;text-align:center;font-size:12px;">${a.length ? fmtDur(a.reduce((n,r)=>n+r.durationSec,0)/a.length) : '—'}</td>`;
+      }).join('');
+      html += `<h4 style="margin:14px 0 6px;color:var(--navy);">Semester ${sem}</h4>
+        <table style="border-collapse:collapse;font-size:13px;min-width:100%;"><thead><tr style="border-bottom:2px solid var(--line);"><th style="padding:6px 8px;text-align:left;">Student</th>${cols.map(c=>th(c.label)).join('')}${th('Done / time')}</tr></thead>
+        <tbody>${body}<tr style="border-top:2px solid var(--line);"><td style="padding:6px 8px;font-weight:700;">Average time</td>${avg}<td></td></tr></tbody></table>`;
+    });
+    box.innerHTML = html || '<p class="empty">No chapter or semester test attempts yet.</p>';
+    const logRows = att.slice(0,60).map(r=>`<tr style="border-bottom:1px solid var(--line);"><td style="padding:5px 8px;white-space:nowrap;">${escapeHtml(new Date(r.timestamp).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}))}</td><td style="padding:5px 8px;">${escapeHtml(r.name)}</td><td style="padding:5px 8px;">S${r.semester}</td><td style="padding:5px 8px;white-space:nowrap;">${escapeHtml(r.test)}</td><td style="padding:5px 8px;white-space:nowrap;">${r.score}/${r.total} (${r.percentage}%)</td><td style="padding:5px 8px;white-space:nowrap;">${fmtDur(r.durationSec)}</td></tr>`).join('');
+    $('#tdash-log').innerHTML = att.length ? `<table style="border-collapse:collapse;font-size:12.5px;width:100%;"><thead><tr style="text-align:left;border-bottom:2px solid var(--line);"><th style="padding:5px 8px;">When</th><th style="padding:5px 8px;">Student</th><th style="padding:5px 8px;">Sem</th><th style="padding:5px 8px;">Test</th><th style="padding:5px 8px;">Score</th><th style="padding:5px 8px;">Time</th></tr></thead><tbody>${logRows}</tbody></table>` : '';
+  }
+  $('#tdash-export').addEventListener('click', ()=>{
+    const rows = window._tdashRows || [];
+    const q = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
+    const head = ['Timestamp','Name','Batch / group','Semester','Kind','Test','Score','Total','Percent','Time (sec)','Elapsed (sec)','Easy','Medium','Hard'];
+    const csv = [head.map(q).join(',')].concat(rows.map(r=>[r.timestamp,r.name,r.group,r.semester,r.kind,r.test,r.score,r.total,r.percentage,r.durationSec,r.elapsedSec,r.easy,r.medium,r.hard].map(q).join(','))).join('\n');
+    try{
+      const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'physiq-chapter-semester-tests.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+    }catch(e){ $('#rdash-csv-text').value = csv; $('#rdash-csv-fallback').style.display = 'block'; }
+  });
+  ttSync();   // upload anything saved earlier on this device that did not reach the sheet
 
   // Teacher tab is hidden from students; open the app with ?teacher=1 once to reveal it on this device.
   try{
