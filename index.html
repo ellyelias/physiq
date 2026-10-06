@@ -534,6 +534,10 @@
       </div>
       <div id="rdash-summary" style="margin-top:14px;"></div>
       <div id="rdash-table" style="margin-top:14px;overflow-x:auto;"></div>
+      <h3 style="margin:22px 0 6px;color:var(--navy);">Student checklist</h3>
+      <p class="status-msg" style="margin:0 0 8px;">Pick a student to see every topic in their semester: whether the Pretest and Posttest have been taken, and whether each topic was answered correctly.</p>
+      <select id="rdash-cl-pick"><option value="">Choose a student…</option></select>
+      <div id="rdash-checklist" style="margin-top:12px;overflow-x:auto;"></div>
       <div id="rdash-csv-fallback" style="display:none;margin-top:14px;">
         <label>Download isn't available in this view — select all the text below (tap it, then "Select all") and copy it into Excel/Google Sheets as CSV.</label>
         <textarea id="rdash-csv-text" readonly style="width:100%;height:160px;font-family:Consolas,monospace;font-size:12px;" onclick="this.select()"></textarea>
@@ -5435,6 +5439,7 @@ const SEM3_BATCH3_CH25 = [
     if (!students.length){
       $('#rdash-table').innerHTML = '<p class="empty">No submissions yet.</p>';
       window._rdashStudents = [];
+      fillChecklistPicker([], semF, grpF);
       return;
     }
 
@@ -5470,7 +5475,56 @@ const SEM3_BATCH3_CH25 = [
     `;
 
     window._rdashStudents = students;
+    fillChecklistPicker(students, semF, grpF);
   }
+
+  // ---------- per-student topic checklist ----------
+  function fillChecklistPicker(students0, semF, grpF){
+    // Add class-list students who have not taken anything yet, so "not started" is visible too.
+    const students = students0.slice();
+    Object.keys(ROSTER).forEach(b=>{
+      const g = 'Batch ' + b;
+      if (grpF && grpF !== g) return;
+      [1,2,3].forEach(sem=>{
+        if (semF && String(sem) !== semF) return;
+        ROSTER[b].forEach(n=>{
+          if (!students.some(x=>normName(x.name) === normName(n) && x.semester === sem))
+            students.push({name:n, semester:sem, group:g, pretest:null, posttest:null});
+        });
+      });
+    });
+    students.sort((a,b)=> a.semester - b.semester || a.name.localeCompare(b.name));
+    window._rdashCL = students;
+    const sel = $('#rdash-cl-pick'), prev = sel.value;
+    sel.innerHTML = '<option value="">Choose a student…</option>' + students.map((s,i)=>
+      `<option value="${i}">${escapeHtml(s.name)} — Sem ${s.semester} · ${escapeHtml(s.group)}</option>`).join('');
+    if (prev && students[parseInt(prev,10)]) sel.value = prev;  // index may shift when filters change; harmless
+    renderChecklist();
+  }
+
+  function renderChecklist(){
+    const box = $('#rdash-checklist'), i = $('#rdash-cl-pick').value;
+    const s = (window._rdashCL || [])[parseInt(i,10)];
+    if (!s){ box.innerHTML = ''; return; }
+    const topics = topicsForSemester(String(s.semester));
+    const cell = (rec, t)=>{
+      if (!rec) return '<span style="color:var(--sub);">Not taken</span>';
+      const v = rec.byTopic && rec.byTopic[t];
+      if (!v) return '<span style="color:var(--sub);">—</span>';
+      return v.correct >= v.total ? '<b style="color:#2e7d32;">✓ Correct</b>' : '<b style="color:#c62828;">✗ Wrong</b>';
+    };
+    const cnt = rec => rec ? topics.filter(t=>rec.byTopic && rec.byTopic[t] && rec.byTopic[t].correct >= rec.byTopic[t].total).length : null;
+    const stat = (lbl, rec)=> `<div style="flex:1 1 150px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;"><b>${lbl}</b><br>${rec ? `Taken · ${rec.score}/${rec.total} (${rec.percentage}%)<br>${cnt(rec)} of ${topics.length} topics correct` : '<span style="color:#c62828;">Not taken yet</span>'}</div>`;
+    let lastG = '', rows = '';
+    topics.forEach(t=>{
+      const g = chapterGroupLabel(t);
+      if (g !== lastG){ lastG = g; rows += `<tr><td colspan="3" style="padding:8px 8px 4px;font-weight:700;color:var(--navy);background:var(--bg,#f4f6fb);">${escapeHtml(g)}</td></tr>`; }
+      rows += `<tr style="border-bottom:1px solid var(--line);"><td style="padding:6px 8px;">${escapeHtml(stripSem(t))}</td><td style="padding:6px 8px;white-space:nowrap;">${cell(s.pretest,t)}</td><td style="padding:6px 8px;white-space:nowrap;">${cell(s.posttest,t)}</td></tr>`;
+    });
+    box.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">${stat('Pretest', s.pretest)}${stat('Posttest', s.posttest)}</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="text-align:left;border-bottom:2px solid var(--line);"><th style="padding:6px 8px;">Topic</th><th style="padding:6px 8px;">Pretest</th><th style="padding:6px 8px;">Posttest</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+  $('#rdash-cl-pick').addEventListener('change', renderChecklist);
 
   $('#rdash-f-sem').addEventListener('change', renderDashboard);
   $('#rdash-f-group').addEventListener('change', renderDashboard);
