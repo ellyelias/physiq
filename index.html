@@ -467,6 +467,7 @@
         <input type="text" id="tt-name" placeholder="Type your full name" style="display:none;">
       </div>
       <p class="status-msg" id="tt-status" style="margin:8px 0 0;"></p>
+      <div id="tt-my" style="display:none;"></div>
       <h3 style="margin:16px 0 6px;color:var(--navy);">Chapter tests — <span id="tt-sem-label"></span></h3>
       <div id="tt-chapter-list"></div>
       <h3 style="margin:22px 0 6px;color:var(--navy);">Semester tests — <span id="tt-sem-label2"></span></h3>
@@ -5145,6 +5146,36 @@ const SEM3_BATCH3_CH25 = [
   function rtLoadProgress(name,type,sem){
     try{ const v = localStorage.getItem(rtProgKey(name,type,sem)); return v ? JSON.parse(v) : null; }catch(e){ return null; }
   }
+  // Permanent device log of finished research tests (never overwritten by the server copy), so a result
+  // whose upload failed or was lost can be sent again the next time the app opens.
+  const rtRecKey = r => [r.name, r.type, r.semester || 1, r.timestamp].join('|');
+  function rtLogResult(rec){
+    try{
+      const log = JSON.parse(localStorage.getItem('physiq-research-log') || '[]');
+      if (!log.some(r => rtRecKey(r) === rtRecKey(rec))) log.push(rec);
+      localStorage.setItem('physiq-research-log', JSON.stringify(log.slice(-100)));
+    }catch(e){}
+  }
+  let rtResyncing = false;
+  async function rtResync(){
+    if (!GAS_READY || rtResyncing) return;
+    let log = []; try{ log = JSON.parse(localStorage.getItem('physiq-research-log') || '[]'); }catch(e){}
+    if (!log.length) return;
+    rtResyncing = true;
+    try{
+      const res = await fetch(GAS_WEBAPP_URL + '?action=get&key=test-results');
+      const j = await res.json();
+      if (!(j && j.ok)) return;
+      let remote = []; try{ remote = j.value ? JSON.parse(j.value) : []; }catch(e){ return; }
+      const have = new Set(remote.map(rtRecKey));
+      const missing = log.filter(r => !have.has(rtRecKey(r)));
+      if (!missing.length) return;
+      // full list (server copy + missing ones), so this is safe whichever script version is deployed
+      await fetch(GAS_WEBAPP_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({key:'test-results', value: JSON.stringify(remote.concat(missing))})});
+    }catch(e){} finally { rtResyncing = false; }
+  }
+  setTimeout(rtResync, 2500);
+  window.addEventListener('online', ()=>rtResync());
   function rtClearProgress(s){ try{ localStorage.removeItem(rtProgKey(s.name,s.type,s.semester)); }catch(e){} }
 
   async function loadTestResults(){
@@ -5466,6 +5497,8 @@ const SEM3_BATCH3_CH25 = [
       timestamp: new Date().toISOString()
     });
     await saveTestResults(results);
+    rtLogResult(results[results.length-1]);
+    rtResync();
     rtClearProgress(rtestState);
   }
 
@@ -6132,30 +6165,104 @@ const NOTES_EXTRA = (function(){
     const sb = localStorage.getItem('physiq-tests-batch');
     if (sb && Array.from($('#tt-batch').options).some(o=>o.value===sb)) $('#tt-batch').value = sb;
   }catch(e){}
-  $('#tt-batch').addEventListener('change', ()=>{ try{ localStorage.setItem('physiq-tests-batch', $('#tt-batch').value); }catch(e){} ttSyncNameField(); });
+  $('#tt-batch').addEventListener('change', ()=>{ try{ localStorage.setItem('physiq-tests-batch', $('#tt-batch').value); }catch(e){} ttSyncNameField(); try{ populateTestsPanel(); }catch(e){} });
   ttSyncNameField();
+  try{   // remember the last name chosen on this device (a shared phone can simply pick another name)
+    const sn = localStorage.getItem('physiq-tests-name');
+    if (sn){ if ($('#tt-batch').value === 'Guest') $('#tt-name').value = sn; else if (Array.from($('#tt-pick').options).some(o=>o.value===sn)) $('#tt-pick').value = sn; }
+  }catch(e){}
+  const ttNameChanged = ()=>{ try{ localStorage.setItem('physiq-tests-name', ttGetName()); }catch(e){} try{ populateTestsPanel(); }catch(e){} };
+  $('#tt-pick').addEventListener('change', ttNameChanged);
+  $('#tt-name').addEventListener('change', ttNameChanged);
 
-  function populateTestsPanel(){
+  // Per-student view of the chapter/semester tests (from the synced attempts + this device).
+  async function ttMine(){
+    const who = ttGetName(); if (!who) return null;
+    const {rows} = await ttLoadAll();
+    const mine = rows.filter(r => normName(r.name) === normName(who));
+    const stats = {};
+    mine.slice().sort((a,b)=>String(a.timestamp).localeCompare(String(b.timestamp))).forEach(r=>{
+      const t = String(r.test || '');
+      const key = r.kind === 'chapter' ? 'c:' + r.semester + ':' + t.replace(/^Ch\s*/,'') : 's:' + r.semester + ':' + t.replace(/^Set\s*/,'');
+      const s = stats[key] = stats[key] || {n:0, best:null, last:null, secs:0};
+      s.n++; s.secs += Number(r.durationSec) || 0;
+      if (!s.best || r.score > s.best.score) s.best = {score:r.score, total:r.total};
+      s.last = {score:r.score, total:r.total, ts:r.timestamp};
+    });
+    let research = [];
+    try{ research = (await loadTestResults()).filter(r => normName(r.name) === normName(who)); }catch(e){}
+    return {who, rows:mine, stats, research};
+  }
+  const ttDay = ts => { try{ return new Date(ts).toLocaleDateString('en-GB',{day:'numeric', month:'short'}); }catch(e){ return ''; } };
+  const ttTone = pct => pct >= 70 ? '#15803d' : pct >= 50 ? '#b45309' : '#b91c1c';
+
+  function renderTestLists(m){
     const sem = String(currentSemester || '1');
     const best = ttBest();
     $('#tt-sem-label').textContent = 'Semester ' + sem;
     $('#tt-sem-label2').textContent = 'Semester ' + sem;
+    const line = (key, devKey) => {
+      const s = m && m.stats[key];
+      if (s){
+        const pct = Math.round(s.best.score / s.best.total * 100);
+        return `<br><span style="font-weight:400;font-size:12px;color:var(--sub);"><b style="color:${ttTone(pct)};">&#10003; Best ${s.best.score}/${s.best.total}</b> · tried ${s.n}× · last ${s.last.score}/${s.last.total} (${ttDay(s.last.ts)}) · avg ${fmtDur(Math.round(s.secs / s.n))}</span>`;
+      }
+      if (m) return `<br><span style="font-weight:400;font-size:12px;color:var(--sub);">&#9675; Not tried yet</span>`;
+      const b = best[devKey];
+      return b ? `<br><span style="font-weight:400;font-size:12px;color:var(--sub);">Best: ${b.score}/${b.total}</span>` : '';
+    };
+    const btn = (kind, key, mk) => `<button class="btn-primary tt-start" data-kind="${kind}" data-key="${key}" style="padding:6px 14px;font-size:13px;">${m && m.stats[mk] ? 'Try again' : 'Start test'}</button>`;
     const keys = Object.keys(TEST_SETS.chapters).filter(k=>k.split(':')[0] === sem).sort((a,b)=>parseInt(a.split(':')[1],10)-parseInt(b.split(':')[1],10));
     $('#tt-chapter-list').innerHTML = keys.map(k=>{
       const first = bank.find(q=>q.id === TEST_SETS.chapters[k][0]);
       const label = first ? chapterGroupLabel(first.topic) : 'Chapter ' + k.split(':')[1];
-      const b = best['c:'+k];
       return `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);">
-        <span style="flex:1 1 200px;font-weight:700;color:var(--navy);">${escapeHtml(label)}${b ? `<br><span style="font-weight:400;font-size:12px;color:var(--sub);">Best: ${b.score}/${b.total}</span>` : ''}</span>
-        <button class="btn-primary tt-start" data-kind="c" data-key="${k}" style="padding:6px 14px;font-size:13px;">Start test</button></div>`;
+        <span style="flex:1 1 200px;font-weight:700;color:var(--navy);">${escapeHtml(label)}${line('c:'+k, 'c:'+k)}</span>
+        ${btn('c', k, 'c:'+k)}</div>`;
     }).join('');
     $('#tt-sem-list').innerHTML = ['A','B','C'].map(n=>{
-      const b = best['s:'+sem+':'+n];
       return `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);">
-        <span style="flex:1 1 200px;font-weight:700;color:var(--navy);">Semester ${sem} — Set ${n}${b ? `<br><span style="font-weight:400;font-size:12px;color:var(--sub);">Best: ${b.score}/${b.total}</span>` : ''}</span>
-        <button class="btn-primary tt-start" data-kind="s" data-key="${sem}:${n}" style="padding:6px 14px;font-size:13px;">Start test</button></div>`;
+        <span style="flex:1 1 200px;font-weight:700;color:var(--navy);">Semester ${sem} — Set ${n}${line('s:'+sem+':'+n, 's:'+sem+':'+n)}</span>
+        ${btn('s', sem+':'+n, 's:'+sem+':'+n)}</div>`;
     }).join('');
-    $$('#panel-tests .tt-start').forEach(btn=>btn.addEventListener('click', ()=>startTest(btn.dataset.kind, btn.dataset.key)));
+    $$('#panel-tests .tt-start').forEach(b=>b.addEventListener('click', ()=>startTest(b.dataset.kind, b.dataset.key)));
+  }
+
+  function renderMyChecklist(m){
+    const box = $('#tt-my');
+    if (!m){ box.style.display = 'none'; box.innerHTML = ''; return; }
+    const sem = String(currentSemester || '1');
+    const nCh = Object.keys(TEST_SETS.chapters).filter(k=>k.split(':')[0] === sem).length;
+    const doneCh = Object.keys(m.stats).filter(k=>k.startsWith('c:'+sem+':')).length;
+    const doneSet = Object.keys(m.stats).filter(k=>k.startsWith('s:'+sem+':')).length;
+    const tick = (r) => r ? `<b style="color:#15803d;">&#10003; ${r.percentage}%</b>` : '<span style="color:var(--sub);">&#9675; not yet</span>';
+    const resRows = [1,2,3].map(s=>{
+      const pre = m.research.find(r=>(parseInt(r.semester,10)||1) === s && r.type === 'pretest');
+      const post = m.research.find(r=>(parseInt(r.semester,10)||1) === s && r.type === 'posttest');
+      return `<tr><td style="padding:4px 10px 4px 0;">Semester ${s}</td><td style="padding:4px 10px 4px 0;">${tick(pre)}</td><td style="padding:4px 0;">${tick(post)}</td></tr>`;
+    }).join('');
+    const tp = {};
+    m.rows.filter(r=>String(r.semester) === sem && r.byTopic).forEach(r=>{
+      Object.keys(r.byTopic).forEach(t=>{ const x = tp[t] = tp[t] || {correct:0,total:0}; x.correct += r.byTopic[t].correct||0; x.total += r.byTopic[t].total||0; });
+    });
+    const weak = Object.keys(tp).filter(t=>tp[t].total >= 2 && tp[t].correct/tp[t].total < 0.6)
+      .sort((a,b)=>tp[a].correct/tp[a].total - tp[b].correct/tp[b].total).slice(0,6);
+    box.style.display = 'block';
+    box.innerHTML = `<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#F8FAFC;">
+      <div style="font-weight:700;color:var(--navy);margin-bottom:6px;">My checklist — ${escapeHtml(m.who)}</div>
+      <div style="font-size:13px;margin-bottom:8px;">Semester ${sem}: chapter tests <b>${doneCh} / ${nCh}</b> tried · semester sets <b>${doneSet} / 3</b> tried</div>
+      <table style="font-size:13px;border-collapse:collapse;"><thead><tr style="text-align:left;color:var(--sub);"><th style="padding:2px 10px 4px 0;font-weight:600;">Research test</th><th style="padding:2px 10px 4px 0;font-weight:600;">Pretest</th><th style="padding:2px 0 4px;font-weight:600;">Posttest</th></tr></thead><tbody>${resRows}</tbody></table>
+      <div style="font-size:12px;color:var(--sub);margin-top:4px;">Pretest and posttest can only be taken once. Chapter and semester tests below can be repeated; your best score is kept.</div>
+      ${weak.length ? `<div style="font-size:13px;margin-top:8px;"><b>Topics to revise</b> (below 60% across your tests):<br>${weak.map(t=>escapeHtml(stripSem(t)) + ` <span style="color:var(--sub);">(${tp[t].correct}/${tp[t].total})</span>`).join(' · ')}</div>` : ''}
+    </div>`;
+  }
+
+  let ttPanelSeq = 0;
+  function populateTestsPanel(){
+    renderTestLists(null);
+    renderMyChecklist(null);
+    const seq = ++ttPanelSeq;
+    ttMine().then(m=>{ if (seq !== ttPanelSeq) return; renderTestLists(m); renderMyChecklist(m); }).catch(()=>{});
   }
 
   function startTest(kind, key){
