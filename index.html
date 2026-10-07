@@ -5132,6 +5132,20 @@ const SEM3_BATCH3_CH25 = [
   };
   const TEACHER_PIN = '2026';
   let rtestState = null;
+  // Unfinished pretest/posttest is kept on this device so a student who leaves can continue from the same question.
+  const rtProgKey = (name,type,sem) => 'physiq-rtest-progress:' + normName(name) + '|' + type + '|' + sem;
+  function rtSaveProgress(){
+    try{
+      const s = rtestState; if (!s) return;
+      localStorage.setItem(rtProgKey(s.name,s.type,s.semester), JSON.stringify({
+        name:s.name, batch:s.batch, type:s.type, semester:s.semester, group:s.group,
+        ids:s.questions.map(q=>q.id), index:s.index, answers:s.answers, savedAt:Date.now()}));
+    }catch(e){}
+  }
+  function rtLoadProgress(name,type,sem){
+    try{ const v = localStorage.getItem(rtProgKey(name,type,sem)); return v ? JSON.parse(v) : null; }catch(e){ return null; }
+  }
+  function rtClearProgress(s){ try{ localStorage.removeItem(rtProgKey(s.name,s.type,s.semester)); }catch(e){} }
 
   async function loadTestResults(){
     try{
@@ -5240,6 +5254,26 @@ const SEM3_BATCH3_CH25 = [
       return;
     }
     const typeLabel = type === 'pretest' ? 'Pretest' : 'Posttest';
+    // Continue an unfinished test (same questions, same answers) instead of starting again.
+    const saved = rtLoadProgress(name, type, semester);
+    if (saved && Array.isArray(saved.answers) && saved.answers.length > 0 &&
+        saved.ids.length === questions.length && saved.ids.every((id,i)=>id===questions[i].id) &&
+        saved.answers.length <= questions.length){
+      const at = Math.min(saved.index, questions.length - 1);
+      let go = true;
+      try{ go = window.confirm(`You have an unfinished ${SEM_META[semester].label} ${typeLabel}.\n\nContinue from question ${at+1} of ${questions.length}?\n\n(Your earlier answers are kept.)`); }catch(e){}
+      if (!go){ status.textContent = ''; return; }
+      status.textContent = '';
+      rtestState = {type, name: name.trim(), batch, semester, group: batch === 'Guest' ? 'Guest' : 'Batch ' + batch, questions,
+        index:at, correctCount: saved.answers.filter(a=>a && a.correct).length, answers: saved.answers};
+      $('#rtest-intro').style.display = 'none';
+      $('#rteacher-lock-card').style.display = 'none';
+      $('#rteacher-dash-card').style.display = 'none';
+      $('#rtest-summary-card').style.display = 'none';
+      $('#rtest-quiz-card').style.display = 'block';
+      renderResearchQuestion();
+      return;
+    }
     let ok = true;
     try{ ok = window.confirm(`Start the ${SEM_META[semester].label} ${typeLabel}?\n\nName: ${name.trim()}\nBatch: ${batch}\n\nEach test can only be taken ONCE. Check your name is spelled correctly.`); }catch(e){}
     if (!ok){ status.textContent = ''; return; }
@@ -5288,6 +5322,13 @@ const SEM3_BATCH3_CH25 = [
     choicesEl.querySelectorAll('.rchoice').forEach(btn=>{
       btn.addEventListener('click', ()=> handleResearchAnswer(parseInt(btn.dataset.idx,10)));
     });
+    // Restoring an answer that was given before the student left (Next not pressed yet).
+    const had = rtestState.answers[index];
+    if (had && typeof had.selected === 'number'){
+      choicesEl.querySelectorAll('.rchoice').forEach((b,i)=>b.classList.toggle('picked', i === had.selected));
+      $('#rtest-next-btn').style.display = 'inline-block';
+      $('#rtest-next-btn').textContent = (index === questions.length-1) ? 'Finish test →' : 'Next question →';
+    }
   }
 
   function handleResearchAnswer(selectedIdx){
@@ -5307,6 +5348,7 @@ const SEM3_BATCH3_CH25 = [
 
     $('#rtest-next-btn').style.display = 'inline-block';
     $('#rtest-next-btn').textContent = (index === questions.length-1) ? 'Finish test →' : 'Next question →';
+    rtSaveProgress();
   }
 
   $('#rtest-next-btn').addEventListener('click', async ()=>{
@@ -5315,6 +5357,7 @@ const SEM3_BATCH3_CH25 = [
       $('#rtest-progress-fill').style.width = '100%';
       await finishResearchTest();
     } else {
+      rtSaveProgress();
       renderResearchQuestion();
     }
   });
@@ -5423,6 +5466,7 @@ const SEM3_BATCH3_CH25 = [
       timestamp: new Date().toISOString()
     });
     await saveTestResults(results);
+    rtClearProgress(rtestState);
   }
 
   // ---------- research: teacher dashboard ----------
