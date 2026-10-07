@@ -5294,14 +5294,15 @@ const SEM3_BATCH3_CH25 = [
     const {questions, index} = rtestState;
     const q = questions[index];
     const isCorrect = selectedIdx === q.correctIndex;
+    // Nothing is revealed during the test, so a mis-tap can be corrected until "Next" is pressed:
+    // one answer is kept per question (index-aligned), the last choice counts.
+    const prev = rtestState.answers[index];
+    if (prev && prev.correct) rtestState.correctCount--;
     if (isCorrect) rtestState.correctCount++;
-    rtestState.answers.push({topic:q.topic, correct:isCorrect, selected:selectedIdx});
+    rtestState.answers[index] = {topic:q.topic, correct:isCorrect, selected:selectedIdx};
 
-    // Pure test mode: no correct/incorrect reveal, no explanation —
-    // only mark which option the student picked, then let them move on.
     $('#rtest-choices').querySelectorAll('.rchoice').forEach((btn,i)=>{
-      btn.disabled = true;
-      if (i===selectedIdx) btn.classList.add('picked');
+      btn.classList.toggle('picked', i===selectedIdx);
     });
 
     $('#rtest-next-btn').style.display = 'inline-block';
@@ -6135,12 +6136,14 @@ const NOTES_EXTRA = (function(){
     el.innerHTML = q.options.map((o,i)=>`<button class="rchoice" data-idx="${i}">${String.fromCharCode(65+i)}. ${mathify(escapeHtml(o))}</button>`).join('');
     $('#tt-next-btn').style.display = 'none';
     ttState.qShownAt = Date.now();
+    let ansIdx = -1;   // the answer can be changed until "Next" is pressed (nothing is revealed during the test)
     el.querySelectorAll('.rchoice').forEach(btn=>btn.addEventListener('click', ()=>{
       const sel = parseInt(btn.dataset.idx,10), ok = sel === q.correctIndex;
       const secs = Math.round((Date.now() - ttState.qShownAt)/1000);
+      if (ansIdx >= 0){ if (ttState.answers[ansIdx].correct) ttState.correct--; ttState.answers[ansIdx] = {q, selected:sel, correct:ok, secs}; }
+      else { ansIdx = ttState.answers.length; ttState.answers.push({q, selected:sel, correct:ok, secs}); }
       if (ok) ttState.correct++;
-      ttState.answers.push({q, selected:sel, correct:ok, secs});
-      el.querySelectorAll('.rchoice').forEach((b,i)=>{ b.disabled = true; if (i === sel) b.classList.add('picked'); });
+      el.querySelectorAll('.rchoice').forEach((b,i)=>{ b.classList.toggle('picked', i === sel); });
       $('#tt-next-btn').style.display = 'inline-block';
       $('#tt-next-btn').textContent = (index === questions.length-1) ? 'Finish test →' : 'Next question →';
     }));
