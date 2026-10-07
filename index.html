@@ -383,6 +383,7 @@
       <div id="quiz-choices"></div>
       <div class="explain" id="quiz-explain"></div>
       <div class="btn-row">
+        <button class="btn-ghost" id="back-btn" style="display:none;">← Back</button>
         <button class="btn-primary" id="next-btn" style="display:none;">Next question →</button>
       </div>
     </div>
@@ -486,6 +487,7 @@
       <div class="dgfig" id="tt-diagram"></div>
       <div id="tt-choices"></div>
       <div class="btn-row">
+        <button class="btn-ghost" id="tt-back-btn" style="display:none;">← Back</button>
         <button class="btn-primary" id="tt-next-btn" style="display:none;">Next question →</button>
         <button class="btn-ghost" id="tt-quit-btn">Quit test</button>
       </div>
@@ -548,6 +550,7 @@
 <div class="dgfig" id="rtest-diagram"></div>
       <div id="rtest-choices"></div>
       <div class="btn-row">
+        <button class="btn-ghost" id="rtest-back-btn" style="display:none;">← Back</button>
         <button class="btn-primary" id="rtest-next-btn" style="display:none;">Next question →</button>
       </div>
     </div>
@@ -5022,14 +5025,20 @@ const SEM3_BATCH3_CH25 = [
     $$('.choice').forEach(btn=>{
       btn.addEventListener('click', ()=> handleAnswer(parseInt(btn.dataset.idx,10)));
     });
+    $('#back-btn').style.display = index > 0 ? 'inline-block' : 'none';
+    // A question already answered (student pressed Back) is shown again with its feedback; it cannot be re-scored.
+    const had = quizState.answers[index];
+    if (had && typeof had.selected === 'number') handleAnswer(had.selected, true);
   }
 
-  function handleAnswer(selectedIdx){
+  function handleAnswer(selectedIdx, replay){
     const {questions, index} = quizState;
     const q = questions[index];
     const isCorrect = selectedIdx === q.correctIndex;
-    if (isCorrect) quizState.correctCount++;
-    quizState.answers.push({topic:q.topic, correct:isCorrect});
+    if (!replay){
+      if (isCorrect) quizState.correctCount++;
+      quizState.answers.push({topic:q.topic, correct:isCorrect, selected:selectedIdx});
+    }
 
     $$('.choice').forEach((btn,i)=>{
       btn.disabled = true;
@@ -5058,6 +5067,9 @@ const SEM3_BATCH3_CH25 = [
     $('#next-btn').textContent = (index === questions.length-1) ? 'See results →' : 'Next question →';
   }
 
+  $('#back-btn').addEventListener('click', ()=>{
+    if (quizState.index > 0){ quizState.index--; renderQuestion(); window.scrollTo(0,0); }
+  });
   $('#next-btn').addEventListener('click', async ()=>{
     quizState.index++;
     if (quizState.index >= quizState.questions.length){
@@ -5354,6 +5366,7 @@ const SEM3_BATCH3_CH25 = [
       btn.addEventListener('click', ()=> handleResearchAnswer(parseInt(btn.dataset.idx,10)));
     });
     // Restoring an answer that was given before the student left (Next not pressed yet).
+    $('#rtest-back-btn').style.display = index > 0 ? 'inline-block' : 'none';
     const had = rtestState.answers[index];
     if (had && typeof had.selected === 'number'){
       choicesEl.querySelectorAll('.rchoice').forEach((b,i)=>b.classList.toggle('picked', i === had.selected));
@@ -5382,6 +5395,9 @@ const SEM3_BATCH3_CH25 = [
     rtSaveProgress();
   }
 
+  $('#rtest-back-btn').addEventListener('click', ()=>{
+    if (rtestState && rtestState.index > 0){ rtestState.index--; rtSaveProgress(); renderResearchQuestion(); window.scrollTo(0,0); }
+  });
   $('#rtest-next-btn').addEventListener('click', async ()=>{
     rtestState.index++;
     if (rtestState.index >= rtestState.questions.length){
@@ -6311,10 +6327,12 @@ const NOTES_EXTRA = (function(){
     el.innerHTML = q.options.map((o,i)=>`<button class="rchoice" data-idx="${i}">${String.fromCharCode(65+i)}. ${mathify(escapeHtml(o))}</button>`).join('');
     $('#tt-next-btn').style.display = 'none';
     ttState.qShownAt = Date.now();
+    $('#tt-back-btn').style.display = ttState.index > 0 ? 'inline-block' : 'none';
+    const baseSecs = ttState.answers.length > ttState.index ? (ttState.answers[ttState.index].secs || 0) : 0;   // time already spent when the question is revisited
     let ansIdx = ttState.answers.length > ttState.index ? ttState.index : -1;   // the answer can be changed until "Next" is pressed (nothing is revealed during the test)
     el.querySelectorAll('.rchoice').forEach(btn=>btn.addEventListener('click', ()=>{
       const sel = parseInt(btn.dataset.idx,10), ok = sel === q.correctIndex;
-      const secs = Math.round((Date.now() - ttState.qShownAt)/1000);
+      const secs = baseSecs + Math.round((Date.now() - ttState.qShownAt)/1000);
       if (ansIdx >= 0){ if (ttState.answers[ansIdx].correct) ttState.correct--; ttState.answers[ansIdx] = {q, selected:sel, correct:ok, secs}; }
       else { ansIdx = ttState.answers.length; ttState.answers.push({q, selected:sel, correct:ok, secs}); }
       if (ok) ttState.correct++;
@@ -6331,6 +6349,9 @@ const NOTES_EXTRA = (function(){
     }
   }
 
+  $('#tt-back-btn').addEventListener('click', ()=>{
+    if (ttState && ttState.index > 0){ ttState.index--; ttSaveProgress(); renderTestQuestion(); window.scrollTo(0,0); }
+  });
   $('#tt-next-btn').addEventListener('click', ()=>{
     ttState.index++;
     if (ttState.index >= ttState.questions.length) finishTest(); else { ttSaveProgress(); renderTestQuestion(); }
