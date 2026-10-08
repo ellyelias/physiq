@@ -26,6 +26,8 @@
  *   - a readable "ResearchTable" sheet (one row per pretest/posttest),
  *   - safe handling of many students submitting at the same time,
  *   - storage of values longer than one cell (Google limits a cell to 50,000 characters).
+ *   - an e-mail to the teacher each time a student finishes a test (see NOTIFY / TEACHER_EMAIL below;
+ *     run authorizeMail once to give permission).
  *
  * Re-deploying later (after editing this file again): Deploy -> Manage
  * deployments -> pencil icon -> New version -> Deploy. The URL stays the
@@ -35,6 +37,9 @@
 var SHEET_NAME = 'Results';
 var TESTS_SHEET = 'Tests';
 var RESEARCH_SHEET = 'ResearchTable';
+var NOTIFY = true;            // e-mail the teacher each time a student finishes a test
+var TEACHER_EMAIL = '';       // leave empty = the owner of this script; or type another address
+var MAX_MAILS_PER_SAVE = 5;
 var CHUNK = 45000;   // a Google Sheets cell holds at most 50,000 characters
 
 var TEST_HEADERS = ['id', 'timestamp', 'name', 'batch', 'group', 'semester', 'kind', 'test', 'title',
@@ -105,14 +110,21 @@ function writeValue_(key, value) {
 
 function recId_(r) { return [r.name, r.type, r.semester || 1, r.timestamp].join('|'); }
 
+var lastAdded_ = [];   // records that were new in the most recent merge (used for notifications)
+
 function mergeResults_(incomingJson) {
   var incoming = [], existing = [];
+  lastAdded_ = [];
   try { incoming = JSON.parse(incomingJson) || []; } catch (e) { return incomingJson; }
   try { var cur = readValue_('test-results'); existing = cur ? (JSON.parse(cur) || []) : []; } catch (e2) { existing = []; }
-  var seen = {}, out = [];
+  var seen = {}, out = [], oldIds = {};
+  existing.forEach(function (r) { oldIds[recId_(r)] = true; });
   existing.concat(incoming).forEach(function (r) {
     var id = recId_(r);
-    if (!seen[id]) { seen[id] = true; out.push(r); }
+    if (!seen[id]) {
+      seen[id] = true; out.push(r);
+      if (!oldIds[id]) lastAdded_.push(r);
+    }
   });
   return JSON.stringify(out);
 }
@@ -130,6 +142,47 @@ function refreshResearchTable_(json) {
     sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
     sheet.setFrozenRows(1);
   } catch (err) { /* the readable table is a convenience; never block saving */ }
+}
+
+/* ---- e-mail notification to the teacher (never blocks saving) ---- */
+
+function mmss_(sec) {
+  sec = Math.round(Number(sec) || 0);
+  return Math.floor(sec / 60) + 'm ' + (sec % 60) + 's';
+}
+
+function notify_(subject, body) {
+  if (!NOTIFY) return;
+  try {
+    var to = TEACHER_EMAIL || Session.getEffectiveUser().getEmail();
+    if (to) MailApp.sendEmail(to, subject, body);
+  } catch (err) { /* e-mail is a convenience; ignore failures (quota, permission) */ }
+}
+
+function notifyResearch_(recs) {
+  recs.slice(0, MAX_MAILS_PER_SAVE).forEach(function (r) {
+    var kind = (r.type === 'posttest' ? 'Posttest' : 'Pretest');
+    notify_('PhysiQ: ' + r.name + ' finished Sem ' + (r.semester || 1) + ' ' + kind + ' (' + r.percentage + '%)',
+      r.name + ' (' + (r.batch || r.group || '') + ') finished the Semester ' + (r.semester || 1) + ' ' + kind + '.\n' +
+      'Score: ' + r.score + ' / ' + r.total + ' (' + r.percentage + '%)\n' +
+      'Time: ' + (r.timestamp || '') + '\n\nOpen the Teacher Dashboard for the topic breakdown.');
+  });
+}
+
+function notifyTest_(row) {
+  notify_('PhysiQ: ' + row.name + ' finished ' + row.title + ' (' + row.percentage + '%)',
+    row.name + ' (' + (row.batch || '') + ') finished ' + row.title + ' (Semester ' + row.semester + ').\n' +
+    'Score: ' + row.score + ' / ' + row.total + ' (' + row.percentage + '%)\n' +
+    'Time taken: ' + mmss_(row.durationSec) + '\n' +
+    'Easy ' + row.easy + ' / Medium ' + row.medium + ' / Hard ' + row.hard + '\n' +
+    'Finished: ' + (row.timestamp || ''));
+}
+
+// Run this ONCE from the editor (select authorizeMail, press Run) to give permission to send e-mail
+// and to check that the notification arrives.
+function authorizeMail() {
+  var to = TEACHER_EMAIL || Session.getEffectiveUser().getEmail();
+  MailApp.sendEmail(to, 'PhysiQ notifications are on', 'You will get an e-mail like this each time a student finishes a test.');
 }
 
 /* ---- chapter / semester test attempts: one row each ---- */
@@ -175,6 +228,7 @@ function doPost(e) {
     var body = JSON.parse(e.postData.contents);
     if (body.action === 'append-test') {
       var added = appendTest_(body.row || {});
+      if (added) notifyTest_(body.row || {});
       return json_({ ok: true, added: added });
     }
     var value = body.value;
@@ -182,6 +236,7 @@ function doPost(e) {
       value = mergeResults_(value);
       writeValue_(body.key, value);
       refreshResearchTable_(value);
+      notifyResearch_(lastAdded_);
     } else {
       writeValue_(body.key, value);
     }
