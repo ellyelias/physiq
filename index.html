@@ -446,6 +446,40 @@
   #notes-content .note-eg{border:1px solid rgba(127,127,127,.35);border-left:4px solid var(--navy);border-radius:8px;padding:10px 14px;margin:0 0 12px;}
   #notes-content .note-eg p{margin:0 0 8px;}
   #notes-content .note-eg p:last-child{margin-bottom:0;}
+  .topic-check > span{margin-left:auto;padding-left:6px;}
+  /* ===== phones: one scrolling row of tabs, less padding, no nested boxes ===== */
+  @media (max-width:640px){
+    .app{padding:12px 16px 48px;}
+    .masthead{margin-bottom:6px;}
+    .masthead h1{font-size:22px;}
+    .masthead .eyebrow{font-size:11px;}
+    .masthead .sub{font-size:13px;margin-bottom:6px;}
+    .masthead .scale{display:none;}
+    .tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:2px;margin:0 -16px 12px;padding:0 16px;
+      position:sticky;top:0;z-index:40;background:var(--paper);}
+    .tabs::-webkit-scrollbar{display:none;}
+    .tab{flex:none;white-space:nowrap;margin-right:12px;padding:12px 2px 9px;font-size:14px;}
+    #semester-bar{margin:0 0 12px !important;}
+    #semester-bar label{display:none !important;}
+    #semester-select{padding:9px 10px !important;font-size:15px !important;border-width:1.5px !important;}
+    .card{padding:14px;margin-bottom:12px;}
+    .card h2{font-size:16px;}
+    .row2{grid-template-columns:minmax(0,1fr);gap:0;}
+    .topic-grid{grid-template-columns:minmax(0,1fr);gap:6px;}
+    .topic-check{padding:8px 10px;font-size:14px;}
+    .past-paper-card{padding:12px 10px;}
+    .pt-paper{padding:4px 2px;border:none;background:transparent;font-size:15px;}
+    .pt-qhead{gap:6px;}
+    .pt-n{width:20px;}
+    .pt-opt{font-size:14.5px;padding:8px 10px;}
+    .pt-part.pt-subpart{padding-left:8px;}
+    .pt-box-sub{margin-left:8px;width:calc(100% - 8px);}
+    .pt-mode{padding:12px;}
+    .pt-submit{padding:12px;}
+    #panel-learn .learn-steps{gap:6px;}
+    #panel-learn .learn-step{padding:8px;}
+    #panel-learn .learn-step.current{padding:7px;}
+  }
 </style>
 </head>
 <body>
@@ -5287,7 +5321,7 @@ const SEM3_BATCH3_CH25 = [
     grid.innerHTML = TOPICS.filter(t=>counts[t]).map((t,i)=>`
       <label class="topic-check checked">
         <input type="checkbox" value="${t}" checked>
-        ${t} <span style="color:var(--sub);font-weight:400;">(${counts[t]})</span>
+        ${t.replace(/^S[23]-/, '')} <span style="color:var(--sub);font-weight:400;">(${counts[t]})</span>
       </label>
     `).join('') || '<p class="empty">No questions available yet — please tell your teacher.</p>';
 
@@ -17198,6 +17232,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       });
       const ps = $('#past-sem'); if (ps && ps.value !== String(currentSemester) && !ps.querySelector('option[value="' + currentSemester + '"]').disabled){ ps.value = String(currentSemester); ps.dispatchEvent(new Event('change')); }
     }catch(e){ console.error('semester link failed', e); }
+    $$('.tab').forEach(t => t.addEventListener('click', () => { try{ t.scrollIntoView({inline: 'center', block: 'nearest', behavior: 'smooth'}); }catch(e){} }));
     ACT.schedule(5000);   // send this device's latest summary once per visit
   })();
 
