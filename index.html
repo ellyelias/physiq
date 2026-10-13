@@ -447,6 +447,12 @@
   #notes-content .note-eg p{margin:0 0 8px;}
   #notes-content .note-eg p:last-child{margin-bottom:0;}
   .topic-check > span{margin-left:auto;padding-left:6px;}
+  .qa-sem{background:var(--paper);border:1px solid var(--line);border-radius:8px;margin:0 0 8px;padding:0 12px;}
+  .qa-sem summary{cursor:pointer;font-weight:700;color:var(--navy);padding:10px 0;}
+  .qa-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;padding:0 0 12px;}
+  .qa-link{display:block;padding:8px 10px;border:1.5px solid var(--line);border-radius:7px;color:var(--navy);text-decoration:none;font-size:13.5px;font-weight:700;}
+  .qa-link::before{content:"PDF ";color:var(--orange);font-size:11px;letter-spacing:.06em;}
+  .qa-link:hover{border-color:var(--orange);}
   /* ===== phones: one scrolling row of tabs, less padding, no nested boxes ===== */
   @media (max-width:640px){
     .app{padding:12px 16px 48px;}
@@ -990,6 +996,9 @@
       <div class="btn-row" style="margin-top:0;"><button class="btn-ghost" id="ract-refresh">Refresh activity</button><button class="btn-ghost" id="ract-export">Export activity CSV</button></div>
       <p class="status-msg" id="ract-note"></p>
       <div id="ract-table" style="margin-top:10px;overflow-x:auto;"></div>
+      <h3 style="margin:26px 0 6px;color:var(--navy);">Past year papers: questions and answers (PDF)</h3>
+      <p class="status-msg" style="margin:0 0 8px;">Each paper with its questions, an Answer box with full working (and marks for Sections B and C) and an Explanation box after every question. Papers are added one at a time, Semester 1 first. Open a semester and tap a paper to download it.</p>
+      <div id="qa-list"></div>
       <div id="rdash-csv-fallback" style="display:none;margin-top:14px;">
         <label>Download isn't available in this view — select all the text below (tap it, then "Select all") and copy it into Excel/Google Sheets as CSV.</label>
         <textarea id="rdash-csv-text" readonly style="width:100%;height:160px;font-family:Consolas,monospace;font-size:12px;" onclick="this.select()"></textarea>
@@ -9756,8 +9765,8 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       AA(26, 162, 162, 26) + T(70, 110, '3.0 m', 'end', 'sm') + D(177, 43, 220, 0) + A(177, 43, 260, 13) + T(266, 12, '30 N', 'start', 'sm') + T(200, 30, '20°', 'start', 'sm'),
       'Rod OP of length 3.0 m pivoted at O; a 30 N force acts at P at 20° to the rod');
     o.q13 = svg(280, 180, A(40, 160, 270, 160) + A(40, 160, 40, 8) + T(46, 18, 'Force', 'start', 'sm') + T(268, 176, 'Extension', 'end', 'sm') + T(34, 174, '0', 'end', 'sm') +
-      fn(x => x < 50 ? x * 1.8 : 90 + 30 * (1 - Math.exp(-(x - 50) / 30)) - 0.0012 * (x - 50) ** 2, 0, 200, (x, v) => [40 + x, 160 - v]) + T(90, 75, '×', 'middle', 'sm') + I(84, 66, 'P', 'end') + T(210, 63, '×', 'middle', 'sm') + I(214, 82, 'Q', 'start'),
-      'Force against extension: straight to P (limit of proportionality), then curving over to the breaking point Q');
+      fn(x => 120 * (1 - Math.exp(-x / 45)) - 0.0009 * x * x, 0, 200, (x, v) => [40 + x, 160 - v]) + T(90, 86, '×', 'middle', 'sm') + I(84, 78, 'P', 'end') + T(210, 73, '×', 'middle', 'sm') + I(214, 92, 'Q', 'start'),
+      'Force against extension: a curve from the origin through P (not a straight line), levelling off and falling slightly to the breaking point Q');
     o.q17 = svg(280, 180, A(40, 160, 270, 160) + A(40, 160, 40, 8) + T(46, 18, 'Pressure', 'start', 'sm') + T(268, 176, 'Volume', 'end', 'sm') +
       '<g transform="translate(10 20)">' + P('M90 30 L150 60 Q 160 90 200 110 L150 95 Q 100 90 90 30 Z', 'nofill') + I(84, 26, 'Q', 'end') + I(156, 54, 'R', 'start') + I(206, 116, 'S', 'start') + I(104, 98, 'P', 'end') + A(125, 47, 115, 42) + A(160, 96, 182, 102) + A(98, 70, 100, 80) + A(176, 98, 166, 88) + '</g>',
       'Closed cycle P → S → R → Q → P on a pressure–volume graph');
@@ -16924,6 +16933,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   // learn.js asks PQ for the student's name
   const PQ = {studentName: () => ACT.name(), setName: n => ACT.setName(n)};
 
+  const QA_READY = ["2025u1","2026"];
   // ---------- teacher dashboard: every student's activity (from the Activity sheet) ----------
   let actRows = [];
   function actPct(c, t){ return t ? Math.round(c / t * 100) : 0; }
@@ -17004,7 +17014,21 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       document.body.appendChild(a); a.click(); a.remove();
     }catch(e){ $('#rdash-csv-text').value = csv; $('#rdash-csv-fallback').style.display = 'block'; }
   }
+  // question-and-answer PDFs (downloads/qa/), one per past year paper, grouped by semester
+  function renderQaList(){
+    const box = $('#qa-list'); if (!box) return;
+    const sems = [[1, 'Semester 1 (960/1)'], [2, 'Semester 2 (960/2)'], [3, 'Semester 3 (960/3)']];
+    box.innerHTML = sems.map(([s, name]) => {
+      const ps = PAST_PAPERS.filter(p => (p.sem || 1) === s && QA_READY.includes(p.id));
+      if (!ps.length) return '';
+      return `<details class="qa-sem"><summary>${name} · ${ps.length} papers</summary><div class="qa-links">${ps.map(p => {
+        const label = p.label.replace(/ · retyped$/, '');
+        return `<a class="qa-link" href="downloads/qa/PhysiQ_QA_${encodeURIComponent(p.id)}.pdf" download="PhysiQ Q&amp;A - ${escapeHtml(label.replace(/[·]/g, '-'))}.pdf">${escapeHtml(label)}</a>`;
+      }).join('')}</div></details>`;
+    }).join('') || '<p class="empty">No question-and-answer sets yet.</p>';
+  }
   function initActivity(){
+    renderQaList();
     $('#rteacher-unlock').addEventListener('click', () => setTimeout(() => { if ($('#rteacher-dash-card').style.display === 'block') renderActivity(); }, 50));
     $('#rdash-refresh').addEventListener('click', renderActivity);
     $('#ract-refresh').addEventListener('click', renderActivity);
