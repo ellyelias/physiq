@@ -10354,6 +10354,72 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       'Proton moving right enters a magnetic field into the page and follows a semicircle');
     return o; })();
 
+  PFIG["s2-2026"] = (() => { const {L, D, W, T, I, sub, sup, A, AA, R, C, P, dot, arc, hatch, svg, fn, path, res, cell, meter, axes} = PF; const o = {};
+    // Q6 discharging capacitor: V falls to V0/e² at t = 10.0 s
+    o.q6 = svg(300, 185, axes(60, 155, 220, 140, {x: '<tspan class="it">t</tspan> / s', y: '<tspan class="it">V</tspan> / V'}) +
+      fn(t => Math.exp(-t / 5), 0, 17, (t, v) => [60 + 12 * t, 155 - 115 * v]) + D(60, 40, 52, 40) + T(48, 44, sub('V', 'o'), 'end', 'sm') +
+      D(60, 139.4, 270, 139.4) + T(48, 132, sub('V', 'o'), 'end', 'sm') + L(32, 136, 50, 136, 'thin') + T(41, 150, sup('e', '2'), 'middle', 'sm') +
+      L(120, 155, 120, 159, 'thin') + L(180, 155, 180, 159, 'thin') + L(240, 155, 240, 159, 'thin') +
+      T(120, 174, '5.0', 'middle', 'sm') + T(180, 174, '10.0', 'middle', 'sm') + T(240, 174, '15.0', 'middle', 'sm'),
+      'V decays exponentially from V0 and reaches V0 over e squared at t = 10.0 s');
+    // Q8 single loop: 5.0 V cell and 6.0 ohm on top; 2.0 ohm, 10 V cell and 4.0 ohm at the bottom; both cells have + on the right
+    o.q8 = svg(360, 175, W([95, 35], [30, 35], [30, 150], [60, 150]) + cell(95, 35, 125, 35, -1) + W([125, 35], [200, 35]) + res(200, 35, 270, 35) + W([270, 35], [330, 35], [330, 150], [300, 150]) +
+      res(60, 150, 130, 150) + W([130, 150], [160, 150]) + cell(160, 150, 190, 150, -1) + W([190, 150], [230, 150]) + res(230, 150, 300, 150) +
+      T(110, 18, '5.0 V') + T(235, 22, '6.0 Ω') + T(95, 136, '2.0 Ω') + T(175, 128, '10 V') + T(265, 136, '4.0 Ω'),
+      'Series loop: 5.0 V cell and 6.0 ohm resistor on top, 2.0 ohm, 10 V cell and 4.0 ohm resistor at the bottom; the positive terminal of each cell is on its right');
+    // Q9 Wheatstone bridge
+    o.q9 = svg(360, 215, W([60, 40], [90, 40]) + res(90, 40, 150, 40) + W([150, 40], [210, 40]) + res(210, 40, 270, 40) + W([270, 40], [300, 40], [300, 140], [270, 140]) +
+      W([60, 40], [60, 140], [90, 140]) + res(90, 140, 150, 140) + W([150, 140], [210, 140]) + res(210, 140, 270, 140) +
+      W([180, 40], [180, 70]) + meter(180, 70, 180, 110, 'G') + W([180, 110], [180, 140]) + dot(180, 40) + dot(180, 140) + dot(60, 90) + dot(300, 90) +
+      W([60, 90], [30, 90], [30, 190], [170, 190]) + cell(170, 190, 190, 190, 1) + W([190, 190], [330, 190], [330, 90], [300, 90]) +
+      T(120, 27, '250 Ω') + T(240, 27, sub('R', 'X')) + T(120, 164, '600 Ω') + T(240, 164, '1800 Ω'),
+      'Bridge: 250 ohm then RX on the top arm, 600 ohm then 1800 ohm on the bottom arm, galvanometer G between the midpoints, cell across the ends');
+    // Q10 rod PQ with field lines slanting into the page at angle θ to the rod
+    o.q10 = svg(360, 130, R(40, 62, 280, 8, 'bg') + A(80, 112, 162, 30) + A(150, 112, 232, 30) + A(220, 112, 302, 30) +
+      arc(266, 66, 18, 0, 45) + I(290, 60, 'θ', 'start') + T(250, 18, 'Magnetic field') + I(40, 90, 'P') + I(320, 90, 'Q'),
+      'Horizontal rod PQ with magnetic field lines slanting into the page at angle theta to the rod');
+    // Q11 two horizontal wires 1.00 cm apart, P above Q
+    o.q11 = svg(320, 120, R(80, 36, 220, 6, 'bg') + R(80, 78, 220, 6, 'bg') + AA(66, 42, 66, 78) + T(58, 64, '1.00 cm', 'end') + I(190, 26, 'P') + I(190, 104, 'Q'),
+      'Wire P above wire Q, 1.00 cm apart');
+    // Q12 vertical wires, current up in P and down in Q
+    o.q12 = svg(180, 155, L(60, 20, 60, 120) + L(120, 20, 120, 120) + A(60, 62, 60, 30) + A(120, 30, 120, 62) + I(50, 44, 'I', 'end') + I(130, 44, 'I', 'start') +
+      AA(62, 82, 118, 82) + I(90, 75, 'x') + I(60, 140, 'P') + I(120, 140, 'Q'), 'Wire P carries current I upwards and wire Q carries current I downwards, x apart');
+    const bg = (body, lab) => svg(230, 170, axes(40, 140, 175, 125, {o: false}) + T(48, 22, 'Magnetic field', 'start', 'sm') + T(212, 160, 'Distance', 'end', 'sm') +
+      D(150, 140, 150, 40) + I(150, 158, 'x') + body, lab);
+    o.q12oA = bg(path([[40, 45], [95, 140], [150, 45]]), 'Falls linearly to zero midway, then rises linearly to x');
+    o.q12oB = bg(fn(t => 1 / t + 1 / (1 - t), 0.035, 0.965, (t, v) => [40 + 110 * t, 140 - 3.6 * v]), 'U-shaped: large near each wire, smallest (not zero) midway');
+    o.q12oC = bg(L(40, 62, 150, 62), 'Constant from P to x');
+    o.q12oD = bg(fn(t => Math.sqrt(Math.max(0, 1 - 4 * t * t)), 0, 0.5, (t, v) => [40 + 110 * t, 140 - 90 * v]) + fn(t => Math.sqrt(Math.max(0, 1 - 4 * (1 - t) * (1 - t))), 0.5, 1, (t, v) => [40 + 110 * t, 140 - 90 * v]),
+      'Falls to zero midway along curves and rises again to x');
+    // Q20 sine wave graphs (period 0.02 s)
+    const wave = (yl, amp, f, ox = 50, lab) => svg(300, 170, A(ox, 160, ox, 12) + A(ox, 86, 290, 86) + T(ox - 6, 90, '0', 'end', 'sm') + T(ox - 6, 22, yl, 'end', 'sm') + T(290, 76, '<tspan class="it">t</tspan> / s', 'end', 'sm') +
+      D(ox, 36, ox + 22, 36) + D(ox, 136, ox + 75, 136) + T(ox - 6, 40, amp, 'end', 'sm') + T(ox - 6, 140, '−' + amp, 'end', 'sm') +
+      D(ox + 100, 36, ox + 100, 136) + D(ox + 200, 36, ox + 200, 136) + T(ox + 104, 104, '0.02', 'start', 'sm') + T(ox + 204, 104, '0.04', 'start', 'sm') +
+      fn(f, 0, 0.04, (t, v) => [ox + 5000 * t, 86 - 50 * v], 'nofill', 160), lab);
+    const s = t => Math.sin(2 * Math.PI * t / 0.02), c = t => Math.cos(2 * Math.PI * t / 0.02);
+    o.q20 = wave('<tspan class="it">I</tspan> / A', '2.0', s, 50, 'Current I = 2.0 sin(100 pi t) A: starts at zero rising, period 0.02 s');
+    o.q20oA = wave('<tspan class="it">V</tspan> / V', '320', c, 50, 'V starts at +320 V (cosine), period 0.02 s');
+    o.q20oB = wave('<tspan class="it">V</tspan> / V', '230', c, 50, 'V starts at +230 V (cosine), period 0.02 s');
+    o.q20oC = wave('<tspan class="it">V</tspan> / V', '320', t => -c(t), 50, 'V starts at −320 V and rises (negative cosine), period 0.02 s');
+    o.q20oD = wave('<tspan class="it">V</tspan> / V', '230', t => -c(t), 50, 'V starts at −230 V and rises (negative cosine), period 0.02 s');
+    // Q23 two-loop circuit, junction earthed at the bottom middle
+    const N = [200, 170];
+    o.q23 = svg(410, 215, W([200, 170], [60, 170], [60, 135]) + res(60, 135, 60, 75) + W([60, 75], [60, 40], [115, 40]) + cell(115, 40, 135, 40, 1) + W([135, 40], [265, 40]) +
+      cell(265, 40, 285, 40, -1) + W([285, 40], [340, 40], [340, 75]) + res(340, 75, 340, 135) + W([340, 135], [340, 170], [310, 170]) + res(310, 170, 250, 170) + W([250, 170], N) +
+      W([200, 40], [200, 75]) + res(200, 75, 200, 135) + W([200, 135], N) + dot(200, 40) + dot(...N) + dot(340, 170) +
+      A(200, 162, 200, 142) + A(160, 170, 190, 170) + A(240, 170, 210, 170) +
+      L(200, 170, 200, 184) + L(184, 184, 216, 184) + L(189, 190, 211, 190) + L(195, 196, 205, 196) +
+      T(125, 24, '3.0 V') + T(275, 24, '4.5 V') + T(48, 110, '1.0 Ω', 'end') + I(212, 109, 'R', 'start') + T(352, 110, '2.0 Ω', 'start') + T(280, 157, '3.0 Ω') +
+      T(208, 156, sub('I', '1'), 'start', 'sm') + T(172, 162, sub('I', '3'), 'middle', 'sm') + T(228, 162, sub('I', '2'), 'middle', 'sm') + I(350, 182, 'X', 'start'),
+      'Top junction joins: left branch 3.0 V cell (positive terminal on the left) and 1.0 ohm; middle branch R; right branch 4.5 V cell (positive terminal on the right), 2.0 ohm and 3.0 ohm with point X between them. The bottom junction is earthed; I3 and I2 flow into it and I1 flows up through R');
+    // Q24 wire hung on two strings, deflected by θ, field B vertical
+    o.q24 = svg(400, 200, hatch(40, 20, 340) + D(80, 20, 80, 90) + D(260, 20, 260, 90) + L(80, 20, 150, 150) + L(260, 20, 330, 150) +
+      arc(80, 20, 22, 270, 298) + arc(260, 20, 22, 270, 298) + I(90, 58, 'θ', 'middle') + I(270, 58, 'θ', 'middle') +
+      A(132, 117, 104, 65) + A(312, 117, 284, 65) + I(124, 80, 'T', 'start') + I(304, 80, 'T', 'start') +
+      R(145, 144, 190, 12, 'bg') + A(372, 160, 372, 95) + I(382, 128, 'B', 'start') + AA(150, 176, 330, 176) + I(240, 192, 'l'),
+      'Horizontal wire of length l hangs from two strings of tension T, each at angle theta to the vertical; magnetic field B points upwards');
+    return o; })();
+
   PFIG["s3-2013"] = (() => { const {L, D, W, T, I, A, AA, R, C, P, dot, svg, fn} = PF; const o = {};
     const y3 = x => 95 - 55 * Math.sin(Math.PI * (x - 20) / 115);
     o.q3 = svg(360, 170, D(20, 95, 340, 95) + fn(y3, 20, 320, (x, v) => [x, v]) + A(290, 20, 335, 20) +
@@ -13789,6 +13855,82 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     ]
   };
 
+  TYPED["s2-2026"] = {
+    marks: {A:20, B:14, C:26}, cNote: "Answer all questions.",
+    A: [
+      {q:`Two particles with charges, <i>Q</i> and −2<i>Q</i>, are placed at a fixed distance. Which statement is true about the electrostatic force that acts between the charges?`,
+       opts:["The attractive force with the same magnitude.","The repulsive force with the same magnitude.","The attractive force that acts on <i>Q</i> by −2<i>Q</i> is twice the attractive force that acts on −2<i>Q</i> by <i>Q</i>.","The repulsive force that acts on <i>Q</i> by −2<i>Q</i> is twice the repulsive force that acts on −2<i>Q</i> by <i>Q</i>."]},
+      {q:`The electric field strength and the electric potential on the surface of a solid metal sphere which has a fixed charge are <i>E</i><sub>o</sub> and <i>V</i><sub>o</sub> respectively. Which is the electric field strength and electric potential at a point inside the sphere?`,
+       table:{head:["Electric field strength","Electric potential"], rows:[["0","0"],["0","<i>V</i><sub>o</sub>"],["<i>E</i><sub>o</sub>","<i>V</i><sub>o</sub>"],["<i>E</i><sub>o</sub>","0"]]}},
+      {q:`A parallel-plate capacitor with a plate area of <i>A</i> and a plate separation of <i>d</i> is charged in air with charge <i>Q</i>. If the potential difference across the capacitor is <i>V</i> and the electric field strength between the plates of the capacitor is <i>E</i>, the capacitance of the capacitor is`,
+       opts:["<i>QEd</i>",frac('<i>AE</i>','<i>d</i>'),frac('<i>Ed</i>','<i>A</i>'),frac('<i>Q</i>','<i>Ed</i>')]},
+      {q:`A dielectric material is inserted between the plates of a parallel-plate capacitor. Which statement is true about the effect of the polarisation in the capacitor?`,
+       opts:["The charge stored increases.","The effective capacitance decreases.","The effective electric field decreases.","The potential difference between the plates increases."]},
+      {q:`Which of the following will happen microscopically to a current-carrying conductor when the electric field in the conductor increases?`,
+       opts:["The current density decreases.","The drift velocity of the electrons increases.","The mean free time of the electrons increases.","The electrons move faster in the direction of the current."]},
+      {q:`The variation of potential difference, <i>V</i>, with time, <i>t</i>, for a discharging capacitor through a resistor of 2.0 MΩ is shown in the graph below.`, fig:"q6",
+       q2:`What is the capacitance of the capacitor?`, opts:["1.3 μF","2.5 μF","3.8 μF","5.0 μF"]},
+      {q:`A conductor of cross-sectional area of 5.0 × 10<sup>−6</sup> m<sup>2</sup> and length of 2.0 m contains 4.17 × 10<sup>23</sup> free electrons. When the conductor is connected to a battery, the drift velocity of the conduction electrons is 1.2 × 10<sup>−4</sup> m s<sup>−1</sup>. What is the current density in the conductor?`,
+       opts:["2.0 × 10<sup>−5</sup> A m<sup>−2</sup>","4.0 × 10<sup>5</sup> A m<sup>−2</sup>","8.0 × 10<sup>5</sup> A m<sup>−2</sup>","1.6 × 10<sup>6</sup> A m<sup>−2</sup>"]},
+      {q:`A circuit consists of three resistors of resistance 2.0 Ω, 4.0 Ω and 6.0 Ω respectively, and two batteries of e.m.f.s, 5.0 V and 10 V, as shown in the circuit diagram below.`, fig:"q8",
+       q2:`Which is the magnitude and direction of the current in the circuit?`,
+       table:{head:["Magnitude","Direction of current"], rows:[["1.25 A","Clockwise"],["0.42 A","Clockwise"],["1.25 A","Anticlockwise"],["0.42 A","Anticlockwise"]]}},
+      {q:`Four resistors of resistance 250 Ω, 600 Ω, 1800 Ω and <i>R<sub>X</sub></i> are arranged as shown in the circuit diagram below.`, fig:"q9",
+       q2:`If the galvanometer reading is zero, which statement is true about the circuit?`,
+       opts:["The resistance of <i>R<sub>X</sub></i> is larger than 600 Ω.","The current flows in the galvanometer is large.","The current flows in 250 Ω is equal to the current flows in 600 Ω.","The potential difference across <i>R<sub>X</sub></i> is equal to the potential difference across 1800 Ω."]},
+      {q:`A conducting rod, <i>PQ</i>, of weight 8.0 N and length of 40 cm that carries a current of 20 A is shown in the diagram below.`, fig:"q10",
+       q2:`A uniform magnetic field of 2.0 T is applied into the page at an angle, <i>θ</i>, with the rod. If the magnetic force is just enough to balance the weight of the rod, which is the value of <i>θ</i> and the direction of the current?`,
+       table:{head:["<i>θ</i>","Direction of current"], rows:[["30°","<i>P</i> to <i>Q</i>"],["30°","<i>Q</i> to <i>P</i>"],["60°","<i>Q</i> to <i>P</i>"],["60°","<i>P</i> to <i>Q</i>"]]}},
+      {q:`Two long straight parallel wires, <i>P</i> and <i>Q</i>, with a separation of 1.00 cm apart is shown in the diagram below.`, fig:"q11",
+       q2:`<i>P</i> carries a current of 30.0 A to the east. If the force per unit length between the wires is 5.00 × 10<sup>−2</sup> N m<sup>−1</sup>, which is the magnitude and direction of the current in <i>Q</i> so that <i>Q</i> does not fall due to gravity?`,
+       opts:["83.3 A to the west","83.3 A to the east","26.5 A to the west","26.5 A to the east"]},
+      {q:`Two long straight parallel wires, <i>P</i> and <i>Q</i>, carry equal currents in opposite directions as shown in the diagram below.`, fig:"q12",
+       q2:`The distance from <i>P</i> to <i>Q</i> is <i>x</i>. Which graph shows the variation of magnitude of the magnetic field with the distance from <i>P</i> to <i>Q</i>?`, optImgs:["q12oA","q12oB","q12oC","q12oD"]},
+      {q:`A solenoid of length 3.0 cm is used for an automatic door locking system which is operated by a direct current voltage of 12 V. The magnetic field produced inside the solenoid is 1.5 mT. What is the number of turns of the solenoid if the resistance of the solenoid is 15 Ω?`,
+       opts:["5 turns","28 turns","44 turns","89 turns"]},
+      {q:`Which action will increase the magnetic flux through a conducting loop in a uniform magnetic field?`,
+       opts:["Rotate the loop about an axis that is parallel to the magnetic field","Decrease the strength of the magnetic field","Increase the number of turns in the loop","Increase the area of the loop"]},
+      {q:`Which is true about Lenz’s law?`,
+       opts:["Determines the strength of the magnetic field around a current-carrying wire","Determines the magnitude of induced e.m.f.","Dictates the direction of induced current","Dictates the direction of magnetic force"]},
+      {q:`A solenoid of length of 5.0 cm and cross-sectional area of 1.5 cm<sup>2</sup> consists of 300 turns. What is the self inductance of the solenoid?`,
+       opts:["1.1 × 10<sup>−6</sup> H","1.7 × 10<sup>−5</sup> H","3.4 × 10<sup>−4</sup> H","5.1 × 10<sup>−4</sup> H"]},
+      {q:`A primary coil of 200 turns with an inductance of 0.30 H is placed coaxially with a secondary coil of the same cross-sectional area. If the mutual inductance is 0.60 H, what is the number of turns in the secondary coil?`,
+       opts:["100 turns","120 turns","200 turns","400 turns"]},
+      {q:`An alternating voltage supply, <i>V</i> = 6.0 sin 50<i>t</i>, is connected to a pure resistor of resistance 3.0 Ω. What is the average power dissipated by the resistor?`,
+       opts:["6.0 W","12 W","18 W","54 W"]},
+      {q:`An alternating power supply with r.m.s. voltage of 240 V and frequency of 50.0 Hz is connected in series to a capacitor of capacitance 2200 μF and a resistor of resistance 10.0 Ω. What is the r.m.s. voltage across the capacitor?`,
+       opts:["1.45 V","23.8 V","30.3 V","34.4 V"]},
+      {q:`The variation of an alternating current, <i>I</i>, with time, <i>t</i>, for a capacitor of capacitance 20 μF is shown in the graph below.`, fig:"q20",
+       q2:`Which graph shows the variation of potential difference, <i>V</i>, across the capacitor with time, <i>t</i>?`, optImgs:["q20oA","q20oB","q20oC","q20oD"]}
+    ],
+    B: [
+      {n:21, stem:`Copper is used in a high voltage transmission line cable which carries a current of 50.0 A. The resistance of the cable is 1.50 × 10<sup>−4</sup> Ω m<sup>−1</sup>.`, parts:[
+        ["(a)","Calculate the power dissipated along 300 km of the cable.",2],
+        ["(b)","If the resistivity of copper is 1.67 × 10<sup>−8</sup> Ω m, calculate the diameter of the cable.",3],
+        ["(c)","Describe the dependence of resistivity on temperature for metal.",2]]},
+      {n:22, stem:`An ideal capacitor of capacitance 3300 μF and a resistor of resistance 1.0 Ω are connected in series to an a.c. supply of frequency 50 Hz.`, parts:[
+        ["(a)","Determine the impedance of the circuit.",4],
+        ["(b)","Determine the phase difference between the current in the circuit and the voltage of the a.c. supply.",2],
+        ["(c)","State <b>one</b> advantage of using an ideal capacitor.",1]]}
+    ],
+    C: [
+      {n:23, stem:"", parts:[
+        ["(a)","State <b>two</b> differences between electromotive force and electric potential difference.",2],
+        ["(b)","Two batteries of e.m.f. 3.0 V and 4.5 V are connected as shown in the circuit diagram below.",""],
+        ["fig","q23",""],
+        ["","The current <i>I</i><sub>1</sub> is two times of current <i>I</i><sub>2</sub>.",""],
+        ["(i)","Determine the resistance <i>R</i> and current <i>I</i><sub>2</sub>.",5],
+        ["(ii)","Determine the electric potential at <i>X</i>.",3],
+        ["(c)","Explain the working principle of a shunt.",3]]},
+      {n:24, stem:"", parts:[
+        ["(a)","State <b>two</b> differences between electric force and magnetic force that act on a charged particle.",2],
+        ["(b)","In Thomson’s experiment, an electron is accelerated by a high voltage into a region of an electric field and magnetic field of 92 V m<sup>−1</sup> and 0.020 T respectively. The electron is then deflected in the absence of electric field. Determine the velocity and the radius of deflection of the electron.",7],
+        ["(c)","A wire of length <i>l</i> and weight <i>mg</i> is hanged on two strings of tension <i>T</i>. The wire carries a current <i>I</i> and deflected from the vertical at an angle <i>θ</i> in the presence of uniform magnetic field, <i>B</i>, as shown in the diagram below.",""],
+        ["fig","q24",""],
+        ["","Derive an expression for the magnetic field strength.",4]]}
+    ]
+  };
+
   TYPED["s3-2013"] = {
     A: [
       {q:`Which is <b>not</b> true of a simple harmonic motion?`,
@@ -16366,6 +16508,12 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   // ---------- Semester 2 (960/2) and Semester 3 (960/3) past papers ----------
   // Keys and final answers: MPM Laporan Peperiksaan where published; otherwise worked answers.
   PAST_PAPERS.push(
+    {id:"s2-2026", sem:2, label:"STPM 2026 · Paper 2 (new format)", pages:7, keySrc:"Worked answers (MPM has not published the 2026 report yet)", note:"Question 9: at balance RX = 750 Ω, so statement A is true as well as D (equal p.d. across RX and 1800 Ω). D is the balance condition; A or D should be accepted.",
+     key:"ABDCBBCDDAABCDCCDADC",
+     answers:[["21",`(a) R = 1.50 × 10<sup>−4</sup> × 300 × 10<sup>3</sup> = 45.0 Ω, P = I<sup>2</sup>R = 50.0<sup>2</sup> × 45.0 = 1.13 × 10<sup>5</sup> W; (b) ${frac('<i>R</i>','<i>l</i>')} = ${frac('<i>ρ</i>','<i>A</i>')}, A = ${frac('1.67 × 10<sup>−8</sup>','1.50 × 10<sup>−4</sup>')} = 1.11 × 10<sup>−4</sup> m<sup>2</sup>, d = √${frac('4<i>A</i>','<i>π</i>')} = 1.19 × 10<sup>−2</sup> m; (c) resistivity of a metal increases (almost linearly) with temperature: the lattice ions vibrate with larger amplitude, the free electrons collide more often, the mean free time decreases (the number of free electrons stays the same), so ρ increases`],
+      ["22",`(a) X<sub>C</sub> = ${frac('1','2<i>π</i><i>fC</i>')} = ${frac('1','2<i>π</i>(50)(3300 × 10<sup>−6</sup>)')} = 0.965 Ω, Z = √(R<sup>2</sup> + X<sub>C</sub><sup>2</sup>) = √(1.0<sup>2</sup> + 0.965<sup>2</sup>) = 1.39 Ω; (b) tan φ = ${frac('<i>X</i><sub>C</sub>','<i>R</i>')} = ${frac('0.965','1.0')}, φ = 44.0° (0.768 rad), the current leads the supply voltage; (c) no power is dissipated in an ideal capacitor (no energy lost as heat), so it limits the current without wasting energy`],
+      ["23",`(a) e.m.f. is the work done per unit charge by the source to move charge round the whole circuit (non-electrical energy → electrical energy); p.d. is the work done per unit charge to move charge between two points (electrical energy → other forms). e.m.f. exists even with no current; p.d. across a resistor needs a current. (b)(i) I<sub>1</sub> = I<sub>2</sub> + I<sub>3</sub> and I<sub>1</sub> = 2I<sub>2</sub>, so I<sub>3</sub> = I<sub>2</sub>. With the earthed junction at 0 V, the top junction is at V = 1.0I<sub>3</sub> − 3.0 = 5.0I<sub>2</sub> − 4.5, so I<sub>2</sub> − 3.0 = 5.0I<sub>2</sub> − 4.5, I<sub>2</sub> = 0.375 A; V = −2.625 V = −I<sub>1</sub>R, R = ${frac('2.625','0.75')} = 3.5 Ω; (ii) I<sub>2</sub> flows from X to earth through 3.0 Ω, so V<sub>X</sub> = 0.375 × 3.0 = +1.13 V; (c) a shunt is a low resistance connected in parallel with the galvanometer; most of the current passes through the shunt and only the full-scale current I<sub>g</sub> passes through the galvanometer, so it measures a much larger current (an ammeter): I<sub>g</sub>R<sub>g</sub> = (I − I<sub>g</sub>)R<sub>s</sub>, and the small total resistance hardly changes the circuit current`],
+      ["24",`(a) the electric force acts on a charge whether it is moving or at rest; the magnetic force acts only on a moving charge (not moving parallel to B). The electric force is along E (can change the speed, does work); the magnetic force is perpendicular to v and B (changes direction only, does no work). (b) undeflected: eE = evB, v = ${frac('<i>E</i>','<i>B</i>')} = ${frac('92','0.020')} = 4.6 × 10<sup>3</sup> m s<sup>−1</sup>; in B only: evB = ${frac('<i>mv</i><sup>2</sup>','<i>r</i>')}, r = ${frac('<i>mv</i>','<i>eB</i>')} = ${frac('9.11 × 10<sup>−31</sup> × 4.6 × 10<sup>3</sup>','1.60 × 10<sup>−19</sup> × 0.020')} = 1.31 × 10<sup>−6</sup> m; (c) the magnetic force BIl is horizontal: 2T cos θ = mg and 2T sin θ = BIl, so tan θ = ${frac('<i>BIl</i>','<i>mg</i>')}, B = ${frac('<i>mg</i> tan <i>θ</i>','<i>Il</i>')}`]]},
     {id:"s2-2025", sem:2, label:"STPM 2025 · Paper 2", pages:8, keySrc:"Worked answers (MPM has not published the 2025 report yet)",
      key:"CDDBABACDCADABC", note:"This scan has a student's pen marks. Ignore them: several circled options are wrong.",
      answers:[["16","(a) L = √(Cd/ε₀) = 0.0475 m; (b) 560 pF; (c) the energy stored increases: with the battery disconnected Q stays the same, C decreases, so U = Q²/2C increases (work is done to pull the dielectric out)"],
