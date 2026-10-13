@@ -8591,9 +8591,9 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       <span class="sp-photo-hint pt-when-type">For sketches, graphs and diagrams. The photos go into your PDF.</span>
       <span class="sp-photo-hint pt-when-paper">Write all parts of Question ${n} on paper, then snap it. Add another photo for each extra page.</span></div>
       <div class="pt-photos" data-q="${n}"></div>
-      <div class="pt-self"><label for="pt-self-${n}">My marks for Question ${n}</label>
+      <div class="pt-self"><label for="pt-self-${n}">My own marks for Question ${n} (self-check, optional)</label>
       <input type="number" inputmode="numeric" class="pt-selfmark" id="pt-self-${n}" data-q="${n}" min="0" max="${total || 20}" step="1">${total ? ` / ${total}` : ''}
-      <span class="pt-self-hint">Open the answer, then give yourself marks.</span></div>`;
+      <span class="pt-self-hint">Open the answer and give yourself marks. Your teacher will give the final marks.</span></div>`;
   }
   function ptModeHTML(){
     return `<div class="pt-mode" role="radiogroup" aria-labelledby="pt-mode-q">
@@ -8971,7 +8971,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       if (!mine.some(z => entry.answers[`${x.n}|${z.j}`]) && !ph.length && sm == null){ skipped.push(x.n); continue; }
       if (sm != null){ selfSum += +sm; selfAny = true; }
       w.rule();
-      w.text(`Question ${x.n}` + (sm != null ? `      My marks: ${sm}${tot[x.n] ? ' / ' + tot[x.n] : ''}` : ''), {size: 30, weight: '700', color: NAVY, gap: 10});
+      w.text(`Question ${x.n}` + (sm != null ? `      Self-marked: ${sm}${tot[x.n] ? ' / ' + tot[x.n] : ''}` : ''), {size: 30, weight: '700', color: NAVY, gap: 10});
       for (const z of mine){
         w.text(`${z.label} ${ptHtmlText(x.parts[z.j][1])}${z.marks !== '' ? `  [${z.marks}]` : ''}`.trim(), {size: 21, color: GREY, gap: 4});
         const a = entry.answers[`${x.n}|${z.j}`];
