@@ -8587,6 +8587,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   function ptSubmitHTML(){
     return `<div class="pt-submit">
       <h3 class="pt-sec">Send your answers to your teacher</h3>
+      <p class="pt-note">For each question in Sections B and C you can type your answer, take a photo of your handwritten answer, or do both. You do not need to do both.</p>
       <ol class="pt-steps">
         <li>Type your name.</li>
         <li>Tap <b>Download my answers (PDF)</b>. The PDF has your Section A choices, your typed answers, your photos and your self-marks.</li>
@@ -8947,7 +8948,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       for (const z of mine){
         w.text(`${z.label} ${ptHtmlText(x.parts[z.j][1])}${z.marks !== '' ? `  [${z.marks}]` : ''}`.trim(), {size: 21, color: GREY, gap: 4});
         const a = entry.answers[`${x.n}|${z.j}`];
-        w.text(a || '(no answer)', {size: 26, color: a ? '#1b2433' : '#9aa3b0', style: a ? '' : 'italic', indent: 20, gap: 14});
+        w.text(a || (ph.length ? '(see handwritten working below)' : '(no answer)'), {size: 26, color: a ? '#1b2433' : '#9aa3b0', style: a ? '' : 'italic', indent: 20, gap: 14});
       }
       if (ph.length){
         w.text('Handwritten working', {size: 22, weight: '700', color: GREY, gap: 6});
