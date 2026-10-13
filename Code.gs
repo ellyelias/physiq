@@ -28,6 +28,8 @@
  *   - storage of values longer than one cell (Google limits a cell to 50,000 characters).
  *   - an e-mail to the teacher each time a student finishes a test (see NOTIFY / TEACHER_EMAIL below;
  *     run authorizeMail once to give permission).
+ *   - an "Activity" sheet (one row per student: Section A practice, Learn by chapter, structured
+ *     Section B & C questions and past year papers), shown in the Teacher Dashboard.
  *
  * Re-deploying later (after editing this file again): Deploy -> Manage
  * deployments -> pencil icon -> New version -> Deploy. The URL stays the
@@ -210,6 +212,47 @@ function listTests_() {
   });
 }
 
+/* ---- student activity (practice, Learn by chapter, structured, past papers): one row per student ---- */
+
+var ACTIVITY_SHEET = 'Activity';
+var ACT_HEADERS = ['studentId', 'name', 'batch', 'updatedAt', 'semester', 'sectionA_sessions', 'lastSectionA', 'learnSteps',
+  'structuredTried', 'structuredMarks', 'pastPapers', 'pastAvgPct', 'data'];
+
+function saveActivity_(doc) {
+  if (!doc || !doc.studentId) return;
+  var s = doc.summary || {};
+  var data = JSON.stringify(doc);
+  if (data.length > CHUNK) { doc.history = (doc.history || []).slice(0, 5); data = JSON.stringify(doc).substring(0, CHUNK); }
+  var row = [doc.studentId, doc.name || '', doc.batch || '', doc.updatedAt || new Date().toISOString(), doc.semester || '',
+    s.sessions || 0, s.lastA || '', s.learnSteps || 0, s.structuredTried || 0, s.structuredMarks || '', s.pastPapers || 0, s.pastAvgPct, data];
+  var sheet = getNamedSheet_(ACTIVITY_SHEET, ACT_HEADERS);
+  var n = sheet.getLastRow();
+  var ids = n > 1 ? sheet.getRange(2, 1, n - 1, 1).getValues() : [];
+  for (var i = 0; i < ids.length; i++) {
+    if (String(ids[i][0]) === String(doc.studentId)) { sheet.getRange(i + 2, 1, 1, row.length).setValues([row]); return; }
+  }
+  sheet.appendRow(row);
+}
+
+function listActivity_() {
+  var out = [], seen = {};
+  var sheet = getNamedSheet_(ACTIVITY_SHEET, ACT_HEADERS);
+  var n = sheet.getLastRow();
+  if (n > 1) {
+    sheet.getRange(2, ACT_HEADERS.length, n - 1, 1).getValues().forEach(function (r) {
+      try { var d = JSON.parse(r[0]); if (d && d.studentId && !seen[d.studentId]) { seen[d.studentId] = true; out.push(d); } } catch (e) {}
+    });
+  }
+  // activity sent before this version of the script was deployed was kept in the Results sheet as act-<studentId>
+  var data = getSheet_().getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    var k = String(data[i][0]);
+    if (k.indexOf('act-') !== 0 || k.indexOf('#') > -1) continue;
+    try { var d2 = JSON.parse(readValue_(k)); if (d2 && d2.studentId && !seen[d2.studentId]) { seen[d2.studentId] = true; out.push(d2); } } catch (e2) {}
+  }
+  return out;
+}
+
 function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
@@ -217,6 +260,7 @@ function json_(obj) {
 function doGet(e) {
   var p = (e && e.parameter) || {};
   if (p.action === 'list-tests') return json_({ ok: true, rows: listTests_() });
+  if (p.action === 'list-activity') return json_({ ok: true, rows: listActivity_() });
   var key = p.key || 'test-results';
   return json_({ ok: true, value: readValue_(key) });
 }
@@ -230,6 +274,10 @@ function doPost(e) {
       var added = appendTest_(body.row || {});
       if (added) notifyTest_(body.row || {});
       return json_({ ok: true, added: added });
+    }
+    if (body.action === 'save-activity') {
+      saveActivity_(body.doc);
+      return json_({ ok: true });
     }
     var value = body.value;
     if (body.key === 'test-results') {
