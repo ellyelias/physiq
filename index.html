@@ -428,6 +428,16 @@
   .pt-photo img{display:block;max-width:100%;max-height:220px;border:1px solid var(--line);border-radius:6px;background:#fff;}
   .pt-photo .btn-ghost{font-size:12.5px;padding:4px 10px;}
   .pt-body .sp-photo-row{font-family:Calibri,Candara,"Segoe UI",sans-serif;}
+  .pt-when-paper{display:none;}
+  .pt-paper.mode-paper .pt-when-paper{display:inline;}
+  .pt-paper.mode-paper .pt-when-type{display:none;}
+  .pt-paper.mode-paper .pt-box,.pt-paper.mode-paper .pt-symbols{display:none;}
+  .pt-paper.mode-paper .sp-photo-btn{background:var(--orange);border-color:var(--orange);color:#fff;}
+  .pt-mode{margin:18px 0 6px;padding:12px 14px;border:1.5px solid var(--navy);border-radius:8px;background:var(--navy-tint);font-family:Calibri,Candara,"Segoe UI",sans-serif;font-size:14.5px;}
+  .pt-mode-q{margin:0 0 8px;font-weight:700;color:var(--navy);font-size:15.5px;}
+  label.pt-mode-opt{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;font-weight:400;font-size:14.5px;color:var(--ink);cursor:pointer;line-height:1.4;text-transform:none;letter-spacing:0;}
+  .pt-mode-opt input{accent-color:var(--orange);margin-top:3px;flex:none;width:17px;height:17px;}
+  .pt-mode-hint{margin:2px 0 0;font-size:12.5px;color:var(--sub);}
   .frac.fq > span{display:block;}
   #notes-content .notes-part{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sub);margin:6px 0 4px;}
   #notes-content .notes-bc{margin-top:22px;padding-top:14px;border-top:2px solid var(--navy);}
@@ -8577,12 +8587,27 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     return `<textarea class="pt-box${sub ? ' pt-box-sub' : ''}" data-q="${n}" data-k="${n}|${j}" rows="3" maxlength="4000" placeholder="Type your answer and working here" aria-label="Your answer for Question ${n}, part ${j + 1}"></textarea>`;
   }
   function ptSelfHTML(n, total){
-    return `<div class="sp-photo-row"><label class="sp-photo-btn">Add photo of handwritten working<input type="file" accept="image/*" multiple class="pt-photo-in" data-q="${n}" hidden></label>
-      <span class="sp-photo-hint">For sketches, graphs and diagrams. The photos go into your PDF.</span></div>
+    return `<div class="sp-photo-row"><label class="sp-photo-btn"><span class="pt-when-type">Add photo of handwritten working</span><span class="pt-when-paper">Snap my answer to Question ${n}</span><input type="file" accept="image/*" multiple class="pt-photo-in" data-q="${n}" hidden></label>
+      <span class="sp-photo-hint pt-when-type">For sketches, graphs and diagrams. The photos go into your PDF.</span>
+      <span class="sp-photo-hint pt-when-paper">Write all parts of Question ${n} on paper, then snap it. Add another photo for each extra page.</span></div>
       <div class="pt-photos" data-q="${n}"></div>
       <div class="pt-self"><label for="pt-self-${n}">My marks for Question ${n}</label>
       <input type="number" inputmode="numeric" class="pt-selfmark" id="pt-self-${n}" data-q="${n}" min="0" max="${total || 20}" step="1">${total ? ` / ${total}` : ''}
       <span class="pt-self-hint">Open the answer, then give yourself marks.</span></div>`;
+  }
+  function ptModeHTML(){
+    return `<div class="pt-mode" role="radiogroup" aria-labelledby="pt-mode-q">
+      <p class="pt-mode-q" id="pt-mode-q">How will you answer Sections B and C?</p>
+      <label class="pt-mode-opt"><input type="radio" name="pt-mode" value="type"><span><b>Type in the app</b><br>Type your answers in the boxes. You can still add a photo for a sketch or graph.</span></label>
+      <label class="pt-mode-opt"><input type="radio" name="pt-mode" value="paper"><span><b>Write on paper and snap</b><br>Write your answers on paper, then snap a photo under each question.</span></label>
+      <p class="pt-mode-hint">You can change this at any time. Your typed answers and photos are kept.</p>
+    </div>`;
+  }
+  function ptSetMode(mode){
+    const paper = document.querySelector('.pt-paper'); if (!paper) return;
+    paper.classList.toggle('mode-type', mode === 'type');
+    paper.classList.toggle('mode-paper', mode === 'paper');
+    $$('input[name="pt-mode"]').forEach(r => { r.checked = r.value === mode; });
   }
   function ptSubmitHTML(){
     return `<div class="pt-submit">
@@ -8761,6 +8786,8 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       ptPhotosChanged(); ptRenderPhotos(q);
     }));
     Object.keys(ptState.photos).forEach(ptRenderPhotos);
+    ptSetMode(d.mode || '');
+    $$('input[name="pt-mode"]').forEach(r => r.addEventListener('change', () => { d.mode = r.value; ptSave(p.id, d); ptSetMode(r.value); }));
     ptSelfTotal();
     const nm = $('#pt-name');
     nm.value = ptGetName();
@@ -11699,6 +11726,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     return `<div class="pt-paper">
       <h3 class="pt-sec">Section A [${mk.A} marks] <span>Answer all questions. Tap an option to choose it.</span></h3>${a}
       <div class="pt-markbar"><button type="button" class="btn-primary pt-mark">Mark Section A</button><button type="button" class="btn-ghost pt-clear">Clear answers</button><span class="pt-result"></span></div>
+      ${ptModeHTML()}
       <h3 class="pt-sec">Section B [${mk.B} marks] <span>Answer all questions.</span></h3>${sec(t.B)}
       <h3 class="pt-sec">Section C [${mk.C} marks] <span>${t.cNote || 'Original paper: answer two questions only. New format: answer all.'}</span></h3>${sec(t.C)}
       ${ptSubmitHTML()}
