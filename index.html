@@ -9444,8 +9444,10 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     for (let p = 0; p <= 250; p += 5) { const ln = L(gx(0), gy(p), gx(16), gy(p), 'thin'); if (p % 50 === 0) g += ln; else gm += ln; }
     for (let v = 0; v <= 16; v++) g += T(gx(v), 260, v, 'middle', 'sm');
     for (let p = 0; p <= 250; p += 50) g += T(44, gy(p) + 4, p, 'end', 'sm');
-    o.q15 = svg(440, 270, '<g opacity="0.3">' + gm + '</g>' + g + T(6, 14, '<tspan class="it">p</tspan>/kPa', 'start', 'sm') + T(gx(16) + 6, 249, '<tspan class="it">V</tspan>/×10<tspan dy="-5" class="sm">−3</tspan><tspan dy="5"> m</tspan><tspan dy="-5" class="sm">3</tspan>', 'start', 'sm'),
-      'Blank graph grid: p from 0 to 250 kPa against V from 0 to 16 × 10⁻³ m³');
+    const loop = L(gx(5), gy(200), gx(15), gy(200), 'mid') + L(gx(15), gy(200), gx(15), gy(150), 'mid') + L(gx(15), gy(150), gx(5), gy(150), 'mid') + L(gx(5), gy(150), gx(5), gy(200), 'mid') +
+      A(gx(10.4), gy(200), gx(9.9), gy(200)) + A(gx(5), gy(178), gx(5), gy(172)) + A(gx(9.6), gy(150), gx(10.1), gy(150)) + A(gx(15), gy(172), gx(15), gy(178));
+    o.q15 = svg(440, 270, '<g opacity="0.3">' + gm + '</g>' + g + loop + T(6, 14, '<tspan class="it">p</tspan>/kPa', 'start', 'sm') + T(gx(16) + 6, 249, '<tspan class="it">V</tspan>/×10<tspan dy="-5" class="sm">−3</tspan><tspan dy="5"> m</tspan><tspan dy="-5" class="sm">3</tspan>', 'start', 'sm'),
+      'p–V graph on a grid (p 0 to 250 kPa, V 0 to 16 × 10⁻³ m³): a rectangular cycle between V = 5 and 15 × 10⁻³ m³ and p = 150 and 200 kPa, traversed anticlockwise (top to the left, left side down, bottom to the right, right side up)');
     o.q16 = svg(400, 240, '<g transform="translate(20 0)">' + C(180, 120, 110, 'shade') + C(180, 120, 110, 'nofill') + T(180, 60, 'Deck', 'middle', 'sm') + R(50, 105, 20, 34, 'nofill') + T(44, 116, 'Platform', 'end', 'sm') + I(44, 132, 'B', 'end') +
       R(290, 105, 20, 34, 'nofill') + I(300, 127, 'X') + T(316, 116, 'Platform', 'start', 'sm') + I(316, 132, 'A', 'start') + dot(180, 122) + I(180, 140, 'O') + AA(184, 122, 288, 122) + T(236, 116, '10.0 m', 'middle', 'sm') + P('M170 128 A 10 10 0 1 1 186 116', 'nofill') + A(172, 130, 168, 126) + '</g>',
       'A rotating circular deck centre O with person X on platform A 10.0 m from O, and platform B on the opposite side');
@@ -16339,7 +16341,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       ["19","(b) 22.8°; (c)(ii) 22.52 N; (iii) 2.81 m s⁻²"],["20","(b)(i) T_i = 435.4 K, T_f = 202.2 K; (ii) −1.696 × 10⁴ J"]]},
     {id:"2020", label:"STPM 2020 · Paper 1 (also U1 2019)", pages:11, keySrc:MPM+" 2020",
      key:"ACABDBBADDCDCDC",
-     answers:[["16","(b) 3.0 × 10¹¹ Pa; (c) 157 N"],["17","(a) 1.79 × 10⁴ J; (b) −7.1 × 10³ J"],["18","(b) 1.54 N; (c) 2.10 m s⁻¹"],
+     answers:[["16","(b) 3.0 × 10¹¹ Pa; (c) 157 N"],["17","(a) −1.79 × 10⁴ J (decrease); (b) +7.15 × 10³ J on the gas (work done by the gas = −7.15 × 10³ J)"],["18","(b) 1.54 N; (c) 2.10 m s⁻¹"],
       ["19","(b)(i) both gases have the same average kinetic energy, 8.76 × 10⁻²¹ J; (ii) 1.62 × 10³ m s⁻¹ and 514 m s⁻¹"],["20","(a)(ii) 61.5 °C; (b)(ii) 923 W; (iii) 46.1 kJ"]]},
     {id:"2019", label:"STPM 2019 · Paper 1 (also U1 2018)", pages:9, keySrc:MPM+" 2019",
      key:"B-AABCDCDBABCCA", note:"Question 2 was not counted by MPM (no key).",
@@ -16933,7 +16935,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   // learn.js asks PQ for the student's name
   const PQ = {studentName: () => ACT.name(), setName: n => ACT.setName(n)};
 
-  const QA_READY = ["2020","2021","2022","2023","2024","2025","2025u1","2026"];
+  const QA_READY = ["2019","2020","2021","2022","2023","2024","2025","2025u1","2026"];
   // ---------- teacher dashboard: every student's activity (from the Activity sheet) ----------
   let actRows = [];
   function actPct(c, t){ return t ? Math.round(c / t * 100) : 0; }
