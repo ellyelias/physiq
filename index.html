@@ -10965,7 +10965,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     let sc = ''; for (let i = -4; i <= 4; i++) sc += R(330, 85 + i * 20, 14, 20, i % 2 === 0 ? 'nofill' : 'fill');
     o.q19 = svg(400, 225, [85, 95, 105].map(y => A(20, y, 80, y)).join('') + T(50, 60, 'Monochromatic', 'middle', 'sm') + T(50, 74, 'light', 'middle', 'sm') +
       R(95, 70, 7, 18, 'fill') + R(95, 93, 7, 6, 'fill') + R(95, 104, 7, 30, 'fill') +
-      D(102, 96, 328, 15) +D(102, 96, 328, 95) + D(102, 96, 328, 165) + I(322, 18, 'A', 'end') + I(322, 182, 'B', 'end') + T(337, 222, 'Screen', 'middle', 'sm') + sc,
+      D(102, 96, 328, 15) +D(102, 96, 328, 95) + D(102, 96, 328, 155) + I(322, 18, 'A', 'end') + I(322, 170, 'B', 'end') + T(337, 222, 'Screen', 'middle', 'sm') + sc,
       'Parallel light through two slits onto a screen of alternate bright and dark fringes; A is the second bright fringe above the centre, B the second dark fringe below');
     return o; })();
 
@@ -16935,7 +16935,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   // learn.js asks PQ for the student's name
   const PQ = {studentName: () => ACT.name(), setName: n => ACT.setName(n)};
 
-  const QA_READY = ["2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025","2025u1","2026","s2-2026","s3-2023","s3-2024","s3-2025"];
+  const QA_READY = ["2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025","2025u1","2026","s2-2026","s3-2022","s3-2023","s3-2024","s3-2025"];
   // ---------- teacher dashboard: every student's activity (from the Activity sheet) ----------
   let actRows = [];
   function actPct(c, t){ return t ? Math.round(c / t * 100) : 0; }
