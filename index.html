@@ -16510,7 +16510,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
         ${['A','B','C','D'].map(o=>`<button class="ps-opt" data-q="${i}" data-o="${o}" aria-label="Question ${i+1} option ${o}">${o}</button>`).join('')}
         <span class="ps-mark" id="ps-mark-${i}"></span>
       </div>`).join('');
-    $('.ps-opt').forEach(b => b.addEventListener('click', () => setPastPick(parseInt(b.dataset.q,10), b.dataset.o)));
+    $$('.ps-opt').forEach(b => b.addEventListener('click', () => setPastPick(parseInt(b.dataset.q,10), b.dataset.o)));
     $('#past-result').textContent = '';
     const saved = loadPicks(p.id);
     if (saved && Array.isArray(saved.picks)){
@@ -16528,7 +16528,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
 
   function setPastPick(q, o, restoring){
     pastState.picks[q] = o;
-    $(`.ps-opt[data-q="${q}"], .pt-opt[data-q="${q}"]`).forEach(x => x.classList.toggle('picked', x.dataset.o === o));
+    $$(`.ps-opt[data-q="${q}"], .pt-opt[data-q="${q}"]`).forEach(x => x.classList.toggle('picked', x.dataset.o === o));
     if (!restoring){ pastState.marked = false; savePicks(); }
   }
 
