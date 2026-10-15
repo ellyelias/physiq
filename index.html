@@ -453,6 +453,10 @@
   .qa-link{display:block;padding:8px 10px;border:1.5px solid var(--line);border-radius:7px;color:var(--navy);text-decoration:none;font-size:13.5px;font-weight:700;}
   .qa-link::before{content:"PDF ";color:var(--orange);font-size:11px;letter-spacing:.06em;}
   .qa-link:hover{border-color:var(--orange);}
+  #notes-content details.mm{margin:6px 0 14px;border:1px solid var(--line);border-radius:10px;background:var(--paper);}
+  #notes-content details.mm summary{cursor:pointer;font-weight:700;color:var(--navy);padding:9px 12px;font-size:13.5px;}
+  #notes-content .mm-wrap{overflow-x:auto;padding:0 8px 10px;}
+  #notes-content .mm-svg{display:block;max-width:100%;height:auto;margin:0 auto;}
   /* ===== phones: one scrolling row of tabs, less padding, no nested boxes ===== */
   @media (max-width:640px){
     .app{padding:12px 16px 48px;}
@@ -6465,7 +6469,7 @@ const NOTES_EXTRA = (function(){
     }
     if (EXTRA_NOTES[key]){ $('#notes-content').innerHTML = `<h2>${escapeHtml(key)}</h2>` + EXTRA_NOTES[key]; updateNotesDownloads('GUIDE-1'); return; }
     const bc = NOTES_BC[key];
-    $('#notes-content').innerHTML = `<h2>${escapeHtml(title.replace(/^S[23]-/, ''))}</h2>` + (bc ? '<p class="notes-part">Part 1 · Section A: definitions, formulas and traps</p>' : '') + mathify(body) +
+    $('#notes-content').innerHTML = `<h2>${escapeHtml(title.replace(/^S[23]-/, ''))}</h2>` + mindmapHTML(key) + (bc ? '<p class="notes-part">Part 1 · Section A: definitions, formulas and traps</p>' : '') + mathify(body) +
       (bc ? `<div class="notes-bc"><p class="notes-part">Part 2 · Sections B &amp; C: derivations, explanations and a worked example</p>${bc}</div>` : '');
     updateNotesDownloads(key);
   }
@@ -7387,6 +7391,264 @@ const NOTES_EXTRA = (function(){
 
     return out;
   })();
+
+  // ===== chapter mind maps shown at the top of every topic's notes =====
+  // MINDMAP_POINTS[chapter][topic number] = key points shown on that topic's branch
+  const MINDMAP_POINTS = {
+    "1": {
+      "1.1": ["7 SI base quantities: m, kg, s, A, K, mol, cd", "Derived units, e.g. N = kg m s⁻²", "Dimensions, e.g. [F] = MLT⁻²", "Homogeneous equation: same dimensions on both sides"],
+      "1.2": ["Scalar: magnitude only", "Vector: magnitude and direction", "Fx = F cos θ, Fy = F sin θ", "R = √(Rx² + Ry²), tan θ = Ry/Rx", "A·B = AB cos θ, |A×B| = AB sin θ"],
+      "1.3": ["Systematic error → accuracy", "Random error → precision", "Add or subtract: add absolute uncertainties", "Multiply or divide: add fractional uncertainties", "Power: Δ(xⁿ)/xⁿ = nΔx/x"]
+    },
+    "2": {
+      "2.1": ["v = u + at", "s = ut + ½at²", "v² = u² + 2as", "s–t gradient = v; v–t gradient = a, area = s", "Free fall: a = g = 9.81 m s⁻²"],
+      "2.2": ["Horizontal: constant velocity u cos θ", "Vertical: acceleration g downwards", "Time of flight T = 2u sin θ/g", "Range R = u² sin 2θ/g (max at 45°)", "Max height H = u² sin²θ/2g"]
+    },
+    "3": {
+      "3.1": ["1st law: inertia", "2nd law: F = dp/dt = ma", "3rd law: equal, opposite, on different bodies", "Draw free-body diagrams"],
+      "3.2": ["p = mv (kg m s⁻¹)", "Impulse = FΔt = Δp", "Impulse = area under F–t graph", "No external force: Σp conserved"],
+      "3.3": ["Elastic: p and KE conserved", "Inelastic: p conserved, KE lost", "Perfectly inelastic: bodies stick", "Elastic: speed of approach = speed of separation"],
+      "3.4": ["Static: f ≤ μsR", "Kinetic: f = μkR, μk < μs", "Opposes (tendency of) relative motion"]
+    },
+    "4": {
+      "4.1": ["W = Fs cos θ (J)", "W = area under F–s graph", "Spring: W = ½kx²"],
+      "4.2": ["KE = ½mv², GPE = mgh", "Work–energy theorem: Wnet = ΔKE", "Total energy is conserved", "Friction: energy lost = work against friction"],
+      "4.3": ["P = W/t = Fv (W)", "Efficiency = useful output ÷ input × 100%"]
+    },
+    "5": {
+      "5.1": ["θ = s/r (rad)", "ω = 2π/T = 2πf", "v = rω", "a = v²/r = rω², towards the centre"],
+      "5.2": ["F = mv²/r = mrω², towards the centre", "Provided by tension, friction, gravity, normal force", "Vertical circle: Ttop = mv²/r − mg", "Banked track, conical pendulum: tan θ = v²/rg"]
+    },
+    "6": {
+      "6.1": ["F = GMm/r²", "G = 6.67 × 10⁻¹¹ N m² kg⁻²", "Always attractive"],
+      "6.2": ["g = GM/r² (N kg⁻¹)", "V = −GM/r, zero at infinity", "g = −dV/dr", "U = −GMm/r", "Escape velocity v = √(2GM/R)"],
+      "6.3": ["GMm/r² = mv²/r → v = √(GM/r)", "T² = (4π²/GM)r³", "Total E = −GMm/2r", "Geostationary: T = 24 h, above the equator"]
+    },
+    "7": {
+      "7.1": ["τ = Fr sin θ = Iα", "ω = ω₀ + αt", "θ = ω₀t + ½αt²", "ω² = ω₀² + 2αθ", "s = rθ, v = rω, a = rα"],
+      "7.2": ["I = Σmr² (kg m²)", "Depends on mass distribution and axis", "Ring MR², disc ½MR², rod ML²/12"],
+      "7.3": ["L = Iω, τ = dL/dt", "No external torque: I₁ω₁ = I₂ω₂", "KE = ½Iω²", "Rolling: KE = ½mv² + ½Iω²"]
+    },
+    "8": {
+      "8.1": ["Translational: ΣF = 0", "Rotational: Στ = 0", "Three forces: concurrent, triangle of forces", "Resolve into x and y components"],
+      "8.2": ["Moment = F × perpendicular distance", "Principle of moments: Σ clockwise = Σ anticlockwise", "Centre of gravity: where the weight acts", "Stability: low centre of gravity, wide base"]
+    },
+    "9": {
+      "9.1": ["Stress σ = F/A (Pa)", "Strain ε = Δl/l", "Young's modulus E = σ/ε = Fl/AΔl", "Hooke's law up to the proportional limit", "Elastic → plastic; yield point; breaking"],
+      "9.2": ["U = ½Fx = ½kx²", "U = area under F–x graph", "Energy per unit volume = ½σε"]
+    },
+    "10": {
+      "10.1": ["pV = nRT = NkT", "Boyle, Charles and pressure laws", "R = 8.31 J K⁻¹ mol⁻¹, k = R/NA", "Temperature in kelvin"],
+      "10.2": ["Kinetic theory assumptions", "p = ⅓ρ⟨c²⟩", "Mean KE = (3/2)kT", "crms = √(3RT/M)", "Equipartition: ½kT per degree of freedom"]
+    },
+    "11": {
+      "11.1": ["Q = ΔU + W (W = work done by the gas)", "W = pΔV = area under p–V graph", "ΔU = nCvΔT (depends on T only)", "Cp − Cv = R, γ = Cp/Cv"],
+      "11.2": ["Isothermal: ΔU = 0, pV = constant", "Adiabatic: Q = 0, pVᵞ = constant", "Isobaric: W = pΔV", "Isochoric: W = 0, Q = ΔU"]
+    },
+    "12": {
+      "12.1": ["Conduction: dQ/dt = −kA dθ/dx", "Slabs in series: same rate of heat flow", "Convection: bulk movement of fluid", "Radiation: P = eσAT⁴"]
+    },
+    "S2-12": {
+      "12.1": ["F = Q₁Q₂/(4πε₀r²)", "k = 9.0 × 10⁹ N m² C⁻²", "Like charges repel, unlike attract", "Add forces as vectors"],
+      "12.2": ["E = F/q (N C⁻¹)", "Point charge: E = Q/(4πε₀r²)", "Field lines: + to −, never cross", "Between plates: E = V/d (uniform)"],
+      "12.3": ["Φ = Q(enclosed)/ε₀", "Sphere: E = 0 inside, Q/(4πε₀r²) outside", "Sheet: E = σ/2ε₀; conductor: σ/ε₀"],
+      "12.4": ["V = Q/(4πε₀r) (scalar)", "E = −dV/dr", "U = qV = Q₁Q₂/(4πε₀r)", "Equipotentials ⊥ field lines"]
+    },
+    "S2-13": {
+      "13.1": ["C = Q/V (farad)"],
+      "13.2": ["C = ε₀A/d", "E = V/d = σ/ε₀"],
+      "13.3": ["C = εrC₀", "Polarisation reduces E and V", "Isolated: Q constant; connected: V constant"],
+      "13.4": ["Series: 1/C = 1/C₁ + 1/C₂, same Q", "Parallel: C = C₁ + C₂, same V"],
+      "13.5": ["U = ½QV = ½CV² = Q²/2C", "Battery supplies QV; half becomes heat"],
+      "13.6": ["Time constant τ = RC", "Charging: Q = Q₀(1 − e^(−t/RC))", "Discharging: Q = Q₀e^(−t/RC)", "t½ = RC ln 2"]
+    },
+    "S2-14": {
+      "14.1": ["I = dQ/dt", "Free electrons: random motion + drift"],
+      "14.2": ["I = nAevd", "vd ≈ 10⁻⁴ m s⁻¹", "vd = eEτ/m"],
+      "14.3": ["J = I/A = nevd", "J = σE (microscopic Ohm's law)"],
+      "14.4": ["R = ρl/A, σ = 1/ρ", "σ = ne²τ/m", "Metal: ρ rises with T (τ falls)", "Semiconductor: ρ falls with T (n rises)"]
+    },
+    "S2-15": {
+      "15.1": ["V = ε − Ir (lost volts Ir)", "V–I graph: intercept ε, gradient −r", "Maximum power when R = r"],
+      "15.2": ["1st law: ΣIin = ΣIout (charge)", "2nd law: Σε = ΣIR round a loop (energy)"],
+      "15.3": ["Vout = Vin R₂/(R₁ + R₂)", "A load lowers Vout", "Sensors: LDR, thermistor"],
+      "15.4": ["Balance: no current from the cell", "ε₁/ε₂ = l₁/l₂", "r = R(l₁/l₂ − 1)", "Wheatstone: P/Q = R/S"]
+    },
+    "S2-16": {
+      "16.1": ["Field lines N → S outside a magnet", "Right-hand grip rule", "B in tesla (T)"],
+      "16.2": ["F = qvB sin θ", "r = mv/qB, T = 2πm/qB", "F ⊥ v: no work, speed constant"],
+      "16.3": ["F = BIL sin θ", "Fleming's left-hand rule", "Torque on a coil τ = NBIA cos φ"],
+      "16.4": ["Wire: B = μ₀I/2πr", "Coil centre: B = μ₀NI/2r", "Solenoid: B = μ₀nI", "Ampère: ∮B·dl = μ₀I"],
+      "16.5": ["F/l = μ₀I₁I₂/2πd", "Same direction attract, opposite repel"],
+      "16.6": ["Velocity selector: v = E/B", "eV = ½mv²", "e/m = v/Br"],
+      "16.7": ["eVH/d = evB", "VH = BI/nqt", "Gives B, n and the sign of carriers"]
+    },
+    "S2-17": {
+      "17.1": ["Φ = BA cos θ (Wb)", "Flux linkage NΦ"],
+      "17.2": ["ε = −d(NΦ)/dt", "Moving rod: ε = Blv", "Rotating coil: ε = NBAω sin ωt", "Lenz: opposes the change"],
+      "17.3": ["ε = −L dI/dt", "L = NΦ/I = μ₀N²A/l", "Back e.m.f. slows the growth of current"],
+      "17.4": ["U = ½LI²", "Energy is stored in the magnetic field"],
+      "17.5": ["ε₂ = −M dI₁/dt", "M = μ₀N₁N₂A/l", "Principle of the transformer"]
+    },
+    "S2-18": {
+      "18.1": ["V and I in phase", "Irms = I₀/√2", "Pavg = Irms²R = ½I₀²R"],
+      "18.2": ["V leads I by 90°", "XL = ωL = 2πfL", "Average power = 0"],
+      "18.3": ["I leads V by 90°", "XC = 1/ωC", "Average power = 0"],
+      "18.4": ["Z = √(R² + X²)", "tan φ = X/R", "V² = VR² + VX² (phasors)", "P = Irms²R = VI cos φ"]
+    },
+    "S3-19": {
+      "19.1": ["a = −ω²x", "Amplitude, period T, frequency f", "ω = 2πf = 2π/T"],
+      "19.2": ["x = A sin ωt", "v = ±ω√(A² − x²), vmax = ωA", "amax = ω²A"],
+      "19.3": ["KE = ½mω²(A² − x²)", "PE = ½mω²x²", "Total E = ½mω²A² (constant)"],
+      "19.4": ["Spring: T = 2π√(m/k)", "Pendulum: T = 2π√(l/g)", "Liquid in U-tube: T = 2π√(l/2g)"],
+      "19.5": ["Light, critical and heavy damping", "Amplitude decays, energy lost", "Critical: fastest return, no oscillation"],
+      "19.6": ["Oscillates at the driving frequency", "Resonance: fdriving = fnatural", "Damping lowers and broadens the peak"]
+    },
+    "S3-20": {
+      "20.1": ["y = A sin(ωt − kx)", "v = fλ, k = 2π/λ", "Phase difference = 2πΔx/λ", "Transverse and longitudinal"],
+      "20.2": ["I = P/A (W m⁻²)", "I ∝ A²", "Point source: I = P/4πr²"],
+      "20.3": ["Resultant = sum of displacements", "Constructive: path difference nλ", "Destructive: (n + ½)λ"],
+      "20.4": ["y = 2A cos kx sin ωt", "Node to node = λ/2", "No net energy transfer"],
+      "20.5": ["E ⊥ B ⊥ direction of travel", "c = 1/√(μ₀ε₀) = 3.0 × 10⁸ m s⁻¹", "Spectrum: radio to gamma"]
+    },
+    "S3-21": {
+      "21.1": ["Longitudinal: compressions and rarefactions", "Pressure 90° out of phase with displacement", "Gas: v = √(γp/ρ); solid: v = √(E/ρ)"],
+      "21.2": ["String: f = (n/2L)√(T/μ)", "Open pipe: f = nv/2L", "Closed pipe: odd harmonics only", "End correction"],
+      "21.3": ["β = 10 log(I/I₀) dB", "I₀ = 1.0 × 10⁻¹² W m⁻²", "Double I: +3 dB"],
+      "21.4": ["fbeat = |f₁ − f₂|", "Loudness rises and falls"],
+      "21.5": ["f′ = f(v ± uo)/(v ∓ us)", "Approaching: higher f; receding: lower f", "Uses: radar, ultrasound"]
+    },
+    "S3-22": {
+      "22.1": ["f = r/2", "1/u + 1/v = 1/f", "Magnification m = v/u", "Real is positive"],
+      "22.2": ["n₁/u + n₂/v = (n₂ − n₁)/r", "Apparent depth"],
+      "22.3": ["1/u + 1/v = 1/f", "1/f = (n − 1)(1/r₁ + 1/r₂)", "Power P = 1/f (dioptre)"]
+    },
+    "S3-23": {
+      "23.1": ["Every point on a wavefront is a source of wavelets", "New wavefront = envelope"],
+      "23.2": ["Coherent: same f, constant phase difference", "Bright: path difference nλ"],
+      "23.3": ["Fringe separation y = λD/a", "Equally spaced fringes"],
+      "23.4": ["Phase change π on reflection from denser medium", "Air wedge, Newton's rings", "Count phase changes before applying 2nt"],
+      "23.5": ["Minima: a sin θ = mλ", "Central maximum twice as wide"],
+      "23.6": ["d sin θ = nλ", "d = 1/N", "nmax < d/λ"],
+      "23.7": ["Only transverse waves", "Malus: I = I₀cos²θ", "Brewster: tan θB = n"],
+      "23.8": ["Total internal reflection", "sin c = n₂/n₁", "Core n > cladding n"]
+    },
+    "S3-24": {
+      "24.1": ["E = hf = hc/λ", "hf = W + KEmax", "eVs = KEmax, f₀ = W/h", "Intensity → number; f → energy"],
+      "24.2": ["de Broglie: λ = h/p", "Electron diffraction shows wave nature"],
+      "24.3": ["Bohr: L = nh/2π", "En = −13.6/n² eV", "hf = Eupper − Elower", "Line spectra"],
+      "24.4": ["Continuous spectrum + characteristic lines", "λmin = hc/eV", "Bragg: 2d sin θ = nλ"],
+      "24.5": ["Scale 1–100 nm", "Large surface area to volume ratio", "Uses: electronics, medicine, materials"]
+    },
+    "S3-25": {
+      "25.1": ["Z protons, A − Z neutrons", "r = r₀A^(1/3)", "Binding energy = Δmc²", "BE per nucleon peaks near Fe-56"],
+      "25.2": ["α, β and γ properties", "N = N₀e^(−λt)", "t½ = ln 2/λ", "Activity A = λN (Bq)"],
+      "25.3": ["Nucleon number and charge conserved", "Q = Δmc², 1 u = 931.5 MeV", "Fission: heavy splits; fusion: light join"]
+    }
+  };
+
+  const MM_COLORS = ["#1B3A6B", "#EA580C", "#16A34A", "#7C3AED", "#0D9488", "#DC2626", "#B45309", "#2563EB"];
+
+  function mmEsc(s){ return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function mmWrap(text, max){
+    const words = String(text).split(" "), lines = [];
+    let cur = "";
+    words.forEach(w => {
+      if (cur && (cur + " " + w).length > max){ lines.push(cur); cur = w; }
+      else cur = cur ? cur + " " + w : w;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  // the chapter of a notes key: "S2-17.3 Self Induction" -> "S2-17", topic "17.3"
+  function mmParse(key){
+    const m = String(key).match(/^((?:S[23]-)?)(\d+)\.(\d+)/);
+    return m ? {ch: m[1] + m[2], num: m[2] + "." + m[3]} : null;
+  }
+
+  function mindmapSVG(key, narrow){
+    const p = mmParse(key); if (!p || !MINDMAP_POINTS[p.ch]) return "";
+    const pts = MINDMAP_POINTS[p.ch];
+    const topics = TOPICS.filter(t => { const q = mmParse(t); return q && q.ch === p.ch; });
+    if (!topics.length) return "";
+    const chName = chapterGroupLabel(topics[0]).replace(/^Chapter \d+ — /, "");
+    const branches = topics.map((t, i) => {
+      const q = mmParse(t);
+      return {num: q.num, title: t.replace(/^S[23]-/, ""), items: pts[q.num] || [], color: MM_COLORS[i % MM_COLORS.length], active: q.num === p.num};
+    });
+    const HL = 18, IL = 17;
+    const size = (b, cw) => {
+      b.head = mmWrap(b.title, Math.floor((cw - 22) / 8.2));
+      b.lines = [];
+      b.items.forEach(it => mmWrap(it, Math.floor((cw - 30) / 7.1)).forEach((ln, j) => b.lines.push({t: ln, first: j === 0})));
+      b.h = 14 + b.head.length * HL + (b.lines.length ? 6 + b.lines.length * IL : 0) + 10;
+    };
+    const card = (b, x, y, cw) => {
+      let s = `<rect x="${x}" y="${y}" width="${cw}" height="${b.h}" rx="10" fill="${b.color}" fill-opacity="${b.active ? 0.16 : 0.06}" stroke="${b.color}" stroke-width="${b.active ? 3 : 1.5}"/>`;
+      let ty = y + 14 + 13;
+      b.head.forEach(ln => { s += `<text x="${x + 11}" y="${ty}" font-size="14" font-weight="700" fill="${b.color}">${mmEsc(ln)}</text>`; ty += HL; });
+      if (b.lines.length) ty += 4;
+      b.lines.forEach(l => {
+        if (l.first) s += `<circle cx="${x + 15}" cy="${ty - 4.5}" r="2.6" fill="${b.color}"/>`;
+        s += `<text x="${x + 24}" y="${ty}" font-size="13" fill="#1E293B">${mmEsc(l.t)}</text>`; ty += IL;
+      });
+      if (b.active) s += `<text x="${x + cw - 10}" y="${y - 6}" font-size="11.5" font-weight="700" text-anchor="end" fill="${b.color}">YOU ARE HERE</text>`;
+      return s;
+    };
+    let body = "", W, H;
+    if (!narrow){
+      W = 900; const CW = 270, CX = 450, BW = 210, gap = 22;
+      branches.forEach(b => size(b, CW));
+      const k = Math.ceil(branches.length / 2), right = branches.slice(0, k), left = branches.slice(k);
+      const colH = col => col.reduce((a, b) => a + b.h, 0) + Math.max(0, col.length - 1) * gap;
+      const head = mmWrap(chName, 20), bh = 34 + head.length * 20;
+      H = Math.max(colH(right), colH(left), bh) + 40;
+      const cy = H / 2;
+      const place = (col, x, edge) => {
+        let y = (H - colH(col)) / 2;
+        col.forEach(b => {
+          const my = y + b.h / 2, x0 = edge, x1 = x === 16 ? 16 + CW : x;
+          body += `<path d="M${x0} ${cy} C${(x0 + x1) / 2} ${cy} ${(x0 + x1) / 2} ${my} ${x1} ${my}" fill="none" stroke="${b.color}" stroke-width="${b.active ? 4 : 2.5}" stroke-linecap="round"/>`;
+          body += card(b, x, y, CW);
+          y += b.h + gap;
+        });
+      };
+      place(right, W - 16 - CW, CX + BW / 2);
+      place(left, 16, CX - BW / 2);
+      body += `<rect x="${CX - BW / 2}" y="${cy - bh / 2}" width="${BW}" height="${bh}" rx="16" fill="#1B3A6B"/>`;
+      let ty = cy - bh / 2 + 24;
+      body += `<text x="${CX}" y="${ty}" font-size="11.5" font-weight="700" text-anchor="middle" fill="#FDECE0" letter-spacing="1">CHAPTER ${mmEsc(p.ch.replace(/^S[23]-/, ""))}</text>`;
+      ty += 22;
+      head.forEach(ln => { body += `<text x="${CX}" y="${ty}" font-size="17" font-weight="700" text-anchor="middle" fill="#FFFFFF">${mmEsc(ln)}</text>`; ty += 20; });
+    } else {
+      W = 380; const CW = 322, X = 42;
+      branches.forEach(b => size(b, CW));
+      const head = mmWrap(chName, 30), bh = 30 + head.length * 20;
+      body += `<rect x="8" y="8" width="${W - 16}" height="${bh}" rx="14" fill="#1B3A6B"/>`;
+      let ty = 8 + 22;
+      body += `<text x="${W / 2}" y="${ty}" font-size="11.5" font-weight="700" text-anchor="middle" fill="#FDECE0" letter-spacing="1">CHAPTER ${mmEsc(p.ch.replace(/^S[23]-/, ""))}</text>`;
+      ty += 20;
+      head.forEach(ln => { body += `<text x="${W / 2}" y="${ty}" font-size="16" font-weight="700" text-anchor="middle" fill="#FFFFFF">${mmEsc(ln)}</text>`; ty += 20; });
+      let y = 8 + bh + 22, lastMid = 0;
+      const cards = branches.map(b => { const c = {b, y, mid: y + 22}; y += b.h + 22; lastMid = c.mid; return c; });
+      body += `<path d="M22 ${8 + bh} L22 ${lastMid}" fill="none" stroke="#1B3A6B" stroke-width="2.5" stroke-linecap="round"/>`;
+      cards.forEach(c => {
+        body += `<path d="M22 ${c.mid} L${X} ${c.mid}" fill="none" stroke="${c.b.color}" stroke-width="${c.b.active ? 4 : 2.5}" stroke-linecap="round"/>`;
+        body += card(c.b, X, c.y, CW);
+      });
+      H = y;
+    }
+    return `<svg class="mm-svg" viewBox="0 0 ${W} ${H}" width="${W}" role="img" aria-label="Mind map of ${mmEsc(chName)}">${body}</svg>`;
+  }
+
+  function mindmapHTML(key){
+    const svg = mindmapSVG(key, window.innerWidth < 640);
+    if (!svg) return "";
+    let open = true;
+    try{ open = localStorage.getItem("physiq-mindmap-open") !== "0"; }catch(e){}
+    return `<details class="mm"${open ? " open" : ""} ontoggle="try{localStorage.setItem('physiq-mindmap-open', this.open ? '1' : '0')}catch(e){}"><summary>Chapter mind map</summary><div class="mm-wrap">${svg}</div></details>`;
+  }
 
   // ---------- Section B & C notes, one block per Semester 1 topic (appended under the Section A notes) ----------
   const NOTES_BC = {};
