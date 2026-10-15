@@ -16457,7 +16457,12 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       "20":"Isothermal: change of state at constant temperature; derive W by integrating p dV. Label the isothermal process on the p–V graph."}
   };
 
-  let pastState = {paperId: null, picks: []};
+  let pastState = {paperId: null, picks: [], marked: false};
+  // Section A choices are kept per paper in this browser, so they survive closing the app.
+  const PP_LS = 'physiq-past-picks-';
+  function loadPicks(id){ try{ return JSON.parse(localStorage.getItem(PP_LS + id) || 'null'); }catch(e){ return null; } }
+  function savePicks(){ try{ localStorage.setItem(PP_LS + pastState.paperId, JSON.stringify({picks: pastState.picks, marked: pastState.marked})); }catch(e){} }
+  function clearPast(){ try{ localStorage.removeItem(PP_LS + pastState.paperId); }catch(e){} renderPastPaper(); }
 
   async function loadPastScores(){
     try{ const r = await window.storage.get('past-paper-scores', false); return r && r.value ? JSON.parse(r.value) : {}; }
@@ -16472,6 +16477,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   async function renderPastPaper(){
     const p = pastPaper();
     pastState.picks = new Array(p.key.length).fill(null);
+    pastState.marked = false;
     $('#past-title').textContent = p.label;
     $('#past-source').textContent = `Answers: ${p.keySrc}`;
     $('#past-note').textContent = p.note || '';
@@ -16490,7 +16496,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       });
       $$('.pt-opt').forEach(b => b.addEventListener('click', () => setPastPick(parseInt(b.dataset.q,10), b.dataset.o)));
       $('.pt-mark').addEventListener('click', markPast);
-      $('.pt-clear').addEventListener('click', renderPastPaper);
+      $('.pt-clear').addEventListener('click', clearPast);
       wirePastAnswers(p);
       $('#panel-past').classList.add('is-typed');
     } else {
@@ -16504,8 +16510,13 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
         ${['A','B','C','D'].map(o=>`<button class="ps-opt" data-q="${i}" data-o="${o}" aria-label="Question ${i+1} option ${o}">${o}</button>`).join('')}
         <span class="ps-mark" id="ps-mark-${i}"></span>
       </div>`).join('');
-    $$('.ps-opt').forEach(b => b.addEventListener('click', () => setPastPick(parseInt(b.dataset.q,10), b.dataset.o)));
+    $('.ps-opt').forEach(b => b.addEventListener('click', () => setPastPick(parseInt(b.dataset.q,10), b.dataset.o)));
     $('#past-result').textContent = '';
+    const saved = loadPicks(p.id);
+    if (saved && Array.isArray(saved.picks)){
+      saved.picks.forEach((o, i) => { if (o && i < p.key.length) setPastPick(i, o, true); });
+      if (saved.marked) markPast(true);
+    }
     const tips = PAST_TIPS[p.id] || {};
     const tipLabel = p.id === '2025u1' ? 'Common mistakes (from our class marking)' : "Examiners' comments: common mistakes";
     $('#past-answers').innerHTML = p.answers.map(([q,a]) => `
@@ -16515,12 +16526,14 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     $('#past-best').textContent = s ? `Your best Section A score: ${s.best}/${s.total}` : '';
   }
 
-  function setPastPick(q, o){
+  function setPastPick(q, o, restoring){
     pastState.picks[q] = o;
-    $$(`.ps-opt[data-q="${q}"], .pt-opt[data-q="${q}"]`).forEach(x => x.classList.toggle('picked', x.dataset.o === o));
+    $(`.ps-opt[data-q="${q}"], .pt-opt[data-q="${q}"]`).forEach(x => x.classList.toggle('picked', x.dataset.o === o));
+    if (!restoring){ pastState.marked = false; savePicks(); }
   }
 
-  async function markPast(){
+  async function markPast(restoring){
+    if (restoring !== true) restoring = false;
     const p = pastPaper();
     let got = 0, total = 0;
     for (let i = 0; i < p.key.length; i++){
@@ -16540,6 +16553,8 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     $('#past-result').textContent = `Section A: ${got} / ${total}`;
     const inl = document.querySelector('.pt-result');
     if (inl) inl.textContent = `Section A: ${got} / ${total} — green is the correct answer, red is your wrong choice.`;
+    pastState.marked = true; savePicks();
+    if (restoring) return;
     const scores = await loadPastScores();
     const prev = scores[p.id];
     scores[p.id] = {best: prev ? Math.max(prev.best, got) : got, total, date: new Date().toISOString()};
@@ -16552,7 +16567,8 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     const sel = $('#past-year');
     const list = PAST_PAPERS.filter(p => pastSem(p) === sem);
     sel.innerHTML = list.map(p => `<option value="${p.id}">${escapeHtml(p.label)}${TYPED[p.id] ? ' · retyped' : ''}</option>`).join('');
-    pastState.paperId = (list.find(p => TYPED[p.id]) || list[0]).id;
+    let last = null; try{ last = localStorage.getItem('physiq-past-paper'); }catch(e){}
+    pastState.paperId = (list.find(p => p.id === last) || list.find(p => TYPED[p.id]) || list[0]).id;
     sel.value = pastState.paperId;
   }
   function initPast(){
@@ -16568,14 +16584,14 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       try{ localStorage.setItem('physiq-past-sem', String(s)); }catch(e){}
       fillPastPapers(s); renderPastPaper();
     });
-    sel.addEventListener('change', () => { pastState.paperId = sel.value; renderPastPaper(); });
+    sel.addEventListener('change', () => { pastState.paperId = sel.value; try{ localStorage.setItem('physiq-past-paper', sel.value); }catch(e){} renderPastPaper(); });
     $('#past-mark').addEventListener('click', markPast);
     $('#past-drawer-toggle').addEventListener('click', () => {
       const side = $('#past-side'); const open = side.classList.toggle('open');
       $('#past-drawer-toggle').textContent = open ? 'Answer sheet ▼ (tap to close)' : 'Answer sheet ▲';
       $('#past-drawer-toggle').setAttribute('aria-expanded', String(open));
     });
-    $('#past-clear').addEventListener('click', renderPastPaper);
+    $('#past-clear').addEventListener('click', clearPast);
     renderPastPaper();
   }
 
