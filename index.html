@@ -457,6 +457,26 @@
   #notes-content details.mm summary{cursor:pointer;font-weight:700;color:var(--navy);padding:9px 12px;font-size:13.5px;}
   #notes-content .mm-wrap{overflow-x:auto;padding:0 8px 10px;}
   #notes-content .mm-svg{display:block;max-width:100%;height:auto;margin:0 auto;}
+  #notes-content .dv-intro{font-size:14px;line-height:1.55;margin:0 0 8px;}
+  #notes-content .dv-tools{margin:0 0 12px;display:flex;gap:8px;flex-wrap:wrap;}
+  #notes-content .dv-btn{border:1.5px solid var(--line);background:var(--paper);color:var(--navy);border-radius:7px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer;}
+  #notes-content .dv-btn:hover{border-color:var(--orange);}
+  #notes-content h3.dv-ch{margin:22px 0 8px;}
+  #notes-content details.dv{border:1px solid var(--line);border-radius:10px;margin:0 0 8px;background:var(--paper);}
+  #notes-content details.dv[open]{border-color:var(--navy);}
+  #notes-content details.dv summary{cursor:pointer;padding:10px 12px;line-height:1.45;}
+  #notes-content .dv-code{display:inline-block;font-size:11.5px;font-weight:700;color:var(--orange);letter-spacing:.04em;margin-right:8px;}
+  #notes-content .dv-title{font-weight:700;color:var(--navy);font-size:14px;}
+  #notes-content .dv-res{display:block;font-size:13.5px;margin-top:3px;color:var(--ink);}
+  #notes-content .dv-body{padding:4px 14px 12px;border-top:1px solid var(--line);}
+  #notes-content .dv-figwrap{overflow-x:auto;margin:10px 0 6px;}
+  #notes-content .dv-fig{display:block;max-width:100%;height:auto;margin:0 auto;}
+  #notes-content ol.dv-steps{margin:8px 0 10px 20px;}
+  #notes-content ol.dv-steps li{margin-bottom:8px;}
+  #notes-content .dv-result{background:var(--orange-tint);border-left:4px solid var(--orange);padding:8px 12px;border-radius:6px;font-size:14px;margin:6px 0;}
+  #notes-content .dv-note{font-size:12.5px;color:var(--sub);margin:6px 0 0;}
+  #notes-content .dv-topic{background:var(--navy-tint);border-radius:8px;padding:9px 12px;font-size:13.5px;line-height:1.5;margin:0 0 14px;}
+  #notes-content .dv-topic a{color:var(--orange);font-weight:700;}
   /* ===== phones: one scrolling row of tabs, less padding, no nested boxes ===== */
   @media (max-width:640px){
     .app{padding:12px 16px 48px;}
@@ -6370,6 +6390,7 @@ const NOTES_EXTRA = (function(){
     const sem = currentSemester;
     let html = `<optgroup label="Section A guide — traps &amp; tricks"><option value="GUIDE-${sem}">${escapeHtml(NOTES_EXTRA.titles['GUIDE-'+sem] || 'Section A Guide')}</option></optgroup>`;
     if (sem === '1') html += `<optgroup label="Sections B &amp; C guides">${Object.keys(EXTRA_NOTES).map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('')}</optgroup>`;
+    html += `<optgroup label="Syllabus derivations (STPM 2026)"><option value="DERIV-${sem}">All derivations · Semester ${sem} (${derivCount(Number(sem))})</option></optgroup>`;
     const groups = {};
     TOPICS.forEach(t=>{
       const g = chapterGroupLabel(t);
@@ -6460,6 +6481,7 @@ const NOTES_EXTRA = (function(){
 
   function renderNotesContent(){
     const key = $('#notes-topic-select').value;
+    if (key.indexOf('DERIV-') === 0){ $('#notes-content').innerHTML = derivPage(key); updateNotesDownloads('GUIDE-' + key.split('-')[1]); return; }
     let title = key, body;
     if (key.indexOf('GUIDE-') === 0){
       title = NOTES_EXTRA.titles[key] || 'Section A Guide';
@@ -6469,7 +6491,7 @@ const NOTES_EXTRA = (function(){
     }
     if (EXTRA_NOTES[key]){ $('#notes-content').innerHTML = `<h2>${escapeHtml(key)}</h2>` + EXTRA_NOTES[key]; updateNotesDownloads('GUIDE-1'); return; }
     const bc = NOTES_BC[key];
-    $('#notes-content').innerHTML = `<h2>${escapeHtml(title.replace(/^S[23]-/, ''))}</h2>` + mindmapHTML(key) + (bc ? '<p class="notes-part">Part 1 · Section A: definitions, formulas and traps</p>' : '') + mathify(body) +
+    $('#notes-content').innerHTML = `<h2>${escapeHtml(title.replace(/^S[23]-/, ''))}</h2>` + mindmapHTML(key) + derivForTopic(key) + (bc ? '<p class="notes-part">Part 1 · Section A: definitions, formulas and traps</p>' : '') + mathify(body) +
       (bc ? `<div class="notes-bc"><p class="notes-part">Part 2 · Sections B &amp; C: derivations, explanations and a worked example</p>${bc}</div>` : '');
     updateNotesDownloads(key);
   }
@@ -6478,7 +6500,7 @@ const NOTES_EXTRA = (function(){
     const key = $('#notes-topic-select').value;
     if (EXTRA_NOTES[key]){ $$('.tab').find(t=>t.dataset.tab==='structured').click(); window.scrollTo({top:0, behavior:'smooth'}); return; }
     let wanted;
-    if (key.indexOf('GUIDE-') === 0) wanted = TOPICS.slice();
+    if (key.indexOf('GUIDE-') === 0 || key.indexOf('DERIV-') === 0) wanted = TOPICS.slice();
     else wanted = [key];
     $$('.tab').forEach(t=>t.classList.remove('active'));
     const studentTab = $$('.tab').find(t=>t.dataset.tab==='student');
@@ -7648,6 +7670,499 @@ const NOTES_EXTRA = (function(){
     let open = true;
     try{ open = localStorage.getItem("physiq-mindmap-open") !== "0"; }catch(e){}
     return `<details class="mm"${open ? " open" : ""} ontoggle="try{localStorage.setItem('physiq-mindmap-open', this.open ? '1' : '0')}catch(e){}"><summary>Chapter mind map</summary><div class="mm-wrap">${svg}</div></details>`;
+  }
+
+  // ===== syllabus derivations (STPM Physics 960 syllabus used from STPM 2026) =====
+  // Every learning outcome that says derive / deduce / show / verify, with numbered steps and a diagram where it helps.
+  const DV = (() => {
+    const INK = "#1E293B", AC = "#EA580C", NV = "#1B3A6B", FILL = "#FDECE0";
+    const sv = (w, h, body) => `<svg class="dv-fig" viewBox="0 0 ${w} ${h}" width="${w}" role="img" font-size="13" fill="${INK}">${body}</svg>`;
+    const ln = (x1, y1, x2, y2, o = "") => `<line ${o} x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${INK}" stroke-width="1.6"/>`;
+    const dl = (x1, y1, x2, y2) => ln(x1, y1, x2, y2, 'stroke-dasharray="4 3" stroke-width="1.2"');
+    const ar = (x1, y1, x2, y2, c = INK, w = 1.8) => {
+      const a = Math.atan2(y2 - y1, x2 - x1), h = 8;
+      const p1 = [x2 - h * Math.cos(a - 0.4), y2 - h * Math.sin(a - 0.4)], p2 = [x2 - h * Math.cos(a + 0.4), y2 - h * Math.sin(a + 0.4)];
+      return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}"/><path d="M${x2} ${y2} L${p1[0].toFixed(1)} ${p1[1].toFixed(1)} L${p2[0].toFixed(1)} ${p2[1].toFixed(1)} Z" fill="${c}"/>`;
+    };
+    const tx = (x, y, s, a = "start", o = "") => `<text x="${x}" y="${y}" text-anchor="${a}" ${o}>${s}</text>`;
+    const it = s => `<tspan font-style="italic">${s}</tspan>`;
+    const sb = s => `<tspan dy="4" font-size="10">${s}</tspan><tspan dy="-4"> </tspan>`;
+    const ci = (x, y, r, o = 'fill="none" stroke="' + INK + '" stroke-width="1.6"') => `<circle cx="${x}" cy="${y}" r="${r}" ${o}/>`;
+    const pa = (d, o = 'fill="none" stroke="' + INK + '" stroke-width="1.8"') => `<path d="${d}" ${o}/>`;
+    const axes = (x0, y0, x1, y1, xl, yl) => ar(x0, y0, x1, y0) + ar(x0, y0, x0, y1) + tx(x1, y0 + 16, xl, "end") + tx(x0 - 6, y1 + 4, yl, "end");
+
+    const F = {
+      vt: sv(280, 180, `<polygon points="50,150 50,110 230,45 230,150" fill="${FILL}"/>` + axes(50, 150, 260, 20, "time", it("v")) +
+        ln(50, 110, 230, 45, `stroke="${AC}" stroke-width="2.4"`) + dl(50, 45, 230, 45) + dl(230, 45, 230, 150) +
+        tx(44, 114, it("u"), "end") + tx(44, 49, it("v"), "end") + tx(230, 168, it("t"), "middle") + tx(150, 72, "gradient = " + it("a"), "end") + tx(140, 135, "area = " + it("s"), "middle")),
+      coll: sv(300, 120, ci(110, 60, 30, `fill="${FILL}" stroke="${INK}" stroke-width="1.6"`) + ci(170, 60, 30, `fill="#EEF2F8" stroke="${INK}" stroke-width="1.6"`) +
+        tx(110, 64, "A", "middle", 'font-weight="700"') + tx(170, 64, "B", "middle", 'font-weight="700"') + ar(140, 40, 95, 40, AC, 2.2) + ar(140, 82, 185, 82, NV, 2.2) +
+        tx(60, 30, it("F") + sb("BA") + " (on A)", "start") + tx(190, 104, it("F") + sb("AB") + " (on B)", "start")),
+      circ: sv(330, 190, ci(95, 100, 65) + `<circle cx="95" cy="100" r="3"/>` + tx(95, 118, "O", "middle") +
+        ln(95, 100, 160, 100, 'stroke-dasharray="4 3"') + ln(95, 100, 151, 67.5, 'stroke-dasharray="4 3"') + tx(122, 96, "Δθ", "middle", 'font-size="11"') +
+        ar(160, 100, 160, 45, AC, 2.2) + ar(151, 67.5, 123, 19, AC, 2.2) + tx(166, 60, it("v") + sb("A")) + tx(110, 18, it("v") + sb("B"), "end") +
+        ar(250, 150, 250, 85, AC, 2.2) + ar(250, 150, 218, 94, AC, 2.2) + ar(250, 85, 220, 93, NV, 2.4) + tx(256, 115, it("v") + sb("A")) + tx(222, 128, it("v") + sb("B"), "end") +
+        tx(238, 80, "Δ" + it("v"), "middle", `fill="${NV}" font-weight="700"`) + tx(250, 178, "vector triangle: Δ" + it("v") + " points to O", "middle", 'font-size="11.5"')),
+      fx: sv(280, 180, `<polygon points="50,150 210,50 210,150" fill="${FILL}"/>` + axes(50, 150, 260, 20, it("x"), it("F")) +
+        ln(50, 150, 210, 50, `stroke="${AC}" stroke-width="2.4"`) + dl(50, 50, 210, 50) + tx(44, 54, it("F"), "end") + tx(210, 168, "Δ" + it("l"), "middle") +
+        tx(160, 132, "area = ½" + it("F") + "Δ" + it("l"), "middle")),
+      cube: sv(300, 190, pa("M40 60 L170 60 L170 170 L40 170 Z") + pa("M40 60 L80 25 L210 25 L170 60") + pa("M170 170 L210 135 L210 25") +
+        `<polygon points="170,60 210,25 210,135 170,170" fill="${FILL}" stroke="${INK}" stroke-width="1.4"/>` + tx(190, 100, "A", "middle", 'font-weight="700"') +
+        `<circle cx="95" cy="115" r="5" fill="${NV}"/>` + ar(100, 115, 150, 115, AC, 2.2) + tx(125, 108, it("c") + sb("x"), "middle") + ar(150, 125, 102, 125, NV, 1.6) + tx(125, 142, "−" + it("c") + sb("x"), "middle") +
+        tx(105, 188, it("L"), "middle") + tx(230, 90, "face A", "start") + tx(230, 108, "Δ" + it("p") + " = 2" + it("mc") + sb("x"), "start")),
+      piston: sv(300, 150, pa("M20 30 L210 30 M20 120 L210 120 M20 30 L20 120") + `<rect x="150" y="30" width="12" height="90" fill="${NV}"/>` +
+        `<rect x="174" y="30" width="12" height="90" fill="none" stroke="${NV}" stroke-dasharray="4 3"/>` + tx(80, 80, "gas, " + it("p"), "middle") +
+        ar(162, 75, 230, 75, AC, 2.2) + tx(236, 79, it("F") + " = " + it("pA")) + ar(156, 136, 180, 136) + tx(168, 148, "d" + it("x"), "middle") + tx(156, 22, "area " + it("A"), "middle")),
+      pv: sv(320, 210, axes(50, 180, 300, 15, it("V"), it("p")) + ln(80, 60, 160, 60, `stroke="${AC}" stroke-width="2.2"`) + tx(120, 52, "isobaric", "middle") +
+        ln(80, 60, 80, 150, `stroke="${NV}" stroke-width="2.2"`) + tx(86, 120, "isochoric") +
+        pa("M160 60 C190 90 220 105 280 115", `fill="none" stroke="#16A34A" stroke-width="2.2"`) + tx(286, 96, "isothermal", "end", 'fill="#16A34A"') +
+        pa("M160 60 C175 100 195 135 260 158", `fill="none" stroke="#7C3AED" stroke-width="2.2"`) + tx(262, 172, "adiabatic (steeper)", "end", 'fill="#7C3AED"')),
+      gauss: sv(340, 190, `<circle cx="80" cy="95" r="5" fill="${AC}"/>` + tx(80, 82, "+" + it("Q"), "middle") + ci(80, 95, 55, `fill="none" stroke="${NV}" stroke-dasharray="5 4" stroke-width="1.6"`) +
+        ar(80, 95, 119, 56) + tx(104, 70, it("r")) + ar(135, 95, 160, 95, AC) + ar(80, 150, 80, 175, AC) + tx(80, 188, "Gaussian sphere", "middle", 'font-size="11.5"') +
+        `<rect x="230" y="20" width="14" height="150" fill="#EEF2F8" stroke="${INK}"/>` + [40, 70, 100, 130, 160].map(y => tx(237, y, "+", "middle")).join("") +
+        `<rect x="236" y="75" width="50" height="40" fill="none" stroke="${NV}" stroke-dasharray="5 4" stroke-width="1.6"/>` + ar(286, 95, 320, 95, AC) + tx(300, 85, it("E"), "middle") +
+        tx(258, 188, "pillbox, end area " + it("A"), "middle", 'font-size="11.5"') + tx(224, 15, "conductor", "middle", 'font-size="11"')),
+      rc: sv(340, 160, axes(30, 130, 160, 20, it("t"), it("Q")) + pa("M30 130 C55 60 90 45 150 42", `fill="none" stroke="${AC}" stroke-width="2.2"`) + dl(30, 40, 155, 40) + tx(26, 44, it("Q") + sb("0"), "end") + tx(95, 150, "charging", "middle") +
+        axes(200, 130, 330, 20, it("t"), it("I")) + pa("M200 40 C225 100 260 120 320 126", `fill="none" stroke="${NV}" stroke-width="2.2"`) + tx(196, 44, it("I") + sb("0"), "end") + tx(265, 150, "current", "middle")),
+      amp: sv(240, 190, ci(120, 95, 70, `fill="none" stroke="${NV}" stroke-dasharray="5 4" stroke-width="1.6"`) + ci(120, 95, 9) + `<circle cx="120" cy="95" r="2.5" fill="${INK}"/>` +
+        ar(120, 95, 170, 45) + tx(152, 76, it("r")) + ar(190, 105, 190, 70, AC, 2.2) + ar(110, 25, 75, 30, AC, 2.2) + ar(50, 85, 52, 120, AC, 2.2) + ar(130, 165, 165, 158, AC, 2.2) +
+        tx(200, 92, it("B"), "start", `fill="${AC}"`) + tx(120, 120, it("I") + " (out)", "middle", 'font-size="11.5"')),
+      hall: sv(330, 180, `<rect x="60" y="50" width="200" height="80" fill="#EEF2F8" stroke="${INK}" stroke-width="1.6"/>` +
+        [80, 120, 160, 200, 240].map(x => tx(x, 47, "−", "middle", `fill="${NV}" font-weight="700"`)).join("") + [80, 120, 160, 200, 240].map(x => tx(x, 145, "+", "middle", `fill="${AC}" font-weight="700"`)).join("") +
+        ar(20, 90, 60, 90) + tx(20, 82, it("I")) + ar(260, 90, 300, 90) + `<circle cx="160" cy="95" r="5" fill="${NV}"/>` + ar(160, 95, 115, 95, NV) + tx(130, 112, it("v"), "middle") + ar(160, 88, 160, 62, AC) + tx(168, 74, it("evB")) +
+        ar(285, 130, 285, 50) + ar(285, 50, 285, 130) + tx(292, 94, it("d")) + tx(160, 170, it("B") + " into page; " + it("V") + sb("H") + " across " + it("d") + "; thickness " + it("t"), "middle", 'font-size="11.5"')),
+      rod: sv(320, 170, ln(40, 30, 290, 30) + ln(40, 140, 290, 140) + ln(40, 30, 40, 140) + `<rect x="33" y="70" width="14" height="30" fill="#fff" stroke="${INK}"/>` + tx(28, 90, it("R"), "end") +
+        ln(190, 22, 190, 148, `stroke="${NV}" stroke-width="5"`) + ar(196, 85, 245, 85, AC, 2.2) + tx(220, 78, it("v"), "middle") + ar(170, 30, 170, 140) + ar(170, 140, 170, 30) + tx(162, 90, it("l"), "end") +
+        [80, 120, 240, 275].map(x => [60, 110].map(y => tx(x, y, "×", "middle", 'font-size="12"')).join("")).join("") + tx(270, 162, it("B") + " into page", "end", 'font-size="11.5"')),
+      shm: sv(340, 190, ln(20, 40, 20, 140) + pa("M20 100 L35 100 L42 90 L56 110 L70 90 L84 110 L98 90 L105 100 L115 100") +
+        `<rect x="115" y="80" width="40" height="40" fill="${FILL}" stroke="${INK}" stroke-width="1.6"/>` + tx(135, 105, it("m"), "middle") + ln(20, 120, 170, 120) + ar(155, 70, 185, 70, AC) + tx(170, 62, it("x"), "middle") + tx(80, 145, "spring constant " + it("k"), "middle", 'font-size="11.5"') +
+        ln(230, 20, 310, 20, 'stroke-width="3"') + ln(270, 20, 270, 140, 'stroke-dasharray="4 3"') + ln(270, 20, 310, 130) + `<circle cx="310" cy="130" r="9" fill="${NV}"/>` + tx(296, 70, it("l")) + tx(276, 60, "θ", "start", 'font-size="12"') +
+        ar(310, 139, 310, 180, AC) + tx(316, 175, it("mg")) + ar(304, 136, 282, 145, NV) + tx(276, 160, it("mg") + " sin θ", "end", 'font-size="11.5"')),
+      stand: sv(340, 150, (() => { let p1 = "", p2 = ""; for (let x = 0; x <= 300; x += 3) { const y = 55 * Math.cos(2 * Math.PI * x / 200); p1 += (p1 ? " L" : "M") + (20 + x) + " " + (75 - y).toFixed(1); p2 += (p2 ? " L" : "M") + (20 + x) + " " + (75 + y).toFixed(1); } return pa(p1, `fill="none" stroke="${AC}" stroke-width="2"`) + pa(p2, `fill="none" stroke="${NV}" stroke-width="2" stroke-dasharray="5 3"`); })() +
+        ln(20, 75, 330, 75, 'stroke-width="1"') + [70, 170, 270].map(x => tx(x, 98, "N", "middle", 'font-weight="700"')).join("") + [20, 120, 220, 320].map(x => tx(x, 145, "A", "middle", 'font-weight="700"')).join("") +
+        tx(170, 140, "N = node, A = antinode; N to N = λ/2", "middle", 'font-size="11.5"')),
+      dop: sv(340, 160, [0, 1, 2, 3].map(i => ci(60 + i * 14, 80, 20 + i * 18, `fill="none" stroke="${NV}" stroke-width="1.4"`)).join("") + `<circle cx="102" cy="80" r="5" fill="${AC}"/>` + ar(102, 80, 140, 80, AC, 2.2) + tx(122, 72, it("u") + sb("s"), "middle") +
+        `<circle cx="300" cy="80" r="7" fill="#16A34A"/>` + tx(300, 105, "observer", "middle", 'font-size="11.5"') + ar(290, 80, 260, 80, "#16A34A") + tx(275, 72, it("u") + sb("o"), "middle") + tx(170, 150, "wavefronts bunched ahead of the moving source", "middle", 'font-size="11.5"')),
+      mirror: sv(340, 200, pa("M280 20 Q240 100 280 180", `fill="none" stroke="${INK}" stroke-width="3"`) + ln(20, 100, 300, 100, 'stroke-width="1.2"') +
+        `<circle cx="100" cy="100" r="3"/>` + tx(100, 118, "C", "middle") + `<circle cx="180" cy="100" r="3"/>` + tx(180, 118, "F", "middle") + tx(248, 118, "M", "middle") +
+        ar(30, 50, 254, 50, AC, 2) + ln(254, 50, 180, 100, `stroke="${AC}" stroke-width="2"`) + ln(100, 100, 254, 50, 'stroke-dasharray="4 3"') + tx(256, 44, "P") +
+        tx(214, 62, "θ", "middle") + tx(232, 50, "θ", "middle") + tx(130, 94, "θ", "middle") + tx(170, 190, "CF = FP ≈ FM for paraxial rays", "middle", 'font-size="11.5"')),
+      lens: sv(340, 170, pa("M170 20 Q200 85 170 150 Q140 85 170 20 Z", `fill="#EEF2F8" stroke="${INK}" stroke-width="1.6"`) + ln(10, 85, 330, 85, 'stroke-width="1.1"') +
+        tx(170, 90, it("n") + sb("l"), "middle") + tx(60, 40, "medium " + it("n") + sb("m")) + tx(205, 30, "surface 2 (" + it("r") + sb("2") + ")") + tx(68, 160, "surface 1 (" + it("r") + sb("1") + ")") +
+        `<circle cx="40" cy="85" r="3"/>` + tx(40, 104, "O", "middle") + `<circle cx="300" cy="85" r="3"/>` + tx(300, 104, "I", "middle")),
+      young: sv(340, 190, ln(40, 20, 40, 75) + ln(40, 85, 40, 105) + ln(40, 115, 40, 170) + tx(30, 84, it("S") + sb("1"), "end") + tx(30, 120, it("S") + sb("2"), "end") +
+        ln(300, 15, 300, 175, 'stroke-width="3"') + ln(40, 80, 300, 50, `stroke="${AC}"`) + ln(40, 110, 300, 50, `stroke="${AC}"`) + `<circle cx="300" cy="50" r="3" fill="${AC}"/>` + tx(306, 54, "P") +
+        dl(40, 95, 300, 95) + ar(310, 95, 310, 52) + tx(316, 78, it("y")) + tx(170, 112, it("D"), "middle") + ar(22, 82, 22, 108) + tx(14, 100, it("a"), "end") + ln(40, 110, 54, 82, `stroke="${NV}" stroke-width="2"`) + tx(62, 140, "path difference ≈ " + it("a") + " sin θ", "start", 'font-size="11.5"')),
+      slit: sv(340, 180, ln(40, 20, 40, 55, 'stroke-width="3"') + ln(40, 145, 40, 170, 'stroke-width="3"') + ar(26, 58, 26, 142) + tx(18, 104, it("a"), "end") + dl(40, 100, 60, 100) +
+        [60, 100, 140].map(y => ar(40, y, 200, y - 70, AC, 1.6)).join("") + ln(40, 140, 72, 62, `stroke="${NV}" stroke-width="2"`) + tx(80, 150, "pair a ray from the top half with one " + it("a") + "/2 below it", "start", 'font-size="11.5"') +
+        tx(220, 36, "θ") + tx(80, 168, "extra path = (" + it("a") + "/2) sin θ = λ/2 → dark", "start", 'font-size="11.5"')),
+      brew: sv(320, 200, ln(20, 100, 300, 100, 'stroke-width="2"') + `<rect x="20" y="100" width="280" height="90" fill="#EEF2F8"/>` + ln(160, 20, 160, 190, 'stroke-dasharray="4 3"') +
+        ar(80, 30, 160, 100, AC, 2) + ar(160, 100, 240, 30, AC, 2) + ar(160, 100, 205, 185, NV, 2) + tx(140, 50, "θ" + sb("B"), "middle") + tx(180, 50, "θ" + sb("B"), "middle") + tx(170, 150, "θ" + sb("r"), "start") +
+        tx(30, 92, it("n") + sb("1")) + tx(30, 120, it("n") + sb("2")) + tx(232, 120, "90°", "start", `fill="${NV}"`)),
+      bragg: sv(330, 170, ln(20, 70, 310, 70, 'stroke-width="2"') + ln(20, 130, 310, 130, 'stroke-width="2"') + [40, 90, 140, 190, 240, 290].map(x => `<circle cx="${x}" cy="70" r="4" fill="${NV}"/><circle cx="${x}" cy="130" r="4" fill="${NV}"/>`).join("") +
+        ar(60, 20, 140, 70, AC, 2) + ar(140, 70, 220, 20, AC, 2) + ar(60, 80, 160, 130, AC, 2) + ar(160, 130, 260, 80, AC, 2) + ar(300, 72, 300, 128) + ar(300, 128, 300, 72) + tx(306, 104, it("d")) + tx(100, 62, "θ", "middle") +
+        tx(165, 160, "extra path of lower ray = 2" + it("d") + " sin θ", "middle", 'font-size="11.5"'))
+    };
+
+    // [syllabus code, title, result, [steps], figure, note]
+    const SEM = {
+      1: [
+        ["2", "Kinematics", [
+          ["2.1(a)", "Equations of motion with constant acceleration", "v = u + at, s = ut + ½at², v² = u² + 2as, s = ½(u + v)t", [
+            "Constant acceleration: a = dv/dt is constant. Integrate from v = u at t = 0: ∫dv = ∫a dt, so <b>v = u + at</b> … (1)",
+            "v = ds/dt = u + at. Integrate from s = 0 at t = 0: <b>s = ut + ½at²</b> … (2)",
+            "From (1), t = (v − u)/a. Substitute into (2): s = u(v − u)/a + ½a(v − u)²/a².",
+            "Multiply by 2a: 2as = 2uv − 2u² + v² − 2uv + u², so <b>v² = u² + 2as</b> … (3)",
+            "Area under the v–t graph (a trapezium) gives <b>s = ½(u + v)t</b> … (4)"], F.vt, "On the v–t graph, the gradient is a and the area is s."]
+        ]],
+        ["3", "Dynamics", [
+          ["3.1(c)", "Force as rate of change of momentum", "F = m dv/dt + v dm/dt", [
+            "Newton’s second law: the resultant force equals the rate of change of momentum, F = dp/dt.",
+            "Momentum p = mv, so F = d(mv)/dt.",
+            "Product rule: <b>F = m dv/dt + v dm/dt</b>.",
+            "Constant mass: F = m dv/dt = ma. Constant velocity (mass changing, e.g. sand falling onto a moving belt): F = v dm/dt."], null, "Use only the cases of constant m or constant v."],
+          ["3.2(b)", "Verify conservation of linear momentum", "m₁u₁ + m₂u₂ = m₁v₁ + m₂v₂", [
+            "Bodies A and B collide. During the contact time Δt, B pushes A with F<sub>BA</sub> and A pushes B with F<sub>AB</sub>.",
+            "Newton’s third law: F<sub>BA</sub> = −F<sub>AB</sub>.",
+            "Newton’s second law: F<sub>BA</sub> = Δp<sub>A</sub>/Δt and F<sub>AB</sub> = Δp<sub>B</sub>/Δt.",
+            "So Δp<sub>A</sub>/Δt = −Δp<sub>B</sub>/Δt, giving Δp<sub>A</sub> + Δp<sub>B</sub> = 0.",
+            "m<sub>A</sub>(v<sub>A</sub> − u<sub>A</sub>) + m<sub>B</sub>(v<sub>B</sub> − u<sub>B</sub>) = 0, so <b>m<sub>A</sub>u<sub>A</sub> + m<sub>B</sub>u<sub>B</sub> = m<sub>A</sub>v<sub>A</sub> + m<sub>B</sub>v<sub>B</sub></b>: total momentum is conserved when no external force acts."], F.coll]
+        ]],
+        ["4", "Work, Energy and Power", [
+          ["4.2(a)", "Gravitational potential energy near the Earth", "ΔU = mgh", [
+            "Lift a mass m slowly (constant velocity, no change in KE) through a height h near the Earth’s surface, where g is constant.",
+            "The applied force balances the weight: F = mg.",
+            "Work done W = Fh = mgh.",
+            "This work is stored as gravitational potential energy: <b>ΔU = mgh</b>."], null],
+          ["4.2(b)", "Kinetic energy", "K = ½mv²", [
+            "A constant resultant force F accelerates a mass m from rest through a displacement s.",
+            "Work done W = Fs = (ma)s.",
+            "From v² = u² + 2as with u = 0: as = v²/2.",
+            "W = m(v²/2). The work done becomes kinetic energy: <b>K = ½mv²</b>."], null],
+          ["4.2(d)", "Work–energy theorem", "ΔK = F<sub>R</sub>s", [
+            "A resultant force F<sub>R</sub> changes the speed of a mass m from u to v over a displacement s.",
+            "v² = u² + 2as, so as = (v² − u²)/2.",
+            "F<sub>R</sub>s = mas = ½mv² − ½mu².",
+            "<b>Work done by the resultant force = change in kinetic energy</b>, ΔK = F<sub>R</sub>s."], null],
+          ["4.3(a)", "Power", "P = Fv", [
+            "Power is the rate of doing work: P = dW/dt.",
+            "For a force F along the displacement, dW = F ds.",
+            "P = F ds/dt = <b>Fv</b> (if F is at angle θ to v, P = Fv cos θ)."], null]
+        ]],
+        ["5", "Circular Motion", [
+          ["5.1(c)", "Linear and angular speed", "v = rω", [
+            "Arc length s = rθ (θ in radians).",
+            "Differentiate with r constant: ds/dt = r dθ/dt.",
+            "<b>v = rω</b>."], null],
+          ["5.2(b)", "Centripetal acceleration", "a = v²/r = rω²", [
+            "An object moves at constant speed v from A to B, turning through a small angle Δθ in time Δt.",
+            "The velocities v<sub>A</sub> and v<sub>B</sub> have the same size but different directions. The vector triangle gives the change Δv, which points towards the centre.",
+            "For small Δθ the triangle is a thin sector: |Δv| = vΔθ.",
+            "a = Δv/Δt = v(Δθ/Δt) = vω.",
+            "With v = rω: <b>a = v²/r = rω²</b>, directed towards the centre."], F.circ]
+        ]],
+        ["6", "Gravitation", [
+          ["6.3(b)", "Gravitational potential of a point mass", "V = −GM/r", [
+            "V at a point = work done per unit mass to bring a small mass from infinity to that point.",
+            "At distance x the attraction on a unit mass is GM/x² towards M, so the external agent must pull with GM/x² away from M.",
+            "Work done per unit mass from ∞ to r: W = ∫ (from ∞ to r) (GM/x²) dx = [−GM/x] from ∞ to r.",
+            "<b>V = −GM/r</b>. It is negative because the field does work as the mass moves in; V = 0 at infinity."], null],
+          ["6.3(d)", "ΔU = mgh as a special case", "ΔU = GMmh/R² = mgh", [
+            "U = −GMm/r. Raise m from the surface (r = R) to height h (r = R + h).",
+            "ΔU = −GMm/(R + h) + GMm/R = GMm h/(R(R + h)).",
+            "Near the surface h ≪ R, so R(R + h) ≈ R².",
+            "ΔU ≈ GMm h/R² = <b>mgh</b>, since g = GM/R²."], null],
+          ["6.5(b)", "Escape velocity", "v<sub>e</sub> = √(2GM/r)", [
+            "Escape velocity: the minimum speed that just takes a body to infinity, where its KE and PE are both zero.",
+            "Conservation of energy: ½mv<sub>e</sub>² + (−GMm/r) = 0.",
+            "<b>v<sub>e</sub> = √(2GM/r)</b>; at the Earth’s surface v<sub>e</sub> = √(2gR) ≈ 11.2 km s⁻¹. It does not depend on m."], null]
+        ]],
+        ["9", "Deformation of Solids", [
+          ["9.3(b)", "Strain energy", "U = ½FΔl", [
+            "Up to the proportional limit, Hooke’s law: F = kx.",
+            "Work done for a small extension dx: dW = F dx = kx dx.",
+            "Total work from 0 to Δl: W = ∫ kx dx = ½k(Δl)² = ½(kΔl)Δl.",
+            "<b>U = ½FΔl</b> = area under the force–extension graph."], F.fx]
+        ]],
+        ["10", "Kinetic Theory of Gases", [
+          ["10.2(c)", "Pressure of an ideal gas", "p = ⅓ρ⟨c²⟩", [
+            "N molecules, each of mass m, in a cube of side L. One molecule moves with velocity component c<sub>x</sub> towards face A.",
+            "It rebounds elastically: change in momentum = −2mc<sub>x</sub>, so it gives 2mc<sub>x</sub> to the wall.",
+            "Time between hits on face A = 2L/c<sub>x</sub>.",
+            "Force = rate of change of momentum = 2mc<sub>x</sub>/(2L/c<sub>x</sub>) = mc<sub>x</sub>²/L.",
+            "All N molecules: F = (Nm/L)⟨c<sub>x</sub>²⟩; pressure p = F/L² = (Nm/V)⟨c<sub>x</sub>²⟩.",
+            "Random motion: ⟨c²⟩ = ⟨c<sub>x</sub>²⟩ + ⟨c<sub>y</sub>²⟩ + ⟨c<sub>z</sub>²⟩ = 3⟨c<sub>x</sub>²⟩.",
+            "<b>p = ⅓(Nm/V)⟨c²⟩ = ⅓ρ⟨c²⟩</b>, where ρ = Nm/V."], F.cube],
+          ["10.3(c)", "Mean translational kinetic energy", "½m⟨c²⟩ = (3/2)kT", [
+            "From the kinetic theory: pV = ⅓Nm⟨c²⟩.",
+            "Ideal gas: pV = nRT = NkT (k = R/N<sub>A</sub>).",
+            "⅓Nm⟨c²⟩ = NkT, so m⟨c²⟩ = 3kT.",
+            "<b>½m⟨c²⟩ = (3/2)kT</b>: the mean KE depends only on the temperature."], null],
+          ["10.5(b)", "Internal energy and degrees of freedom", "U = (f/2)nRT", [
+            "Ideal gas: no intermolecular forces, so the internal energy is the total kinetic energy of the molecules.",
+            "Equipartition: each degree of freedom has mean energy ½kT per molecule; a molecule with f degrees of freedom has ½fkT.",
+            "N molecules: U = ½fNkT = <b>(f/2)nRT</b>.",
+            "Monatomic f = 3: U = (3/2)nRT. Diatomic at room temperature f = 5: U = (5/2)nRT."], null]
+        ]],
+        ["11", "Thermodynamics of Gases", [
+          ["11.2(a)", "Work done by a gas", "W = ∫p dV", [
+            "Gas at pressure p pushes a piston of area A with force F = pA.",
+            "The piston moves out a small distance dx: dW = F dx = pA dx = p dV.",
+            "From V₁ to V₂: <b>W = ∫ p dV</b> (from V₁ to V₂) = area under the p–V graph."], F.piston],
+          ["11.2(b)", "Isobaric work", "W = pΔV = nRΔT", [
+            "Constant p: W = ∫p dV = p(V₂ − V₁) = <b>pΔV</b>.",
+            "pV = nRT with p constant: pΔV = <b>nRΔT</b>."], null],
+          ["11.2(c)", "Work from a p–V graph", "W = area under the p–V curve", [
+            "W = ∫p dV is the area between the curve and the V-axis from V₁ to V₂.",
+            "Expansion: W positive (work done by the gas). Compression: W negative.",
+            "For a closed cycle, the net work = area enclosed by the loop."], null],
+          ["11.3(d)", "ΔU from an isochoric process", "ΔU = nC<sub>V,m</sub>ΔT", [
+            "Isochoric: ΔV = 0, so W = 0.",
+            "First law Q = ΔU + W gives Q = ΔU.",
+            "Heat at constant volume Q = nC<sub>V,m</sub>ΔT, so <b>ΔU = nC<sub>V,m</sub>ΔT</b>.",
+            "U of an ideal gas depends only on T, so this holds for any process with the same ΔT."], null],
+          ["11.3(e)", "C<sub>p,m</sub> − C<sub>V,m</sub> = R", "C<sub>p,m</sub> − C<sub>V,m</sub> = R", [
+            "Heat n moles at constant pressure through ΔT: Q = nC<sub>p,m</sub>ΔT.",
+            "ΔU = nC<sub>V,m</sub>ΔT (depends only on ΔT); W = pΔV = nRΔT.",
+            "First law: nC<sub>p,m</sub>ΔT = nC<sub>V,m</sub>ΔT + nRΔT.",
+            "<b>C<sub>p,m</sub> − C<sub>V,m</sub> = R</b>."], null],
+          ["11.3(f)", "Molar heat capacities from degrees of freedom", "C<sub>V,m</sub> = (f/2)R, C<sub>p,m</sub> = ((f + 2)/2)R", [
+            "U = (f/2)nRT, so ΔU = (f/2)nRΔT.",
+            "Also ΔU = nC<sub>V,m</sub>ΔT, so <b>C<sub>V,m</sub> = (f/2)R</b>.",
+            "C<sub>p,m</sub> = C<sub>V,m</sub> + R = <b>((f + 2)/2)R</b>.",
+            "γ = C<sub>p,m</sub>/C<sub>V,m</sub> = (f + 2)/f: monatomic 1.67, diatomic 1.40."], null],
+          ["11.4(f)", "Work done in the four processes", "W = 0; pΔV; nRT ln(V₂/V₁); (p₁V₁ − p₂V₂)/(γ − 1)", [
+            "<b>Isochoric</b>: dV = 0, so W = 0.",
+            "<b>Isobaric</b>: W = pΔV = nRΔT.",
+            "<b>Isothermal</b>: p = nRT/V, so W = ∫ (nRT/V) dV = <b>nRT ln(V₂/V₁)</b> = nRT ln(p₁/p₂).",
+            "<b>Adiabatic</b>: pV<sup>γ</sup> = K, so W = ∫ KV<sup>−γ</sup> dV = (K V₂<sup>1−γ</sup> − K V₁<sup>1−γ</sup>)/(1 − γ).",
+            "Since KV<sup>1−γ</sup> = pV: W = <b>(p₁V₁ − p₂V₂)/(γ − 1)</b> (= −ΔU, because Q = 0)."], F.pv]
+        ]]
+      ],
+      2: [
+        ["13", "Electrostatics", [
+          ["13.3(d)", "Electric field strength from Gauss’s law", "E = Q/(4πε₀r²); sphere: 0 inside; plate: E = σ/ε₀", [
+            "<b>Point charge Q</b>: Gaussian sphere of radius r centred on Q. E is radial and the same everywhere on it, so Φ = E(4πr²) = Q/ε₀, giving <b>E = Q/(4πε₀r²)</b>.",
+            "<b>Charged conducting sphere</b> (radius R, charge Q on its surface): for r &gt; R the Gaussian sphere encloses Q, so E = Q/(4πε₀r²); for r &lt; R it encloses no charge, so <b>E = 0 inside</b>.",
+            "<b>Charged conducting plate</b> (surface charge density σ): a pillbox of end area A crosses the surface, one end inside the conductor (E = 0) and one end outside.",
+            "Flux only through the outer end: EA = σA/ε₀, so <b>E = σ/ε₀</b>, perpendicular to the surface."], F.gauss]
+        ]],
+        ["14", "Capacitors", [
+          ["14.1(d)", "Capacitance of a parallel plate capacitor", "C₀ = ε₀A/d", [
+            "Plates of area A, separation d, charges ±Q: σ = Q/A.",
+            "Gauss’s law: the field between the plates is E = σ/ε₀ = Q/(ε₀A) (uniform).",
+            "V = Ed = Qd/(ε₀A).",
+            "<b>C₀ = Q/V = ε₀A/d</b>."], null],
+          ["14.3(a)", "Capacitors in series and in parallel", "series: 1/C = 1/C₁ + 1/C₂ + …; parallel: C = C₁ + C₂ + …", [
+            "<b>Series</b>: each capacitor carries the same charge Q, and V = V₁ + V₂ + V₃.",
+            "Q/C = Q/C₁ + Q/C₂ + Q/C₃, so <b>1/C = 1/C₁ + 1/C₂ + 1/C₃</b>.",
+            "<b>Parallel</b>: each capacitor has the same p.d. V, and Q = Q₁ + Q₂ + Q₃.",
+            "CV = C₁V + C₂V + C₃V, so <b>C = C₁ + C₂ + C₃</b>."], null, "Energy formulae U = ½QV = ½CV² = Q²/2C: derivation not required (14.4)."],
+          ["14.5(b)", "Charging through a resistor", "Q = Q₀(1 − e^(−t/RC)), V = V₀(1 − e^(−t/RC)), I = I₀e^(−t/RC)", [
+            "Kirchhoff’s law round the circuit (supply V₀): V₀ = IR + Q/C, with I = dQ/dt.",
+            "R dQ/dt = (CV₀ − Q)/C, so dQ/(CV₀ − Q) = dt/RC.",
+            "Integrate from Q = 0 at t = 0: −ln((CV₀ − Q)/CV₀) = t/RC.",
+            "<b>Q = Q₀(1 − e^(−t/RC))</b>, with Q₀ = CV₀; dividing by C: <b>V = V₀(1 − e^(−t/RC))</b>.",
+            "I = dQ/dt = (Q₀/RC)e^(−t/RC): <b>I = I₀e^(−t/RC)</b>, with I₀ = V₀/R."], F.rc],
+          ["14.5(d)", "Discharging through a resistor", "Q = Q₀e^(−t/RC), V = V₀e^(−t/RC), I = I₀e^(−t/RC)", [
+            "With the supply removed: 0 = IR + Q/C, and I = dQ/dt.",
+            "dQ/dt = −Q/RC, so dQ/Q = −dt/RC.",
+            "Integrate from Q₀ at t = 0: ln(Q/Q₀) = −t/RC, so <b>Q = Q₀e^(−t/RC)</b> and <b>V = V₀e^(−t/RC)</b>.",
+            "Size of the current: I = Q₀e^(−t/RC)/RC, i.e. <b>I = I₀e^(−t/RC)</b> (in the opposite direction to the charging current)."], null]
+        ]],
+        ["15", "Electric Current", [
+          ["15.2(b)", "Current and drift velocity", "I = Anev", [
+            "Wire of cross-sectional area A, n free electrons per unit volume, drift velocity v.",
+            "In time t the electrons move a distance vt, so all electrons in the volume Avt pass a cross-section.",
+            "Number = nAvt; charge Q = nAvte.",
+            "<b>I = Q/t = Anev</b>."], null],
+          ["15.4(e)", "Ohm’s law and J = σE", "J = σE ⇔ V = IR", [
+            "Uniform conductor of length l and area A with p.d. V: J = I/A and E = V/l.",
+            "J = σE gives I/A = σV/l.",
+            "V = I(l/σA) = I(ρl/A) = IR.",
+            "For a given conductor at constant temperature R is constant, so V ∝ I: Ohm’s law."], null],
+          ["15.4(f)", "Conductivity", "σ = ne²t/m", [
+            "In a field E an electron has acceleration a = eE/m.",
+            "Starting from zero average velocity after each collision, the mean time between collisions is t, so the drift velocity v = at = eEt/m.",
+            "J = nev = (ne²t/m)E.",
+            "Comparing with J = σE: <b>σ = ne²t/m</b>."], null]
+        ]],
+        ["17", "Magnetic Fields", [
+          ["17.3(b)", "Force on a current-carrying conductor", "F = IlB sin θ", [
+            "Each charge carrier q drifts with velocity v at angle θ to B: force qvB sin θ.",
+            "Number of carriers in length l: nAl.",
+            "Total force F = (nAl)qvB sin θ.",
+            "I = nAqv, so <b>F = IlB sin θ</b>."], null],
+          ["17.4(b)", "Field of a long straight wire (Ampère’s law)", "B = μ₀I/2πr", [
+            "Ampère’s law: ∮B·dl = μ₀I.",
+            "Choose a circle of radius r centred on the wire. By symmetry B is tangential and has the same size all round.",
+            "∮B·dl = B(2πr).",
+            "B(2πr) = μ₀I, so <b>B = μ₀I/2πr</b>."], F.amp],
+          ["17.5(a)", "Force between two parallel conductors", "F = μ₀I₁I₂l/2πd", [
+            "Field of wire 1 at wire 2 (distance d): B₁ = μ₀I₁/2πd, perpendicular to wire 2.",
+            "Force on length l of wire 2: F = B₁I₂l.",
+            "<b>F = μ₀I₁I₂l/2πd</b>; an equal and opposite force acts on wire 1.",
+            "Currents in the same direction attract; opposite directions repel."], null],
+          ["17.6(c)", "e/m in Thomson’s experiment", "e/m = E/(rB²)", [
+            "Crossed E and B fields are adjusted so the beam is undeflected: eE = evB, so v = E/B.",
+            "With E switched off, the electrons move in a circle of radius r in B: evB = mv²/r.",
+            "e/m = v/(rB).",
+            "Substitute v = E/B: <b>e/m = E/(rB²)</b>."], null],
+          ["17.7(b)", "Hall voltage", "V<sub>H</sub> = BI/(net)", [
+            "Carriers (charge e, number density n) drift with velocity v through a slab of width d and thickness t, with B perpendicular.",
+            "The magnetic force evB pushes carriers to one face; charge builds up and sets up a Hall field E<sub>H</sub> = V<sub>H</sub>/d.",
+            "Equilibrium: eV<sub>H</sub>/d = evB, so V<sub>H</sub> = Bvd.",
+            "I = neAv = ne(dt)v, so v = I/(nedt).",
+            "<b>V<sub>H</sub> = BI/(net)</b>."], F.hall]
+        ]],
+        ["18", "Electromagnetic Induction", [
+          ["18.2(c)", "E.m.f. in a moving straight conductor", "ε = Blv sin θ", [
+            "A rod of length l moves with velocity v at angle θ to the field B (rod perpendicular to B).",
+            "In time dt it sweeps an area l(v sin θ)dt across the field lines.",
+            "Flux cut dΦ = Blv sin θ dt.",
+            "Faraday’s law: <b>ε = dΦ/dt = Blv sin θ</b>."], F.rod],
+          ["18.2(d)", "E.m.f. in a rotating coil", "ε = NBAω sin ωt", [
+            "A coil of N turns and area A rotates at angular velocity ω about an axis perpendicular to B.",
+            "Starting with its plane perpendicular to B, the angle between B and the normal is θ = ωt.",
+            "Flux linkage NΦ = NBA cos ωt.",
+            "<b>ε = −d(NΦ)/dt = NBAω sin ωt</b>; peak value ε₀ = NBAω."], null],
+          ["18.3(d)", "Self-inductance of a solenoid", "L = μ₀N²A/l", [
+            "Long solenoid: N turns, length l, area A, current I: B = μ₀NI/l.",
+            "Flux through each turn Φ = BA = μ₀NIA/l.",
+            "Flux linkage NΦ = μ₀N²AI/l.",
+            "LI = NΦ, so <b>L = μ₀N²A/l</b>."], null],
+          ["18.5(d)", "Mutual inductance of two coaxial solenoids", "M = μ₀N<sub>p</sub>N<sub>s</sub>A/l<sub>p</sub>", [
+            "Primary solenoid (N<sub>p</sub> turns, length l<sub>p</sub>) carries I<sub>p</sub>: B = μ₀N<sub>p</sub>I<sub>p</sub>/l<sub>p</sub>.",
+            "The secondary (N<sub>s</sub> turns) is wound coaxially with the same area A: Φ<sub>s</sub> = BA.",
+            "N<sub>s</sub>Φ<sub>s</sub> = μ₀N<sub>p</sub>N<sub>s</sub>AI<sub>p</sub>/l<sub>p</sub>.",
+            "MI<sub>p</sub> = N<sub>s</sub>Φ<sub>s</sub>, so <b>M = μ₀N<sub>p</sub>N<sub>s</sub>A/l<sub>p</sub></b>."], null]
+        ]],
+        ["19", "Alternating Current Circuits", [
+          ["19.1(c), (e)", "Pure resistor: current and power", "I = I₀ sin ωt (in phase); ⟨P⟩ = ½V₀I₀ = I<sub>rms</sub>²R", [
+            "V = V₀ sin ωt across R: I = V/R = (V₀/R) sin ωt = <b>I₀ sin ωt</b>, in phase with V.",
+            "Instantaneous power P = VI = V₀I₀ sin²ωt = ½V₀I₀(1 − cos 2ωt).",
+            "The mean of cos 2ωt over a cycle is zero: <b>⟨P⟩ = ½V₀I₀ = I<sub>rms</sub>V<sub>rms</sub> = I<sub>rms</sub>²R</b>."], null],
+          ["19.2(a), (d), (e)", "Pure inductor: current, reactance and power", "I = I₀ sin(ωt − π/2); X<sub>L</sub> = ωL; ⟨P⟩ = 0", [
+            "V = V₀ sin ωt is balanced by the back e.m.f.: V₀ sin ωt = L dI/dt.",
+            "Integrate: I = −(V₀/ωL) cos ωt = <b>I₀ sin(ωt − π/2)</b>: the current lags the voltage by π/2.",
+            "X<sub>L</sub> = V₀/I₀ = <b>ωL</b>.",
+            "P = VI = −V₀I₀ sin ωt cos ωt = −½V₀I₀ sin 2ωt; its mean over a cycle is <b>zero</b>."], null],
+          ["19.3(a), (d), (e)", "Pure capacitor: current, reactance and power", "I = I₀ sin(ωt + π/2); X<sub>C</sub> = 1/ωC; ⟨P⟩ = 0", [
+            "Q = CV = CV₀ sin ωt.",
+            "I = dQ/dt = ωCV₀ cos ωt = <b>I₀ sin(ωt + π/2)</b>: the current leads the voltage by π/2.",
+            "X<sub>C</sub> = V₀/I₀ = <b>1/ωC</b>.",
+            "P = VI = ½V₀I₀ sin 2ωt; its mean over a cycle is <b>zero</b>."], null],
+          ["19.4(f)", "Resonance frequency of an R-L-C circuit", "f₀ = 1/(2π√(LC))", [
+            "Z = √(R² + (X<sub>L</sub> − X<sub>C</sub>)²) is smallest (Z = R) when X<sub>L</sub> = X<sub>C</sub>.",
+            "ω₀L = 1/(ω₀C), so ω₀ = 1/√(LC).",
+            "<b>f₀ = 1/(2π√(LC))</b>; the current is then maximum and in phase with the supply."], null]
+        ]]
+      ],
+      3: [
+        ["20", "Oscillations", [
+          ["20.1(c)", "Velocity in SHM", "v = ±ω√(A² − x²)", [
+            "x = A sin ωt, so v = dx/dt = Aω cos ωt.",
+            "cos ωt = ±√(1 − sin²ωt) = ±√(1 − x²/A²).",
+            "<b>v = ±ω√(A² − x²)</b>; maximum ωA at x = 0, zero at x = ±A."], null],
+          ["20.2(a)", "Kinetic and potential energy in SHM", "K = ½mω²(A² − x²), U = ½mω²x²", [
+            "K = ½mv² = <b>½mω²(A² − x²)</b>.",
+            "Restoring force F = −mω²x. Work done against it from 0 to x: U = ∫ mω²x dx = <b>½mω²x²</b>.",
+            "Total energy K + U = ½mω²A²: constant."], null],
+          ["20.3(a)", "Period of a spring–mass system and a simple pendulum", "T = 2π√(m/k), T = 2π√(l/g)", [
+            "<b>Spring–mass</b>: displaced x from equilibrium, restoring force F = −kx. ma = −kx, so a = −(k/m)x.",
+            "This is SHM (a = −ω²x) with ω² = k/m: <b>T = 2π/ω = 2π√(m/k)</b>.",
+            "<b>Simple pendulum</b>: displaced by angle θ, restoring force along the arc = −mg sin θ ≈ −mgθ for small θ, and θ = x/l.",
+            "ma = −mgx/l, so a = −(g/l)x: ω² = g/l and <b>T = 2π√(l/g)</b>."], F.shm, "Valid for small oscillations (θ less than about 10°)."]
+        ]],
+        ["21", "Wave Motion", [
+          ["21.1(d)", "Phase difference", "φ = kx = 2πx/λ", [
+            "Two points one wavelength apart differ in phase by 2π.",
+            "Phase difference is proportional to separation: φ/2π = x/λ.",
+            "<b>φ = 2πx/λ = kx</b>, with k = 2π/λ."], null],
+          ["21.1(e)", "Wave speed", "v = fλ", [
+            "In one period T the wave moves forward one wavelength λ.",
+            "v = λ/T, and f = 1/T, so <b>v = fλ</b> (equivalently v = ω/k)."], null],
+          ["21.4(b)", "Standing wave equation", "y = 2A cos kx sin ωt", [
+            "Two identical waves travel in opposite directions: y₁ = A sin(ωt − kx), y₂ = A sin(ωt + kx).",
+            "Superposition: y = y₁ + y₂. Use sin P + sin Q = 2 sin((P + Q)/2) cos((P − Q)/2).",
+            "<b>y = 2A cos kx sin ωt</b>.",
+            "Amplitude 2A cos kx depends on position: nodes where cos kx = 0 (x = λ/4, 3λ/4, …), antinodes where |cos kx| = 1 (x = 0, λ/2, λ, …). Adjacent nodes are λ/2 apart; no energy is carried along."], F.stand]
+        ]],
+        ["22", "Sound Waves", [
+          ["22.4(b)", "Beat frequency", "f = f₁ − f₂", [
+            "At a point: y₁ = A sin 2πf₁t and y₂ = A sin 2πf₂t.",
+            "y = y₁ + y₂ = 2A cos(2π((f₁ − f₂)/2)t) sin(2π((f₁ + f₂)/2)t).",
+            "The sound has the average frequency (f₁ + f₂)/2 with a slowly varying amplitude 2A cos(π(f₁ − f₂)t).",
+            "Loudness is greatest whenever the amplitude is ±2A, which happens (f₁ − f₂) times per second: <b>beat frequency f = f₁ − f₂</b>."], null, "The syllabus notes that this derivation is required."],
+          ["22.5(b)", "Doppler effect", "f′ = f(v ± u<sub>o</sub>)/(v ∓ u<sub>s</sub>)", [
+            "Source of frequency f; speed of sound v.",
+            "<b>Moving source</b> (speed u<sub>s</sub> towards the observer): in one period the source moves u<sub>s</sub>/f, so the wavelength in front is shortened to λ′ = (v − u<sub>s</sub>)/f.",
+            "<b>Moving observer</b> (speed u<sub>o</sub> towards the source): the waves pass the observer at relative speed v + u<sub>o</sub>.",
+            "f′ = (relative speed)/λ′ = <b>f(v + u<sub>o</sub>)/(v − u<sub>s</sub>)</b> when approaching.",
+            "When moving apart, change the signs: f′ = f(v − u<sub>o</sub>)/(v + u<sub>s</sub>)."], F.dop, "Source and observer move along the same line."]
+        ]],
+        ["23", "Geometrical Optics", [
+          ["23.1(a)", "Focal length of a spherical mirror", "f = r/2", [
+            "A ray parallel to the axis strikes a concave mirror at P. The normal at P passes through the centre of curvature C.",
+            "Angle of incidence = angle of reflection = θ. The parallel ray makes angle θ with CP too (alternate angles), so triangle CFP has two equal angles.",
+            "CF = FP (isosceles triangle).",
+            "For paraxial rays P is close to the pole M, so FP ≈ FM. Then CM = CF + FM ≈ 2FM.",
+            "r = 2f, so <b>f = r/2</b>."], F.mirror, "Use the sign convention consistently."],
+          ["23.3(a)", "Thin lens formula and lensmaker’s equation", "1/u + 1/v = 1/f; 1/f<sub>m</sub> = (n<sub>l</sub>/n<sub>m</sub> − 1)(1/r₁ − 1/r₂)", [
+            "Lens of refractive index n<sub>l</sub> in a medium n<sub>m</sub>. Use n₁/u + n₂/v = (n₂ − n₁)/r at each surface.",
+            "Surface 1 (medium → lens): n<sub>m</sub>/u + n<sub>l</sub>/v₁ = (n<sub>l</sub> − n<sub>m</sub>)/r₁ … (1)",
+            "The image I₁ is the object for surface 2. The lens is thin, so it is a virtual object at u₂ = −v₁.",
+            "Surface 2 (lens → medium): −n<sub>l</sub>/v₁ + n<sub>m</sub>/v = (n<sub>m</sub> − n<sub>l</sub>)/r₂ … (2)",
+            "Add (1) and (2): n<sub>m</sub>/u + n<sub>m</sub>/v = (n<sub>l</sub> − n<sub>m</sub>)(1/r₁ − 1/r₂).",
+            "Divide by n<sub>m</sub>: 1/u + 1/v = (n<sub>l</sub>/n<sub>m</sub> − 1)(1/r₁ − 1/r₂).",
+            "Object at infinity: v = f<sub>m</sub>, so <b>1/f<sub>m</sub> = (n<sub>l</sub>/n<sub>m</sub> − 1)(1/r₁ − 1/r₂)</b> (lensmaker’s equation), and therefore <b>1/u + 1/v = 1/f</b>."], F.lens, "In this form r is positive when the centre of curvature is on the side the light goes to, so for a biconvex lens r₂ is negative. Many books write (1/r₁ + 1/r₂) with both radii of a convex lens positive; both give the same f."]
+        ]],
+        ["24", "Wave Optics", [
+          ["24.3(b)", "Fringe separation in Young’s experiment", "x = λD/a", [
+            "Slits S₁ and S₂ a apart; screen at distance D (D ≫ a). Point P is at height y above the centre.",
+            "Path difference S₂P − S₁P ≈ a sin θ ≈ a tan θ = ay/D (small θ).",
+            "Bright fringe: ay/D = mλ, so y<sub>m</sub> = mλD/a.",
+            "Fringe separation <b>x = y<sub>m+1</sub> − y<sub>m</sub> = λD/a</b>."], F.young],
+          ["24.5(b)", "First minimum of a single slit", "sin θ = λ/a", [
+            "Divide the slit of width a into two halves.",
+            "Every point in the top half pairs with a point a/2 below it. In direction θ the path difference of each pair is (a/2) sin θ.",
+            "If (a/2) sin θ = λ/2, each pair cancels and the screen is dark.",
+            "<b>sin θ = λ/a</b> for the first minimum."], F.slit],
+          ["24.6(b)", "Diffraction grating", "d sin θ = mλ", [
+            "Grating spacing d = 1/N (N lines per metre).",
+            "In direction θ, light from adjacent slits has path difference d sin θ.",
+            "Bright maxima when all slits are in phase: <b>d sin θ = mλ</b> (m = 0, 1, 2, …), with m less than d/λ."], null],
+          ["24.7(f)", "Brewster’s law", "tan θ<sub>B</sub> = n₂/n₁", [
+            "At the Brewster angle the reflected light is completely plane polarised and the reflected and refracted rays are at 90°.",
+            "θ<sub>B</sub> + θ<sub>r</sub> = 90°.",
+            "Snell’s law: n₁ sin θ<sub>B</sub> = n₂ sin θ<sub>r</sub> = n₂ sin(90° − θ<sub>B</sub>) = n₂ cos θ<sub>B</sub>.",
+            "<b>tan θ<sub>B</sub> = n₂/n₁</b>."], F.brew]
+        ]],
+        ["25", "Quantum Physics", [
+          ["25.3(b)", "Radii of Bohr orbits", "r<sub>n</sub> = ε₀n²h²/(πme²)", [
+            "The electric attraction provides the centripetal force: e²/(4πε₀r²) = mv²/r … (1)",
+            "Bohr’s postulate (quantised angular momentum): mvr = nh/2π, so v = nh/(2πmr) … (2)",
+            "Substitute (2) into (1): e²/(4πε₀r) = mv² = n²h²/(4π²mr²).",
+            "<b>r<sub>n</sub> = ε₀n²h²/(πme²)</b>; r₁ = 5.3 × 10⁻¹¹ m."], null],
+          ["25.3(c)", "Energy levels of hydrogen", "E<sub>n</sub> = −me⁴/(8ε₀²h²n²)", [
+            "From (1): KE = ½mv² = e²/(8πε₀r).",
+            "PE = −e²/(4πε₀r).",
+            "Total E = KE + PE = −e²/(8πε₀r).",
+            "Substitute r<sub>n</sub>: <b>E<sub>n</sub> = −me⁴/(8ε₀²h²n²)</b> = −13.6/n² eV."], null],
+          ["25.4(c)", "Minimum X-ray wavelength", "λ<sub>min</sub> = hc/eV", [
+            "Electrons accelerated through p.d. V gain kinetic energy eV.",
+            "The shortest wavelength is emitted when all of this energy goes into one photon: eV = hf<sub>max</sub> = hc/λ<sub>min</sub>.",
+            "<b>λ<sub>min</sub> = hc/eV</b> (independent of the target metal)."], null],
+          ["25.4(e)", "Bragg’s law", "2d sin θ = mλ", [
+            "X-rays are reflected by two adjacent atomic planes a distance d apart, at glancing angle θ.",
+            "The ray from the lower plane travels an extra path 2d sin θ.",
+            "Constructive interference when the extra path is a whole number of wavelengths: <b>2d sin θ = mλ</b>."], F.bragg]
+        ]],
+        ["26", "Nuclear Physics", [
+          ["26.2(f)", "Radioactive decay law", "N = N₀e^(−λt)", [
+            "Decay law: dN/dt = −λN.",
+            "Separate: dN/N = −λ dt.",
+            "Integrate from N₀ at t = 0: ln(N/N₀) = −λt.",
+            "<b>N = N₀e^(−λt)</b>."], null],
+          ["26.2(g)", "Half-life", "t<sub>½</sub> = ln 2/λ", [
+            "At t = t<sub>½</sub>, N = N₀/2.",
+            "N₀/2 = N₀e^(−λt<sub>½</sub>), so e^(λt<sub>½</sub>) = 2.",
+            "λt<sub>½</sub> = ln 2, so <b>t<sub>½</sub> = ln 2/λ</b> ≈ 0.693/λ."], null]
+        ]]
+      ]
+    };
+    return {SEM};
+  })();
+
+  // the app's chapter key for a syllabus chapter (Semester 2 and 3 chapters are numbered one lower in the app)
+  function derivAppChapter(sem, ch){ return sem === 1 ? String(ch) : "S" + sem + "-" + (Number(ch) - 1); }
+  function derivCount(sem){ return (DV.SEM[sem] || []).reduce((a, c) => a + c[2].length, 0); }
+
+  // sub/superscript tags split mathify's text, so write them in its own notation; a square root of a fraction is shown as √ followed by a stacked fraction
+  function derivPrep(t){ return String(t).replace(/<sub>([^<]*)<\/sub>/g, "_{$1}").replace(/<sup>([^<]*)<\/sup>/g, "^($1)").replace(/√\(([^()]*\/[^()]*)\)/g, "√⁠($1)"); }
+  function derivPage(key){
+    const sem = Number(String(key).split("-")[1]) || 1;
+    const chs = DV.SEM[sem] || [];
+    let html = `<h2>Syllabus derivations · Semester ${sem}</h2><p class="dv-intro">Every formula the STPM Physics 960 syllabus (used from STPM 2026) asks you to <b>derive</b>, <b>deduce</b>, <b>show</b> or <b>verify</b>: ${derivCount(sem)} in all. Tap one to open it; learn the steps in order.</p><p class="dv-tools"><button type="button" class="dv-btn" onclick="document.querySelectorAll('#notes-content details.dv').forEach(d=>d.open=true)">Open all</button> <button type="button" class="dv-btn" onclick="document.querySelectorAll('#notes-content details.dv').forEach(d=>d.open=false)">Close all</button></p>`;
+    chs.forEach(([num, name, items]) => {
+      html += `<h3 class="dv-ch">Chapter ${num} · ${name}</h3>`;
+      items.forEach(([code, title, result, steps, fig, note]) => {
+        html += `<details class="dv"><summary><span class="dv-code">${code}</span><span class="dv-title">${title}</span><span class="dv-res">${mathify(derivPrep(result))}</span></summary><div class="dv-body">` +
+          (fig ? `<div class="dv-figwrap">${fig}</div>` : "") +
+          `<ol class="dv-steps">${steps.map(s => "<li>" + mathify(derivPrep(s)) + "</li>").join("")}</ol>` +
+          `<div class="dv-result"><b>Result:</b> ${mathify(derivPrep(result))}</div>` + (note ? `<p class="dv-note">${mathify(derivPrep(note))}</p>` : "") + `</div></details>`;
+      });
+    });
+    return html;
+  }
+
+  // a short list of this chapter's syllabus derivations, shown at the top of each topic's notes
+  function derivForTopic(key){
+    const m = String(key).match(/^(?:S([23])-)?(\d+)\./); if (!m) return "";
+    const sem = m[1] ? Number(m[1]) : 1, appCh = (m[1] ? "S" + m[1] + "-" : "") + m[2];
+    const ch = (DV.SEM[sem] || []).find(c => derivAppChapter(sem, c[0]) === appCh);
+    if (!ch) return "";
+    return `<div class="dv-topic"><b>Derivations required in this chapter:</b> ${ch[2].map(d => d[1]).join("; ")}. <a href="#" onclick="var s=document.getElementById('notes-topic-select');s.value='DERIV-${sem}';s.dispatchEvent(new Event('change'));window.scrollTo({top:0,behavior:'smooth'});return false;">Open the derivations list</a></div>`;
   }
 
   // ---------- Section B & C notes, one block per Semester 1 topic (appended under the Section A notes) ----------
