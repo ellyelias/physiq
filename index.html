@@ -10253,6 +10253,9 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     };
     const AA = (x1, y1, x2, y2, c = '') => A((x1 + x2) / 2, (y1 + y2) / 2, x2, y2, c) + A((x1 + x2) / 2, (y1 + y2) / 2, x1, y1, c);
     // arrowhead in the middle of a segment (current / field direction)
+    // arrowhead sitting on a segment [x0,y0,x1,y1] (line), [x0,y0,cx,cy,x1,y1] (quadratic) or 8 numbers (cubic), at parameter t, pointing from start to end
+    const OA = (g, t = 0.5, c = '') => { const P = u => { const v = 1 - u; return g.length === 4 ? [v * g[0] + u * g[2], v * g[1] + u * g[3]] : g.length === 6 ? [v * v * g[0] + 2 * v * u * g[2] + u * u * g[4], v * v * g[1] + 2 * v * u * g[3] + u * u * g[5]] : [v ** 3 * g[0] + 3 * v * v * u * g[2] + 3 * v * u * u * g[4] + u ** 3 * g[6], v ** 3 * g[1] + 3 * v * v * u * g[3] + 3 * v * u * u * g[5] + u ** 3 * g[7]]; };
+      const [x1, y1] = P(t - 0.02), [x2, y2] = P(t + 0.02); return MA(x1, y1, x2, y2, c); };
     const MA = (x1, y1, x2, y2, c = '') => { const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, a = Math.atan2(y2 - y1, x2 - x1); return head(mx - 5 * Math.cos(a), my - 5 * Math.sin(a), mx + 5 * Math.cos(a), my + 5 * Math.sin(a), c); };
     const R = (x, y, w, h, c = '') => `<rect x="${r(x)}" y="${r(y)}" width="${r(w)}" height="${r(h)}" class="${c}"/>`;
     const C = (x, y, rr, c = '') => `<circle cx="${r(x)}" cy="${r(y)}" r="${r(rr)}" class="${c}"/>`;
@@ -10306,7 +10309,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       (lab.x ? T(ox + w + 4, oy + 16, itl(lab.x), 'end', 'sm') : '') + (lab.y ? T(ox - 6, oy - h + 10, itl(lab.y), 'end', 'sm') : '') +
       (lab.o === false ? '' : T(ox - 6, oy + 14, '0', 'end', 'sm'));
     const tick = (x, y, s, dir = 'x') => dir === 'x' ? L(x, y, x, y + 4, 'thin') + T(x, y + 17, s, 'middle', 'sm') : L(x, y, x - 4, y, 'thin') + T(x - 7, y + 4, s, 'end', 'sm');
-    return {r, d2r, L, D, W, DW, T, I, sub, sup, A, AA, MA, head, R, C, E, P, dot, arc, hatch, vhatch, svg, path, fn, along, res, vres, cell, cap, coil, meter, acsrc, sw, bulb, diode, charge, crosses, dots, axes, tick};
+    return {r, d2r, L, D, W, DW, T, I, sub, sup, A, AA, MA, OA, head, R, C, E, P, dot, arc, hatch, vhatch, svg, path, fn, along, res, vres, cell, cap, coil, meter, acsrc, sw, bulb, diode, charge, crosses, dots, axes, tick};
   })();
 
   PFIG["2013"] = (() => { const {L, D, W, T, I, A, AA, R, C, E, P, dot, svg, fn, path, arc, hatch, vhatch, MA} = PF; const o = {};
@@ -10482,7 +10485,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       'Two isotherms (dashed): S on the lower one, Q directly above it on the upper one, R to the left of Q on the lower one; path S → Q → R');
     o.q16 = svg(340, 180, vhatch(40, 20, 170, -1) + L(40, 40, 300, 130) + L(40, 130, 300, 130, 'mid') + T(170, 72, 'Cord', 'middle', 'sm') + T(170, 150, 'Rod', 'middle', 'sm') + T(30, 100, 'Wall', 'end', 'sm') + arc(300, 130, 30, 161, 180) + I(262, 124, 'θ', 'end'),
       'A horizontal rod fixed to a wall, supported at its free end by a cord at angle θ to the rod');
-    o.q18 = svg(380, 110, L(10, 70, 370, 70) + P('M40 70 Q 190 -10 340 70', 'nofill dash') + A(110, 38, 120, 34) + A(270, 34, 280, 38) + R(186, 34, 8, 36, 'nofill') + T(198, 50, '1.0 m', 'start', 'sm') + L(190, 32, 180, 18, 'thin') + T(176, 14, 'Net', 'end', 'sm') +
+    o.q18 = svg(380, 110, L(10, 70, 370, 70) + P('M40 70 Q 190 -10 340 70', 'nofill dash') + PF.OA([40, 70, 190, -10, 340, 70], 0.25) + PF.OA([40, 70, 190, -10, 340, 70], 0.75) + R(186, 34, 8, 36, 'nofill') + T(198, 50, '1.0 m', 'start', 'sm') + L(190, 32, 180, 18, 'thin') + T(176, 14, 'Net', 'end', 'sm') +
       AA(40, 86, 190, 86) + T(115, 100, '5.5 m', 'middle', 'sm') + AA(190, 86, 340, 86) + T(265, 100, '5.5 m', 'middle', 'sm'),
       'A ball passes just over a 1.0 m net midway along its path; it travels 5.5 m on each side of the net');
     o.q20 = svg(400, 135, crosses(50, 30, 18, 1, 16) + crosses(50, 88, 18, 1, 16) + R(40, 40, 300, 34, 'nofill thick') + L(240, 40, 240, 74, 'thick') + I(140, 62, 'P') + I(290, 62, 'Q') +
@@ -10517,10 +10520,10 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       T(44, y1 + 4, '<tspan class="it">P</tspan><tspan class="sub" dy="4">0</tspan>', 'end', 'sm') + T(44, y2 + 4, '½<tspan class="it">P</tspan><tspan class="sub" dy="4">0</tspan>', 'end', 'sm') +
       T(x1, 186, '½<tspan class="it">V</tspan><tspan class="sub" dy="4">0</tspan>', 'middle', 'sm') + T(x2, 186, '<tspan class="it">V</tspan><tspan class="sub" dy="4">0</tspan>', 'middle', 'sm') + curve;
       return svg(270, 195, s, lab); };
-    o.q13oA = pv(D(110, 30, 110, 60) + P('M190 120 Q 130 100 110 30', 'nofill') + A(140, 100, 132, 92), 'Constant-volume drop from P0 to ½P0, then a steep curve back to ½V0 ending above P0');
-    o.q13oB = pv(P('M190 120 Q 130 105 110 60', 'nofill') + A(144, 104, 136, 97), 'Constant-volume drop from P0 to ½P0, then a curve back to (½V0, P0)');
-    o.q13oC = pv(P('M190 120 Q 140 112 110 90', 'nofill') + A(148, 110, 140, 106), 'Constant-volume drop from P0 to ½P0, then a gentle curve back to ½V0 ending below P0');
-    o.q13oD = pv(P('M190 120 Q 180 66 110 60', 'nofill') + A(166, 67, 154, 63), 'Constant-volume drop from P0 to ½P0, then a curve bulging upwards back to (½V0, P0)');
+    o.q13oA = pv(D(110, 30, 110, 60) + P('M190 120 Q 130 100 110 30', 'nofill') + PF.OA([190, 120, 130, 100, 110, 30], 0.45), 'Constant-volume drop from P0 to ½P0, then a steep curve back to ½V0 ending above P0');
+    o.q13oB = pv(P('M190 120 Q 130 105 110 60', 'nofill') + PF.OA([190, 120, 130, 105, 110, 60], 0.45), 'Constant-volume drop from P0 to ½P0, then a curve back to (½V0, P0)');
+    o.q13oC = pv(P('M190 120 Q 140 112 110 90', 'nofill') + PF.OA([190, 120, 140, 112, 110, 90], 0.45), 'Constant-volume drop from P0 to ½P0, then a gentle curve back to ½V0 ending below P0');
+    o.q13oD = pv(P('M190 120 Q 180 66 110 60', 'nofill') + PF.OA([190, 120, 180, 66, 110, 60], 0.45), 'Constant-volume drop from P0 to ½P0, then a curve bulging upwards back to (½V0, P0)');
     o.q18 = svg(360, 250, C(60, 40, 18, 'nofill') + dot(60, 40) + T(60, 14, 'Pulley', 'middle', 'sm') + C(290, 60, 18, 'nofill') + dot(290, 60) + T(312, 50, 'Pulley', 'start', 'sm') +
       L(42, 40, 42, 210) + R(20, 210, 44, 28, 'nofill') + I(42, 228, 'P') + L(308, 60, 308, 210) + R(286, 210, 44, 28, 'nofill') + I(308, 228, 'R') +
       L(72, 27, 175, 100) + L(175, 100, 276, 48) + L(175, 100, 175, 160) + R(150, 160, 50, 30, 'nofill') + I(175, 180, 'Q') + D(120, 100, 230, 100) +
@@ -10901,7 +10904,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     o.q17 = svg(300, 200, A(40, 180, 290, 180) + A(40, 180, 40, 10) + I(32, 22, 'p', 'end') + I(282, 196, 'V', 'end') +
       P('M70 30 Q 130 70 200 75', 'nofill') + P('M200 75 Q 210 130 260 160', 'nofill') + P('M260 160 Q 130 150 90 120', 'nofill') + P('M90 120 Q 72 90 70 30', 'nofill') +
       [[70, 30, 'A'], [200, 75, 'B'], [260, 160, 'C'], [90, 120, 'D']].map(([x, y, n]) => dot(x, y) + I(x + (n === 'D' ? -8 : 8), y - 6, n, n === 'D' ? 'end' : 'start')).join('') +
-      A(130, 59, 142, 64) + A(220, 128, 226, 138) + A(170, 152, 156, 149) + A(77, 80, 75, 68),
+      PF.OA([70, 30, 130, 70, 200, 75]) + PF.OA([200, 75, 210, 130, 260, 160], 0.55) + PF.OA([260, 160, 130, 150, 90, 120]) + PF.OA([90, 120, 72, 90, 70, 30]),
       'Cycle A → B → C → D → A on a p–V graph');
     o.q20 = svg(340, 190, L(10, 15, 260, 15) + L(10, 35, 260, 35) + L(10, 145, 260, 145) + L(10, 165, 260, 165) + I(80, 30, 'K') + I(80, 95, 'L') + I(80, 160, 'M') +
       AA(270, 15, 270, 35) + T(280, 30, '2.0 mm', 'start', 'sm') + AA(270, 35, 270, 145) + T(280, 95, '100 mm', 'start', 'sm') + AA(270, 145, 270, 165) + T(280, 160, '6.0 mm', 'start', 'sm'),
@@ -10926,7 +10929,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     o.q9oB = vg(L(60, 25, 170, 110), 'V falls linearly from its maximum at R');
     o.q9oC = svg(240, 160, A(30, 155, 30, 8) + A(30, 30, 230, 30) + I(22, 20, 'V', 'end') + T(24, 44, '0', 'end', 'sm') + I(222, 24, 'r', 'end') + D(60, 30, 60, 145) + I(60, 22, 'R') + fn(x => 1 / x, 1, 6, (x, v) => [60 + (x - 1) * 30, 30 + 110 * v]), 'V negative, largest in magnitude at R and rising towards zero');
     o.q9oD = vg(fn(x => 1 / x, 1, 6, (x, v) => [60 + (x - 1) * 30, 145 - 120 * v]), 'V falls as 1/r from its maximum at R');
-    o.q11 = svg(280, 220, D(140, 30, 140, 215) + P('M110 40 A 30 10 0 1 0 170 40', 'nofill') + A(112, 36, 110, 42) + E(140, 135, 90, 28, 'nofill dash') +
+    o.q11 = svg(280, 220, D(140, 30, 140, 215) + P('M110 40 A 30 10 0 1 0 170 40', 'nofill') + PF.MA(110.9, 42.4, 114.0, 45.0) + E(140, 135, 90, 28, 'nofill dash') +
       dot(105, 110) + T(100, 98, '3<tspan class="it">m</tspan>', 'end', 'sm') + dot(185, 115) + I(192, 104, 'm', 'start') + dot(80, 152) + T(76, 172, '5<tspan class="it">m</tspan>', 'end', 'sm') + I(150, 142, 'O', 'start'),
       'Three masses 3m, m and 5m on a horizontal circle rotating about a vertical axis through the centre O');
     o.q12 = svg(300, 200, R(-6, -95, 12, 190, 'nofill').replace('<rect', '<rect transform="translate(110 110) rotate(45)"') + C(43, 177, 5, 'bg') + C(177, 43, 5, 'bg') + I(30, 192, 'O') + I(170, 30, 'P', 'end') +
@@ -10936,7 +10939,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       fn(x => 120 * (1 - Math.exp(-x / 45)) - 0.0009 * x * x, 0, 200, (x, v) => [40 + x, 160 - v]) + T(90, 86, '×', 'middle', 'sm') + I(84, 78, 'P', 'end') + T(210, 73, '×', 'middle', 'sm') + I(214, 92, 'Q', 'start'),
       'Force against extension: a curve from the origin through P (not a straight line), levelling off and falling slightly to the breaking point Q');
     o.q17 = svg(280, 180, A(40, 160, 270, 160) + A(40, 160, 40, 8) + T(46, 18, 'Pressure', 'start', 'sm') + T(268, 176, 'Volume', 'end', 'sm') +
-      '<g transform="translate(10 20)">' + P('M90 30 L150 60 Q 160 90 200 110 L150 95 Q 100 90 90 30 Z', 'nofill') + I(84, 26, 'Q', 'end') + I(156, 54, 'R', 'start') + I(206, 116, 'S', 'start') + I(104, 98, 'P', 'end') + A(125, 47, 115, 42) + A(160, 96, 182, 102) + A(98, 70, 100, 80) + A(176, 98, 166, 88) + '</g>',
+      '<g transform="translate(10 20)">' + P('M90 30 L150 60 Q 160 90 200 110 L150 95 Q 100 90 90 30 Z', 'nofill') + I(84, 26, 'Q', 'end') + I(156, 54, 'R', 'start') + I(206, 116, 'S', 'start') + I(104, 98, 'P', 'end') + PF.OA([150, 60, 90, 30]) + PF.OA([150, 95, 200, 110]) + PF.OA([90, 30, 100, 90, 150, 95], 0.4) + PF.OA([200, 110, 160, 90, 150, 60]) + '</g>',
       'Closed cycle P → S → R → Q → P on a pressure–volume graph');
     o.q20 = svg(380, 110, hatch(50, 30, 330, -1) + hatch(50, 72, 330, 1) + R(50, 30, 280, 42, 'nofill') + L(190, 30, 190, 72) + I(120, 56, 'P') + I(260, 56, 'Q') +
       T(44, 56, '100.0 °C', 'end', 'sm') + T(336, 56, '0 °C', 'start', 'sm') + AA(50, 94, 190, 94) + I(120, 108, 'L') + AA(190, 94, 330, 94) + I(260, 108, 'L'),
@@ -11014,8 +11017,8 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     o.q10 = svg(300, 170, L(60, 20, 60, 150) + L(240, 20, 240, 150) + A(60, 125, 60, 95) + A(240, 125, 240, 95) + T(52, 115, '2.0 A', 'end', 'sm') + T(248, 115, '4.0 A', 'start', 'sm') +
       I(60, 166, 'S') + I(240, 166, 'T') + AA(60, 60, 240, 60) + T(150, 54, '0.05 m', 'middle', 'sm'),
       'Long wires S (2.0 A) and T (4.0 A) 0.05 m apart, currents in the same direction');
-    o.q11 = svg(360, 220, crosses(120, 20, 4, 4, 70) + A(40, 140, 140, 140) + P('M140 140 A 60 60 0 0 0 140 20', 'nofill') + A(141, 22, 139, 21) + I(156, 24, 'Y', 'start') +
-      P('M140 140 A 22 22 0 0 1 140 184', 'nofill') + A(141, 182, 139, 184) + I(130, 196, 'X', 'end'),
+    o.q11 = svg(360, 220, crosses(120, 20, 4, 4, 70) + A(40, 140, 140, 140) + P('M140 140 A 60 60 0 0 0 140 20', 'nofill') + PF.MA(164.5, 25.2, 157.7, 22.7) + I(156, 24, 'Y', 'start') +
+      P('M140 140 A 22 22 0 0 1 140 184', 'nofill') + PF.MA(155.0, 178.1, 149.6, 181.8) + I(130, 196, 'X', 'end'),
       'Particles enter a field into the page with the same velocity; Y curves upwards on a large circle, X curves downwards on a small circle');
     o.q13 = svg(380, 190, crosses(60, 15, 5, 1, 70) + crosses(60, 175, 5, 1, 70) + L(70, 40, 360, 40) + L(70, 150, 360, 150) + res(70, 40, 70, 150) + T(60, 98, '5.0 Ω', 'end', 'sm') +
       L(190, 40, 190, 150, 'thick') + AA(165, 40, 165, 150) + T(158, 98, '20.0 cm', 'end', 'sm') + A(190, 95, 260, 95) + I(268, 99, 'F', 'start') + crosses(130, 70, 4, 2, 60),
@@ -11112,7 +11115,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       charge(140, 140, 1, 12) + charge(240, 140, -1, 12) + T(330, 50, sub('S', '1'), 'start') + T(76, 200, sub('S', '2'), 'end') + T(240, 272, sub('S', '3'), 'middle') + T(300, 196, sub('S', '4'), 'start'),
       'Field lines of an electric dipole (+ left, − right) with Gaussian surfaces: S1 encloses both charges, S2 encloses the + charge, S3 and S4 enclose the − charge');
     let fx = ''; for (const y of [30, 70, 110, 150]) fx += L(20, y, 300, y) + MA(240, y, 250, y);
-    o.q2 = svg(340, 200, fx + P('M110 150 Q140 60 250 30', 'nofill dash') + A(137, 98, 141, 90) + C(110, 172, 6, 'shade') + L(110, 166, 110, 150) + dot(110, 150) + I(98, 146, 'X', 'end') +
+    o.q2 = svg(340, 200, fx + P('M110 150 Q140 60 250 30', 'nofill dash') + PF.OA([110, 150, 140, 60, 250, 30], 0.3) + C(110, 172, 6, 'shade') + L(110, 166, 110, 150) + dot(110, 150) + I(98, 146, 'X', 'end') +
       dot(250, 30) + I(250, 20, 'Y') + T(110, 192, 'Proton', 'middle', 'sm') + AA(290, 30, 290, 150) + T(296, 94, '0.30 m', 'start', 'sm') + AA(110, 165, 250, 165) + T(190, 160, '0.40 m', 'middle', 'sm'),
       'A proton enters a uniform field (pointing right) at X and follows a parabola to Y, 0.40 m along and 0.30 m across the field');
     o.q5 = svg(280, 170, L(60, 30, 128, 30) + L(152, 30, 220, 30) + L(128, 8, 128, 52, 'thick') + L(152, 8, 152, 52, 'thick') + T(120, 20, '−<tspan class="it">Q</tspan><tspan class="sub" dy="4">0</tspan>', 'end', 'sm') + T(160, 20, '+<tspan class="it">Q</tspan><tspan class="sub" dy="4">0</tspan>', 'start', 'sm') +
