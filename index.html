@@ -167,6 +167,17 @@
   .dl-btn::before{content:"";width:14px;height:14px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1v9m0 0L4.5 6.5M8 10l3.5-3.5M2 13h12' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1v9m0 0L4.5 6.5M8 10l3.5-3.5M2 13h12' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;}
   .dl-btn:active{background:var(--navy-tint);}
   .dl-btn.dl-full{background:var(--navy);color:#fff;}
+  .mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+  .mm-card{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;}
+  .mm-thumb{display:block;aspect-ratio:1240/1754;background:#fff;border-bottom:1px solid var(--line);overflow:hidden;}
+  .mm-thumb img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;}
+  .mm-soon{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--sub);font-weight:700;font-size:14px;background:var(--navy-tint);aspect-ratio:auto;height:140px;}
+  .mm-meta{padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px;flex:1;}
+  .mm-ch{font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.08em;}
+  .mm-name{font-weight:700;color:var(--navy);font-size:15px;line-height:1.3;}
+  .mm-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:9px;}
+  .mm-btns .dl-btn{font-size:13px;padding:7px 10px;}
+  @media (max-width:520px){ .mm-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;} .mm-btns .dl-btn{font-size:12px;padding:6px 8px;} }
   .dl-btn.dl-full:active{background:#142c52;}
   #notes-content h2{margin:0 0 4px;color:var(--navy);font-size:17px;}
   #notes-content h3{color:var(--navy);margin:18px 0 8px;font-size:14.5px;}
@@ -538,6 +549,7 @@
     <button class="tab" data-tab="learn">Learn by chapter</button>
     <button class="tab" data-tab="research">Research · Pretest/Posttest</button>
     <button class="tab" data-tab="notes">Notes</button>
+    <button class="tab" data-tab="mindmaps">Mind Maps</button>
     <button class="tab" data-tab="student">Student Practice</button>
     <button class="tab" data-tab="structured">Structured · Sections B &amp; C</button>
     <button class="tab" data-tab="past">Past Year Papers</button>
@@ -1064,6 +1076,15 @@
       <div id="notes-content"></div>
     </div>
 
+  </div>
+
+  <div class="panel" id="panel-mindmaps">
+    <div class="card">
+      <h2>Mind maps &amp; derivations</h2>
+      <p class="sub" style="margin-top:-6px;">A one-page mind map for every chapter, and the derivations the STPM 2026 syllabus asks you to know. Tap a mind map to open it full size, or download the PDF to print on A4.</p>
+      <div class="dl-row" id="mm-all" aria-label="Download a whole semester"></div>
+    </div>
+    <div class="mm-grid" id="mm-grid"></div>
   </div>
 
 </div>
@@ -5088,6 +5109,7 @@ const SEM3_BATCH3_CH25 = [
     try{ populateStudentTopics(); }catch(e){ console.error('populateStudentTopics failed', e); }
     try{ populateNotesSelect(); }catch(e){ console.error('populateNotesSelect failed', e); }
     try{ populateTestsPanel(); }catch(e){ console.error('populateTestsPanel failed', e); }
+    try{ populateMindmapsPanel(); }catch(e){ console.error('populateMindmapsPanel failed', e); }
   }
 
   const semesterSelectEl = document.getElementById('semester-select');
@@ -5226,6 +5248,7 @@ const SEM3_BATCH3_CH25 = [
       tab.classList.add('active');
       $$('.panel').forEach(p=>p.classList.remove('active'));
       document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+      if (tab.dataset.tab === 'mindmaps'){ try{ populateMindmapsPanel(); }catch(e){ console.error(e); } }
       syncSemesterBar();
     });
   });
@@ -7675,8 +7698,34 @@ const NOTES_EXTRA = (function(){
     return `<svg class="mm-svg" viewBox="0 0 ${W} ${H}" width="${W}" role="img" aria-label="Mind map of ${mmEsc(chName)}">${body}</svg>`;
   }
 
+  // chapters that have a printable derivations sheet (downloads/derivations/*.pdf); kept up to date by tools/build_derivations.js
+  const DERIV_SHEETS = ["2","3","4","5","6","9","10","11"];
+  // Mind Maps tab: one card per chapter of the chosen semester
+  function populateMindmapsPanel(){
+    const grid = document.getElementById('mm-grid'), all = document.getElementById('mm-all');
+    if (!grid || !all) return;
+    const sem = String(currentSemester || '1');
+    const ids = [];
+    TOPICS.forEach(t => { const p = mmParse(t); if (p && !ids.includes(p.ch)) ids.push(p.ch); });
+    const hasMM = ids.filter(i => MINDMAP_POSTERS.includes(i)), hasDV = ids.filter(i => DERIV_SHEETS.includes(i));
+    all.innerHTML = `<span class="dl-label">Whole Semester ${sem}</span>` +
+      (hasMM.length ? `<a class="dl-btn dl-full" href="downloads/mindmaps/PhysiQ_MindMaps_Sem${sem}.pdf" download>All mind maps</a>` : '') +
+      (hasDV.length ? `<a class="dl-btn" href="downloads/derivations/PhysiQ_Derivations_Sem${sem}.pdf" download>All derivations</a>` : '') +
+      (!hasMM.length && !hasDV.length ? '<span class="sub">Mind maps for this semester are on the way.</span>' : '');
+    grid.innerHTML = ids.map(id => {
+      const label = chapterGroupLabel(id + '.1 x'), m = label.match(/^Chapter (\d+) — (.*)$/);
+      const img = `assets/mindmaps/${id}.webp`, mm = MINDMAP_POSTERS.includes(id), dv = DERIV_SHEETS.includes(id);
+      return `<div class="mm-card">` +
+        (mm ? `<a class="mm-thumb" href="${img}" target="_blank" rel="noopener" title="Open full size"><img src="${img}" alt="Mind map: ${m ? m[2] : label}" loading="lazy"></a>` : `<div class="mm-thumb mm-soon">Mind map<br>coming soon</div>`) +
+        `<div class="mm-meta"><div class="mm-ch">${m ? 'Chapter ' + m[1] : ''}</div><div class="mm-name">${m ? m[2] : label}</div><div class="mm-btns">` +
+        (mm ? `<a class="dl-btn" href="downloads/mindmaps/PhysiQ_MindMap_${id}.pdf" download>Mind map</a>` : '') +
+        (dv ? `<a class="dl-btn" href="downloads/derivations/PhysiQ_Derivations_${id}.pdf" download>Derivations</a>` : '') +
+        `</div></div></div>`;
+    }).join('');
+  }
+
   // chapters that have a printable poster mind map (assets/mindmaps/<id>.webp + downloads/mindmaps/*.pdf); kept up to date by tools/build_mindmaps.js
-  const MINDMAP_POSTERS = ["S2-18"];
+  const MINDMAP_POSTERS = ["1","2","3","4","5","6","7","8","9","10","11","12","S2-18"];
   function mindmapHTML(key){
     const p = mmParse(key);
     if (p && MINDMAP_POSTERS.includes(p.ch)){

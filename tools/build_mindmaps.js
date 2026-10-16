@@ -96,7 +96,16 @@ const zTriangle = (xl = 'X_L') => {
   return svg(250, 136, b, 240);
 };
 const fig = (topic, i = 0, max = 330) => { const f = (TOPIC_FIGS[topic] || [])[i]; if (!f) throw new Error('no fig ' + topic + ' #' + i); return f.svg.replace(/<svg /, `<svg style="width:100%;max-width:${max}px;height:auto;display:block;margin:4px auto" `).replace(/ width="\d+"/, ''); };
-const K = { svg, line, text, arrow, curve, SYM, sym, loop, reactanceGraph, phasor, waves, powerGraph, zTriangle, fig };
+// simple plot: curves given as normalised y(x) on 0..1; o = {xl, yl, c:[{f,col,lab,lx,ly,dash}], h:[[y,label]], v:[[x,label]], W, H}
+const plot = o => {
+  const W = o.W || 290, H = o.H || 160, ox = 40, oy = H - 26, w = W - ox - 22, h = oy - 18;
+  let b = arrow(ox, oy, ox + w + 12, oy) + arrow(ox, oy, ox, 8) + text(ox + w + 12, oy + 19, o.xl, { i: 1, a: 'end', s: 15 }) + text(ox + 8, 16, o.yl, { i: 1, a: 'start', s: 15 }) + (o.zero === false ? '' : text(ox - 6, oy + 16, '0', { a: 'end', s: 13 }));
+  (o.h || []).forEach(([y, l]) => { b += line(ox, oy - y * h, ox + w, oy - y * h, '#94A3B8', 1.3, 'stroke-dasharray="5 4"') + text(ox - 5, oy - y * h + 5, l, { a: 'end', s: 13, b: 1 }); });
+  (o.v || []).forEach(([x, l]) => { b += line(ox + x * w, oy, ox + x * w, 14, '#94A3B8', 1.3, 'stroke-dasharray="5 4"') + text(ox + x * w, oy + 17, l, { s: 13, b: 1 }); });
+  (o.c || []).forEach(c => { b += curve(ox + (c.x0 || 0) * w, ox + (c.x1 == null ? 1 : c.x1) * w, x => oy - c.f((x - ox) / w) * h, c.col || '#2563EB', 2.6, c.dash); if (c.lab) b += text(ox + c.lx * w, oy - c.ly * h, c.lab, { c: c.col || '#2563EB', b: 1, s: 14, a: c.a || 'start' }); });
+  return svg(W, H, b + (o.extra || ''), W);
+};
+const K = { svg, plot, line, text, arrow, curve, SYM, sym, loop, reactanceGraph, phasor, waves, powerGraph, zTriangle, fig };
 
 // ---------- markup ----------
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -115,7 +124,7 @@ function item(it) {
     case 'note': return `<p class="note">${inl(v)}</p>`;
     case 'kv': return `<dl>${v.map(([a, b]) => `<dt>${inl(a)}</dt><dd>${inl(b)}</dd>`).join('')}</dl>`;
     case 'svg': return v;
-    case 'row': return `<div class="row" style="grid-template-columns:${w || v.map(() => '1fr').join(' ')}">${v.map(c => `<div>${c.map(item).join('')}</div>`).join('')}</div>`;
+    case 'row': return `<div class="row" style="grid-template-columns:${(w || v.map(() => '1fr').join(' ')).replace(/([\d.]+)fr/g, 'minmax(0,$1fr)')}">${v.map(c => `<div>${c.map(item).join('')}</div>`).join('')}</div>`;
     case 'sub': return `<div class="sub" style="--c:${COLORS[w] || w}"><h4>${inl(v[0])}</h4>${v.slice(1).map(item).join('')}</div>`;
     case 'tbl': return `<table><thead><tr>${v[0].map(h => `<th>${inl(h)}</th>`).join('')}</tr></thead><tbody>${v.slice(1).map(r => `<tr>${r.map(c => `<td>${inl(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
     case 'num': return `<ol class="num">${v.map(x => `<li>${inl(x)}</li>`).join('')}</ol>`;
@@ -130,7 +139,7 @@ function page(id, ch) {
   boxNo = 0; [...ch.boxes, ...(ch.rows || []).flatMap(r => r.boxes)].forEach(b => { if (b.n !== false) b._n = ++boxNo; });
   const boxN = b => { const n = b.n === false ? '' : `<span class="no">${b._n}</span>`; return `<section class="box" data-link="${b.link === false || b.col === 'W' ? 0 : 1}" style="--c:${COLORS[b.c] || b.c}${b.grow === false ? ';flex-grow:0' : ''}"><h3>${n}<span>${inl(b.t)}</span>${b.icon ? `<span class="ic">${b.icon}</span>` : ''}</h3><div class="bd">${b.body.map(item).join('')}</div></section>`; };
   const colH = c => { const bs = col(c).map(boxN); if (c === 'M') bs.splice(ch.hubAt || 0, 0, `<section class="hub" id="hub"><div class="hubin"><div class="hc">Chapter ${nm.num}</div><h1>${inl(ch.hubTitle || nm.title)}</h1>${ch.hubIcon || ''}<p>${inl(ch.idea)}</p></div></section>`); return `<div class="col">${bs.join('')}</div>`; };
-  const rows = (ch.rows || []).map(r => `<div class="wrow" style="grid-template-columns:${r.cols || r.boxes.map(() => '1fr').join(' ')}">${r.boxes.map(boxN).join('')}</div>`).join('');
+  const rows = (ch.rows || []).map(r => `<div class="wrow" style="grid-template-columns:${(r.cols || r.boxes.map(() => '1fr').join(' ')).replace(/([\d.]+)fr/g, 'minmax(0,$1fr)')}">${r.boxes.map(boxN).join('')}</div>`).join('');
   const tips = ch.tips ? `<div class="tips"><div class="tl">EXAM TIPS</div>${ch.tips.map(t => `<div class="tp">${inl(t)}</div>`).join('')}</div>` : '';
   const css = `
 @font-face{font-family:'Barlow Condensed';font-weight:600;src:url('file://${FBC}/barlow-condensed-latin-600-normal.woff2')}
@@ -144,7 +153,7 @@ body{font-family:'Source Sans 3',sans-serif;color:#1E293B;font-size:var(--fs);li
 .pg{width:1240px;height:1754px;padding:26px 30px 22px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden;background:#FBFCFE}
 .top{display:flex;justify-content:space-between;align-items:center;font-family:'Barlow Condensed';font-weight:600;font-size:19px;letter-spacing:.06em;text-transform:uppercase;color:#1B3A6B;border-bottom:3px solid #1B3A6B;padding-bottom:6px}
 .top b{color:#EA580C}
-.grid{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;min-height:0;position:relative;z-index:1}
+.grid{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;min-height:0;position:relative;z-index:1}
 .col{display:flex;flex-direction:column;gap:16px;min-height:0}
 .box{flex-grow:1;background:#fff;border:2.6px solid var(--c);border-radius:16px;overflow:hidden;position:relative;z-index:2}
 .box h3{margin:0;display:flex;align-items:center;gap:9px;padding:7px 12px 6px;background:color-mix(in srgb,var(--c) 11%,#fff);border-bottom:2px solid color-mix(in srgb,var(--c) 35%,#fff);color:color-mix(in srgb,var(--c) 82%,#000);font-family:'Barlow Condensed';font-weight:700;font-size:calc(var(--fs) * 1.45);letter-spacing:.03em;text-transform:uppercase;line-height:1.05}
@@ -156,14 +165,14 @@ p{margin:5px 0}
 ul{margin:5px 0;padding-left:1.15em}
 li{margin:2px 0}
 li::marker{color:var(--c)}
-.fx{border:2px solid color-mix(in srgb,var(--c) 55%,#fff);background:color-mix(in srgb,var(--c) 5%,#fff);border-radius:10px;padding:2px 12px;margin:7px auto;width:max-content;max-width:100%}
+.fx{overflow:hidden;border:2px solid color-mix(in srgb,var(--c) 55%,#fff);background:color-mix(in srgb,var(--c) 5%,#fff);border-radius:10px;padding:2px 12px;margin:7px auto;width:max-content;max-width:100%}
 .fx .katex-display{margin:3px 0}
 .fx .katex{font-size:1.18em}
 .fxs{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center}
 .fxs .fx{margin:4px 0}
 .katex{font-size:1.06em}
 .note{background:color-mix(in srgb,var(--c) 9%,#fff);border-left:4px solid var(--c);padding:5px 9px;border-radius:0 8px 8px 0}
-dl{display:grid;grid-template-columns:max-content 1fr;gap:3px 9px;margin:6px 0}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:6px 0;align-items:center}
 dt{font-weight:700;color:color-mix(in srgb,var(--c) 82%,#000)}
 dd{margin:0}
 .row{display:grid;gap:10px;align-items:center}
@@ -176,10 +185,10 @@ ol.num{list-style:none;padding:0;margin:4px 0;counter-reset:n}
 ol.num li{counter-increment:n;padding-left:1.9em;position:relative;margin:4px 0}
 ol.num li::before{content:counter(n);position:absolute;left:0;top:.05em;width:1.35em;height:1.35em;border-radius:50%;background:var(--c);color:#fff;font-weight:700;font-size:.85em;display:flex;align-items:center;justify-content:center}
 .hub{flex:none;display:flex;align-items:center;justify-content:center;padding:8px 0;position:relative;z-index:3}
-.hubin{background:#fff;border:4px solid #1B3A6B;border-radius:42% 46% 40% 44% / 50% 46% 50% 44%;box-shadow:0 0 0 7px #fff,0 0 0 10px #EA580C;padding:20px 34px 18px;text-align:center;width:100%}
+.hubin{background:#fff;border:4px solid #1B3A6B;border-radius:42% 46% 40% 44% / 50% 46% 50% 44%;box-shadow:0 0 0 7px #fff,0 0 0 10px #EA580C;padding:20px 52px 18px;text-align:center;width:100%}
 .hc{font-family:'Barlow Condensed';font-weight:700;color:#EA580C;letter-spacing:.12em;text-transform:uppercase;font-size:calc(var(--fs) * 1.1)}
 .hub h1{margin:2px 0 6px;font-family:'Barlow Condensed';font-weight:700;color:#1B3A6B;font-size:calc(var(--fs) * 2.55);line-height:.98;text-transform:uppercase}
-.hub p{margin:6px 0 0;color:#334155;font-size:.95em}
+.hub p{margin:6px auto 0;color:#334155;font-size:.92em;max-width:88%}
 .wrow{display:grid;gap:16px;position:relative;z-index:2}
 .tips{display:flex;gap:10px;align-items:stretch;border:2.6px solid #1B3A6B;border-radius:14px;padding:8px 10px;background:#fff;position:relative;z-index:2}
 .tl{flex:none;display:flex;align-items:center;font-family:'Barlow Condensed';font-weight:700;font-size:calc(var(--fs) * 1.45);color:#fff;background:#1B3A6B;border-radius:9px;padding:0 14px;letter-spacing:.04em}
@@ -205,12 +214,14 @@ async function fit(pg) {
     const root = document.documentElement, P = document.getElementById('pg');
     const over = () => {
       if (P.scrollHeight > P.clientHeight + 1) return true;
-      for (const b of document.querySelectorAll('.box .bd,.hub')) { if (b.scrollWidth > b.clientWidth + 2) return true; }
+      for (const b of document.querySelectorAll('.box,.box .bd,.hub,.tips')) { if (b.scrollWidth > b.clientWidth + 2) return true; }
       for (const c of document.querySelectorAll('.col')) { let s = 0; for (const k of c.children) s += k.scrollHeight; s += 16 * (c.children.length - 1); if (s > c.clientHeight + 1) return true; }
       return false;
     };
-    let fs = 17; root.style.setProperty('--fs', fs + 'px');
+    let fs = 22; root.style.setProperty('--fs', fs + 'px');
     while (over() && fs > 12) { fs -= 0.25; root.style.setProperty('--fs', fs + 'px'); }
+    // a formula wider than its box gets a smaller font of its own instead of shrinking the whole poster
+    for (const f of document.querySelectorAll('.fx')) { let k = 1; while (f.scrollWidth > f.clientWidth + 1 && k > 0.6) { k -= 0.04; f.style.fontSize = k + 'em'; } }
     const hub = document.getElementById('hub').querySelector('.hubin').getBoundingClientRect(), pr = P.getBoundingClientRect();
     const hx = hub.left + hub.width / 2 - pr.left, hy = hub.top + hub.height / 2 - pr.top;
     let s = '';
@@ -256,4 +267,11 @@ async function fit(pg) {
   if (!re.test(src)) throw new Error('MINDMAP_POSTERS not found in index.html');
   fs.writeFileSync(ip, src.replace(re, `const MINDMAP_POSTERS = ${JSON.stringify(have)};`));
   console.log('posters:', have.join(' '));
+  // one PDF per semester with every chapter's mind map
+  for (const sem of [1, 2, 3]) {
+    const ids = have.filter(i => (i.startsWith('S2-') ? 2 : i.startsWith('S3-') ? 3 : 1) === sem);
+    if (!ids.length) continue;
+    const all = path.join(OUT_PDF, `PhysiQ_MindMaps_Sem${sem}.pdf`);
+    cp.execFileSync('python3', ['-c', 'import sys;from pypdf import PdfWriter\nw=PdfWriter()\nfor p in sys.argv[2:]: w.append(p)\nw.write(sys.argv[1])', all, ...ids.map(i => path.join(OUT_PDF, `PhysiQ_MindMap_${i}.pdf`))]);
+  }
 })().catch(e => { console.error(e); process.exit(1); });
