@@ -1097,7 +1097,7 @@
   <div class="panel" id="panel-mindmaps">
     <div class="card">
       <h2>Mind maps &amp; derivations</h2>
-      <p class="sub" style="margin-top:-6px;">A one-page mind map for every chapter, and the derivations the STPM 2026 syllabus asks you to know. Tap a mind map to open it full size, or download the PDF to print on A4.</p>
+      <p class="sub" style="margin-top:-6px;">A one-page mind map for every chapter, and the derivations the STPM 2026 syllabus asks you to know. Tap a mind map to open it full size, tap View derivations to read them here, or download the PDFs to print on A4.</p>
       <div class="dl-row" id="mm-all" aria-label="Download a whole semester"></div>
     </div>
     <div class="mm-grid" id="mm-grid"></div>
@@ -7742,10 +7742,33 @@ const NOTES_EXTRA = (function(){
       return `<div class="mm-card">` +
         (mm ? `<a class="mm-thumb" href="${img}" target="_blank" rel="noopener" title="Open full size"><img src="${img}" alt="Mind map: ${m ? m[2] : label}" loading="lazy"></a>` : `<div class="mm-thumb mm-soon">Mind map<br>coming soon</div>`) +
         `<div class="mm-meta"><div class="mm-ch">${m ? 'Chapter ' + m[1] : ''}</div><div class="mm-name">${m ? m[2] : label}</div><div class="mm-btns">` +
-        (mm ? `<a class="dl-btn" href="downloads/mindmaps/PhysiQ_MindMap_${id}.pdf" download>Mind map</a>` : '') +
-        (dv ? `<a class="dl-btn" href="downloads/derivations/PhysiQ_Derivations_${id}.pdf" download>Derivations</a>` : '') +
+        (dv ? `<button type="button" class="dl-btn mm-dv-view" data-dv="${id}">View derivations</button>` : '') +
+        (mm ? `<a class="dl-btn" href="downloads/mindmaps/PhysiQ_MindMap_${id}.pdf" download>Mind map PDF</a>` : '') +
+        (dv ? `<a class="dl-btn" href="downloads/derivations/PhysiQ_Derivations_${id}.pdf" download>Derivations PDF</a>` : '') +
         `</div></div></div>`;
     }).join('');
+    if (!grid.dataset.dvBound){
+      grid.dataset.dvBound = '1';
+      grid.addEventListener('click', e => { const b = e.target.closest('.mm-dv-view'); if (b) openChapterDerivations(b.dataset.dv); });
+    }
+  }
+
+  // open one chapter's derivations inside the app (Notes > syllabus derivations), expanded and scrolled into view
+  function openChapterDerivations(id){
+    const sem = String(currentSemester || '1');
+    const k = (DV.SEM[Number(sem)] || []).findIndex(c => derivAppChapter(Number(sem), c[0]) === id);
+    if (k < 0) return;
+    const tab = $$('.tab').find(t => t.dataset.tab === 'notes'); if (tab) tab.click();
+    const sel = document.getElementById('notes-topic-select');
+    if (!sel || !sel.querySelector(`option[value="DERIV-${sem}"]`)) return;
+    sel.value = 'DERIV-' + sem; sel.dispatchEvent(new Event('change'));
+    setTimeout(() => {
+      const h = document.querySelectorAll('#notes-content h3.dv-ch')[k]; if (!h) return;
+      for (let el = h.nextElementSibling; el && !(el.matches && el.matches('h3.dv-ch')); el = el.nextElementSibling){ if (el.matches && el.matches('details.dv')) el.open = true; }
+      const bar = document.querySelector('.masthead');
+      const y = h.getBoundingClientRect().top + window.pageYOffset - ((bar && getComputedStyle(bar).position === 'sticky') ? bar.offsetHeight + 12 : 12);
+      window.scrollTo({top: Math.max(0, y), behavior: 'smooth'});
+    }, 120);
   }
 
   // chapters that have a printable poster mind map (assets/mindmaps/<id>.webp + downloads/mindmaps/*.pdf); kept up to date by tools/build_mindmaps.js
@@ -8238,9 +8261,9 @@ const NOTES_EXTRA = (function(){
     const chs = DV.SEM[sem] || [];
     let html = `<h2>Syllabus derivations · Semester ${sem}</h2><p class="dv-intro">Every formula the STPM Physics 960 syllabus (used from STPM 2026) asks you to <b>derive</b>, <b>deduce</b>, <b>show</b> or <b>verify</b>: ${derivCount(sem)} in all. Tap one to open it; learn the steps in order.</p><p class="dv-tools"><button type="button" class="dv-btn" onclick="document.querySelectorAll('#notes-content details.dv').forEach(d=>d.open=true)">Open all</button> <button type="button" class="dv-btn" onclick="document.querySelectorAll('#notes-content details.dv').forEach(d=>d.open=false)">Close all</button></p>`;
     chs.forEach(([num, name, items]) => {
-      html += `<h3 class="dv-ch">Chapter ${num} · ${name}</h3>`;
+      html += `<h3 class="dv-ch">Chapter ${derivAppChapter(sem, num).replace(/^S\d-/, '')} · ${name}</h3>`;
       items.forEach(([code, title, result, steps, fig, note]) => {
-        html += `<details class="dv"><summary><span class="dv-code">${code}</span><span class="dv-title">${title}</span><span class="dv-res">${mathify(derivPrep(result))}</span></summary><div class="dv-body">` +
+        html += `<details class="dv"><summary><span class="dv-code">${sem === 1 ? code : "Syllabus " + code}</span><span class="dv-title">${title}</span><span class="dv-res">${mathify(derivPrep(result))}</span></summary><div class="dv-body">` +
           (fig ? `<div class="dv-figwrap">${fig}</div>` : "") +
           `<ol class="dv-steps">${steps.map(s => "<li>" + mathify(derivPrep(s)) + "</li>").join("")}</ol>` +
           `<div class="dv-result"><b>Result:</b> ${mathify(derivPrep(result))}</div>` + (note ? `<p class="dv-note">${mathify(derivPrep(note))}</p>` : "") + `</div></details>`;
