@@ -1,5 +1,5 @@
 // Builds PhysiQ notes PDFs from index.html (the single source of truth) into ../downloads/.
-// Needs: node + playwright, poppler (pdftotext, pdfinfo), python3 + pypdf.   usage: node tools/build_notes_pdf.js [1|2|3|all] [nochap]
+// Needs: node + playwright, poppler (pdftotext, pdfinfo), python3 + pypdf, @fontsource/inter + @fontsource/newsreader.   usage: node tools/build_notes_pdf.js [1|2|3|all] [nochap]
 const fs = require('fs'), vm = require('vm'), path = require('path'), cp = require('child_process');
 const { chromium } = require('playwright');
 
@@ -48,51 +48,61 @@ for (const k of Object.keys(NOTES)) {
 }
 for (const sem in bySem) bySem[sem].sort((a, b) => a.num - b.num);
 
+// ---------- fonts (embedded so the PDF matches the app: Newsreader titles, Inter text) ----------
+// needs @fontsource/inter and @fontsource/newsreader in NODE_PATH
+const fontFace = (fam, pkg, file, w, st = 'normal', range = '') => { const f = path.join(path.dirname(require.resolve(pkg + '/package.json')), 'files', file);
+  return `@font-face{font-family:'${fam}';font-style:${st};font-weight:${w};src:url(data:font/woff2;base64,${fs.readFileSync(f).toString('base64')}) format('woff2');${range ? 'unicode-range:' + range + ';' : ''}}`; };
+const GREEK = 'U+0370-03FF,U+1F00-1FFF';
+const FONTS = [400, 500, 600, 700].map(w => fontFace('Inter', '@fontsource/inter', `inter-latin-${w}-normal.woff2`, w)).join('') +
+  [400, 500, 600, 700].map(w => fontFace('Inter', '@fontsource/inter', `inter-latin-ext-${w}-normal.woff2`, w, 'normal', 'U+0100-024F,U+1E00-1EFF,U+2070-209F,U+2100-218F')).join('') +
+  [400, 600, 700].map(w => fontFace('Inter', '@fontsource/inter', `inter-greek-${w}-normal.woff2`, w, 'normal', GREEK)).join('') +
+  [500, 600, 700].map(w => fontFace('Newsreader', '@fontsource/newsreader', `newsreader-latin-${w}-normal.woff2`, w)).join('');
+
 // ---------- CSS ----------
 const CSS = `
 @page { size: A4; margin: 20mm 16mm 20mm 16mm; }
-:root{--navy:#1B3A6B;--navy-tint:#EEF2F8;--orange:#EA580C;--orange-tint:#FDECE0;--ink:#1E293B;--sub:#64748B;--line:#DCE3ED;}
+:root{--navy:#1F3A2E;--navy-tint:#ECEEE3;--orange:#B4532A;--orange-tint:#F5E4D8;--ink:#1C2520;--sub:#5B665F;--line:#DDD5C2;--paper:#FFFCF5;--bg:#F4EFE2;--serif:'Newsreader',Georgia,serif;}
 *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 html,body{margin:0;padding:0;}
-body{font-family:Calibri,Carlito,Candara,"Segoe UI",sans-serif;font-size:10.5pt;line-height:1.5;color:var(--ink);}
+body{font-family:Inter,Carlito,Calibri,"Segoe UI",sans-serif;font-size:10pt;line-height:1.55;color:var(--ink);}
 .mono{font-family:Consolas,"DejaVu Sans Mono",monospace;}
 /* cover */
 .cover{height:257mm;position:relative;page-break-after:always;}
 .cover .band{background:var(--navy);color:#fff;margin:-20mm -16mm 0;padding:26mm 16mm 16mm;height:118mm;position:relative;}
-.cover .eyebrow{font-family:Consolas,"DejaVu Sans Mono",monospace;letter-spacing:.2em;font-size:10pt;color:#FDBA74;text-transform:uppercase;font-weight:700;}
-.cover h1{font-size:44pt;line-height:1.02;margin:10mm 0 3mm;font-weight:700;letter-spacing:-.01em;}
-.cover h1 span{color:#FB923C;display:block;font-size:30pt;margin-top:2mm;}
-.cover .scale{position:absolute;left:16mm;right:16mm;bottom:12mm;height:7mm;border-bottom:1.6px solid #8FA6CB;
-  background:repeating-linear-gradient(to right,#8FA6CB 0,#8FA6CB 1.6px,transparent 1.6px,transparent 8mm) bottom/100% 5mm no-repeat;}
+.cover .eyebrow{letter-spacing:.02em;font-size:11pt;color:#E7C8A6;font-weight:500;}
+.cover h1{font-family:var(--serif);font-size:50pt;line-height:1;margin:10mm 0 3mm;font-weight:600;letter-spacing:-.01em;}
+.cover h1 span{color:#E8A47C;display:block;font-size:24pt;font-weight:500;margin-top:3mm;}
+.cover .scale{position:absolute;left:16mm;right:16mm;bottom:12mm;height:7mm;border-bottom:1.6px solid #7E9586;
+  background:repeating-linear-gradient(to right,#7E9586 0,#7E9586 1.6px,transparent 1.6px,transparent 8mm) bottom/100% 5mm no-repeat;}
 .cover .sem{margin-top:16mm;}
-.cover .sem .big{font-size:26pt;font-weight:700;color:var(--navy);line-height:1.15;}
+.cover .sem .big{font-family:var(--serif);font-size:30pt;font-weight:600;color:var(--navy);line-height:1.15;}
 .cover .sem .sub{font-size:14pt;color:var(--sub);margin-top:2mm;}
 .cover .what{margin-top:14mm;border-left:4px solid var(--orange);padding:3mm 0 3mm 6mm;font-size:11.5pt;color:var(--ink);max-width:140mm;}
 .cover .what b{color:var(--navy);}
 .cover .foot{position:absolute;left:0;right:0;bottom:0;font-size:9.5pt;color:var(--sub);display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:4mm;}
 /* contents */
-.toc h1{font-size:22pt;color:var(--navy);margin:0 0 6mm;padding-bottom:3mm;border-bottom:3px solid var(--orange);}
+.toc h1{font-family:var(--serif);font-weight:600;font-size:24pt;color:var(--navy);margin:0 0 6mm;padding-bottom:3mm;border-bottom:3px solid var(--orange);}
 .toc .row{display:flex;align-items:baseline;gap:3mm;}
 .toc .row .t{flex:0 1 auto;}
-.toc .row .dots{flex:1 1 auto;border-bottom:1px dotted #94A3B8;transform:translateY(-3px);min-width:6mm;}
-.toc .row .pg{flex:0 0 auto;font-weight:700;color:var(--navy);font-family:Consolas,"DejaVu Sans Mono",monospace;font-size:9.5pt;}
-.toc .ch{margin-top:4.2mm;font-weight:700;color:var(--navy);font-size:11.5pt;}
-.toc .tp{margin-left:6mm;font-size:10pt;color:#334155;}
+.toc .row .dots{flex:1 1 auto;border-bottom:1px dotted #B5AC97;transform:translateY(-3px);min-width:6mm;}
+.toc .row .pg{flex:0 0 auto;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;font-size:9.5pt;}
+.toc .ch{margin-top:4.2mm;font-weight:600;color:var(--navy);font-size:11pt;}
+.toc .tp{margin-left:6mm;font-size:9.6pt;color:#3E4842;}
 .toc .legend{margin-top:9mm;font-size:9.5pt;}
 .toc .legend .note-trap,.toc .legend .note-trick{margin:2mm 0;}
 /* chapter + topic headings */
 .chapter{page-break-before:always;margin:0 0 6mm;}
-.chapter .lab{font-family:Consolas,"DejaVu Sans Mono",monospace;letter-spacing:.16em;color:var(--orange);font-weight:700;font-size:9.5pt;text-transform:uppercase;}
-.chapter h1{font-size:23pt;color:var(--navy);margin:1mm 0 0;line-height:1.15;padding-bottom:3mm;border-bottom:3px solid var(--orange);}
+.chapter .lab{color:var(--orange);font-weight:600;font-size:10.5pt;letter-spacing:.01em;}
+.chapter h1{font-family:var(--serif);font-weight:600;font-size:27pt;color:var(--navy);margin:1mm 0 0;line-height:1.15;padding-bottom:3mm;border-bottom:3px solid var(--orange);}
 .topic{margin-top:8mm;}
 .topic:first-of-type{margin-top:0;}
-.topic > h2{font-size:15pt;color:var(--navy);margin:0 0 3mm;padding:2mm 0 1.6mm;border-bottom:1.2px solid var(--line);break-after:avoid;}
+.topic > h2{font-family:var(--serif);font-weight:600;font-size:17pt;color:var(--navy);margin:0 0 3mm;padding:2mm 0 1.6mm;border-bottom:1.2px solid var(--line);break-after:avoid;}
 .guide-h{page-break-before:always;}
 /* notes content (mirrors the app) */
-.nc h3{color:var(--navy);margin:5mm 0 2mm;font-size:11.5pt;text-transform:uppercase;letter-spacing:.05em;break-after:avoid;border-left:4px solid var(--orange);padding-left:2.5mm;}
+.nc h3{color:var(--navy);margin:5mm 0 2mm;font-size:11pt;font-weight:700;letter-spacing:0;break-after:avoid;border-left:4px solid var(--orange);padding-left:2.5mm;}
 .nc h3:first-child{margin-top:0;}
 .nc ul{margin:0 0 3mm 5mm;padding:0;}
-.nc li{margin-bottom:1.6mm;font-size:10.5pt;line-height:1.5;break-inside:avoid;}
+.nc li{margin-bottom:1.6mm;font-size:10pt;line-height:1.5;break-inside:avoid;}
 .nc p{margin:0 0 3mm;}
 .nc b{color:var(--navy);}
 .nc .note-trap,.note-trap{background:var(--orange-tint);border-left:3px solid var(--orange);padding:2.2mm 3.5mm;border-radius:0 5px 5px 0;margin:2.2mm 0;font-size:10pt;line-height:1.45;break-inside:avoid;}
@@ -101,12 +111,12 @@ body{font-family:Calibri,Carlito,Candara,"Segoe UI",sans-serif;font-size:10.5pt;
 .nc table.ftable{border-collapse:collapse;width:100%;font-size:9.6pt;}
 .nc .ftable thead{display:table-header-group;}
 .nc .ftable tr{break-inside:avoid;}
-.nc .ftable th{background:var(--navy);color:#fff;text-align:left;padding:2mm 2.5mm;font-size:8.2pt;letter-spacing:.06em;text-transform:uppercase;}
-.nc .ftable td{padding:2mm 2.5mm;border:1px solid #CBD5E1;vertical-align:top;line-height:1.5;}
-.nc .ftable tbody tr:nth-child(even) td{background:#F7F9FC;}
+.nc .ftable th{background:var(--navy);color:#fff;text-align:left;padding:2mm 2.5mm;font-size:8.8pt;font-weight:600;}
+.nc .ftable td{padding:2mm 2.5mm;border:1px solid #DDD5C2;vertical-align:top;line-height:1.5;}
+.nc .ftable tbody tr:nth-child(even) td{background:#FAF6EB;}
 .nc .ftable td:nth-child(1){font-weight:700;color:var(--navy);width:21%;}
-.nc .ftable td:nth-child(2){font-size:10.8pt;width:33%;background:#F1F5FB !important;}
-.nc .ftable td:nth-child(3){color:#475569;font-size:9pt;}
+.nc .ftable td:nth-child(2){font-size:10.4pt;width:33%;background:#F5F0E2 !important;}
+.nc .ftable td:nth-child(3){color:#4E5751;font-size:8.8pt;}
 .nc ul.fremarks{margin-top:-1mm;}
 /* typography helpers (same as app) */
 sup,sub{font-size:.72em;line-height:0;position:relative;vertical-align:baseline;}
@@ -115,11 +125,14 @@ sup{top:-.5em;} sub{top:.28em;}
 .frac .n{display:block;padding:0 .25em .06em;border-bottom:1.3px solid currentColor;}
 .frac .d{display:block;padding:.06em .25em 0;}
 .sqrt .rad{border-top:1.3px solid currentColor;padding:0 .12em;margin-left:1px;}
+.sqrt.sq2{display:inline-flex;align-items:stretch;vertical-align:middle;margin:0 .08em 0 .12em;white-space:nowrap;line-height:1.15;}
+.sqrt.sq2 .rs{flex:none;width:.62em;overflow:hidden;-webkit-text-fill-color:transparent;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 20' preserveAspectRatio='none'><path d='M0.3 12.2 L2.2 11 L5.4 19.6 L9.7 0.4' fill='none' stroke='%231C2520' stroke-width='1.3' stroke-linejoin='round' vector-effect='non-scaling-stroke'/></svg>") 0 0/100% 100% no-repeat;}
+.sqrt.sq2 .rad{display:inline-flex;align-items:center;margin-left:0;padding:.14em .14em 0 .1em;}
 svg.inf{width:1.3em;height:.65em;vertical-align:-.04em;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
 `;
 
 const DATE = 'October 2026';
-const wrap = (body, extra = '') => `<!doctype html><html><head><meta charset="utf-8"><style>${CSS}${extra}</style></head><body>${body}</body></html>`;
+const wrap = (body, extra = '') => `<!doctype html><html><head><meta charset="utf-8"><style>${FONTS}${CSS}${extra}</style></head><body>${body}</body></html>`;
 
 // ---------- sections ----------
 const topicHtml = k => `<section class="topic"><h2>${esc(k.replace(/^S[23]-/, ''))}</h2><div class="nc">${mathify(NOTES[k])}</div></section>`;
@@ -154,8 +167,8 @@ function toc(sem, pages) {
   return h;
 }
 
-const headerT = sem => `<div style="width:100%;font-family:Carlito,Calibri,sans-serif;font-size:8px;color:#64748B;padding:0 16mm;display:flex;justify-content:space-between;border-bottom:.5px solid #DCE3ED;padding-bottom:3px;margin-top:6mm;-webkit-print-color-adjust:exact;"><span><b style="color:#1B3A6B">PhysiQ</b> by Cikgu Suhaili</span><span>STPM Physics · Semester ${sem}</span></div>`;
-const footerT = `<div style="width:100%;font-family:Carlito,Calibri,sans-serif;font-size:8px;color:#64748B;padding:0 16mm;display:flex;justify-content:space-between;margin-bottom:6mm;"><span>ellyelias.github.io/physiq</span><span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span></div>`;
+const headerT = sem => `<div style="width:100%;font-family:Carlito,Calibri,sans-serif;font-size:8px;color:#5B665F;padding:0 16mm;display:flex;justify-content:space-between;border-bottom:.5px solid #DDD5C2;padding-bottom:3px;margin-top:6mm;-webkit-print-color-adjust:exact;"><span><b style="color:#1F3A2E">PhysiQ</b> by Cikgu Suhaili</span><span>STPM Physics · Semester ${sem}</span></div>`;
+const footerT = `<div style="width:100%;font-family:Carlito,Calibri,sans-serif;font-size:8px;color:#5B665F;padding:0 16mm;display:flex;justify-content:space-between;margin-bottom:6mm;"><span>ellyelias.github.io/physiq</span><span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span></div>`;
 
 async function render(browser, bodyHtml, file, sem, withHF = true, extraCss = '', zero = false) {
   const p = await browser.newPage();
