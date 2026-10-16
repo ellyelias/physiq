@@ -33,7 +33,7 @@ module.exports = K => ({
         ['kv', [['Systematic', 'same size and sign each time (zero error); affects **accuracy**; correct by calibrating'], ['Random', 'scatter both ways (reaction time); affects **precision**; reduce by averaging']]],
       ] },
       { t: 'Uncertainty rules', c: 'teal', col: 'R', body: [
-        ['kv', [['$Z = A \\pm B$', '$\\Delta Z = \\Delta A + \\Delta B$'], ['$Z = AB,\\ A/B$', r`$\dfrac{\Delta Z}{Z} = \dfrac{\Delta A}{A} + \dfrac{\Delta B}{B}$`], ['$Z = A^n$', r`$\dfrac{\Delta Z}{Z} = |n|\dfrac{\Delta A}{A}$`], ['$Z = kA$', '$\\Delta Z = k\\,\\Delta A$']]],
+        ['kv', [['$Z = A \\pm B$', '$\\Delta Z = \\Delta A + \\Delta B$'], ['$Z = AB$', r`$\dfrac{\Delta Z}{Z} = \dfrac{\Delta A}{A} + \dfrac{\Delta B}{B}$`], ['$Z = \\dfrac{A}{B}$', r`$\dfrac{\Delta Z}{Z} = \dfrac{\Delta A}{A} + \dfrac{\Delta B}{B}$`], ['$Z = A^n$', r`$\dfrac{\Delta Z}{Z} = |n|\dfrac{\Delta A}{A}$`], ['$Z = kA$', '$\\Delta Z = k\\,\\Delta A$']]],
         ['b', ['Analogue scale: ± half the smallest division', 'Digital: ± one in the last digit', 'Repeated: $\\Delta x = \\tfrac12(x_{\\max} - x_{\\min})$']],
       ] },
     ],

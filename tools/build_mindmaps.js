@@ -172,7 +172,7 @@ li::marker{color:var(--c)}
 .fxs .fx{margin:4px 0}
 .katex{font-size:1.06em}
 .note{background:color-mix(in srgb,var(--c) 9%,#fff);border-left:4px solid var(--c);padding:5px 9px;border-radius:0 8px 8px 0}
-dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:6px 0;align-items:center}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:10px 14px;margin:6px 0;align-items:center}
 dt{font-weight:700;color:color-mix(in srgb,var(--c) 82%,#000)}
 dd{margin:0}
 .row{display:grid;gap:10px;align-items:center}
