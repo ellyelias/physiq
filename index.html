@@ -477,6 +477,12 @@
   #notes-content .dv-note{font-size:12.5px;color:var(--sub);margin:6px 0 0;}
   #notes-content .dv-topic{background:var(--navy-tint);border-radius:8px;padding:9px 12px;font-size:13.5px;line-height:1.5;margin:0 0 14px;}
   #notes-content .dv-topic a{color:var(--orange);font-weight:700;}
+  #notes-content .tf{margin:4px 0 16px;}
+  #notes-content .tf-head{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sub);margin:0 0 6px;}
+  #notes-content .tf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;}
+  #notes-content .tf-fig{margin:0;border:1px solid var(--line);border-radius:10px;padding:10px 10px 8px;background:var(--paper);min-width:0;}
+  #notes-content .tf-svg{display:block;max-width:100%;height:auto;margin:0 auto;}
+  #notes-content .tf-fig figcaption{font-size:12.5px;color:var(--sub);line-height:1.45;margin-top:6px;}
   /* ===== phones: one scrolling row of tabs, less padding, no nested boxes ===== */
   @media (max-width:640px){
     .app{padding:12px 16px 48px;}
@@ -6491,7 +6497,7 @@ const NOTES_EXTRA = (function(){
     }
     if (EXTRA_NOTES[key]){ $('#notes-content').innerHTML = `<h2>${escapeHtml(key)}</h2>` + EXTRA_NOTES[key]; updateNotesDownloads('GUIDE-1'); return; }
     const bc = NOTES_BC[key];
-    $('#notes-content').innerHTML = `<h2>${escapeHtml(title.replace(/^S[23]-/, ''))}</h2>` + mindmapHTML(key) + derivForTopic(key) + (bc ? '<p class="notes-part">Part 1 · Section A: definitions, formulas and traps</p>' : '') + mathify(body) +
+    $('#notes-content').innerHTML = `<h2>${escapeHtml(title.replace(/^S[23]-/, ''))}</h2>` + mindmapHTML(key) + derivForTopic(key) + (bc ? '<p class="notes-part">Part 1 · Section A: definitions, formulas and traps</p>' : '') + topicFigsInsert(key, mathify(body)) +
       (bc ? `<div class="notes-bc"><p class="notes-part">Part 2 · Sections B &amp; C: derivations, explanations and a worked example</p>${bc}</div>` : '');
     updateNotesDownloads(key);
   }
@@ -8131,7 +8137,7 @@ const NOTES_EXTRA = (function(){
         ]]
       ]
     };
-    return {SEM};
+    return {SEM, F};
   })();
 
   // the app's chapter key for a syllabus chapter (Semester 2 and 3 chapters are numbered one lower in the app)
@@ -8163,6 +8169,275 @@ const NOTES_EXTRA = (function(){
     const ch = (DV.SEM[sem] || []).find(c => derivAppChapter(sem, c[0]) === appCh);
     if (!ch) return "";
     return `<div class="dv-topic"><b>Derivations required in this chapter:</b> ${ch[2].map(d => d[1]).join("; ")}. <a href="#" onclick="var s=document.getElementById('notes-topic-select');s.value='DERIV-${sem}';s.dispatchEvent(new Event('change'));window.scrollTo({top:0,behavior:'smooth'});return false;">Open the derivations list</a></div>`;
+  }
+
+  // ===== key diagrams inside each topic's notes (placed after the first list of definitions) =====
+  const TOPIC_FIGS = (() => {
+    const INK = "#1E293B", AC = "#EA580C", NV = "#1B3A6B", GR = "#16A34A", PU = "#7C3AED", FILL = "#FDECE0", TINT = "#EEF2F8";
+    const sv = (w, h, body) => `<svg class="tf-svg" viewBox="0 0 ${w} ${h}" width="${w}" role="img" font-size="13" fill="${INK}">${body}</svg>`;
+    const L = (x1, y1, x2, y2, o = "") => `<line ${o} x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${INK}" stroke-width="1.6"/>`;
+    const D = (x1, y1, x2, y2, c = INK) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+    const A = (x1, y1, x2, y2, c = INK, w = 1.8) => {
+      const a = Math.atan2(y2 - y1, x2 - x1), h = 8;
+      return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}"/><path d="M${x2} ${y2} L${(x2 - h * Math.cos(a - 0.4)).toFixed(1)} ${(y2 - h * Math.sin(a - 0.4)).toFixed(1)} L${(x2 - h * Math.cos(a + 0.4)).toFixed(1)} ${(y2 - h * Math.sin(a + 0.4)).toFixed(1)} Z" fill="${c}"/>`;
+    };
+    const T = (x, y, s, a = "start", o = "") => `<text x="${x}" y="${y}" text-anchor="${a}" ${o}>${s}</text>`;
+    const S = (x, y, s, a = "middle", c = INK) => T(x, y, s, a, `font-size="11.5" fill="${c}"`);
+    const I = s => `<tspan font-style="italic">${s}</tspan>`;
+    const sb = s => `<tspan dy="4" font-size="10">${s}</tspan><tspan dy="-4"> </tspan>`;
+    const C = (x, y, r, o = `fill="none" stroke="${INK}" stroke-width="1.6"`) => `<circle cx="${x}" cy="${y}" r="${r}" ${o}/>`;
+    const dot = (x, y, c = INK, r = 4) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`;
+    const P = (d, c = INK, w = 2, extra = "") => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" ${extra}/>`;
+    const R = (x, y, w, h, f = TINT, s = INK) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" stroke="${s}" stroke-width="1.4"/>`;
+    // axes with arrow heads; origin (x0,y0), ends (x1,y1)
+    const AX = (x0, y0, x1, y1, xl, yl) => A(x0, y0, x1, y0) + A(x0, y0, x0, y1) + T(x1, y0 + 16, xl, "end") + T(x0 - 6, y1 + 4, yl, "end");
+    // curve sampled in pixel space: fy(x) for x from xa to xb
+    const CV = (xa, xb, fy, c = AC, w = 2.2, extra = "") => { let d = ""; for (let x = xa; x <= xb + 0.01; x += 2) { const y = fy(x); if (isFinite(y)) d += (d ? " L" : "M") + x.toFixed(1) + " " + y.toFixed(1); } return P(d, c, w, extra); };
+    const fig = (svg, cap) => ({svg, cap});
+    const sine = (x0, y0, amp, wl, ph = 0) => x => y0 - amp * Math.sin(2 * Math.PI * (x - x0) / wl + ph);
+    const cross = (x, y) => T(x, y + 4, "×", "middle", 'font-size="12"');
+    const xs = (x0, y0, nx, ny, dx, dy) => { let s = ""; for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) s += cross(x0 + i * dx, y0 + j * dy); return s; };
+    const cell = (x, y, pos = true) => L(x, y - 14, x, y + 14, 'stroke-width="2"') + L(x + 8, y - 8, x + 8, y + 8, 'stroke-width="4"');
+    const res = (x, y, w = 40, h = 14, lab = "") => R(x - w / 2, y - h / 2, w, h, "#fff") + (lab ? S(x, y - 12, lab) : "");
+
+    const F = {};
+    // ---------- Semester 1 ----------
+    F["1.1"] = [fig(sv(330, 150, [["length", "m"], ["mass", "kg"], ["time", "s"], ["current", "A"], ["temperature", "K"], ["amount of substance", "mol"], ["luminous intensity", "cd"]].map((q, i) => {
+      const x = 10 + (i % 4) * 80, y = 10 + Math.floor(i / 4) * 70; return R(x, y, 74, 60, i % 2 ? TINT : FILL) + T(x + 37, y + 26, q[1], "middle", `font-size="18" font-weight="700" fill="${NV}"`) + S(x + 37, y + 46, q[0].length > 12 ? q[0].split(" ")[0] : q[0]);
+    }).join("") + S(290, 105, "7 SI base units")), "The seven SI base quantities and their units; every other unit is built from these.")];
+    F["1.2"] = [fig(sv(320, 190, A(40, 160, 220, 50, AC, 2.4) + D(220, 50, 220, 160) + D(40, 50, 220, 50) + A(40, 160, 220, 160, NV, 2) + A(40, 160, 40, 50, NV, 2) +
+      T(130, 95, I("F"), "middle", `fill="${AC}" font-weight="700"`) + T(130, 178, I("F") + sb("x") + " = " + I("F") + " cos θ", "middle") + T(34, 108, I("F") + sb("y"), "end") + T(80, 152, "θ") +
+      P("M75 160 A35 35 0 0 0 70 143", INK, 1.4)), "Resolving a vector into two perpendicular components: Fx = F cos θ, Fy = F sin θ.")];
+    F["1.3"] = [fig(sv(340, 130, [["accurate, precise", [[0, 0], [3, 2], [-2, 3], [2, -3]]], ["precise, not accurate", [[22, -18], [25, -15], [20, -14], [24, -20]]], ["accurate, not precise", [[-20, 15], [18, -16], [-14, -18], [16, 17]]], ["neither", [[-25, -10], [20, 22], [24, -6], [-8, 26]]]].map((t, i) => {
+      const cx = 48 + i * 82; return C(cx, 55, 36) + C(cx, 55, 24) + C(cx, 55, 11) + t[1].map(p => dot(cx + p[0] * 0.95, 55 + p[1] * 0.95, AC, 3.2)).join("") + S(cx, 112, t[0].split(", ")[0]) + (t[0].includes(", ") ? S(cx, 126, t[0].split(", ")[1]) : "");
+    }).join("")), "Accuracy is closeness to the true value (centre); precision is closeness of repeated readings to each other.")];
+    F["2.1"] = [fig(sv(340, 140, AX(20, 110, 105, 15, I("t"), I("s")) + CV(20, 100, x => 110 - 0.012 * (x - 20) * (x - 20) - 0.15 * (x - 20)) + S(62, 132, "s–t: curve") +
+      AX(135, 110, 220, 15, I("t"), I("v")) + L(135, 90, 215, 30, `stroke="${AC}" stroke-width="2.2"`) + S(178, 132, "v–t: straight line") +
+      AX(250, 110, 335, 15, I("t"), I("a")) + L(250, 60, 330, 60, `stroke="${AC}" stroke-width="2.2"`) + S(292, 132, "a–t: horizontal")), "Constant acceleration: gradient of s–t is v; gradient of v–t is a; area under v–t is the displacement.")];
+    F["2.2"] = [fig(sv(340, 180, AX(30, 150, 330, 15, I("x"), I("y")) + CV(30, 290, x => 150 - (x - 30) * (290 - x) / 130) + A(30, 150, 70, 100, NV, 2) + T(64, 96, I("u")) + T(52, 140, "θ") +
+      A(160, 20, 210, 20, NV, 1.8) + S(185, 14, I("u") + " cos θ (constant)") +
+      D(160, 20, 160, 150) + S(166, 90, "H", "start") + A(30, 168, 290, 168) + S(160, 166, "range R", "middle")), "Projectile: constant horizontal velocity, constant downward acceleration g; the path is a parabola.")];
+    F["3.1"] = [fig(sv(320, 190, `<polygon points="30,170 290,170 290,60" fill="${TINT}" stroke="${INK}" stroke-width="1.4"/>` + `<g transform="rotate(-22.9 170 118)"><rect x="140" y="90" width="60" height="38" fill="${FILL}" stroke="${INK}" stroke-width="1.6"/></g>` +
+      A(170, 112, 170, 182, NV, 2) + T(176, 180, I("W") + " = " + I("mg"), "start", `fill="${NV}"`) + A(170, 112, 145, 52, GR, 2) + T(132, 54, I("R"), "end", `fill="${GR}"`) + A(170, 112, 220, 91, AC, 2) + T(226, 92, I("f"), "start", `fill="${AC}"`) + T(78, 165, "θ")),
+      "Free-body diagram: weight, normal reaction and friction acting on a block on a slope.")];
+    F["3.2"] = [fig(sv(300, 160, `<path d="M40 130 C80 130 90 30 130 30 C170 30 180 130 220 130 Z" fill="${FILL}"/>` + AX(40, 130, 290, 15, I("t"), I("F")) + P("M40 130 C80 130 90 30 130 30 C170 30 180 130 220 130", AC, 2.2) +
+      S(130, 95, "area = impulse = Δp")), "Impulse = ∫F dt = area under the force–time graph = change in momentum.")];
+    F["3.3"] = [fig(sv(330, 150, S(80, 16, "before") + C(50, 50, 18, `fill="${FILL}" stroke="${INK}"`) + A(70, 50, 105, 50, AC) + C(150, 50, 18, `fill="${TINT}" stroke="${INK}"`) + S(50, 54, I("m") + sb("1")) + S(150, 54, I("m") + sb("2")) + S(88, 42, I("u") + sb("1")) +
+      S(80, 92, "after") + C(50, 120, 18, `fill="${FILL}" stroke="${INK}"`) + A(70, 120, 95, 120, AC) + C(150, 120, 18, `fill="${TINT}" stroke="${INK}"`) + A(170, 120, 215, 120, AC) + S(84, 112, I("v") + sb("1")) + S(195, 112, I("v") + sb("2")) +
+      T(230, 60, "momentum:", "start", 'font-size="12"') + T(230, 76, "always conserved", "start", 'font-size="12"') + T(230, 100, "kinetic energy:", "start", 'font-size="12"') + T(230, 116, "elastic only", "start", 'font-size="12"')),
+      "Collision: total momentum is conserved; kinetic energy is conserved only in an elastic collision.")];
+    F["3.4"] = [fig(sv(320, 170, AX(40, 140, 300, 15, "applied force", I("f")) + L(40, 140, 160, 50, `stroke="${AC}" stroke-width="2.2"`) + L(160, 50, 168, 72, `stroke="${AC}" stroke-width="2.2"`) + L(168, 72, 290, 72, `stroke="${NV}" stroke-width="2.2"`) +
+      D(40, 50, 160, 50) + T(36, 54, "μ" + sb("s") + I("R"), "end") + T(36, 76, "μ" + sb("k") + I("R"), "end") + S(95, 120, "static (= applied)") + S(230, 64, "kinetic (constant)") + S(160, 40, "starts to slide")), "Static friction grows with the applied force up to μsR; once sliding, kinetic friction μkR is smaller and constant.")];
+    F["4.1"] = [fig(sv(320, 120, R(60, 60, 60, 36, FILL) + A(120, 70, 200, 25, AC, 2.4) + D(120, 70, 210, 70) + T(160, 66, "θ") + T(205, 30, I("F"), "start", `fill="${AC}"`) + A(60, 112, 280, 112) + S(170, 108, "displacement " + I("s"))),
+      "Work done W = Fs cos θ: only the component of the force along the displacement does work.")];
+    F["4.2"] = [fig(sv(330, 180, P("M40 30 C100 30 120 160 180 160 C230 160 260 90 300 90", NV, 2.4) + dot(40, 30, AC, 6) + dot(180, 160, AC, 6) + dot(300, 90, AC, 6) + S(48, 22, "PE max, KE = 0", "start") + S(180, 150, "KE max") + S(300, 78, "PE + KE") + S(200, 40, "total energy constant (no friction)")), "Energy changes form but the total is conserved; with friction, the energy lost equals the work done against friction.")];
+    F["4.3"] = [fig(sv(330, 150, `<path d="M20 40 L180 40 L180 70 L300 70 L300 40 L320 75 L300 110 L300 80 L210 80 L210 130 L180 130 L180 110 L20 110 Z" fill="${FILL}" stroke="${AC}" stroke-width="1.6"/>` +
+      `<rect x="180" y="110" width="30" height="35" fill="#E2E8F0" stroke="${INK}" stroke-width="1"/>` + S(90, 80, "input power") + S(255, 64, "useful output") + S(195, 142, "wasted")), "Efficiency = useful output ÷ input × 100%; the rest is wasted, usually as heat.")];
+    F["5.1"] = [fig(sv(300, 190, C(110, 100, 70) + dot(110, 100) + L(110, 100, 180, 100, 'stroke-dasharray="4 3"') + L(110, 100, 160, 51) + P("M150 100 A40 40 0 0 0 139 72", AC, 1.6) + T(152, 88, "θ", "start", `fill="${AC}"`) +
+      A(160, 51, 200, 90, NV, 2.2) + T(206, 92, I("v") + " = " + I("r") + "ω", "start", `fill="${NV}"`) + T(126, 70, I("r")) + T(196, 40, I("s") + " = " + I("r") + "θ", "start")), "Angular displacement θ = s/r (radian); the velocity is tangential with v = rω.")];
+    F["5.2"] = [fig(sv(370, 210, C(110, 105, 75) + dot(110, 30) + A(110, 30, 110, 65, NV, 2.2) + T(118, 58, I("T"), "start", `fill="${NV}"`) + A(126, 30, 126, 62, AC, 2) + T(134, 46, I("mg"), "start", `fill="${AC}"`) +
+      dot(110, 180) + A(110, 180, 110, 145, NV, 2.2) + T(118, 160, I("T"), "start", `fill="${NV}"`) + A(126, 180, 126, 205, AC, 2) + T(134, 202, I("mg"), "start", `fill="${AC}"`) +
+      T(200, 40, "top: " + I("T") + " + " + I("mg") + " = " + I("mv") + "²/" + I("r"), "start", 'font-size="12.5"') + T(200, 175, "bottom: " + I("T") + " − " + I("mg") + " = " + I("mv") + "²/" + I("r"), "start", 'font-size="12.5"')),
+      "Vertical circle: the resultant of tension and weight provides the centripetal force mv²/r towards the centre.")];
+    F["6.1"] = [fig(sv(320, 110, C(60, 55, 30, `fill="${FILL}" stroke="${INK}"`) + C(250, 55, 16, `fill="${TINT}" stroke="${INK}"`) + S(60, 59, I("M")) + S(250, 59, I("m")) + A(92, 55, 140, 55, AC, 2.2) + A(232, 55, 184, 55, AC, 2.2) +
+      S(118, 46, I("F")) + S(206, 46, I("F")) + A(60, 100, 250, 100) + A(250, 100, 60, 100) + S(155, 96, I("r"))), "F = GMm/r²: equal and opposite attractive forces along the line joining the centres.")];
+    F["6.2"] = [fig(sv(340, 170, AX(30, 140, 160, 15, I("r"), I("g")) + L(30, 140, 75, 45, `stroke="${AC}" stroke-width="2.2"`) + CV(75, 155, x => 140 - 95 * Math.pow(45 / (x - 30), 2)) + D(75, 45, 75, 140) + S(75, 156, I("R")) + S(110, 30, "g ∝ r inside, ∝ 1/r² outside") +
+      AX(200, 30, 330, 160, I("r"), I("V")) + CV(240, 325, x => 30 + 110 * 40 / (x - 200)) + D(240, 30, 240, 140) + S(240, 22, I("R")) + S(270, 100, "V = −GM/r", "start")), "Field strength rises inside the Earth and falls as 1/r² outside; the potential is negative and rises towards zero at infinity.")];
+    F["6.3"] = [fig(sv(300, 200, C(140, 100, 32, `fill="#DBEAFE" stroke="${NV}" stroke-width="1.6"`) + S(140, 104, "Earth") + C(140, 100, 82, `fill="none" stroke="${INK}" stroke-dasharray="5 4" stroke-width="1.4"`) + dot(222, 100, AC, 6) +
+      A(222, 100, 222, 45, NV, 2) + T(228, 60, I("v"), "start", `fill="${NV}"`) + A(216, 100, 180, 100, AC, 2) + T(196, 92, I("F"), "middle", `fill="${AC}"`) + S(150, 196, "GMm/r² = mv²/r → v = √(GM/r)")), "A satellite in a circular orbit: gravity provides the centripetal force.")];
+    F["7.1"] = [fig(sv(320, 150, dot(40, 110, INK, 6) + S(40, 132, "axis") + L(40, 110, 240, 110, 'stroke-width="6" stroke="#94A3B8"') + A(240, 110, 290, 40, AC, 2.4) + D(240, 110, 300, 110) + T(258, 104, "θ") + T(292, 44, I("F"), "start", `fill="${AC}"`) +
+      A(40, 128, 240, 128) + A(240, 128, 40, 128) + S(140, 145, I("r")) + S(150, 30, "τ = rF sin θ = Iα")), "Torque about an axis: τ = rF sin θ; a resultant torque gives angular acceleration α = τ/I.")];
+    F["7.2"] = [fig(sv(320, 130, L(160, 10, 160, 120, 'stroke-dasharray="6 4"') + S(160, 128, "axis") + dot(100, 60, AC, 9) + dot(250, 60, NV, 7) + dot(40, 60, GR, 6) +
+      A(160, 80, 100, 80) + A(160, 90, 250, 90) + A(160, 100, 40, 100) + S(130, 76, I("r") + sb("1")) + S(205, 86, I("r") + sb("2")) + S(100, 96, I("r") + sb("3")) + S(174, 22, "I = Σmr²", "start")),
+      "Moment of inertia I = Σmr²: mass further from the axis contributes much more.")];
+    F["7.3"] = [fig(sv(320, 140, C(80, 70, 45, `fill="${TINT}" stroke="${INK}"`) + S(80, 74, "large I") + S(80, 132, "small ω") + C(240, 70, 22, `fill="${FILL}" stroke="${INK}"`) + S(240, 74, "small I") + S(240, 132, "large ω") +
+      P("M45 30 A45 45 0 0 1 115 30", AC, 1.8) + P("M222 52 A22 22 0 0 1 258 52", AC, 2.6) + A(125, 70, 205, 70, NV) + S(165, 62, "pull mass in") + S(165, 100, "I₁ω₁ = I₂ω₂")), "No external torque: angular momentum Iω is conserved, so a smaller moment of inertia gives a faster spin.")];
+    F["8.1"] = [fig(sv(320, 170, L(20, 20, 300, 20, 'stroke-width="3"') + L(60, 20, 150, 90) + L(260, 20, 150, 90) + dot(150, 90) + A(150, 90, 100, 58, AC, 2) + A(150, 90, 214, 49, AC, 2) + A(150, 90, 150, 150, NV, 2.2) +
+      T(96, 52, I("T") + sb("1"), "end", `fill="${AC}"`) + T(220, 46, I("T") + sb("2"), "start", `fill="${AC}"`) + T(156, 150, I("W"), "start", `fill="${NV}"`) + S(250, 120, "ΣF = 0: the forces") + S(250, 135, "form a closed triangle")), "A body in equilibrium under three forces: the forces are concurrent and form a closed triangle.")];
+    F["8.2"] = [fig(sv(330, 150, `<polygon points="150,90 135,120 165,120" fill="${TINT}" stroke="${INK}" stroke-width="1.4"/>` + L(20, 84, 310, 84, 'stroke-width="7" stroke="#94A3B8"') + A(50, 84, 50, 130, AC, 2.2) + A(260, 84, 260, 130, NV, 2.2) + A(150, 84, 150, 50, GR, 2) +
+      S(50, 145, I("W") + sb("1")) + S(260, 145, I("W") + sb("2")) + S(150, 44, I("R")) + A(50, 70, 150, 70) + A(150, 70, 50, 70) + A(150, 70, 260, 70) + A(260, 70, 150, 70) + S(100, 64, I("d") + sb("1")) + S(205, 64, I("d") + sb("2")) +
+      S(165, 20, "W₁d₁ = W₂d₂ (principle of moments)")), "Principle of moments: sum of clockwise moments = sum of anticlockwise moments about any point.")];
+    F["9.1"] = [fig(sv(340, 190, AX(40, 160, 330, 15, "strain", "stress") + L(40, 160, 120, 70, `stroke="${AC}" stroke-width="2.4"`) + P("M120 70 C130 60 140 58 150 62 C160 66 168 56 180 50 C220 36 250 34 280 44 L300 60", AC, 2.4) +
+      dot(120, 70, NV) + dot(140, 58, NV) + dot(165, 60, NV) + dot(255, 36, NV) + dot(300, 60, NV) + T(114, 74, "P", "end") + T(140, 50, "E", "middle") + T(168, 76, "Y", "middle") + T(255, 28, "UTS", "middle") + T(306, 64, "B", "start") +
+      S(170, 120, "P proportional limit, E elastic limit,", "start") + S(170, 136, "Y yield point, UTS tensile strength,", "start") + S(170, 152, "B breaking point", "start") + S(70, 100, "gradient = E", "start")),
+      "Stress–strain graph for a ductile metal; the gradient of the straight part is the Young modulus.")];
+    F["9.2"] = [fig(sv(300, 170, `<polygon points="50,140 210,50 210,140" fill="${FILL}"/>` + AX(50, 140, 280, 15, "extension", I("F")) + L(50, 140, 210, 50, `stroke="${AC}" stroke-width="2.4"`) + S(160, 125, "area = ½FΔl = strain energy")),
+      "Elastic (strain) energy = area under the force–extension graph = ½FΔl up to the proportional limit.")];
+    F["10.1"] = [fig(sv(300, 180, AX(40, 150, 290, 15, I("V"), I("p")) + [1, 1.6, 2.3].map((k, i) => CV(60, 280, x => 150 - 1800 * k / (x - 20), [NV, AC, GR][i])).join("") + S(276, 128, I("T") + sb("1")) + S(276, 106, I("T") + sb("2")) + S(276, 82, I("T") + sb("3")) + S(170, 30, "pV = nRT; isotherms, T₃ > T₂ > T₁")),
+      "Isotherms of an ideal gas: at constant temperature p ∝ 1/V; hotter isotherms lie further from the origin.")];
+    F["10.2"] = [fig(sv(300, 190, R(30, 30, 160, 140, "#F8FAFC") + [[60, 60, 30, -10], [140, 80, -22, 20], [90, 140, 25, 15], [160, 140, -25, -18], [70, 100, 10, 28], [120, 50, 24, 12]].map(m => dot(m[0], m[1], NV, 4) + A(m[0], m[1], m[0] + m[2], m[1] + m[3], AC, 1.6)).join("") +
+      S(240, 70, "random motion,", "middle") + S(240, 86, "elastic collisions", "middle") + S(240, 120, "p = ⅓ρ⟨c²⟩", "middle")), "Kinetic model: many molecules in random motion; pressure comes from collisions with the walls.")];
+    F["11.1"] = [fig(sv(320, 150, R(40, 40, 150, 80, "#F8FAFC") + `<rect x="160" y="40" width="12" height="80" fill="${NV}"/>` + S(100, 84, "gas: ΔU") + A(100, 145, 100, 122, AC, 2.2) + S(100, 140, "Q in", "start", AC) + A(176, 80, 240, 80, GR, 2.2) + S(250, 84, "W by gas", "start", GR) +
+      S(160, 20, "Q = ΔU + W")), "First law: heat supplied = increase in internal energy + work done by the gas.")];
+    F["11.2"] = [fig(sv(320, 200, AX(50, 170, 300, 15, I("V"), I("p")) + L(80, 60, 160, 60, `stroke="${AC}" stroke-width="2.2"`) + S(120, 52, "isobaric") + L(80, 60, 80, 150, `stroke="${NV}" stroke-width="2.2"`) + T(86, 120, "isochoric", "start", 'font-size="11.5"') +
+      CV(160, 285, x => 60 + 55 * (1 - Math.exp(-(x - 160) / 60)), GR) + T(290, 92, "isothermal", "end", `font-size="11.5" fill="${GR}"`) + CV(160, 265, x => 60 + 100 * (1 - Math.exp(-(x - 160) / 45)), PU) + T(200, 150, "adiabatic", "end", `font-size="11.5" fill="${PU}"`)),
+      "The four processes on a p–V graph; the adiabatic curve is steeper than the isothermal.")];
+    F["12.1"] = [fig(sv(330, 150, R(40, 30, 110, 90, FILL) + R(150, 30, 110, 90, TINT) + S(95, 80, "copper") + S(205, 80, "wood") + L(40, 30, 150, 45, `stroke="${AC}" stroke-width="2.4"`) + L(150, 45, 260, 115, `stroke="${AC}" stroke-width="2.4"`) +
+      S(40, 22, "θ hot", "middle") + S(260, 135, "θ cold") + S(296, 70, "same", "middle") + S(296, 86, "dQ/dt", "middle")),
+      "Conduction through two layers in series: the rate of heat flow is the same, so the poorer conductor has the steeper temperature gradient."),
+      fig(sv(300, 170, AX(40, 140, 290, 15, "λ", I("I")) + (() => { const B = (l, t) => Math.pow(l, -5) / (Math.exp(5 / (l * t)) - 1); let mx = 0; for (let l = 0.3; l < 3; l += 0.01) mx = Math.max(mx, B(l, 1)); const px = x => 0.25 + (x - 40) / 85; return CV(42, 285, x => 140 - 100 * B(px(x), 1) / mx, AC) + CV(42, 285, x => 140 - 100 * B(px(x), 0.8) / mx, NV); })() + S(190, 40, "hotter (orange): higher peak,") + S(190, 56, "λmax shorter (Wien)")), "Black-body radiation curves: a hotter body radiates more at every wavelength and its peak shifts to shorter λ.")];
+
+    // ---------- Semester 2 ----------
+    F["S2-12.1"] = [fig(sv(320, 110, C(80, 55, 16, `fill="${FILL}" stroke="${INK}"`) + S(80, 59, "+Q₁") + C(240, 55, 16, `fill="${FILL}" stroke="${INK}"`) + S(240, 59, "+Q₂") + A(62, 55, 20, 55, AC, 2.2) + A(258, 55, 300, 55, AC, 2.2) + S(40, 46, I("F")) + S(280, 46, I("F")) +
+      A(80, 95, 240, 95) + A(240, 95, 80, 95) + S(160, 91, I("r")) + S(160, 22, "F = Q₁Q₂/(4πε₀r²): like charges repel")), "Coulomb's law: equal and opposite forces along the line joining the charges.")];
+    F["S2-12.2"] = [fig(sv(330, 170, (() => { let s = ""; for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; s += A(70 + 14 * Math.cos(a), 85 + 14 * Math.sin(a), 70 + 55 * Math.cos(a), 85 + 55 * Math.sin(a), AC, 1.6); } return s; })() + C(70, 85, 10, `fill="${FILL}" stroke="${INK}"`) + S(70, 89, "+") +
+      R(190, 30, 8, 110, AC, AC) + R(300, 30, 8, 110, NV, NV) + [45, 70, 95, 120].map(y => A(200, y, 296, y, AC, 1.6)).join("") + S(194, 22, "+") + S(304, 22, "−") + S(250, 160, "uniform field between plates") + S(70, 160, "radial field")),
+      "Field lines start on positive and end on negative charges; between parallel plates the field is uniform, E = V/d.")];
+    F["S2-12.3"] = [];
+    F["S2-12.4"] = [fig(sv(330, 170, C(80, 85, 22, `fill="none" stroke="${NV}" stroke-dasharray="4 3"`) + C(80, 85, 42, `fill="none" stroke="${NV}" stroke-dasharray="4 3"`) + C(80, 85, 62, `fill="none" stroke="${NV}" stroke-dasharray="4 3"`) + C(80, 85, 7, `fill="${FILL}" stroke="${INK}"`) +
+      [0, 1, 2, 3].map(k => { const a = k * Math.PI / 2 + Math.PI / 4; return A(80 + 9 * Math.cos(a), 85 + 9 * Math.sin(a), 80 + 70 * Math.cos(a), 85 + 70 * Math.sin(a), AC, 1.5); }).join("") + S(80, 166, "equipotentials ⊥ field lines") +
+      AX(190, 140, 325, 15, I("r"), I("V")) + CV(205, 320, x => 140 - 110 * 15 / (x - 190), AC) + S(238, 60, "V = Q/(4πε₀r)", "start")), "Equipotential surfaces are spheres around a point charge, perpendicular to the field lines; V falls as 1/r.")];
+    F["S2-13.1"] = [fig(sv(300, 160, AX(40, 130, 280, 15, I("V"), I("Q")) + L(40, 130, 230, 40, `stroke="${AC}" stroke-width="2.4"`) + `<polygon points="40,130 230,40 230,130" fill="${FILL}" opacity="0.7"/>` + S(140, 115, "area = ½QV = energy") + S(120, 60, "gradient = C", "end")),
+      "Q is proportional to V; the gradient of the Q–V graph is the capacitance and the area under it is the stored energy.")];
+    F["S2-13.2"] = [fig(sv(300, 160, R(70, 20, 10, 120, AC, AC) + R(200, 20, 10, 120, NV, NV) + [40, 65, 90, 115].map(y => A(84, y, 196, y, AC, 1.6)).join("") + S(75, 14, "+Q") + S(205, 14, "−Q") + A(80, 150, 200, 150) + A(200, 150, 80, 150) + S(140, 146, I("d")) + S(218, 70, "area A", "start") + S(218, 90, "C = ε₀A/d", "start")),
+      "Parallel plate capacitor: uniform field E = σ/ε₀ between the plates; C = ε₀A/d.")];
+    F["S2-13.3"] = [fig(sv(300, 160, R(60, 20, 10, 120, AC, AC) + R(220, 20, 10, 120, NV, NV) + R(95, 20, 100, 120, TINT) + [40, 70, 100].map(y => `<ellipse cx="${145}" cy="${y + 10}" rx="26" ry="9" fill="#fff" stroke="${INK}"/>` + T(127, y + 14, "−", "middle", `fill="${NV}"`) + T(163, y + 14, "+", "middle", `fill="${AC}"`)).join("") +
+      S(145, 152, "dipoles line up, reducing E") + T(102, 30, "−", "middle", `fill="${NV}" font-weight="700"`) + T(188, 30, "+", "middle", `fill="${AC}" font-weight="700"`)), "A dielectric is polarised: induced surface charges oppose the field, so V falls and C = εrC₀ rises.")];
+    F["S2-13.4"] = [fig(sv(340, 140, L(10, 40, 50, 40) + [50, 110, 170].map(x => L(x, 26, x, 54, 'stroke-width="2.4"') + L(x + 10, 26, x + 10, 54, 'stroke-width="2.4"') + L(x + 10, 40, x + 50, 40)).join("") + S(110, 70, "series: same Q") + S(110, 88, "1/C = 1/C₁ + 1/C₂ + 1/C₃") +
+      L(240, 20, 240, 100) + L(320, 20, 320, 100) + [20, 60, 100].map(y => L(240, y, 275, y) + L(275, y - 12, 275, y + 12, 'stroke-width="2.4"') + L(285, y - 12, 285, y + 12, 'stroke-width="2.4"') + L(285, y, 320, y)).join("") + S(270, 134, "parallel: C = C₁ + C₂ + C₃")), "Series capacitors share the same charge; parallel capacitors share the same p.d.")];
+    F["S2-13.5"] = [fig(sv(300, 160, AX(40, 130, 280, 15, I("V"), I("Q")) + `<polygon points="40,130 230,40 230,130" fill="${FILL}"/>` + L(40, 130, 230, 40, `stroke="${AC}" stroke-width="2.4"`) + S(160, 115, "U = ½QV = ½CV² = Q²/2C")), "Energy stored = area under the Q–V graph.")];
+    F["S2-13.6"] = [fig(sv(340, 160, AX(30, 130, 160, 20, I("t"), I("Q")) + CV(30, 150, x => 130 - 90 * (1 - Math.exp(-(x - 30) / 28))) + D(30, 40, 155, 40) + D(58, 130, 58, 73) + S(58, 148, "τ = RC") + S(95, 32, "charging", "middle") +
+      AX(200, 130, 330, 20, I("t"), I("Q")) + CV(200, 320, x => 130 - 90 * Math.exp(-(x - 200) / 28), NV) + S(265, 32, "discharging", "middle") + D(228, 130, 228, 97) + S(228, 148, "37%")),
+      "Charging: Q rises to 63% of Q₀ in one time constant; discharging: Q falls to 37% of Q₀ in one time constant.")];
+    F["S2-14.1"] = [fig(sv(320, 120, R(20, 20, 280, 80, "#F8FAFC") + P("M40 70 L70 40 L95 80 L125 45 L150 75 L185 35 L210 70 L245 50 L280 75", AC, 1.8) + A(240, 108, 290, 108, NV) + S(200, 112, "net drift", "end") + S(160, 15, "random zig-zag + slow drift opposite to E")),
+      "Free electrons move randomly at high speed; an electric field adds a small net drift.")];
+    F["S2-14.2"] = [fig(sv(330, 130, `<ellipse cx="60" cy="65" rx="16" ry="40" fill="${TINT}" stroke="${INK}"/>` + L(60, 25, 260, 25) + L(60, 105, 260, 105) + `<ellipse cx="260" cy="65" rx="16" ry="40" fill="${TINT}" stroke="${INK}" stroke-dasharray="4 3"/>` +
+      [90, 130, 170, 210, 120, 190].map((x, i) => dot(x, 45 + (i * 23) % 50, NV, 3.5)).join("") + A(60, 118, 260, 118) + S(160, 128, I("v") + I("t")) + S(60, 14, "area A") + S(160, 64, "nAvt electrons pass in time t")), "Charge passing a cross-section in time t: Q = nAvte, so I = nAve.")];
+    F["S2-14.3"] = [fig(sv(330, 110, P("M20 25 L140 25 L180 45 L310 45 M20 85 L140 85 L180 65 L310 65", INK, 1.8) + A(40, 55, 120, 55, AC, 2) + A(200, 55, 290, 55, AC, 3) + S(80, 104, "large A: small J") + S(245, 104, "small A: large J") + S(160, 14, "same I, J = I/A")), "The same current through a narrower section gives a larger current density and drift velocity.")];
+    F["S2-14.4"] = [fig(sv(330, 170, AX(30, 140, 320, 15, I("T"), "ρ") + L(40, 110, 300, 55, `stroke="${AC}" stroke-width="2.2"`) + S(300, 48, "metal", "end", AC) + CV(40, 300, x => 140 - 110 * Math.exp(-(x - 40) / 70), NV) + S(300, 128, "semiconductor", "end", NV) +
+      L(40, 138, 90, 138, `stroke="${GR}" stroke-width="2.4"`) + L(90, 138, 92, 100, `stroke="${GR}" stroke-width="2.2"`) + L(92, 100, 160, 88, `stroke="${GR}" stroke-width="2.2"`) + S(90, 158, I("T") + sb("c") + " superconductor", "middle", GR)),
+      "Resistivity of a metal rises with temperature; a semiconductor's falls; a superconductor's drops to zero below Tc.")];
+    F["S2-15.1"] = [fig(sv(330, 160, R(30, 50, 110, 60, "#fff") + cell(60, 50) + res(105, 50, 28, 12, I("r")) + D(40, 34, 130, 34) + S(85, 28, "battery") + res(85, 110, 40, 14, I("R")) +
+      AX(190, 140, 325, 15, I("I"), I("V")) + L(190, 40, 310, 120, `stroke="${AC}" stroke-width="2.2"`) + S(186, 44, "ε", "end") + S(260, 70, "gradient = −r", "start")), "Terminal p.d. V = ε − Ir: the V–I graph has intercept ε and gradient −r.")];
+    F["S2-15.2"] = [fig(sv(320, 140, dot(90, 70, INK, 5) + A(20, 70, 84, 70, AC, 2) + A(96, 66, 150, 30, AC, 2) + A(96, 74, 150, 110, AC, 2) + S(40, 62, I("I") + sb("1")) + S(150, 24, I("I") + sb("2")) + S(150, 128, I("I") + sb("3")) + S(90, 100, "I₁ = I₂ + I₃") +
+      R(200, 30, 100, 80, "#fff") + A(230, 70, 270, 70, NV) + S(250, 64, "loop") + S(250, 130, "Σε = ΣIR")), "Kirchhoff's laws: current in = current out at a junction; round a loop Σε = ΣIR.")];
+    F["S2-15.3"] = [fig(sv(300, 170, L(40, 20, 40, 150) + cell(28, 85) + L(40, 20, 150, 20) + L(40, 150, 150, 150) + L(150, 20, 150, 45) + res(150, 60, 14, 36) + L(150, 78, 150, 92) + res(150, 108, 14, 36) + L(150, 126, 150, 150) +
+      L(150, 85, 230, 85) + L(150, 150, 230, 150) + dot(230, 85) + dot(230, 150) + S(245, 122, I("V") + sb("out"), "start") + S(135, 64, I("R") + sb("1"), "end") + S(135, 112, I("R") + sb("2"), "end") + S(20, 89, I("V") + sb("in"), "end")),
+      "Potential divider: Vout = Vin R₂/(R₁ + R₂).")];
+    F["S2-15.4"] = [fig(sv(340, 170, L(20, 30, 160, 30) + cell(80, 30) + L(20, 30, 20, 90) + L(160, 30, 160, 90) + L(20, 90, 160, 90, 'stroke-width="3.5"') + S(20, 106, "A") + S(160, 106, "B") + dot(110, 90, AC, 4) + A(110, 140, 110, 96, AC) + L(20, 90, 20, 140) + L(20, 140, 110, 140) +
+      cell(60, 140) + S(110, 158, "balance point J") + `<polygon points="250,30 300,85 250,140 200,85" fill="none" stroke="${INK}" stroke-width="1.6"/>` + C(250, 85, 10, `fill="#fff" stroke="${INK}"`) + S(250, 89, "G") + L(200, 85, 300, 85, 'stroke-dasharray="3 3"') +
+      S(218, 50, "P") + S(285, 50, "Q") + S(218, 128, "R") + S(285, 128, "S") + S(250, 162, "P/Q = R/S at balance")), "Potentiometer: at balance no current flows through the galvanometer; Wheatstone bridge balances when P/Q = R/S.")];
+    F["S2-16.1"] = [fig(sv(330, 160, R(110, 65, 50, 30, "#FCA5A5") + R(160, 65, 50, 30, "#93C5FD") + S(135, 85, "N") + S(185, 85, "S") + [1, 2, 3].map(k => P(`M110 80 C${110 - 25 * k} ${80 - 28 * k} ${210 + 25 * k} ${80 - 28 * k} 210 80`, NV, 1.4) + P(`M110 80 C${110 - 25 * k} ${80 + 28 * k} ${210 + 25 * k} ${80 + 28 * k} 210 80`, NV, 1.4)).join("") +
+      A(160, 0, 162, 0) + S(160, 156, "field lines from N to S outside the magnet")), "Magnetic field lines run from the N pole to the S pole outside a magnet and never cross.")];
+    F["S2-16.2"] = [fig(sv(320, 180, xs(30, 25, 7, 4, 45, 42) + C(160, 95, 55, `fill="none" stroke="${AC}" stroke-width="2.2"`) + dot(215, 95, NV, 6) + A(215, 95, 215, 50, NV, 2) + A(209, 95, 175, 95, AC, 2) + S(222, 66, I("v"), "start") + S(192, 88, I("F")) + S(160, 175, "B into page: F = qvB towards centre, r = mv/qB")),
+      "A charge moving perpendicular to B moves in a circle: the magnetic force is always perpendicular to the velocity.")];
+    F["S2-16.3"] = [fig(sv(320, 150, R(30, 30, 50, 90, "#FCA5A5") + R(240, 30, 50, 90, "#93C5FD") + S(55, 80, "N") + S(265, 80, "S") + [50, 75, 100].map(y => A(84, y, 236, y, "#94A3B8", 1.2)).join("") + C(160, 75, 12, `fill="#fff" stroke="${INK}"`) + L(152, 67, 168, 83) + L(152, 83, 168, 67) +
+      A(160, 60, 160, 15, AC, 2.4) + S(170, 25, I("F") + " = " + I("BIL"), "start") + S(160, 140, "current into page; Fleming's left-hand rule")), "Force on a current-carrying conductor: F = BIL sin θ, perpendicular to both B and I.")];
+    F["S2-16.4"] = [fig(sv(340, 160, C(60, 70, 8) + L(55, 65, 65, 75) + L(55, 75, 65, 65) + [22, 38, 54].map(r => C(60, 70, r, `fill="none" stroke="${NV}" stroke-width="1.3"`)).join("") + S(60, 148, "wire: B = μ₀I/2πr") +
+      [150, 170, 190, 210, 230, 250, 270].map(x => C(x, 50, 6) + C(x, 100, 6)).join("") + [60, 75, 90].map(y => A(140, y, 290, y, AC, 1.6)).join("") + S(215, 148, "solenoid: B = μ₀nI (uniform inside)")),
+      "Magnetic fields of a long straight wire (concentric circles) and a solenoid (uniform inside).")];
+    F["S2-16.5"] = [fig(sv(330, 140, L(60, 20, 60, 120, 'stroke-width="3"') + L(130, 20, 130, 120, 'stroke-width="3"') + A(60, 60, 60, 30, AC) + A(130, 60, 130, 30, AC) + A(66, 90, 88, 90, NV, 2) + A(124, 90, 102, 90, NV, 2) + S(95, 135, "same direction: attract") +
+      L(210, 20, 210, 120, 'stroke-width="3"') + L(280, 20, 280, 120, 'stroke-width="3"') + A(210, 60, 210, 30, AC) + A(280, 30, 280, 60, AC) + A(204, 90, 182, 90, NV, 2) + A(286, 90, 308, 90, NV, 2) + S(245, 135, "opposite: repel")),
+      "Parallel currents attract; antiparallel currents repel: F/l = μ₀I₁I₂/2πd.")];
+    F["S2-16.6"] = [fig(sv(330, 150, R(100, 40, 140, 70, TINT) + xs(115, 55, 6, 3, 22, 20) + L(100, 40, 240, 40, `stroke="${AC}" stroke-width="3"`) + L(100, 110, 240, 110, `stroke="${NV}" stroke-width="3"`) + A(30, 75, 300, 75, AC, 2.2) + dot(30, 75, NV, 5) +
+      S(170, 30, "+ plate (E down)") + S(170, 128, "B into page") + S(165, 146, "undeflected when eE = evB → v = E/B")), "Crossed electric and magnetic fields: only electrons with v = E/B pass straight through.")];
+    F["S2-16.7"] = [];
+    F["S2-17.1"] = [fig(sv(300, 160, [30, 60, 90, 120].map(y => A(20, y + 10, 280, y + 10, "#94A3B8", 1.3)).join("") + `<ellipse cx="150" cy="85" rx="22" ry="60" fill="${FILL}" stroke="${AC}" stroke-width="2" transform="rotate(25 150 85)"/>` + A(150, 85, 215, 55, NV, 2) + S(222, 52, "normal", "start") + S(185, 82, "θ") + S(150, 156, "Φ = BA cos θ")),
+      "Magnetic flux through a loop: Φ = BA cos θ, where θ is the angle between B and the normal.")];
+    F["S2-17.2"] = [fig(sv(330, 150, R(30, 55, 90, 30, "#FCA5A5") + S(75, 75, "N →") + A(125, 70, 165, 70, AC, 2.2) + [0, 1, 2, 3, 4].map(i => `<ellipse cx="${190 + i * 16}" cy="70" rx="7" ry="32" fill="none" stroke="${INK}" stroke-width="1.6"/>`).join("") + S(225, 120, "induced current makes an N pole") + S(225, 136, "facing the magnet (opposes it)") +
+      S(240, 26, "ε = −d(NΦ)/dt")), "Faraday: e.m.f. ∝ rate of change of flux linkage. Lenz: the induced current opposes the change that causes it.")];
+    F["S2-17.3"] = [fig(sv(300, 160, AX(40, 130, 290, 15, I("t"), I("I")) + CV(40, 280, x => 130 - 90 * (1 - Math.exp(-(x - 40) / 50))) + D(40, 40, 285, 40) + S(36, 44, I("ε") + "/" + I("R"), "end") + S(180, 110, "back e.m.f. slows the rise", "middle")),
+      "In an L–R circuit the back e.m.f. makes the current grow gradually towards ε/R.")];
+    F["S2-17.4"] = [fig(sv(300, 160, AX(40, 130, 290, 15, I("I"), I("U")) + CV(40, 270, x => 130 - 100 * Math.pow((x - 40) / 230, 2)) + S(170, 50, "U = ½LI²")), "Energy stored in an inductor rises with the square of the current.")];
+    F["S2-17.5"] = [fig(sv(330, 130, [0, 1, 2, 3, 4, 5].map(i => `<ellipse cx="${60 + i * 14}" cy="65" rx="7" ry="34" fill="none" stroke="${NV}" stroke-width="1.6"/>`).join("") + [0, 1, 2, 3].map(i => `<ellipse cx="${210 + i * 14}" cy="65" rx="7" ry="34" fill="none" stroke="${AC}" stroke-width="1.6"/>`).join("") +
+      S(95, 120, "primary: changing I₁") + S(230, 120, "secondary: ε₂ = −M dI₁/dt") + A(150, 65, 195, 65, "#94A3B8", 1.6) + S(172, 58, "flux")), "Mutual induction: a changing current in one coil induces an e.m.f. in a nearby coil.")];
+    F["S2-18.1"] = [fig(sv(330, 150, AX(20, 75, 220, 10, I("t"), "") + CV(20, 210, sine(20, 75, 50, 120), NV) + CV(20, 210, sine(20, 75, 30, 120), AC) + S(120, 140, "V and I in phase") + A(270, 75, 320, 75, NV, 2) + A(270, 80, 305, 80, AC, 2) + S(295, 100, "phasors")),
+      "Pure resistor: current and voltage are in phase; mean power = ½V₀I₀.")];
+    F["S2-18.2"] = [fig(sv(330, 150, AX(20, 75, 220, 10, I("t"), "") + CV(20, 210, sine(20, 75, 50, 120), NV) + CV(20, 210, sine(20, 75, 30, 120, -Math.PI / 2), AC) + S(120, 140, "I lags V by 90°") + A(270, 75, 320, 75, AC, 2) + A(270, 75, 270, 25, NV, 2) + S(325, 90, I("I"), "end", AC) + S(278, 30, I("V"), "start", NV)),
+      "Pure inductor: the current lags the voltage by 90° (X_L = ωL); mean power is zero.")];
+    F["S2-18.3"] = [fig(sv(330, 150, AX(20, 75, 220, 10, I("t"), "") + CV(20, 210, sine(20, 75, 50, 120), NV) + CV(20, 210, sine(20, 75, 30, 120, Math.PI / 2), AC) + S(120, 140, "I leads V by 90°") + A(270, 75, 320, 75, NV, 2) + A(270, 75, 270, 25, AC, 2) + S(325, 90, I("V"), "end", NV) + S(278, 30, I("I"), "start", AC)),
+      "Pure capacitor: the current leads the voltage by 90° (X_C = 1/ωC); mean power is zero.")];
+    F["S2-18.4"] = [fig(sv(330, 160, A(30, 130, 190, 130, AC, 2.4) + A(190, 130, 190, 40, NV, 2.4) + A(30, 130, 190, 40, INK, 2.4) + S(110, 148, I("V") + sb("R") + " (along I)") + S(198, 88, I("V") + sb("L"), "start") + S(96, 76, I("V"), "end") + S(62, 122, "φ") +
+      S(260, 60, "Z = √(R² + X²)", "middle") + S(260, 80, "tan φ = X/R", "middle")), "Series R–L circuit phasor diagram: V² = V_R² + V_L² and tan φ = X_L/R (for R–C, V_C points down).")];
+
+    // ---------- Semester 3 ----------
+    F["S3-19.1"] = [fig(sv(300, 170, AX(150, 85, 290, 10, I("x"), I("a")) + L(150, 85, 20, 85) + L(150, 85, 150, 160) + L(60, 40, 240, 130, `stroke="${AC}" stroke-width="2.4"`) + S(60, 32, "a = −ω²x") + S(240, 150, "+A") + S(60, 102, "−A")),
+      "SHM: acceleration is proportional to displacement and always directed towards the equilibrium position.")];
+    F["S3-19.2"] = [fig(sv(330, 170, AX(30, 85, 320, 10, I("t"), "") + CV(30, 310, sine(30, 85, 55, 160), NV) + CV(30, 310, sine(30, 85, 40, 160, Math.PI / 2), AC) + CV(30, 310, sine(30, 85, 28, 160, Math.PI), GR) +
+      S(230, 160, "x (navy), v (orange), a (green)")), "Displacement, velocity and acceleration in SHM: v leads x by 90°, a is in antiphase with x.")];
+    F["S3-19.3"] = [fig(sv(300, 180, AX(150, 150, 290, 15, I("x"), I("E")) + L(150, 150, 20, 150) + D(25, 40, 275, 40) + S(272, 34, "total", "end") + CV(40, 260, x => 150 - 110 * Math.pow((x - 150) / 110, 2), AC) + CV(40, 260, x => 40 + 110 * Math.pow((x - 150) / 110, 2), NV) +
+      S(80, 70, "PE", "middle", AC) + S(150, 52, "KE", "middle", NV) + S(40, 168, "−A") + S(260, 168, "+A")), "Energy in SHM: KE is greatest at the centre, PE at the extremes; the total stays constant.")];
+    F["S3-19.4"] = [];
+    F["S3-19.5"] = [fig(sv(330, 170, AX(30, 85, 320, 10, I("t"), I("x")) + CV(30, 310, x => 85 - 60 * Math.exp(-(x - 30) / 120) * Math.cos(2 * Math.PI * (x - 30) / 50), NV, 1.8) + CV(30, 310, x => 85 - 60 * (1 + (x - 30) / 25) * Math.exp(-(x - 30) / 25), AC) + CV(30, 310, x => 85 - 60 * Math.exp(-(x - 30) / 110), GR) +
+      S(220, 150, "light (navy), critical (orange), heavy (green)")), "Damping: light damping decays slowly; critical damping returns fastest without oscillating; heavy damping returns slowly.")];
+    F["S3-19.6"] = [fig(sv(300, 180, AX(30, 150, 290, 15, I("f"), I("A")) + [[0.08, NV], [0.2, AC], [0.45, GR]].map(c => CV(30, 285, x => { const r = (x - 30) / 120; return 150 - 9.6 / Math.sqrt(Math.pow(1 - r * r, 2) + Math.pow(c[0] * r, 2)); }, c[1])).join("") +
+      D(150, 20, 150, 150) + S(150, 168, I("f") + sb("0")) + S(225, 40, "less damping:", "start") + S(225, 55, "higher, sharper", "start")), "Resonance: amplitude is largest when the driving frequency equals the natural frequency; damping lowers and broadens the peak.")];
+    F["S3-20.1"] = [fig(sv(330, 150, AX(20, 75, 320, 10, I("x"), I("y")) + CV(20, 300, sine(20, 75, 45, 140), AC) + A(55, 18, 195, 18) + A(195, 18, 55, 18) + S(125, 14, "λ") + A(90, 75, 90, 30) + S(98, 50, I("A"), "start") + S(240, 140, "y = A sin(ωt − kx)")),
+      "A progressive wave: amplitude A, wavelength λ; v = fλ.")];
+    F["S3-20.2"] = [fig(sv(300, 160, dot(60, 80, AC, 6) + [40, 80, 120].map(r => P(`M${60 + r * 0.7} ${80 - r * 0.7} A${r} ${r} 0 0 1 ${60 + r * 0.7} ${80 + r * 0.7}`, NV, 1.4)).join("") + S(60, 102, "source") + S(220, 40, "I = P/4πr²", "middle") + S(220, 60, "I ∝ A²", "middle") + S(220, 80, "double r → I/4", "middle")),
+      "Intensity from a point source spreads over a sphere: I = P/4πr², and I ∝ amplitude².")];
+    F["S3-20.3"] = [fig(sv(330, 140, CV(20, 150, x => 70 - 30 * Math.exp(-Math.pow((x - 60) / 18, 2)), NV) + CV(20, 150, x => 70 - 30 * Math.exp(-Math.pow((x - 110) / 18, 2)), AC) + S(85, 120, "pulses approach") +
+      CV(180, 320, x => 70 - 60 * Math.exp(-Math.pow((x - 250) / 18, 2)), GR) + S(250, 120, "overlap: y = y₁ + y₂") + L(20, 70, 320, 70, 'stroke-width="1"')), "Superposition: where waves overlap, the resultant displacement is the sum of the individual displacements.")];
+    F["S3-20.4"] = [];
+    F["S3-20.5"] = [fig(sv(330, 160, A(20, 80, 320, 80) + S(318, 96, "direction", "end") + CV(20, 300, sine(20, 80, 50, 140), AC) + (() => { let s = ""; for (let x = 20; x <= 300; x += 10) { const y = 25 * Math.sin(2 * Math.PI * (x - 20) / 140); s += L(x, 80, x - y * 0.7, 80 + y * 0.45, `stroke="${NV}" stroke-width="1.4"`); } return s; })() + S(80, 22, I("E") + " field", "middle", AC) + S(120, 140, I("B") + " field (perpendicular)", "middle", NV)),
+      "Electromagnetic wave: E and B oscillate in phase, perpendicular to each other and to the direction of travel.")];
+    F["S3-21.1"] = [fig(sv(330, 170, (() => { let s = ""; for (let i = 0; i < 40; i++) { const x0 = 20 + i * 7.5, x = x0 + 9 * Math.sin(2 * Math.PI * x0 / 150); s += L(x, 15, x, 55, 'stroke-width="1.3"'); } return s; })() + S(60, 68, "C") + S(98, 68, "R") + S(135, 68, "C") +
+      AX(20, 115, 320, 75, "", "") + CV(20, 300, x => 115 - 22 * Math.sin(2 * Math.PI * (x - 20) / 150), NV) + CV(20, 300, x => 115 - 22 * Math.cos(2 * Math.PI * (x - 20) / 150), AC) + S(170, 160, "displacement (navy), pressure (orange)")),
+      "Sound: compressions (C) and rarefactions (R); pressure variation is 90° out of phase with displacement.")];
+    F["S3-21.2"] = [fig(sv(330, 170, [1, 2, 3].map(n => { const y = 28 + (n - 1) * 50; return L(20, y, 150, y, 'stroke-width="1"') + CV(20, 150, x => y - 14 * Math.sin(n * Math.PI * (x - 20) / 130), AC, 1.8) + CV(20, 150, x => y + 14 * Math.sin(n * Math.PI * (x - 20) / 130), AC, 1.8) + S(165, y + 4, "n = " + n, "start"); }).join("") +
+      R(220, 20, 100, 40, "#fff") + CV(220, 320, x => 40 - 14 * Math.cos(Math.PI * (x - 220) / 100), NV, 1.6) + CV(220, 320, x => 40 + 14 * Math.cos(Math.PI * (x - 220) / 100), NV, 1.6) + S(270, 76, "open: f = nv/2L") +
+      L(220, 100, 320, 100) + L(220, 140, 320, 140) + L(320, 100, 320, 140, 'stroke-width="3"') + CV(220, 320, x => 120 - 14 * Math.cos(Math.PI * (x - 220) / 200), NV, 1.6) + CV(220, 320, x => 120 + 14 * Math.cos(Math.PI * (x - 220) / 200), NV, 1.6) + S(268, 158, "closed: odd only")),
+      "Stationary waves on a string (all harmonics) and in pipes: open pipes have all harmonics, closed pipes only odd ones.")];
+    F["S3-21.3"] = [fig(sv(330, 110, `<defs><linearGradient id="dbg" x1="0" x2="1"><stop offset="0" stop-color="#DCFCE7"/><stop offset="0.6" stop-color="#FEF3C7"/><stop offset="1" stop-color="#FECACA"/></linearGradient></defs><rect x="20" y="40" width="290" height="22" fill="url(#dbg)" stroke="${INK}" stroke-width="1.2"/>` +
+      [[0, "0 dB", "quietest"], [60, "60 dB", "talking"], [120, "120 dB", "pain"]].map(p => { const x = 34 + p[0] / 120 * 262; return L(x, 36, x, 66) + S(x, 30, p[1]) + S(x, 82, p[2]); }).join("") + S(165, 102, "β = 10 log(I/I₀); ×10 intensity = +10 dB")), "Intensity level uses a logarithmic scale: every tenfold increase in intensity adds 10 dB.")];
+    F["S3-21.4"] = [fig(sv(330, 150, AX(20, 75, 320, 10, I("t"), "") + CV(20, 310, x => 75 - 50 * Math.cos(Math.PI * (x - 20) / 145) * Math.sin(2 * Math.PI * (x - 20) / 12), NV, 1.2) + CV(20, 310, x => 75 - 50 * Math.abs(Math.cos(Math.PI * (x - 20) / 145)), AC, 1.6, 'stroke-dasharray="5 3"') +
+      S(165, 145, "loudness rises and falls f₁ − f₂ times per second")), "Beats: two close frequencies superpose to give an amplitude that rises and falls at f₁ − f₂.")];
+    F["S3-21.5"] = [];
+    F["S3-22.1"] = [fig(sv(330, 180, P("M290 20 Q250 90 290 160", INK, 3) + L(10, 90, 300, 90, 'stroke-width="1.1"') + dot(140, 90) + S(140, 108, "C") + dot(205, 90) + S(205, 108, "F") + L(70, 90, 70, 55, `stroke="${NV}" stroke-width="2.4"`) + S(70, 48, "object") + A(70, 55, 268, 55, AC, 1.8) + L(268, 55, 174, 107, `stroke="${AC}" stroke-width="1.8"`) + L(70, 55, 266, 106, `stroke="${AC}" stroke-width="1.8"`) + L(266, 106, 174, 106, `stroke="${AC}" stroke-width="1.8"`) + L(174, 90, 174, 107, `stroke="${NV}" stroke-width="2.4"`) + S(174, 126, "real, inverted image") + S(160, 172, "1/u + 1/v = 1/f, f = r/2")), "Concave mirror: an object beyond C forms a real, inverted, diminished image between C and F.")];
+    F["S3-22.2"] = [fig(sv(330, 160, `<path d="M200 20 Q170 80 200 140 L320 140 L320 20 Z" fill="${TINT}" stroke="${INK}" stroke-width="1.6"/>` + L(10, 80, 320, 80, 'stroke-width="1.1"') + dot(40, 80, NV, 4) + S(40, 98, "O") + L(40, 80, 182, 55, `stroke="${AC}" stroke-width="1.8"`) + L(182, 55, 300, 80, `stroke="${AC}" stroke-width="1.8"`) + dot(300, 80, AC, 4) + S(300, 98, "I") +
+      S(80, 30, I("n") + sb("1")) + S(270, 30, I("n") + sb("2")) + S(165, 155, "n₁/u + n₂/v = (n₂ − n₁)/r")), "Refraction at a curved surface between media n₁ and n₂.")];
+    F["S3-22.3"] = [fig(sv(330, 170, `<path d="M165 20 Q195 85 165 150 Q135 85 165 20 Z" fill="${TINT}" stroke="${INK}" stroke-width="1.6"/>` + L(10, 85, 320, 85, 'stroke-width="1.1"') + dot(105, 85) + S(105, 102, "F") + dot(225, 85) + S(225, 102, "F") + L(50, 85, 50, 50, `stroke="${NV}" stroke-width="2.4"`) + L(50, 50, 165, 50, `stroke="${AC}" stroke-width="1.8"`) + L(165, 50, 290, 123, `stroke="${AC}" stroke-width="1.8"`) + L(50, 50, 290, 123, `stroke="${AC}" stroke-width="1.8"`) + L(290, 85, 290, 123, `stroke="${NV}" stroke-width="2.4"`) + S(290, 140, "real image") + S(165, 165, "1/u + 1/v = 1/f")), "Convex lens ray diagram: a ray parallel to the axis passes through F; a ray through the optical centre is undeviated.")];
+    F["S3-23.1"] = [fig(sv(300, 160, L(60, 20, 60, 140, `stroke="${NV}" stroke-width="2.2"`) + [30, 55, 80, 105, 130].map(y => dot(60, y, NV, 3.5) + P(`M60 ${y - 25} A25 25 0 0 1 60 ${y + 25}`, AC, 1.3)).join("") + L(85, 20, 85, 140, `stroke="${AC}" stroke-width="2.2" stroke-dasharray="5 3"`) + S(190, 70, "each point is a source", "middle") + S(190, 86, "of secondary wavelets;", "middle") + S(190, 102, "new wavefront = envelope", "middle")),
+      "Huygens's principle: every point on a wavefront acts as a source of secondary wavelets; the new wavefront is their envelope.")];
+    F["S3-23.2"] = [fig(sv(300, 180, dot(60, 70, AC, 4) + dot(60, 110, AC, 4) + [30, 60, 90, 120, 150].map(r => P(`M${60} ${70 - r} A${r} ${r} 0 0 1 ${60} ${70 + r}`, NV, 1, 'opacity="0.6"') + P(`M${60} ${110 - r} A${r} ${r} 0 0 1 ${60} ${110 + r}`, AC, 1, 'opacity="0.6"')).join("") +
+      L(60, 90, 290, 90, `stroke="${GR}" stroke-width="2.2"`) + L(60, 90, 280, 30, `stroke="${GR}" stroke-width="2.2"`) + L(60, 90, 280, 150, `stroke="${GR}" stroke-width="2.2"`) + S(200, 175, "green: bright fringes")), "Interference from two coherent sources: bright where path difference = mλ.")];
+    F["S3-23.3"] = [];
+    F["S3-23.4"] = [fig(sv(300, 160, R(20, 70, 260, 40, "#DBEAFE") + S(250, 95, "film " + I("n"), "end") + A(60, 20, 110, 70, AC, 2) + A(110, 70, 160, 20, AC, 2) + L(110, 70, 135, 110, `stroke="${NV}" stroke-width="2"`) + A(135, 110, 180, 70, NV, 2) + A(180, 70, 230, 20, NV, 2) + A(150, 136, 150, 112) + A(150, 112, 150, 136) + S(160, 130, I("t"), "start") +
+      S(150, 155, "path difference 2nt (+ λ/2 for one reflection phase change)")), "Thin film: light reflected from the top and bottom surfaces interferes; count the π phase changes.")];
+    F["S3-23.5"] = [fig(sv(330, 160, AX(165, 140, 320, 15, "sin θ", "I") + L(165, 140, 10, 140) + CV(15, 315, x => { const u = (x - 165) / 25; const s = u === 0 ? 1 : Math.pow(Math.sin(u) / u, 2); return 140 - 110 * s; }, AC) + S(243, 156, "λ/a") + S(87, 156, "−λ/a") + S(165, 156, "0")), "Single-slit pattern: a wide, bright central maximum (twice the width of the others); first minima at sin θ = λ/a.")];
+    F["S3-23.6"] = [fig(sv(320, 160, L(40, 20, 40, 140, 'stroke-width="3"') + [-2, -1, 0, 1, 2].map(m => { const y = 80 - m * 28; return A(40, 80, 255, y, m === 0 ? NV : AC, 1.6) + S(262, y + 4, "m = " + m, "start"); }).join("") + S(150, 155, "d sin θ = mλ: sharp, bright maxima")), "Diffraction grating: maxima at d sin θ = mλ; more lines give sharper, brighter maxima.")];
+    F["S3-23.7"] = [fig(sv(330, 130, A(10, 65, 320, 65, "#94A3B8", 1.4) + (() => { let s = ""; for (let k = 0; k < 6; k++) { const a = k * Math.PI / 6; s += L(50 - 22 * Math.cos(a), 65 - 22 * Math.sin(a), 50 + 22 * Math.cos(a), 65 + 22 * Math.sin(a), `stroke="${AC}" stroke-width="1.4"`); } return s; })() + S(50, 108, "unpolarised") +
+      R(110, 25, 12, 80, TINT) + L(116, 30, 116, 100, `stroke="${NV}" stroke-width="2"`) + L(170, 43, 170, 87, `stroke="${AC}" stroke-width="2.2"`) + S(170, 108, "I₀ (polarised)") + R(220, 25, 12, 80, TINT) + L(212, 40, 240, 90, `stroke="${NV}" stroke-width="2"`) + S(226, 120, "analyser at θ") +
+      L(285, 50, 285, 80, `stroke="${AC}" stroke-width="2"`) + S(285, 108, "I₀ cos²θ")), "Malus's law: a polariser transmits I₀ cos²θ of plane-polarised light.")];
+    F["S3-23.8"] = [fig(sv(330, 120, R(10, 30, 310, 60, "#DBEAFE") + R(10, 45, 310, 30, "#fff") + P("M10 60 L60 45 L110 75 L160 45 L210 75 L260 45 L310 75", AC, 2) + S(165, 22, "cladding (lower n)") + S(165, 110, "core (higher n): total internal reflection")),
+      "Optical fibre: light stays in the core by total internal reflection at the core–cladding boundary.")];
+    F["S3-24.1"] = [fig(sv(330, 170, AX(40, 140, 320, 15, I("f"), "KE") + L(110, 140, 300, 40, `stroke="${AC}" stroke-width="2.4"`) + D(30, 182, 110, 140) + S(110, 156, I("f") + sb("0")) + S(200, 70, "gradient = h", "end") + S(250, 120, "KEmax = hf − W", "middle")),
+      "Photoelectric effect: KEmax rises linearly with frequency above the threshold f₀; the gradient is h.")];
+    F["S3-24.2"] = [fig(sv(300, 150, C(150, 75, 8, `fill="${INK}"`) + [22, 40, 58].map(r => C(150, 75, r, `fill="none" stroke="${NV}" stroke-width="${r === 22 ? 4 : 2.5}" opacity="0.7"`)).join("") + S(150, 146, "electron diffraction rings → wave nature, λ = h/p")),
+      "Electron diffraction rings show that electrons behave as waves with λ = h/p.")];
+    F["S3-24.3"] = [fig(sv(320, 190, (() => { const y = E => 20 - E * 11; return [[-13.6, "n = 1"], [-3.4, "n = 2"], [-1.51, "n = 3"], [0, "n = ∞"]].map(l => L(70, y(l[0]), 230, y(l[0]), 'stroke-width="2"') + S(238, y(l[0]) + 4, l[1], "start") + S(64, y(l[0]) + 4, l[0] + " eV", "end")).join("") + A(110, y(-3.4), 110, y(-13.6), AC, 2) + A(160, y(-1.51), 160, y(-3.4), AC, 2) + A(200, y(0), 200, y(-1.51), AC, 1.6) + S(240, 125, "photon emitted:", "end") + S(240, 140, "hf = E(upper) − E(lower)", "end"); })()), "Hydrogen energy levels: Eₙ = −13.6/n² eV; a photon is emitted when the electron drops to a lower level.")];
+    F["S3-24.4"] = [fig(sv(320, 170, AX(40, 140, 310, 15, "λ", I("I")) + CV(70, 300, x => 140 - 70 * Math.exp(-Math.pow((x - 130) / 70, 2)) * (x < 130 ? (x - 70) / 60 : 1), NV) + L(160, 140, 160, 35, `stroke="${AC}" stroke-width="2.2"`) + L(185, 140, 185, 55, `stroke="${AC}" stroke-width="2.2"`) +
+      S(160, 28, "Kβ") + S(185, 48, "Kα") + S(70, 156, "λmin") + S(300, 80, "continuous spectrum", "end") + S(300, 96, "+ characteristic lines", "end")), "X-ray spectrum: a continuous spectrum starting at λmin = hc/eV, plus sharp characteristic lines of the target.")];
+    F["S3-24.5"] = [fig(sv(330, 100, A(20, 50, 320, 50) + [[30, "1 m", "person"], [100, "1 mm", "ant"], [170, "1 μm", "cell"], [240, "1 nm", "molecule"]].map(p => L(p[0], 44, p[0], 56) + S(p[0], 36, p[1]) + S(p[0], 74, p[2])).join("") + `<rect x="225" y="42" width="70" height="16" fill="${FILL}" opacity="0.8"/>` + S(262, 94, "nanoscale: 1–100 nm")),
+      "Nanoscience works at 1–100 nm, where the large surface-area-to-volume ratio changes a material's properties.")];
+    F["S3-25.1"] = [fig(sv(320, 170, AX(40, 150, 310, 15, I("A"), "BE/A") + CV(34, 300, x => { const a = (x - 30) * 0.9; return 150 - (a < 56 ? 100 * Math.sqrt(a / 56) : 100 - (a - 56) * 0.06); }, AC) + D(80, 50, 80, 150) + S(80, 166, "Fe-56") + S(200, 40, "most stable near Fe-56") + S(95, 120, "fusion", "start") + S(260, 80, "← fission", "middle")),
+      "Binding energy per nucleon peaks near iron-56: light nuclei release energy by fusion, heavy nuclei by fission.")];
+    F["S3-25.2"] = [fig(sv(300, 170, AX(30, 140, 290, 15, I("t"), I("N")) + CV(30, 280, x => 140 - 100 * Math.exp(-(x - 30) * Math.LN2 / 60)) + D(30, 90, 90, 90) + D(90, 90, 90, 140) + D(30, 65, 150, 65) + D(150, 65, 150, 140) +
+      S(26, 44, I("N") + sb("0"), "end") + S(26, 94, I("N") + sb("0") + "/2", "end") + S(90, 156, I("t") + sb("½")) + S(150, 156, "2" + I("t") + sb("½"))), "Radioactive decay: N = N₀e^(−λt); the number halves every half-life.")];
+    F["S3-25.3"] = [fig(sv(330, 140, C(40, 50, 18, `fill="${FILL}" stroke="${INK}"`) + S(40, 54, "U") + dot(8, 50, NV, 4) + A(12, 50, 20, 50, NV) + A(62, 50, 95, 35, INK) + A(62, 50, 95, 70, INK) + C(110, 30, 12, `fill="${TINT}" stroke="${INK}"`) + C(110, 72, 12, `fill="${TINT}" stroke="${INK}"`) + S(80, 112, "fission: heavy nucleus splits") +
+      C(210, 40, 9, `fill="${TINT}" stroke="${INK}"`) + C(210, 72, 9, `fill="${TINT}" stroke="${INK}"`) + A(222, 56, 255, 56) + C(275, 56, 15, `fill="${FILL}" stroke="${INK}"`) + S(240, 112, "fusion: light nuclei join") + S(165, 132, "Q = Δmc² released")),
+      "Nuclear reactions conserve nucleon number and charge; the mass defect is released as energy Q = Δmc².")];
+    return F;
+  })();
+
+  // derivation figures that also suit a topic's notes
+  const TOPIC_FIG_REUSE = {"S2-12.3": ["gauss", "Gauss's law: Gaussian sphere round a point charge, and a pillbox at a charged conductor."], "S2-16.7": ["hall", "Hall effect: carriers pushed to one face set up the Hall voltage across d."],
+    "S3-19.4": ["shm", "Spring–mass system and simple pendulum."], "S3-20.4": ["stand", "Standing wave: nodes and antinodes; adjacent nodes are λ/2 apart."], "S3-21.5": ["dop", "Doppler effect: wavefronts bunch up ahead of a moving source."],
+    "S3-23.3": ["young", "Young's double slits: fringe separation x = λD/a."]};
+
+  function topicFigsHTML(key){
+    const m = String(key).match(/^((?:S[23]-)?\d+\.\d+)/); if (!m) return "";
+    let figs = (TOPIC_FIGS[m[1]] || []).slice();
+    const re = TOPIC_FIG_REUSE[m[1]];
+    if (re && DV.F && DV.F[re[0]]) figs.push({svg: DV.F[re[0]], cap: re[1]});
+    if (!figs.length) return "";
+    return `<div class="tf"><p class="tf-head">Key diagram${figs.length > 1 ? "s" : ""}</p><div class="tf-grid">` + figs.map(f => `<figure class="tf-fig">${f.svg}<figcaption>${f.cap}</figcaption></figure>`).join("") + `</div></div>`;
+  }
+  // put the diagrams right after the first list (the definitions) of the topic's notes
+  function topicFigsInsert(key, html){
+    const figs = topicFigsHTML(key); if (!figs) return html;
+    const i = html.indexOf("</ul>");
+    return i < 0 ? figs + html : html.slice(0, i + 5) + figs + html.slice(i + 5);
   }
 
   // ---------- Section B & C notes, one block per Semester 1 topic (appended under the Section A notes) ----------
