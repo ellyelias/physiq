@@ -58,6 +58,11 @@ sup{top:-.5em} sub{top:.28em}
 .frac .n,.frac>span:first-child{display:block;padding:0 .25em .06em;border-bottom:1.3px solid currentColor}
 .frac .d,.frac>span:last-child{display:block;padding:.06em .25em 0}
 .sqrt .rad{border-top:1.3px solid currentColor;padding:0 .12em;margin-left:1px}
+.sqrt.sq2{display:inline-flex;align-items:stretch;vertical-align:middle;margin:0 .08em 0 .12em;white-space:nowrap;line-height:1.15;}
+.sqrt.sq2 .rs{position:relative;flex:none;width:.62em;overflow:hidden;color:inherit;-webkit-text-fill-color:transparent;user-select:none; background: linear-gradient(to bottom right, transparent calc(50% - .75px), currentColor calc(50% - .75px), currentColor calc(50% + .75px), transparent calc(50% + .75px)) right top/62% 100% no-repeat, linear-gradient(to top right, transparent calc(50% - .9px), currentColor calc(50% - .9px), currentColor calc(50% + .9px), transparent calc(50% + .9px)) 4% bottom/36% 44% no-repeat;}
+.sqrt.sq2 .rs::after{content:"";position:absolute;left:0;bottom:44%;width:10%;height:1.4px;background:currentColor;}
+.sqrt.sq2 .rad{display:inline-flex;align-items:center;border-top:1.5px solid currentColor;margin-left:0;padding:.14em .14em 0 .1em;}
+.sqrt.sq2 .rs{background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 20' preserveAspectRatio='none'><path d='M0.3 12.2 L2.2 11 L5.4 19.6 L9.7 0.4' fill='none' stroke='%231E293B' stroke-width='1.3' stroke-linejoin='round' vector-effect='non-scaling-stroke'/></svg>") 0 0/100% 100% no-repeat !important} .sqrt.sq2 .rs::after{display:none}
 svg.inf{width:1.3em;height:.65em;vertical-align:-.04em;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 `;
 
