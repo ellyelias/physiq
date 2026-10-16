@@ -209,3 +209,11 @@ button{font-weight:600;font-size:14.5px;border-radius:12px;padding:11px 18px;}
 /* answer buttons: the focus ring matches the chosen-answer colour, so it never reads as "wrong" */
 .choice:focus-visible,.rchoice:focus-visible,.ps-opt:focus-visible,.pt-opt:focus-visible{outline:2px solid #7A6420;outline-offset:2px;}
 .choice:focus:not(:focus-visible),.rchoice:focus:not(:focus-visible){outline:none;}
+/* square roots: a drawn radical that stretches to the height of what is under it */
+.sqrt.sq2{display:inline-flex;align-items:stretch;vertical-align:middle;margin:0 .08em 0 .12em;white-space:nowrap;line-height:1.15;}
+.sqrt.sq2 .rs{position:relative;flex:none;width:.62em;overflow:hidden;color:inherit;-webkit-text-fill-color:transparent;user-select:none;
+  background:
+    linear-gradient(to bottom right, transparent calc(50% - .75px), currentColor calc(50% - .75px), currentColor calc(50% + .75px), transparent calc(50% + .75px)) right top/62% 100% no-repeat,
+    linear-gradient(to top right, transparent calc(50% - .9px), currentColor calc(50% - .9px), currentColor calc(50% + .9px), transparent calc(50% + .9px)) 4% bottom/36% 44% no-repeat;}
+.sqrt.sq2 .rs::after{content:"";position:absolute;left:0;bottom:44%;width:10%;height:1.4px;background:currentColor;}
+.sqrt.sq2 .rad{display:inline-flex;align-items:center;border-top:1.5px solid currentColor;margin-left:0;padding:.14em .14em 0 .1em;}

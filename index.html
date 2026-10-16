@@ -6513,7 +6513,11 @@ const NOTES_EXTRA = (function(){
       t=t.replace(/∞/g,INF);
       return t;
     }
-    return String(html).split(/(<[^>]+>)/).map((p,i)=>i%2?p:seg(p)).join('');
+    // draw the radical sign so it grows with what is under it (a fraction, a power)
+    return String(html).split(/(<[^>]+>)/).map((p,i)=>i%2?p:seg(p)).join('')
+      .replace(/<span class="sqrt">√<span class="rad">/g,'<span class="sqrt sq2"><span class="rs">√</span><span class="rad">')
+      .replace(/√\u2060?(<span class="frac"><span class="n">(?:[^<]|<su[bp]>[^<]*<\/su[bp]>)*<\/span><span class="d">(?:[^<]|<su[bp]>[^<]*<\/su[bp]>)*<\/span><\/span>)/g,'<span class="sqrt sq2"><span class="rs">√</span><span class="rad">$1</span></span>')
+      .replace(/√\u2060?\(((?:[^()<]|<[^>]*>)*)\)/g,'<span class="sqrt sq2"><span class="rs">√</span><span class="rad">$1</span></span>');
   }
 
   function updateNotesDownloads(key){
