@@ -577,6 +577,301 @@ module.exports = K => ({
     tips: ['Draw the temperature profile through a composite wall.', 'The layer with the smaller $k$ has the steeper gradient.', 'Use ratios for $P \\propto T^4$: doubling $T$ gives 16 times the power.', 'Quote $k$ with unit W m⁻¹ K⁻¹.'],
   },
 
+  'S2-12': {
+    hubTitle: 'Electro-<br>statics',
+    idea: '**Key idea:** charges exert forces through electric fields; potential is the work done per unit charge.',
+    hubAt: 1,
+    boxes: [
+      { t: "Coulomb's law", c: 'blue', col: 'L', body: [
+        ['svg', K.fig('S2-12.1', 0, 320)],
+        ['f', r`F = \dfrac{Q_1Q_2}{4\pi\varepsilon_0 r^2}`],
+        ['b', ['$\\dfrac{1}{4\\pi\\varepsilon_0} = 8.99\\times10^9$ N m² C⁻²', 'Like charges repel, unlike attract', 'In a medium: divide by $\\varepsilon_r$', 'Several charges: add forces as **vectors**']],
+      ] },
+      { t: 'Electric field', c: 'green', col: 'M', body: [
+        ['fs', [r`E = \dfrac Fq`, r`E = \dfrac{Q}{4\pi\varepsilon_0r^2}`, r`E = \dfrac Vd`]],
+        ['b', ['Force per unit **positive** charge; N C⁻¹ = V m⁻¹', 'Lines start on +, end on −; never cross']],
+      ] },
+      { t: "Gauss's law", c: 'pink', col: 'R', body: [
+        ['f', r`\Phi = \oint \mathbf E\cdot d\mathbf A = \dfrac{Q_{\text{enc}}}{\varepsilon_0}`],
+        ['tbl', [['Charge distribution', '$E$'], ['Sphere, $r \\ge R$', '$\\dfrac{Q}{4\\pi\\varepsilon_0r^2}$'], ['Infinite line', '$\\dfrac{\\lambda}{2\\pi\\varepsilon_0r}$'], ['Infinite sheet', '$\\dfrac{\\sigma}{2\\varepsilon_0}$'], ['Conductor surface', '$\\dfrac{\\sigma}{\\varepsilon_0}$']]],
+        ['p', 'Inside a conductor $E = 0$; charge sits on the surface.'],
+      ] },
+      { t: 'Electric potential', c: 'purple', col: 'L', body: [
+        ['fs', [r`V = \dfrac{Q}{4\pi\varepsilon_0 r}`, 'U = qV']],
+        ['f', r`U = \dfrac{Q_1Q_2}{4\pi\varepsilon_0 r}`],
+        ['b', ['Work done per unit positive charge from **infinity**', 'Scalar: add potentials algebraically', 'Work by external agent: $W = q\\Delta V$']],
+      ] },
+      { t: 'Field and potential', c: 'orange', col: 'M', body: [
+        ['svg', K.fig('S2-12.4', 0, 330)],
+        ['f', r`E = -\dfrac{dV}{dr}`],
+        ['b', ['$E$ points towards **lower** potential', 'Equipotentials ⟂ field lines; no work along them', 'Close equipotentials = strong field']],
+      ] },
+      { t: 'Charges in a uniform field', c: 'teal', col: 'R', body: [
+        ['svg', K.fig('S2-12.2', 0, 300)],
+        ['fs', [r`a = \dfrac{qE}{m}`, r`\tfrac12mv^2 = qV`]],
+        ['b', ['Enters ⟂ to the field: **parabolic** path', 'Oil drop at rest: $\\dfrac{qV}{d} = mg$']],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr', boxes: [
+        { t: 'Charged conducting sphere', c: 'red', body: [
+          ['row', [
+            [['svg', K.plot({ xl: 'r', yl: 'E', W: 240, H: 150, v: [[0.3, 'R']], c: [{ f: x => 0, x1: 0.3, col: '#DC2626' }, { f: x => Math.min(0.92, 0.083 / (x * x)), x0: 0.3, col: '#DC2626' }], extra: '' })]],
+            [['svg', K.plot({ xl: 'r', yl: 'V', W: 240, H: 150, v: [[0.3, 'R']], c: [{ f: x => 0.9, x1: 0.3, col: '#2563EB' }, { f: x => 0.27 / x, x0: 0.3, col: '#2563EB' }] })]],
+          ]],
+          ['p', 'Inside: $E = 0$, $V$ constant. Outside: like a point charge at the centre.'],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Dropping the sign of a negative charge in $V$ (keep it; $V$ is a scalar).', 'Adding field magnitudes without directions.', 'Using the diameter for $r$, or µC without ×10⁻⁶.', '$E = 0$ does **not** mean $V = 0$.', 'Halving $r$: $F$ ×4, $V$ ×2.']],
+        ] },
+      ] },
+    ],
+    tips: ['Draw each field vector before adding.', 'Use energy, $\\tfrac12mv^2 = qV$, for speeds.', 'State the Gaussian surface you choose.', 'Give direction of $E$ as well as magnitude.'],
+  },
+
+  'S2-13': {
+    hubTitle: 'Capacitors',
+    idea: '**Key idea:** a capacitor stores charge and energy in the electric field between its plates.',
+    hubAt: 1,
+    boxes: [
+      { t: 'Capacitance', c: 'blue', col: 'L', body: [
+        ['svg', K.fig('S2-13.1', 0, 300)],
+        ['f', r`C = \dfrac QV`],
+        ['b', ['Unit farad: 1 F = 1 C V⁻¹ (µF, nF, pF)', 'Gradient of $Q$–$V$ graph $= C$', 'Isolated sphere: $C = 4\\pi\\varepsilon_0R$']],
+      ] },
+      { t: 'Parallel plates', c: 'green', col: 'M', body: [
+        ['f', r`C = \dfrac{\varepsilon_0\varepsilon_rA}{d}`],
+        ['fs', [r`E = \dfrac Vd = \dfrac{\sigma}{\varepsilon_0}`]],
+        ['b', ['**Battery connected:** $V$ constant', '**Isolated:** $Q$ constant']],
+      ] },
+      { t: 'Dielectrics', c: 'pink', col: 'R', body: [
+        ['svg', K.fig('S2-13.3', 0, 300)],
+        ['tbl', [['Insert dielectric', 'Battery on', 'Isolated'], ['$C$', '× $\\varepsilon_r$', '× $\\varepsilon_r$'], ['$Q$', '× $\\varepsilon_r$', 'same'], ['$V$, $E$', 'same', '÷ $\\varepsilon_r$'], ['$U$', '× $\\varepsilon_r$', '÷ $\\varepsilon_r$']]],
+      ] },
+      { t: 'Series & parallel', c: 'purple', col: 'L', body: [
+        ['svg', K.fig('S2-13.4', 0, 320)],
+        ['fs', [r`C_{\parallel} = C_1 + C_2`, r`\dfrac1{C_s} = \dfrac1{C_1} + \dfrac1{C_2}`]],
+        ['b', ['Series: **same $Q$**; smaller $C$ takes larger $V$', 'Parallel: **same $V$**; charges add']],
+      ] },
+      { t: 'Energy stored', c: 'orange', col: 'M', body: [
+        ['f', r`U = \tfrac12QV = \tfrac12CV^2 = \dfrac{Q^2}{2C}`],
+        ['b', ['$U$ = area under the $V$–$Q$ graph', 'Energy density $u = \\tfrac12\\varepsilon_0E^2$', 'Battery gives $QV$: half stored, half lost as heat', 'Sharing charge: $Q$ conserved, energy lost']],
+      ] },
+      { t: 'Charging & discharging', c: 'teal', col: 'R', body: [
+        ['svg', K.fig('S2-13.6', 0, 320)],
+        ['fs', [r`Q = Q_0e^{-t/RC}`, r`Q = Q_0\left(1 - e^{-t/RC}\right)`]],
+        ['b', ['$\\tau = RC$: 37% left (discharge), 63% reached (charge)', '$t_{1/2} = RC\\ln2$', 'Current decays as $I_0e^{-t/RC}$ in **both** cases']],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr', boxes: [
+        { t: 'Unit check', c: 'navy', body: [
+          ['tbl', [['Quantity', 'Formula', 'Unit'], ['Capacitance', '$Q/V$', 'F'], ['Permittivity', '$\\varepsilon_0$', 'F m⁻¹'], ['Time constant', '$RC$', 's'], ['Energy density', '$\\tfrac12\\varepsilon_0E^2$', 'J m⁻³']]],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Using resistor rules for capacitors (they are reversed).', 'Forgetting whether $Q$ or $V$ stays constant.', 'µF → ×10⁻⁶ F; cm² → ×10⁻⁴ m².', '63% is for charging, 37% for discharging.', 'Ln graph of discharge: gradient $= -1/RC$.']],
+        ] },
+      ] },
+    ],
+    tips: ['Decide first: battery connected or isolated?', 'For series, find the common $Q$ first.', 'Use $\\ln$ to find $t$ from an exponential.', 'Quote $\\tau$ before sketching charge–time graphs.'],
+  },
+
+  'S2-14': {
+    hubTitle: 'Electric<br>Current',
+    idea: '**Key idea:** current is the drift of charge carriers; resistance depends on the material and its shape.',
+    hubAt: 1,
+    boxes: [
+      { t: 'Electric current', c: 'blue', col: 'L', body: [
+        ['svg', K.fig('S2-14.1', 0, 300)],
+        ['fs', [r`I = \dfrac{dQ}{dt}`, 'Q = Ne']],
+        ['b', ['Conventional current: direction of + charge flow', 'Electrons drift the opposite way', '1 A = 1 C s⁻¹']],
+      ] },
+      { t: 'Drift velocity', c: 'green', col: 'M', body: [
+        ['svg', K.fig('S2-14.2', 0, 300)],
+        ['f', r`I = nAev_d`],
+        ['b', ['$v_d \\sim 10^{-4}$ m s⁻¹; random speed $\\sim 10^5$–$10^6$ m s⁻¹', 'Lamp lights at once: the **field** travels at nearly $c$', 'Narrower wire: larger $v_d$']],
+      ] },
+      { t: 'Current density', c: 'pink', col: 'R', body: [
+        ['svg', K.fig('S2-14.3', 0, 300)],
+        ['fs', [r`J = \dfrac IA = nev_d`, r`J = \sigma E`]],
+        ['p', 'Vector, A m⁻²; $J = \\sigma E$ is the microscopic Ohm\'s law.'],
+      ] },
+      { t: 'Resistance & resistivity', c: 'purple', col: 'L', body: [
+        ['fs', [r`R = \dfrac VI`, r`R = \dfrac{\rho L}{A}`, r`\sigma = \dfrac1\rho`]],
+        ['b', ['$\\rho$ (Ω m) and $\\sigma$ are properties of the **material**', 'Stretched to $k$ × length (same volume): $R$ × $k^2$']],
+      ] },
+      { t: 'Effect of temperature', c: 'orange', col: 'M', body: [
+        ['svg', K.fig('S2-14.4', 0, 320)],
+        ['b', ['**Metal:** ions vibrate more, more collisions, so $\\rho$ rises', '**Semiconductor:** more carriers released, so $\\rho$ falls', '**Superconductor:** $\\rho = 0$ below the critical temperature']],
+      ] },
+      { t: 'Microscopic view', c: 'teal', col: 'R', body: [
+        ['f', r`\sigma = \dfrac{ne^2\tau}{m}`],
+        ['f', r`v_d = \dfrac{eE\tau}{m}`],
+        ['p', '$\\tau$: mean time between collisions (relaxation time).'],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr', boxes: [
+        { t: 'Electrical power', c: 'red', body: [
+          ['fs', ['P = VI', 'P = I^2R', r`P = \dfrac{V^2}{R}`]],
+          ['p', 'Energy $W = VIt$; 1 kW h = 3.6 × 10⁶ J. Heater coil: combine $P = V^2/R$ with $R = \\rho L/A$.'],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Using the diameter as radius in $A = \\pi r^2$.', 'Thinking drift speed is the speed of the signal.', 'Same current, smaller area: $J$ and $v_d$ larger.', 'Resistivity does not change when the wire is cut.']],
+        ] },
+      ] },
+    ],
+    tips: ['Write $I = nAev_d$ and rearrange before substituting.', 'Use ratios for wires of the same material.', 'Explain temperature effects with collisions and carriers.', 'Units: $n$ in m⁻³, $A$ in m².'],
+  },
+
+  'S2-15': {
+    hubTitle: 'Direct Current<br>Circuits',
+    idea: '**Key idea:** charge is conserved at junctions and energy around loops.',
+    hubAt: 1,
+    boxes: [
+      { t: 'E.m.f. & internal resistance', c: 'blue', col: 'L', body: [
+        ['svg', K.fig('S2-15.1', 0, 300)],
+        ['fs', [r`E = V + Ir`, r`E = I(R + r)`]],
+        ['p', '**E.m.f.:** energy converted to electrical energy per unit charge. $V$–$I$ graph: intercept $E$, gradient $-r$.'],
+      ] },
+      { t: 'Power transfer', c: 'green', col: 'M', body: [
+        ['svg', K.plot({ xl: 'R', yl: 'P', W: 280, H: 150, v: [[0.25, 'R = r']], c: [{ f: x => 16 * x / ((1 + 4 * x) ** 2), col: '#15803D' }] })],
+        ['fs', [r`P = \dfrac{E^2R}{(R+r)^2}`, r`P_{\max} = \dfrac{E^2}{4r}`]],
+        ['p', 'Maximum power in $R$ when $R = r$ (efficiency 50%).'],
+      ] },
+      { t: "Kirchhoff's laws", c: 'pink', col: 'R', body: [
+        ['svg', K.fig('S2-15.2', 0, 300)],
+        ['fs', [r`\textstyle\sum I_{\text{in}} = \sum I_{\text{out}}`, r`\textstyle\sum E = \sum IR`]],
+        ['b', ['1st law: conservation of **charge**', '2nd law: conservation of **energy**', 'Negative answer: current flows the other way']],
+      ] },
+      { t: 'Resistor networks', c: 'purple', col: 'L', body: [
+        ['fs', [r`R_s = R_1 + R_2`, r`\dfrac1{R_p} = \dfrac1{R_1} + \dfrac1{R_2}`]],
+        ['b', ['Series: same $I$; parallel: same $V$', 'Voltmeter across $R$: $\\dfrac{RR_V}{R + R_V}$ (reads low)', 'Cells in series: add $E$ and $r$']],
+      ] },
+      { t: 'Potential divider', c: 'orange', col: 'M', body: [
+        ['svg', K.fig('S2-15.3', 0, 280)],
+        ['f', r`V_{\text{out}} = V_{\text{in}}\dfrac{R_2}{R_1 + R_2}`],
+        ['b', ['Load across $R_2$: output falls', 'Thermistor (NTC): $R$ ↓ as $T$ ↑; LDR: $R$ ↓ as light ↑']],
+      ] },
+      { t: 'Potentiometer & bridge', c: 'teal', col: 'R', body: [
+        ['svg', K.fig('S2-15.4', 0, 300)],
+        ['fs', [r`\dfrac{E_1}{E_2} = \dfrac{l_1}{l_2}`, r`\dfrac PQ = \dfrac RS`]],
+        ['p', 'At balance no current in the galvanometer, so the potentiometer reads the true e.m.f.'],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr', boxes: [
+        { t: 'Method for networks', c: 'red', body: [
+          ['num', ['Label every current with a direction.', 'Junction rule at each node.', 'Loop rule round enough loops, with signs.', 'Solve the simultaneous equations; check one loop.']],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Taking the terminal p.d. as the e.m.f. when current flows.', 'Forgetting $r$ in $I = E/(R + r)$.', 'Sign of an e.m.f. met from + to − in a loop.', 'Balance length is measured from the **same** end as the driver\'s positive.']],
+        ] },
+      ] },
+    ],
+    tips: ['Redraw the circuit simply before calculating.', 'State "at balance no current flows through G".', 'Use ratios of lengths for potentiometers.', 'Check power: $EI = I^2R + I^2r$.'],
+  },
+
+  'S2-16': {
+    hubTitle: 'Magnetic<br>Fields',
+    idea: '**Key idea:** moving charges and currents create magnetic fields and feel forces in them.',
+    hubAt: 1,
+    boxes: [
+      { t: 'Magnetic field', c: 'blue', col: 'L', body: [
+        ['svg', K.fig('S2-16.1', 0, 300)],
+        ['f', r`B = \dfrac{F}{IL\sin\theta}`],
+        ['b', ['1 T = 1 N A⁻¹ m⁻¹', 'Lines: closed loops, N → S outside a magnet', 'Right-hand grip rule for wires and coils']],
+      ] },
+      { t: 'Force on a moving charge', c: 'green', col: 'M', body: [
+        ['svg', K.fig('S2-16.2', 0, 280)],
+        ['f', r`F = qvB\sin\theta`],
+        ['fs', [r`r = \dfrac{mv}{qB}`, r`T = \dfrac{2\pi m}{qB}`]],
+        ['p', 'Force ⟂ $v$: does no work, speed constant. $T$ independent of $v$.'],
+      ] },
+      { t: 'Force on a conductor', c: 'pink', col: 'R', body: [
+        ['svg', K.fig('S2-16.3', 0, 300)],
+        ['fs', [r`F = BIL\sin\theta`, r`\tau = NBIA\sin\phi`]],
+        ['p', "**Fleming's left-hand rule:** first finger = field, second finger = current, thumb = force."],
+      ] },
+      { t: 'Fields due to currents', c: 'purple', col: 'L', body: [
+        ['svg', K.fig('S2-16.4', 0, 320)],
+        ['tbl', [['Source', '$B$'], ['Long straight wire', '$\\dfrac{\\mu_0I}{2\\pi r}$'], ['Centre of coil', '$\\dfrac{\\mu_0NI}{2r}$'], ['Long solenoid', '$\\mu_0nI$']]],
+        ['p', '$\\mu_0 = 4\\pi\\times10^{-7}$ H m⁻¹; $n$ = turns per metre.'],
+      ] },
+      { t: 'Parallel wires', c: 'orange', col: 'M', body: [
+        ['svg', K.fig('S2-16.5', 0, 300)],
+        ['f', r`\dfrac FL = \dfrac{\mu_0I_1I_2}{2\pi d}`],
+        ['b', ['Same direction: **attract**; opposite: repel', 'Equal and opposite forces (3rd law)', 'Defines the ampere: $2\\times10^{-7}$ N m⁻¹ at 1 m']],
+      ] },
+      { t: 'e/m & velocity selector', c: 'teal', col: 'R', body: [
+        ['svg', K.fig('S2-16.6', 0, 300)],
+        ['fs', [r`v = \dfrac EB`, r`\dfrac em = \dfrac{2V}{B^2r^2}`]],
+        ['p', 'Crossed fields: undeflected when $qE = qvB$. $e/m = 1.76\\times10^{11}$ C kg⁻¹.'],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr', boxes: [
+        { t: 'Hall effect', c: 'red', body: [
+          ['f', r`V_H = \dfrac{BI}{nte}`],
+          ['b', ['Carriers pushed to one side until $eE_H = evB$', 'Sign of $V_H$ shows the sign of the carriers', 'Semiconductor: small $n$, large $V_H$ (Hall probe)']],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['For electrons, reverse the left-hand rule.', 'Using $n$ as total turns in $B = \\mu_0nI$.', 'Saying the magnetic force changes the speed.', '$t$ in $V_H$ is the thickness **along B**.', 'Angle $\\theta$ is between the wire (or $v$) and $B$.']],
+        ] },
+      ] },
+    ],
+    tips: ['Draw $B$, $I$ (or $v$) and $F$ as a 3-D sketch.', 'Write "magnetic force provides centripetal force".', 'Add fields from two wires as vectors.', 'Check units: T, A, m.'],
+  },
+
+  'S2-17': {
+    hubTitle: 'Electro-<br>magnetic<br>Induction',
+    idea: '**Key idea:** a changing flux linkage induces an e.m.f. that opposes the change.',
+    hubAt: 1,
+    boxes: [
+      { t: 'Magnetic flux', c: 'blue', col: 'L', body: [
+        ['svg', K.fig('S2-17.1', 0, 300)],
+        ['fs', [r`\Phi = BA\cos\theta`, r`\text{linkage} = N\Phi`]],
+        ['p', '$\\theta$ between $B$ and the **normal**. 1 Wb = 1 T m².'],
+      ] },
+      { t: "Faraday's & Lenz's laws", c: 'green', col: 'M', body: [
+        ['svg', K.fig('S2-17.2', 0, 300)],
+        ['f', r`\varepsilon = -N\dfrac{d\Phi}{dt}`],
+        ['b', ['Faraday: $\\varepsilon$ ∝ rate of change of flux linkage', 'Lenz: induced current **opposes** the change (energy conservation)']],
+      ] },
+      { t: 'Motional e.m.f.', c: 'pink', col: 'R', body: [
+        ['fs', [r`\varepsilon = BLv`, r`F = \dfrac{B^2L^2v}{R}`]],
+        ['f', r`\varepsilon = NBA\omega\sin\omega t`],
+        ['p', 'Rotating coil (a.c. generator): peak $\\varepsilon_0 = NBA\\omega$ when the plane is **parallel** to $B$.'],
+      ] },
+      { t: 'Self-induction', c: 'purple', col: 'L', body: [
+        ['svg', K.fig('S2-17.3', 0, 300)],
+        ['fs', [r`\varepsilon = -L\dfrac{dI}{dt}`, r`L = \dfrac{N\Phi}{I} = \dfrac{\mu_0N^2A}{l}`]],
+        ['p', 'Back e.m.f. slows the growth of current; spark when switched off.'],
+      ] },
+      { t: 'Energy in an inductor', c: 'orange', col: 'M', body: [
+        ['svg', K.fig('S2-17.4', 0, 300)],
+        ['fs', [r`U = \tfrac12LI^2`, r`u = \dfrac{B^2}{2\mu_0}`]],
+        ['p', 'Stored in the **magnetic field**; returned when the current falls.'],
+      ] },
+      { t: 'Mutual induction', c: 'teal', col: 'R', body: [
+        ['svg', K.fig('S2-17.5', 0, 300)],
+        ['fs', [r`\varepsilon_2 = -M\dfrac{dI_1}{dt}`, r`\dfrac{V_s}{V_p} = \dfrac{N_s}{N_p} = \dfrac{I_p}{I_s}`]],
+        ['p', 'Transformer works on a.c. only; ideal: $V_pI_p = V_sI_s$.'],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr', boxes: [
+        { t: 'Unit check', c: 'navy', body: [
+          ['tbl', [['Quantity', 'Unit', 'In base form'], ['Flux $\\Phi$', 'Wb', 'T m² = V s'], ['Flux density $B$', 'T', 'Wb m⁻²'], ['Inductance $L$, $M$', 'H', 'Wb A⁻¹ = V s A⁻¹'], ['E.m.f.', 'V', 'Wb s⁻¹']]],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Taking $\\theta$ from the plane instead of the normal.', 'Forgetting $N$ in flux linkage.', 'Peak e.m.f. occurs when the flux is **zero**.', 'Saying an e.m.f. needs a closed circuit (only a current does).', 'Transformer on d.c.: no output.']],
+        ] },
+      ] },
+    ],
+    tips: ['Find $\\Delta(N\\Phi)$ first, then divide by $\\Delta t$.', 'Explain direction with Lenz\'s law in words.', 'Use $\\varepsilon = BLv$ only when $B$, $L$, $v$ are perpendicular.', 'Energy: work against the opposing force = electrical energy.'],
+  },
+
   'S2-18': {
     hubTitle: 'Alternating<br>Current',
     hubIcon: K.svg(160, 44, K.curve(10, 150, x => 22 - 15 * Math.sin((x - 10) / 140 * 4 * Math.PI), '#EA580C', 3), 160),
