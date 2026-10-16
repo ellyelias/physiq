@@ -217,3 +217,23 @@ button{font-weight:600;font-size:14.5px;border-radius:12px;padding:11px 18px;}
     linear-gradient(to top right, transparent calc(50% - .9px), currentColor calc(50% - .9px), currentColor calc(50% + .9px), transparent calc(50% + .9px)) 4% bottom/36% 44% no-repeat;}
 .sqrt.sq2 .rs::after{content:"";position:absolute;left:0;bottom:44%;width:10%;height:1.4px;background:currentColor;}
 .sqrt.sq2 .rad{display:inline-flex;align-items:center;border-top:1.5px solid currentColor;margin-left:0;padding:.14em .14em 0 .1em;}
+
+/* Learn: formula tables as a ruled table (desktop) and one card per formula (phone), as in Notes */
+#learn-body .ftable-wrap{margin:0 0 16px;overflow-x:auto;}
+#learn-body table.ftable{border-collapse:collapse;width:100%;font-size:14px;}
+#learn-body .ftable th{background:var(--navy);color:#fff;text-align:left;padding:9px 11px;font-size:13px;font-weight:700;}
+#learn-body .ftable td{padding:9px 11px;border:1px solid #E3DACA;vertical-align:top;line-height:1.55;}
+#learn-body .ftable tbody tr:nth-child(even) td{background:#FAF6EB;}
+#learn-body .ftable td:nth-child(1){font-weight:700;color:var(--navy);width:22%;}
+#learn-body .ftable td:nth-child(2){font-size:15px;width:32%;background:#F5F0E2;}
+#learn-body .ftable td:nth-child(3){color:#5A5446;font-size:13px;}
+@media (max-width:600px){
+  #learn-body .ftable thead{display:none;}
+  #learn-body .ftable,#learn-body .ftable tbody,#learn-body .ftable tr,#learn-body .ftable td{display:block;width:auto;}
+  #learn-body .ftable tr{border:1px solid #E3DACA;border-left:4px solid var(--orange);border-radius:8px;margin:0 0 10px;background:var(--paper,#FFFCF5);overflow:hidden;}
+  #learn-body .ftable td{border:none;padding:6px 12px;}
+  #learn-body .ftable td:nth-child(1){width:auto;padding-top:10px;font-size:14px;}
+  #learn-body .ftable td:nth-child(2){width:auto;font-size:16px;background:#F5F0E2 !important;overflow-x:auto;}
+  #learn-body .ftable tbody tr:nth-child(even) td{background:inherit;}
+  #learn-body .ftable td:nth-child(3){padding-bottom:10px;}
+}
