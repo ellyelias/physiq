@@ -457,6 +457,11 @@
   #notes-content details.mm summary{cursor:pointer;font-weight:700;color:var(--navy);padding:9px 12px;font-size:13.5px;}
   #notes-content .mm-wrap{overflow-x:auto;padding:0 8px 10px;}
   #notes-content .mm-svg{display:block;max-width:100%;height:auto;margin:0 auto;}
+  #notes-content .mm-poster{padding:0 10px 12px;text-align:center;}
+  #notes-content .mm-poster img{display:block;width:100%;max-width:900px;height:auto;margin:0 auto;border:1px solid var(--line);border-radius:8px;background:#fff;}
+  #notes-content .mm-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+  #notes-content .mm-btn{display:inline-block;padding:8px 14px;border-radius:8px;background:var(--navy);color:#fff;font-weight:700;font-size:13.5px;text-decoration:none;}
+  #notes-content .mm-btn.ghost{background:transparent;color:var(--navy);border:1.5px solid var(--navy);}
   #notes-content .dv-intro{font-size:14px;line-height:1.55;margin:0 0 8px;}
   #notes-content .dv-tools{margin:0 0 12px;display:flex;gap:8px;flex-wrap:wrap;}
   #notes-content .dv-btn{border:1.5px solid var(--line);background:var(--paper);color:var(--navy);border-radius:7px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer;}
@@ -7670,7 +7675,16 @@ const NOTES_EXTRA = (function(){
     return `<svg class="mm-svg" viewBox="0 0 ${W} ${H}" width="${W}" role="img" aria-label="Mind map of ${mmEsc(chName)}">${body}</svg>`;
   }
 
+  // chapters that have a printable poster mind map (assets/mindmaps/<id>.webp + downloads/mindmaps/*.pdf); kept up to date by tools/build_mindmaps.js
+  const MINDMAP_POSTERS = ["S2-18"];
   function mindmapHTML(key){
+    const p = mmParse(key);
+    if (p && MINDMAP_POSTERS.includes(p.ch)){
+      let open = true;
+      try{ open = localStorage.getItem("physiq-mindmap-open") !== "0"; }catch(e){}
+      const img = `assets/mindmaps/${p.ch}.webp`, pdf = `downloads/mindmaps/PhysiQ_MindMap_${p.ch}.pdf`;
+      return `<details class="mm"${open ? " open" : ""} ontoggle="try{localStorage.setItem('physiq-mindmap-open', this.open ? '1' : '0')}catch(e){}"><summary>Chapter mind map</summary><div class="mm-poster"><a href="${img}" target="_blank" rel="noopener" title="Open full size"><img src="${img}" alt="Chapter mind map poster" loading="lazy"></a><div class="mm-actions"><a class="mm-btn" href="${pdf}" download>Download PDF (A4)</a><a class="mm-btn ghost" href="${img}" target="_blank" rel="noopener">Open full size</a></div></div></details>`;
+    }
     const svg = mindmapSVG(key, window.innerWidth < 640);
     if (!svg) return "";
     let open = true;
