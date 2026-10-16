@@ -6,7 +6,10 @@
 <meta name="app-version" content="2026-10-05-v1-static-site">
 <title>PhysiQ by Cikgu Suhaili</title>
 <meta name="description" content="STPM Semester 1 Physics practice app, notes, and pretest/posttest — built by Cikgu Suhaili.">
-<meta name="theme-color" content="#1B3A6B">
+<meta name="theme-color" content="#1F3A2E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 
 <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
 <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
@@ -533,6 +536,7 @@
     #panel-learn .learn-step.current{padding:7px;}
   }
 </style>
+<link rel="stylesheet" href="physiq-v2.css">
 </head>
 <body>
 <div class="app">
@@ -545,7 +549,7 @@
   </div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="guide">Guide</button>
+    <button class="tab active" data-tab="guide">Home</button>
     <button class="tab" data-tab="learn">Learn by chapter</button>
     <button class="tab" data-tab="research">Research · Pretest/Posttest</button>
     <button class="tab" data-tab="notes">Notes</button>
@@ -569,38 +573,59 @@
   <!-- ===================== GUIDE / README PANEL ===================== -->
   <div class="panel active" id="panel-guide">
 
-    <div class="card" style="padding-top:22px;">
-      <p style="font-family:Consolas,'Courier New',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:700;margin:0 0 6px;">STPM Physics · Student Guide</p>
-      <h2 style="margin:0 0 6px;color:var(--navy);font-size:26px;">How to use PhysiQ for our study</h2>
-      <p style="margin:0;color:var(--sub);">Follow the steps below that match your situation.</p>
+    <div class="card v2-hero">
+      <div>
+        <h2>STPM Physics, from notes to past papers</h2>
+        <p class="lede">Notes, practice questions, mind maps and past-year papers for Semesters 1, 2 and 3. Choose your semester above, then pick where to start.</p>
+        <div class="v2-go">
+          <button type="button" class="main" data-go="learn">Learn by chapter</button>
+          <button type="button" data-go="student">Section A practice</button>
+          <button type="button" data-go="notes">Notes</button>
+          <button type="button" data-go="mindmaps">Mind maps</button>
+          <button type="button" data-go="past">Past year papers</button>
+        </div>
+      </div>
+      <svg class="v2-schematic" viewBox="0 0 320 210" role="img" aria-label="A pendulum and the decaying sine curve of its displacement against time">
+        <g class="grid"><line x1="110" y1="14" x2="110" y2="196"/><line x1="140" y1="14" x2="140" y2="196"/><line x1="170" y1="14" x2="170" y2="196"/><line x1="200" y1="14" x2="200" y2="196"/><line x1="230" y1="14" x2="230" y2="196"/><line x1="260" y1="14" x2="260" y2="196"/><line x1="290" y1="14" x2="290" y2="196"/><line x1="104" y1="20" x2="314" y2="20"/><line x1="104" y1="50" x2="314" y2="50"/><line x1="104" y1="80" x2="314" y2="80"/><line x1="104" y1="110" x2="314" y2="110"/><line x1="104" y1="140" x2="314" y2="140"/><line x1="104" y1="170" x2="314" y2="170"/></g>
+        <path class="axis" d="M104 105 H314 M104 18 V196"/>
+        <path class="env" d="M104 35.0 L106 36.2 L108 37.3 L110 38.4 L112 39.5 L114 40.6 L116 41.7 L118 42.7 L120 43.7 L122 44.8 L124 45.7 L126 46.7 L128 47.7 L130 48.6 L132 49.6 L134 50.5 L136 51.4 L138 52.3 L140 53.1 L142 54.0 L144 54.8 L146 55.7 L148 56.5 L150 57.3 L152 58.1 L154 58.9 L156 59.6 L158 60.4 L160 61.1 L162 61.8 L164 62.5 L166 63.2 L168 63.9 L170 64.6 L172 65.3 L174 65.9 L176 66.6 L178 67.2 L180 67.8 L182 68.5 L184 69.1 L186 69.7 L188 70.2 L190 70.8 L192 71.4 L194 71.9 L196 72.5 L198 73.0 L200 73.5 L202 74.1 L204 74.6 L206 75.1 L208 75.6 L210 76.1 L212 76.5 L214 77.0 L216 77.5 L218 77.9 L220 78.4 L222 78.8 L224 79.2 L226 79.7 L228 80.1 L230 80.5 L232 80.9 L234 81.3 L236 81.7 L238 82.1 L240 82.5 L242 82.8 L244 83.2 L246 83.6 L248 83.9 L250 84.3 L252 84.6 L254 84.9 L256 85.3 L258 85.6 L260 85.9 L262 86.2 L264 86.5 L266 86.9 L268 87.2 L270 87.4 L272 87.7 L274 88.0 L276 88.3 L278 88.6 L280 88.9 L282 89.1 L284 89.4 L286 89.6 L288 89.9 L290 90.1 L292 90.4 L294 90.6 L296 90.9 L298 91.1 L300 91.3 L302 91.6 L304 91.8 L306 92.0 L308 92.2 L310 92.4 L312 92.6 L314 92.8"/>
+        <path class="trace" d="M104.0 35.0 L105.5 36.8 L107.0 40.4 L108.5 45.5 L110.0 52.2 L111.5 60.0 L113.0 68.9 L114.5 78.5 L116.0 88.6 L117.5 98.9 L119.0 109.0 L120.5 118.9 L122.0 128.1 L123.5 136.4 L125.0 143.7 L126.5 149.9 L128.0 154.6 L129.5 158.0 L131.0 159.8 L132.5 160.2 L134.0 159.0 L135.5 156.5 L137.0 152.7 L138.5 147.7 L140.0 141.7 L141.5 134.8 L143.0 127.4 L144.5 119.5 L146.0 111.4 L147.5 103.4 L149.0 95.6 L150.5 88.3 L152.0 81.5 L153.5 75.6 L155.0 70.6 L156.5 66.6 L158.0 63.8 L159.5 62.1 L161.0 61.6 L162.5 62.2 L164.0 64.0 L165.5 66.8 L167.0 70.6 L168.5 75.2 L170.0 80.4 L171.5 86.2 L173.0 92.3 L174.5 98.7 L176.0 105.0 L177.5 111.2 L179.0 117.0 L180.5 122.4 L182.0 127.2 L183.5 131.3 L185.0 134.6 L186.5 137.1 L188.0 138.6 L189.5 139.2 L191.0 138.8 L192.5 137.6 L194.0 135.5 L195.5 132.7 L197.0 129.2 L198.5 125.2 L200.0 120.7 L201.5 115.9 L203.0 111.0 L204.5 106.0 L206.0 101.1 L207.5 96.4 L209.0 92.1 L210.5 88.2 L212.0 84.9 L213.5 82.2 L215.0 80.1 L216.5 78.8 L218.0 78.2 L219.5 78.3 L221.0 79.1 L222.5 80.6 L224.0 82.7 L225.5 85.3 L227.0 88.4 L228.5 91.9 L230.0 95.6 L231.5 99.5 L233.0 103.4 L234.5 107.3 L236.0 111.0 L237.5 114.5 L239.0 117.6 L240.5 120.3 L242.0 122.6 L243.5 124.3 L245.0 125.5 L246.5 126.1 L248.0 126.1 L249.5 125.5 L251.0 124.5 L252.5 122.9 L254.0 120.9 L255.5 118.5 L257.0 115.9 L258.5 113.0 L260.0 109.9 L261.5 106.8 L263.0 103.8 L264.5 100.8 L266.0 98.1 L267.5 95.5 L269.0 93.3 L270.5 91.5 L272.0 90.1 L273.5 89.0 L275.0 88.5 L276.5 88.4 L278.0 88.7 L279.5 89.5 L281.0 90.6 L282.5 92.1 L284.0 94.0 L285.5 96.0 L287.0 98.3 L288.5 100.6 L290.0 103.1 L291.5 105.5 L293.0 107.8 L294.5 110.0 L296.0 112.1 L297.5 113.9 L299.0 115.4 L300.5 116.6 L302.0 117.4 L303.5 117.9 L305.0 118.1 L306.5 117.9 L308.0 117.4 L309.5 116.5 L311.0 115.4 L312.5 114.0 L314.0 112.4"/>
+        <line class="rod" x1="44" y1="18" x2="74" y2="128"/>
+        <path class="axis" d="M20 18 H68" />
+        <line x1="44" y1="18" x2="44" y2="150" stroke="#C9BFA6" stroke-width="1.2" stroke-dasharray="3 4"/>
+        <circle class="bob" cx="74" cy="128" r="13"/>
+        <circle class="mark" cx="104" cy="35" r="5"/>
+        <text x="296" y="124">t</text>
+        <text x="112" y="16">x</text>
+      </svg>
     </div>
 
     <div class="card">
       <h2>If you're one of the research study students (pretest/posttest)</h2>
       <p style="margin:0 0 14px;">The order below is <b>IMPORTANT</b> — don't skip any step, since your teacher's research results depend on it.</p>
 
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <div style="display:flex;gap:14px;align-items:flex-start;">
-          <div style="flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:var(--orange);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;">1</div>
-          <div style="flex:1 1 auto;border:1px solid var(--line);border-radius:10px;padding:14px 16px;">
-            <h3 style="margin:0 0 4px;color:var(--navy);font-size:15px;">Pretest — once, at the very start</h3>
-            <p style="margin:0;font-size:13.5px;line-height:1.55;">Open the <b>Research · Pretest/Posttest</b> tab first — before Student Practice or Notes. Choose your <b>batch</b> (STPM 2026, STPM 2027, or Guest), pick your <b>name</b> from the list (Guests type their full name), and choose your <b>semester</b> (1, 2 or 3), then complete that semester's Pretest.</p>
+      <div class="v2-steps">
+        <div class="v2-step">
+          <div class="v2-step-no">1</div>
+          <div class="v2-step-body">
+            <h3>Pretest — once, at the very start</h3>
+            <p>Open the <b>Research · Pretest/Posttest</b> tab first — before Student Practice or Notes. Choose your <b>batch</b> (STPM 2026, STPM 2027, or Guest), pick your <b>name</b> from the list (Guests type their full name), and choose your <b>semester</b> (1, 2 or 3), then complete that semester's Pretest.</p>
           </div>
         </div>
 
-        <div style="display:flex;gap:14px;align-items:flex-start;">
-          <div style="flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:var(--orange);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;">2</div>
-          <div style="flex:1 1 auto;border:1px solid var(--line);border-radius:10px;padding:14px 16px;">
-            <h3 style="margin:0 0 4px;color:var(--navy);font-size:15px;">Practice — throughout the study period</h3>
-            <p style="margin:0;font-size:13.5px;line-height:1.55;">Use the <b>Notes</b> tab to review each topic, and <b>Student Practice</b> to answer questions. Do this as often as your teacher asks, for the next few weeks.</p>
+        <div class="v2-step">
+          <div class="v2-step-no">2</div>
+          <div class="v2-step-body">
+            <h3>Practice — throughout the study period</h3>
+            <p>Use the <b>Notes</b> tab to review each topic, and <b>Student Practice</b> to answer questions. Do this as often as your teacher asks, for the next few weeks.</p>
           </div>
         </div>
 
-        <div style="display:flex;gap:14px;align-items:flex-start;">
-          <div style="flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:var(--orange);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;">3</div>
-          <div style="flex:1 1 auto;border:1px solid var(--line);border-radius:10px;padding:14px 16px;">
-            <h3 style="margin:0 0 4px;color:var(--navy);font-size:15px;">Posttest — once, when your teacher says the study has ended</h3>
-            <p style="margin:0;font-size:13.5px;line-height:1.55;">Go back to <b>Research · Pretest/Posttest</b> and complete the Posttest for the same semester. Use the <b>exact same name, batch and semester</b> as your Pretest.</p>
+        <div class="v2-step">
+          <div class="v2-step-no">3</div>
+          <div class="v2-step-body">
+            <h3>Posttest — once, when your teacher says the study has ended</h3>
+            <p>Go back to <b>Research · Pretest/Posttest</b> and complete the Posttest for the same semester. Use the <b>exact same name, batch and semester</b> as your Pretest.</p>
           </div>
         </div>
       </div>
@@ -18395,5 +18420,6 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
 
 })();
 </script>
+<script src="physiq-v2-ui.js"></script>
 </body>
 </html>
