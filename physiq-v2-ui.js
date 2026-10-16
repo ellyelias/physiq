@@ -144,6 +144,7 @@
       var a = $('.tab.active'), t = a ? a.getAttribute('data-tab') : 'guide';
       if (nav) Array.prototype.forEach.call(nav.querySelectorAll('button'), function (b) { b.classList.toggle('on', b.getAttribute('data-go') === t); });
       if (t === 'guide') renderHome();
+      if (a && a.scrollIntoView && window.matchMedia && window.matchMedia('(max-width:760px)').matches) { try { a.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {} }
     };
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) { t.addEventListener('click', function () { setTimeout(sync, 0); }); });
     sync();

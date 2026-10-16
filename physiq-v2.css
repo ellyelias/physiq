@@ -162,7 +162,11 @@ button{font-weight:600;font-size:14.5px;border-radius:12px;padding:11px 18px;}
   .masthead h1 span{display:none;}
   #semester-select{font-size:13.5px !important;padding:8px 30px 8px 12px !important;max-width:min(230px,60vw);}
   .v2-home{padding-top:18px;}
-  .tabs{display:none;}
+  /* every section stays one tap away: a scrolling row of tabs under the top bar */
+  .tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px;margin:10px -14px 14px;padding:2px 14px 4px;position:static;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{flex:none;white-space:nowrap;font-size:13.5px;padding:7px 12px;background:var(--paper);border:1px solid var(--line);}
+  .tab.active{background:var(--navy);border-color:var(--navy);}
   .card{padding:16px;border-radius:14px;}
   .v2-intro h2{font-size:27px;}
   .v2-intro p{font-size:15.5px;}
