@@ -67,10 +67,11 @@ button{font-weight:600;font-size:14.5px;border-radius:12px;padding:11px 18px;}
 
 /* answers: navy marks the student's choice; green and red keep their usual meaning */
 .choice,.rchoice{border:1px solid #DCD3BF;border-radius:14px;padding:13px 16px;font-weight:500;background:var(--paper);}
-.choice:hover:not(:disabled),.rchoice:hover:not(:disabled){border-color:var(--teal);}
-.choice.picked,.rchoice.picked,.ps-opt.picked,.pt-opt.picked{border-color:var(--navy);background:#DCE6D6;color:var(--navy);box-shadow:inset 4px 0 0 var(--navy);}
-.choice.correct{box-shadow:inset 4px 0 0 var(--green);}
-.choice.incorrect{box-shadow:inset 4px 0 0 var(--red);}
+.choice:hover:not(:disabled),.rchoice:hover:not(:disabled){border-color:#A99C80;}
+.choice.picked:hover:not(:disabled),.rchoice.picked:hover:not(:disabled){border-color:#B08A2E;}
+.choice.picked,.rchoice.picked,.ps-opt.picked,.pt-opt.picked{border-color:#B08A2E;background:#F6ECD2;color:#4F3D0E;box-shadow:inset 4px 0 0 #B08A2E;}
+.choice.correct,.ps-opt.correct,.pt-opt.correct{border-color:var(--green);background:var(--green-tint);color:#1F5A30;box-shadow:inset 4px 0 0 var(--green);}
+.choice.incorrect,.ps-opt.incorrect,.pt-opt.incorrect{border-color:var(--red);background:var(--red-tint);color:#7E241F;box-shadow:inset 4px 0 0 var(--red);}
 .progress-track{height:6px;border-radius:6px;background:#E7DFCD;}
 .score-num{font-family:var(--ui);font-weight:800;letter-spacing:-.03em;}
 .qitem,.sq-row,.sp,.pa-item,.qa-sem,.mm-card,.topic-check,#notes-content details.mm,#notes-content details.dv,#notes-content .tf-fig{border-radius:14px;background:var(--paper);}
@@ -205,3 +206,6 @@ button{font-weight:600;font-size:14.5px;border-radius:12px;padding:11px 18px;}
   .v2-sec-h h3{font-size:21px;}
   .v2-stat .v{font-size:29px;}
 }
+/* answer buttons: the focus ring matches the chosen-answer colour, so it never reads as "wrong" */
+.choice:focus-visible,.rchoice:focus-visible,.ps-opt:focus-visible,.pt-opt:focus-visible{outline:2px solid #7A6420;outline-offset:2px;}
+.choice:focus:not(:focus-visible),.rchoice:focus:not(:focus-visible){outline:none;}
