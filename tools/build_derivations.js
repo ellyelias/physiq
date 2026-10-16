@@ -64,7 +64,7 @@ svg.inf{width:1.3em;height:.65em;vertical-align:-.04em;fill:none;stroke:currentC
 function sheet(sem, num, name, items) {
   const cards = items.map(([code, title, result, steps, fig, note], i) => {
     const c = COLORS[i % COLORS.length];
-    return `<section class="card" style="--c:${c}"><h2><span class="no">${i + 1}</span><span>${title}</span><span class="code">${code}</span></h2><div class="bd">
+    return `<section class="card" style="--c:${c}"><h2><span class="no">${i + 1}</span><span>${title}</span><span class="code">Syllabus ${code}</span></h2><div class="bd">
 <div class="res"><span class="l">Result</span><span>${M(result)}</span></div>
 <div class="grid${fig ? ' f' : ''}"><ol>${steps.map(s => `<li>${M(s)}</li>`).join('')}</ol>${fig ? `<div class="fig">${fig}</div>` : ''}</div>
 ${note ? `<p class="note">${M(note)}</p>` : ''}</div></section>`;
@@ -85,7 +85,7 @@ ${cards}</body></html>`;
     for (const [num, name, items] of DV.SEM[sem] || []) {
       const id = derivAppChapter(sem, num);
       const f = path.join(TMP, id + '.html');
-      fs.writeFileSync(f, sheet(sem, num, name, items));
+      fs.writeFileSync(f, sheet(sem, sem === 1 ? num : Number(num) - 1, name, items)); // app chapter numbers (Sem 2 and 3 are one lower than the syllabus)
       await page.goto('file://' + f);
       await page.evaluate(() => document.fonts.ready);
       const out = path.join(OUT, `PhysiQ_Derivations_${id}.pdf`);

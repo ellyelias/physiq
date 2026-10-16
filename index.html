@@ -7699,7 +7699,7 @@ const NOTES_EXTRA = (function(){
   }
 
   // chapters that have a printable derivations sheet (downloads/derivations/*.pdf); kept up to date by tools/build_derivations.js
-  const DERIV_SHEETS = ["2","3","4","5","6","9","10","11"];
+  const DERIV_SHEETS = ["2","3","4","5","6","9","10","11","S3-19","S3-20","S3-21","S3-22","S3-23","S3-24","S3-25"];
   // Mind Maps tab: one card per chapter of the chosen semester
   function populateMindmapsPanel(){
     const grid = document.getElementById('mm-grid'), all = document.getElementById('mm-all');
@@ -7725,7 +7725,7 @@ const NOTES_EXTRA = (function(){
   }
 
   // chapters that have a printable poster mind map (assets/mindmaps/<id>.webp + downloads/mindmaps/*.pdf); kept up to date by tools/build_mindmaps.js
-  const MINDMAP_POSTERS = ["1","2","3","4","5","6","7","8","9","10","11","12","S2-18"];
+  const MINDMAP_POSTERS = ["1","2","3","4","5","6","7","8","9","10","11","12","S2-18","S3-19","S3-20","S3-21","S3-22","S3-23","S3-24","S3-25"];
   function mindmapHTML(key){
     const p = mmParse(key);
     if (p && MINDMAP_POSTERS.includes(p.ch)){

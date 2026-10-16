@@ -649,4 +649,338 @@ module.exports = K => ({
     tips: ['Convert peak values to r.m.s. before finding power.', 'Find $X_L$ or $X_C$ first, then $Z$, then $I$.', 'Draw the phasor (impedance) triangle: $R$ across, $X$ up, $Z$ hypotenuse.', 'State the phase relation in words: "current leads/lags voltage by …".'],
   },
 
+  'S3-19': {
+    hubTitle: 'Oscillations',
+    idea: '**Key idea:** in SHM the acceleration is proportional to the displacement and directed towards equilibrium.',
+    hubAt: 1,
+    boxes: [
+      { t: 'Simple harmonic motion', c: 'blue', col: 'L', body: [
+        ['svg', K.fig('S3-19.1', 0, 340)],
+        ['fs', [r`a = -\omega^2x`, r`F = -kx`]],
+        ['b', ['$a$ ∝ $x$, always towards the equilibrium point', '$\\omega = 2\\pi f = \\dfrac{2\\pi}{T}$', '$a$–$x$ graph: straight line, gradient $-\\omega^2$']],
+      ] },
+      { t: 'Kinematics of SHM', c: 'green', col: 'M', body: [
+        ['fs', [r`x = A\sin\omega t`, r`v = \omega A\cos\omega t`]],
+        ['f', r`v = \pm\omega\sqrt{A^2 - x^2}`],
+        ['fs', [r`v_{\max} = \omega A`, r`a_{\max} = \omega^2A`]],
+        ['p', '$x = A\\cos\\omega t$ if timing starts at an extreme.'],
+      ] },
+      { t: 'Energy in SHM', c: 'pink', col: 'R', body: [
+        ['svg', K.fig('S3-19.3', 0, 320)],
+        ['f', r`E = \tfrac12 m\omega^2A^2 = \tfrac12 kA^2`],
+        ['fs', [r`E_k = \tfrac12 m\omega^2(A^2 - x^2)`, r`E_p = \tfrac12 m\omega^2x^2`]],
+        ['p', 'Total energy ∝ (amplitude)²; $E_k = E_p$ at $x = A/\\sqrt2$.'],
+      ] },
+      { t: 'Systems in SHM', c: 'purple', col: 'L', body: [
+        ['sub', ['Mass–spring', ['fs', [r`T = 2\pi\sqrt{\dfrac mk}`, r`\omega = \sqrt{\dfrac km}`]]], '#7C3AED'],
+        ['sub', ['Simple pendulum (small θ)', ['f', r`T = 2\pi\sqrt{\dfrac Lg}`], ['p', 'Independent of mass and amplitude; $\\theta \\lesssim 10°$.']], '#0F766E'],
+        ['p', 'Springs: parallel $k = k_1 + k_2$; series $\\dfrac1k = \\dfrac1{k_1} + \\dfrac1{k_2}$'],
+      ] },
+      { t: 'Damped oscillation', c: 'orange', col: 'M', body: [
+        ['svg', K.fig('S3-19.5', 0, 330)],
+        ['kv', [['Light', 'oscillates, amplitude decays exponentially'], ['Critical', 'back to equilibrium fastest, no oscillation'], ['Heavy', 'slow return, no oscillation']]],
+        ['f', r`A = A_0e^{-bt}`],
+      ] },
+      { t: 'Forced oscillation & resonance', c: 'teal', col: 'R', body: [
+        ['svg', K.fig('S3-19.6', 0, 320)],
+        ['b', ['Forced: oscillates at the **driving** frequency', 'Resonance: $f_{\\text{driver}} = f_0$, maximum amplitude', 'More damping: lower, broader peak, shifted slightly to lower $f$']],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr', boxes: [
+        { t: 'Phase relationships', c: 'red', body: [
+          ['svg', K.fig('S3-19.2', 0, 380)],
+          ['p', '$v$ leads $x$ by $\\pi/2$; $a$ is in antiphase ($\\pi$) with $x$.'],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Calculator in degrees for $\\sin\\omega t$: use **radians**.', 'Saying the period depends on amplitude (it does not).', 'Pendulum length: to the **centre** of the bob.', 'Doubling $A$ doubles $v_{\\max}$ but **quadruples** $E$.', 'Speed is maximum at $x = 0$, acceleration at $x = \\pm A$.']],
+        ] },
+      ] },
+    ],
+    tips: ['Prove SHM by showing $a = -(\\text{constant})x$.', 'Identify $\\omega$ as the coefficient of $t$.', 'Use energy for speed at a given $x$.', 'Sketch $x$, $v$, $a$ graphs one under another, $T/4$ apart.'],
+  },
+
+  'S3-20': {
+    hubTitle: 'Wave Motion',
+    idea: '**Key idea:** a progressive wave carries energy without carrying matter; overlapping waves add.',
+    hubAt: 1,
+    boxes: [
+      { t: 'Progressive waves', c: 'blue', col: 'L', body: [
+        ['svg', K.fig('S3-20.1', 0, 340)],
+        ['fs', [r`v = f\lambda`, r`y = A\sin(\omega t - kx)`]],
+        ['b', ['$k = \\dfrac{2\\pi}{\\lambda}$, $v = \\dfrac{\\omega}{k}$', '$+kx$: travels in the $-x$ direction', 'Transverse: ⟂ to travel; longitudinal: ∥']],
+      ] },
+      { t: 'Phase difference', c: 'green', col: 'M', body: [
+        ['fs', [r`\phi = \dfrac{2\pi}{\lambda}\Delta x`, r`\phi = \dfrac{2\pi}{T}\Delta t`]],
+        ['p', 'In phase: $\\Delta x = n\\lambda$. Antiphase: $\\Delta x = (n + \\tfrac12)\\lambda$.'],
+      ] },
+      { t: 'Intensity', c: 'pink', col: 'R', body: [
+        ['svg', K.fig('S3-20.2', 0, 300)],
+        ['fs', [r`I = \dfrac{P}{4\pi r^2}`, r`I \propto A^2`]],
+        ['p', 'Power per unit area, W m⁻². Point source: $I \\propto 1/r^2$ so $A \\propto 1/r$.'],
+      ] },
+      { t: 'Superposition', c: 'purple', col: 'L', body: [
+        ['svg', K.fig('S3-20.3', 0, 320)],
+        ['kv', [['Constructive', 'path difference $n\\lambda$'], ['Destructive', 'path difference $(n + \\tfrac12)\\lambda$']]],
+        ['p', '**Coherent:** same frequency, constant phase difference.'],
+      ] },
+      { t: 'Standing waves', c: 'orange', col: 'M', body: [
+        ['f', r`y = 2A\sin kx\,\cos\omega t`],
+        ['b', ['Two equal waves travelling in **opposite** directions', 'Node to node $= \\lambda/2$; node to antinode $= \\lambda/4$', 'String fixed both ends: $L = \\dfrac{n\\lambda}2$, $f_n = \\dfrac{nv}{2L}$']],
+        ['f', r`v = \sqrt{\dfrac{T}{\mu}}`],
+      ] },
+      { t: 'Electromagnetic waves', c: 'teal', col: 'R', body: [
+        ['svg', K.fig('S3-20.5', 0, 320)],
+        ['fs', [r`c = \dfrac{1}{\sqrt{\mu_0\varepsilon_0}}`, r`E_0 = cB_0`]],
+        ['p', '$E$ ⟂ $B$ ⟂ direction, in phase. Radio → microwave → IR → visible → UV → X-ray → γ (λ decreasing).'],
+      ] },
+    ],
+    rows: [
+      { cols: '1.15fr 1fr', boxes: [
+        { t: 'Progressive vs standing', c: 'red', body: [
+          ['tbl', [['', 'Progressive', 'Standing'], ['Energy', 'transferred', 'not transferred'], ['Amplitude', 'same everywhere', 'zero at nodes, max at antinodes'], ['Phase', 'changes along the wave', 'same within a loop; antiphase in next loop'], ['Wave profile', 'moves', 'does not move']]],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Node spacing is $\\lambda/2$, not $\\lambda$.', 'Reading $k$ as the wavelength; $\\lambda = 2\\pi/k$.', 'Doubling the distance quarters $I$ but halves $A$.', '$\\mu$ is mass per unit **length** (kg m⁻¹).']],
+        ] },
+      ] },
+    ],
+    tips: ['From $y = A\\sin(\\omega t - kx)$ read $A$, $\\omega$ and $k$ first.', 'Draw the harmonics with N and A labelled.', 'Use ratios for the inverse square law.', 'State the sources are coherent before discussing interference.'],
+  },
+
+  'S3-21': {
+    hubTitle: 'Sound Waves',
+    idea: '**Key idea:** sound is a longitudinal pressure wave; air columns and strings resonate at definite frequencies.',
+    hubAt: 1,
+    boxes: [
+      { t: 'Propagation of sound', c: 'blue', col: 'L', body: [
+        ['svg', K.fig('S3-21.1', 0, 340)],
+        ['fs', [r`v = \sqrt{\dfrac{\gamma RT}{M}}`, r`v = \sqrt{\dfrac{E}{\rho}}`]],
+        ['b', ['Longitudinal: compressions and rarefactions', 'Needs a medium; faster in solids', 'Gas: $v \\propto \\sqrt T$, independent of pressure']],
+      ] },
+      { t: 'Air columns', c: 'green', col: 'M', body: [
+        ['svg', K.fig('S3-21.2', 0, 340)],
+        ['tbl', [['Pipe', 'Ends', 'Harmonics', '$f_1$'], ['Open', 'A–A', 'all', '$v/2L$'], ['Closed', 'N–A', 'odd only', '$v/4L$']]],
+      ] },
+      { t: 'Intensity level', c: 'pink', col: 'R', body: [
+        ['f', r`\beta = 10\log_{10}\dfrac{I}{I_0}`],
+        ['b', ['$I_0 = 1.0\\times10^{-12}$ W m⁻² (threshold of hearing)', '+10 dB = intensity ×10; +3 dB ≈ ×2', '$N$ identical sources: $\\beta + 10\\log_{10}N$', 'Add intensities, **not** decibels']],
+      ] },
+      { t: 'Beats', c: 'purple', col: 'L', body: [
+        ['svg', K.fig('S3-21.4', 0, 320)],
+        ['fs', [r`f_{\text{beat}} = |f_1 - f_2|`, r`f = \dfrac{f_1 + f_2}{2}`]],
+        ['p', 'Loudness rises and falls as the waves move in and out of phase.'],
+      ] },
+      { t: 'Doppler effect', c: 'orange', col: 'M', body: [
+        ['f', r`f' = f\,\dfrac{v \pm v_o}{v \mp v_s}`],
+        ['b', ['Upper signs: **approaching** (frequency rises)', 'Speeds relative to the air', 'Moving reflector: apply twice (observer, then source)']],
+      ] },
+      { t: 'Strings & end correction', c: 'teal', col: 'R', body: [
+        ['f', r`f_n = \dfrac{n}{2L}\sqrt{\dfrac{T}{\mu}}`],
+        ['b', ['Node at each fixed end; all harmonics', 'Closed pipe: $L + e = \\dfrac{\\lambda}{4}$', 'Antinode lies slightly **beyond** the open end']],
+        ['svg', K.fig('S3-21.3', 0, 280)],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr', boxes: [
+        { t: 'Unit check', c: 'navy', body: [
+          ['tbl', [['Quantity', 'Formula', 'Unit'], ['Intensity', '$P/4\\pi r^2$', 'W m⁻²'], ['Intensity level', '$10\\log(I/I_0)$', 'dB'], ['Beat frequency', '$|f_1 - f_2|$', 'Hz'], ['Mass per length', '$\\mu$', 'kg m⁻¹']]],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Closed pipe has **odd** harmonics only: 1st, 3rd, 5th…', 'Adding dB values directly.', 'Using °C in $v \\propto \\sqrt T$.', 'Doppler: the wrong sign for approach.', 'Displacement node = pressure **antinode**.']],
+        ] },
+      ] },
+    ],
+    tips: ['Sketch the air column with N and A before using a formula.', 'Convert dB to intensity, add, then convert back.', 'Write $f\'$ formula with signs explained in words.', 'Use $v = 4f(L + e)$ for resonance-tube data.'],
+  },
+
+  'S3-22': {
+    hubTitle: 'Geometrical<br>Optics',
+    idea: '**Key idea:** mirrors and lenses form images by reflection and refraction; use the real-is-positive convention.',
+    hubAt: 1,
+    boxes: [
+      { t: 'Sign convention', c: 'blue', col: 'L', body: [
+        ['b', ['Real object, real image: **positive**', 'Virtual image: $v$ **negative**', 'Concave mirror, convex lens: $f > 0$', 'Convex mirror, concave lens: $f < 0$', '$m = -\\dfrac vu$: negative = inverted, positive = upright']],
+      ] },
+      { t: 'Spherical mirrors', c: 'green', col: 'M', body: [
+        ['svg', K.fig('S3-22.1', 0, 340)],
+        ['fs', [r`\dfrac1u + \dfrac1v = \dfrac1f`, r`f = \dfrac R2`]],
+      ] },
+      { t: 'Refraction at a curved surface', c: 'pink', col: 'R', body: [
+        ['svg', K.fig('S3-22.2', 0, 300)],
+        ['f', r`\dfrac{n_1}{u} + \dfrac{n_2}{v} = \dfrac{n_2 - n_1}{R}`],
+        ['b', ['$R > 0$ if the centre is on the **outgoing** side', 'Plane surface: apparent depth $= \\dfrac{\\text{real depth}}{n}$']],
+      ] },
+      { t: 'Image nature', c: 'purple', col: 'L', body: [
+        ['tbl', [['Object (converging)', 'Image'], ['$u > 2f$', 'real, inverted, diminished'], ['$u = 2f$', 'real, inverted, same size'], ['$f < u < 2f$', 'real, inverted, magnified'], ['$u < f$', 'virtual, upright, magnified']]],
+        ['p', 'Convex mirror / concave lens: always virtual, upright, diminished.'],
+      ] },
+      { t: 'Thin lenses', c: 'orange', col: 'M', body: [
+        ['svg', K.fig('S3-22.3', 0, 340)],
+        ['f', r`\dfrac1f = (n - 1)\left(\dfrac1{R_1} + \dfrac1{R_2}\right)`],
+        ['fs', [r`\dfrac1u + \dfrac1v = \dfrac1f`, r`P = \dfrac1f`]],
+        ['p', 'Biconvex: both $R$ positive. Power in dioptre (D), $f$ in metres.'],
+      ] },
+      { t: 'Useful results', c: 'teal', col: 'R', body: [
+        ['b', ['Lenses in contact: $\\dfrac1f = \\dfrac1{f_1} + \\dfrac1{f_2}$, $P = P_1 + P_2$', 'Same-size real image: $u = v = 2f$', 'Minimum object–image distance: $4f$', 'Mirror: $f$ does not depend on the medium; lens: $f$ does']],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr', boxes: [
+        { t: 'Ray-diagram rules', c: 'red', body: [
+          ['num', ['Ray parallel to the axis → through (or from) $F$.', 'Ray through the optical centre (lens) or $C$ (mirror) → undeviated / back on itself.', 'Ray through $F$ → emerges parallel to the axis.']],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Dropping the minus sign of a virtual image or a diverging lens.', 'Using $f = R$ instead of $R/2$ for a mirror.', 'Wrong sign of $R$ in the lensmaker\'s or surface equation.', 'Mixing cm and m when finding power in D.']],
+        ] },
+      ] },
+    ],
+    tips: ['State the sign convention at the start of the answer.', 'Draw a quick ray diagram to check the answer is sensible.', 'Use $m = -v/u$ and describe the image in three words.', 'Find each image in turn for two-lens systems.'],
+  },
+
+
+  'S3-23': {
+    hubTitle: 'Wave Optics',
+    idea: '**Key idea:** light shows interference, diffraction and polarisation, so it is a transverse wave.',
+    hubAt: 1,
+    boxes: [
+      { t: "Huygens's principle", c: 'blue', col: 'L', body: [
+        ['svg', K.fig('S3-23.1', 0, 320)],
+        ['p', 'Every point on a wavefront is a source of secondary wavelets; the new wavefront is their **envelope**.'],
+        ['f', r`n = \dfrac{c}{v} = \dfrac{\lambda_0}{\lambda}`],
+        ['p', 'On refraction $f$ is unchanged; $v$ and $\\lambda$ change.'],
+      ] },
+      { t: "Young's double slit", c: 'green', col: 'M', body: [
+        ['svg', K.fig('S3-23.2', 0, 320)],
+        ['fs', [r`x = \dfrac{\lambda D}{a}`, r`a\sin\theta = n\lambda`]],
+        ['b', ['Bright: path difference $n\\lambda$; dark: $(n+\\tfrac12)\\lambda$', 'White light: white centre, coloured fringes (violet nearest)']],
+      ] },
+      { t: 'Thin films', c: 'pink', col: 'R', body: [
+        ['svg', K.fig('S3-23.4', 0, 300)],
+        ['b', ['π phase change on reflection at a **denser** medium', 'Film in air (one change): bright $2nt = (m + \\tfrac12)\\lambda$', 'Coating on glass (two changes): dark $2nt = (m + \\tfrac12)\\lambda$', 'Minimum coating: $t = \\dfrac{\\lambda}{4n}$', 'Air wedge: $x = \\dfrac{\\lambda}{2\\theta}$, dark at contact']],
+      ] },
+      { t: 'Single-slit diffraction', c: 'purple', col: 'L', body: [
+        ['svg', K.fig('S3-23.5', 0, 320)],
+        ['fs', [r`a\sin\theta = m\lambda`, r`w = \dfrac{2\lambda D}{a}`]],
+        ['p', 'Minima ($m = 1, 2, …$). Central maximum twice as wide as the others.'],
+      ] },
+      { t: 'Diffraction grating', c: 'orange', col: 'M', body: [
+        ['svg', K.fig('S3-23.6', 0, 320)],
+        ['fs', [r`d\sin\theta = m\lambda`, r`d = \dfrac1N`]],
+        ['b', ['Highest order: largest integer below $d/\\lambda$', 'More lines: sharper, brighter maxima', 'Total maxima $= 2m_{\\max} + 1$']],
+      ] },
+      { t: 'Polarisation', c: 'teal', col: 'R', body: [
+        ['svg', K.fig('S3-23.7', 0, 320)],
+        ['fs', [r`I = I_0\cos^2\theta`, r`\tan\theta_B = n`]],
+        ['b', ['Unpolarised through a polariser: $I_0/2$', 'At $\\theta_B$: reflected and refracted rays at 90°', 'Only **transverse** waves can be polarised']],
+      ] },
+    ],
+    rows: [
+      { cols: '1.2fr 1fr', boxes: [
+        { t: 'Optical fibres', c: 'red', body: [
+          ['row', [[['svg', K.fig('S3-23.8', 0, 300)]], [['fs', [r`\sin\theta_c = \dfrac{n_2}{n_1}`, r`\text{NA} = \sqrt{n_1^2 - n_2^2}`]]]]],
+          ['p', 'Total internal reflection: $n_{\\text{core}} > n_{\\text{cladding}}$, angle > $\\theta_c$. Modal dispersion spreads pulses; attenuation $= \\dfrac{10}{L}\\log\\dfrac{P_{\\text{in}}}{P_{\\text{out}}}$ dB per unit length.'],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Mixing $a$ (slit separation or width) with $d$ (grating spacing).', 'Forgetting the extra λ/2 from a reflection at a denser medium.', 'Lines per mm → lines per m before $d = 1/N$.', 'Using Malus\'s law on **unpolarised** light.', 'Single slit: $a\\sin\\theta = m\\lambda$ gives **minima**.']],
+        ] },
+      ] },
+    ],
+    tips: ['State "coherent sources" and the path-difference condition.', 'For thin films, count the phase changes first.', 'Check $\\sin\\theta \\le 1$ for the highest grating order.', 'Fringe spacing ∝ λ: red fringes are wider than blue.'],
+  },
+
+  'S3-24': {
+    hubTitle: 'Quantum<br>Physics',
+    idea: '**Key idea:** light comes in photons of energy $hf$, and moving particles behave as waves of wavelength $h/p$.',
+    hubAt: 1,
+    boxes: [
+      { t: 'Photon', c: 'blue', col: 'L', body: [
+        ['fs', [r`E = hf = \dfrac{hc}{\lambda}`, r`p = \dfrac{h}{\lambda}`]],
+        ['b', ['A quantum (packet) of electromagnetic energy', '1 eV $= 1.60\\times10^{-19}$ J', '$E$ (eV) ≈ 1240 ÷ λ (nm)']],
+      ] },
+      { t: 'Photoelectric effect', c: 'green', col: 'M', body: [
+        ['svg', K.fig('S3-24.1', 0, 320)],
+        ['fs', [r`hf = \phi + K_{\max}`, r`eV_s = K_{\max}`]],
+        ['p', 'Graph of $K_{\\max}$ against $f$: gradient $h$, $f$-intercept $f_0 = \\phi/h$.'],
+      ] },
+      { t: 'Wave–particle duality', c: 'pink', col: 'R', body: [
+        ['svg', K.fig('S3-24.2', 0, 280)],
+        ['f', r`\lambda = \dfrac{h}{p} = \dfrac{h}{\sqrt{2mK}} = \dfrac{h}{\sqrt{2meV}}`],
+        ['p', 'Electron diffraction rings show the wave nature of electrons.'],
+      ] },
+      { t: 'Wave theory fails', c: 'purple', col: 'L', body: [
+        ['num', ['There is a **threshold frequency** $f_0$.', '$K_{\\max}$ depends on frequency, **not** intensity.', 'Emission is **instantaneous**.', 'Intensity changes only the number of photoelectrons.']],
+      ] },
+      { t: 'Atomic structure', c: 'orange', col: 'M', body: [
+        ['svg', K.fig('S3-24.3', 0, 320)],
+        ['fs', [r`E_n = -\dfrac{13.6}{n^2}\ \text{eV}`, r`hf = E_i - E_f`]],
+        ['p', 'Lyman → $n = 1$ (UV); Balmer → $n = 2$ (visible); Paschen → $n = 3$ (IR). Bohr: $mvr = \\dfrac{nh}{2\\pi}$.'],
+      ] },
+      { t: 'X-rays', c: 'teal', col: 'R', body: [
+        ['svg', K.fig('S3-24.4', 0, 300)],
+        ['fs', [r`\lambda_{\min} = \dfrac{hc}{eV}`, r`2d\sin\theta = n\lambda`]],
+        ['b', ['Continuous spectrum: braking (bremsstrahlung)', 'Sharp lines: characteristic of the target', 'Bragg angle $\\theta$ is measured from the **planes**']],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr', boxes: [
+        { t: 'Nanoscience', c: 'red', body: [
+          ['b', ['Size 1–100 nm; huge surface-area-to-volume ratio ($3/r$ for a sphere)', 'Quantum confinement: $E_n = \\dfrac{n^2h^2}{8mL^2}$, smaller dot → bluer light', 'STM: tunnelling current depends exponentially on the gap']],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Using eV in $hf = \\phi + K$ while $h$ is in J s.', 'Saying brighter light gives faster photoelectrons.', 'Forgetting energy levels are **negative**.', 'Using the electron mass for a proton in $\\lambda = h/p$.', '$\\lambda_{\\min}$ depends on the voltage, not the target.']],
+        ] },
+      ] },
+    ],
+    tips: ['Convert every energy to joules (or every one to eV) before substituting.', 'Draw the transition arrow on the level diagram.', 'For $\\lambda_{\\min}$, all the electron KE becomes one photon.', 'Quote $h = 6.63\\times10^{-34}$ J s.'],
+  },
+
+  'S3-25': {
+    hubTitle: 'Nuclear<br>Physics',
+    idea: '**Key idea:** the mass defect of a nucleus is its binding energy; unstable nuclei decay randomly.',
+    hubAt: 1,
+    boxes: [
+      { t: 'The nucleus', c: 'blue', col: 'L', body: [
+        ['f', r`{}^{A}_{Z}\text{X}`],
+        ['b', ['$Z$: protons; $A$: nucleons; $N = A - Z$', 'Isotopes: same $Z$, different $A$', '$R = R_0A^{1/3}$, $R_0 \\approx 1.2$ fm', 'Nuclear density the same for all nuclei']],
+      ] },
+      { t: 'Mass defect & binding energy', c: 'green', col: 'M', body: [
+        ['f', r`\Delta m = Zm_p + (A - Z)m_n - m_{\text{nucleus}}`],
+        ['fs', [r`B = \Delta m\,c^2`, r`1\ \text{u} = 931.5\ \text{MeV}`]],
+        ['p', 'Binding energy: energy needed to separate a nucleus into its nucleons.'],
+      ] },
+      { t: 'Binding energy per nucleon', c: 'pink', col: 'R', body: [
+        ['svg', K.fig('S3-25.1', 0, 340)],
+        ['b', ['Peak ≈ 8.8 MeV near ⁵⁶Fe: most stable', 'Light nuclei → **fusion**; heavy nuclei → **fission**']],
+      ] },
+      { t: 'Radioactive decay', c: 'purple', col: 'L', body: [
+        ['tbl', [['Emission', 'Change'], ['α (⁴₂He)', '$A - 4$, $Z - 2$'], ['β⁻', '$A$ same, $Z + 1$'], ['γ', 'no change']]],
+        ['b', ['**Spontaneous**: not affected by conditions', '**Random**: cannot predict which nucleus decays next']],
+      ] },
+      { t: 'Decay law', c: 'orange', col: 'M', body: [
+        ['svg', K.fig('S3-25.2', 0, 320)],
+        ['fs', [r`N = N_0e^{-\lambda t}`, r`A = \lambda N`]],
+        ['fs', [r`t_{1/2} = \dfrac{\ln 2}{\lambda}`, r`N = N_0\left(\tfrac12\right)^{t/t_{1/2}}`]],
+        ['p', '$\\ln A$ against $t$: straight line, gradient $-\\lambda$. Activity in Bq.'],
+      ] },
+      { t: 'Nuclear reactions', c: 'teal', col: 'R', body: [
+        ['svg', K.fig('S3-25.3', 0, 320)],
+        ['f', r`Q = \left(\textstyle\sum m_{\text{reactants}} - \sum m_{\text{products}}\right)c^2`],
+        ['p', 'Conserved: $A$, $Z$ (charge), energy, momentum. $Q > 0$: energy released.'],
+      ] },
+    ],
+    rows: [
+      { cols: '1.15fr 1fr', boxes: [
+        { t: 'Fission vs fusion', c: 'red', body: [
+          ['tbl', [['', 'Fission', 'Fusion'], ['Process', 'heavy nucleus splits (e.g. ²³⁵U + n)', 'light nuclei join (e.g. ²H + ³H)'], ['Needs', 'slow neutron; chain reaction', 'very high temperature'], ['Energy', '≈ 200 MeV per fission', 'more per kg of fuel'], ['Why', 'products have higher B/A', 'products have higher B/A']]],
+        ] },
+        { t: 'Common Section A traps', c: 'amber', body: [
+          ['b', ['Using total binding energy instead of **per nucleon** for stability.', 'Forgetting electron masses when using atomic masses.', 'Taking $t_{1/2} = \\lambda\\ln2$ (it is $\\ln2/\\lambda$).', 'Mixing u, kg and MeV in one line.', 'Time in years with $\\lambda$ in s⁻¹.']],
+        ] },
+      ] },
+    ],
+    tips: ['Balance $A$ and $Z$ before finding $Q$.', 'Use 1 u = 931.5 MeV to skip $c^2$.', 'Count half-lives when $t$ is a whole multiple of $t_{1/2}$.', 'Answer "why energy is released" with binding energy per nucleon.'],
+  },
+
+
 });
