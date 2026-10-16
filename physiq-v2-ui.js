@@ -157,8 +157,18 @@
     if (b.hasAttribute('data-ch')) openChapter(b.getAttribute('data-ch')); else go(b.getAttribute('data-go'));
   });
 
+  // phones: the semester picker shows "Semester N" so the label is never cut off
+  function semLabels() {
+    var sel = $('#semester-select'); if (!sel) return;
+    var narrow = window.matchMedia && window.matchMedia('(max-width:760px)').matches;
+    Array.prototype.forEach.call(sel.options, function (o) {
+      if (!o.getAttribute('data-full')) o.setAttribute('data-full', o.textContent);
+      o.textContent = narrow ? 'Semester ' + o.value : o.getAttribute('data-full');
+    });
+  }
   function start() {
     layout();
+    semLabels(); window.addEventListener('resize', semLabels);
     var lc = $('#learn-ch');
     if (lc && window.MutationObserver) new MutationObserver(function () { renderHome(); }).observe(lc, { childList: true });
     var ss = $('#semester-select'); if (ss) ss.addEventListener('change', function () { setTimeout(renderHome, 60); });
