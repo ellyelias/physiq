@@ -10825,7 +10825,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       'p–V graph: isotherms 300 K and T; process R along 300 K from 300 cm³ to 400 cm³ at 4.0 × 10⁵ Pa, process S from P′ at 300 cm³ to the same final state');
     return o; })();
 
-  PFIG["2025"] = (() => { const {L, D, W, T, I, A, AA, R, C, E, P, dot, svg, fn, path, hatch, vhatch} = PF; const o = {};
+  PFIG["2025"] = (() => { const {L, D, W, T, I, A, AA, R, C, E, P, dot, svg, fn, path, hatch, vhatch, MA} = PF; const o = {};
     const ax = (yl, body, lab) => svg(260, 190, A(40, 170, 250, 170) + A(40, 170, 40, 8) + I(32, 20, yl, 'end') + T(34, 184, '0', 'end', 'sm') + I(244, 186, 't', 'end') + body, lab);
     o.q2 = ax('v', W([40, 110], [100, 110], [150, 40], [200, 170]) + D(100, 110, 100, 170) + D(150, 40, 150, 170), 'v constant, then increases linearly to a maximum, then decreases linearly to zero');
     o.q2oA = ax('s', fn(x => x < 60 ? 0.35 * (x / 60) ** 2.5 : x < 120 ? 0.35 + 0.65 * Math.sin((x - 60) / 60 * Math.PI / 2) : Math.cos((x - 120) / 50 * Math.PI / 2) ** 0.7, 0, 170, (x, v) => [40 + x, 170 - 130 * v]) + D(100, 125, 100, 170) + D(160, 40, 160, 170), 's rises slowly, then steeply to a maximum, then falls back to zero');
@@ -10846,12 +10846,16 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     o.q9oB = f4([8, -75, 20], p => dl(p, [0, 60, 0], [-100, 60, 0]) + dl(p, [0, 60, 0], [0, 60, -90]) + dl(p, [0, 60, -90], [-100, 60, -90]).replace(/dash/, 'dash') + dl(p, [-100, 60, 0], [-100, 60, -90]), 'F4 points mainly downwards (−y) with small +x and +z parts; a dashed square drawn above Q');
     o.q9oC = f4([0, -90, 25], p => dl(p, [0, -60, 0], [-100, -60, 0]) + dl(p, [0, -60, 0], [0, -60, 100]) + dl(p, [-100, -60, 0], [-100, -60, 100]) + dl(p, [0, -60, 100], [-100, -60, 100]), 'F4 points mainly downwards (−y) with a small +z part; a dashed square drawn below Q');
     o.q9oD = f4([10, 90, -25], p => dl(p, [0, 55, 0], [-100, 55, 0]) + dl(p, [0, 55, 0], [100, 55, 0]) + dl(p, [-100, 55, 0], [-100, 55, -60]) + dl(p, [10, 55, -25], [10, 90, -25]), 'F4 points mainly upwards (+y) with small +x and −z parts');
-    const iso = k => x => 180 - k / x, t1 = iso(10000), t2 = iso(6200);
+    const iso = (a, k) => x => a - k / (x - 40), t1 = iso(125, 3000), t2 = iso(165, 2400);
     o.q13 = svg(290, 200, A(40, 180, 280, 180) + A(40, 180, 40, 8) + I(32, 20, 'p', 'end') + I(272, 196, 'V', 'end') +
       fn(t1, 80, 250, (x, y) => [x, y]) + fn(t2, 60, 250, (x, y) => [x, y]) + T(256, t1(250) - 4, sub('T', '1'), 'start', 'sm') + T(256, t2(250) + 4, sub('T', '2'), 'start', 'sm') +
-      P(`M170 ${t1(170)} Q 178 ${(t1(170) + t2(200)) / 2 - 4} 200 ${t2(200)}`, 'nofill') + P(`M120 ${t2(120)} Q 110 ${(t2(120) + t1(105)) / 2} 105 ${t1(105)}`, 'nofill') +
-      A(135, t1(135), 150, t1(150)) + A(160, t2(160), 145, t2(145)) + A(183, (t1(170) + t2(200)) / 2, 186, (t1(170) + t2(200)) / 2 + 8) + A(112, (t2(120) + t1(105)) / 2 + 4, 110, (t2(120) + t1(105)) / 2 - 6) +
-      I(140, t1(140) - 8, 'P') + I(194, (t1(170) + t2(200)) / 2, 'Q', 'start') + I(150, t2(150) + 18, 'R') + I(104, (t2(120) + t1(105)) / 2 + 4, 'S', 'end'),
+      (() => { const Qc = [170, t1(170), 171, t2(200) - 10, 200, t2(200)], Sc = [120, t2(120), 110, (t2(120) + t1(105)) / 2, 105, t1(105)];
+        const bz = (c, t) => [(1 - t) ** 2 * c[0] + 2 * (1 - t) * t * c[2] + t * t * c[4], (1 - t) ** 2 * c[1] + 2 * (1 - t) * t * c[3] + t * t * c[5]];
+        const on = (c, t) => MA(...bz(c, t - 0.04), ...bz(c, t + 0.04)), iso = (f, x0, x1) => MA(x0, f(x0), x1, f(x1));
+        const [qx, qy] = bz(Qc, 0.5), [sx, sy] = bz(Sc, 0.5);
+        return P(`M${Qc[0]} ${Qc[1]} Q ${Qc[2]} ${Qc[3]} ${Qc[4]} ${Qc[5]}`, 'nofill') + P(`M${Sc[0]} ${Sc[1]} Q ${Sc[2]} ${Sc[3]} ${Sc[4]} ${Sc[5]}`, 'nofill') +
+          iso(t1, 138, 146) + iso(t2, 156, 148) + on(Qc, 0.5) + on(Sc, 0.5) +
+          I(140, t1(140) - 9, 'P') + I(qx + 9, qy + 6, 'Q', 'start') + I(152, t2(152) + 18, 'R') + I(sx + 8, sy + 6, 'S', 'start'); })(),
       'Two isotherms T1 (upper) and T2 (lower); cycle P along T1 to the right, Q down to T2, R along T2 to the left, S back up to T1');
     o.q15 = svg(400, 150, R(10, 20, 70, 110, 'nofill') + T(45, 80, '60 °C', 'middle', 'sm') + R(320, 20, 70, 110, 'nofill') + T(355, 80, '30 °C', 'middle', 'sm') +
       R(80, 40, 240, 6, 'shade') + R(80, 40, 240, 6, 'nofill') + I(200, 32, 'X') + R(80, 76, 240, 22, 'shade') + R(80, 76, 240, 22, 'nofill') + I(200, 70, 'Y'),
