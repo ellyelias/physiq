@@ -6444,6 +6444,7 @@ const NOTES_EXTRA = (function(){
     const sem = currentSemester;
     let html = `<optgroup label="Section A guide — traps &amp; tricks"><option value="GUIDE-${sem}">${escapeHtml(NOTES_EXTRA.titles['GUIDE-'+sem] || 'Section A Guide')}</option></optgroup>`;
     if (sem === '1') html += `<optgroup label="Sections B &amp; C guides">${Object.keys(EXTRA_NOTES).map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('')}</optgroup>`;
+    html += `<optgroup label="Quick lists · Semester ${sem}"><option value="FORMULA-${sem}">Formula list · Semester ${sem}</option><option value="DEFS-${sem}">Definition list · Semester ${sem}</option></optgroup>`;
     html += `<optgroup label="Syllabus derivations (STPM 2026)"><option value="DERIV-${sem}">All derivations · Semester ${sem} (${derivCount(Number(sem))})</option></optgroup>`;
     const groups = {};
     TOPICS.forEach(t=>{
@@ -6520,10 +6521,46 @@ const NOTES_EXTRA = (function(){
       .replace(/√\u2060?\(((?:[^()<]|<[^>]*>)*)\)/g,'<span class="sqrt sq2"><span class="rs">√</span><span class="rad">$1</span></span>');
   }
 
+  // ---------- quick lists: every formula / definition of a semester, taken from the notes ----------
+  function quickListData(){
+    const chapters = [];
+    TOPICS.forEach(t => {
+      const body = NOTES_CONTENT[t] || '';
+      const g = chapterGroupLabel(t);
+      let ch = chapters.find(c => c.label === g); if (!ch){ ch = { label: g, topics: [] }; chapters.push(ch); }
+      const defs = [], rows = [];
+      const dm = body.match(/<h3>Definitions[^<]*<\/h3>\s*<ul>([\s\S]*?)<\/ul>/);
+      if (dm) (dm[1].match(/<li>[\s\S]*?<\/li>/g) || []).forEach(li => defs.push(li.replace(/^<li>|<\/li>$/g, '')));
+      const fm = body.match(/<h3>Formulae<\/h3>[\s\S]*?<tbody>([\s\S]*?)<\/tbody>/);
+      if (fm) (fm[1].match(/<tr>[\s\S]*?<\/tr>/g) || []).forEach(tr => rows.push([...tr.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map(m => m[1])));
+      ch.topics.push({ name: t.replace(/^S[23]-/, ''), defs, rows });
+    });
+    return chapters;
+  }
+  function quickListPage(key){
+    const [kind, sem] = key.split('-'), isF = kind === 'FORMULA', data = quickListData();
+    const total = data.reduce((n, c) => n + c.topics.reduce((m, t) => m + (isF ? t.rows.length : t.defs.length), 0), 0);
+    let h = `<h2>${isF ? 'Formula list' : 'Definition list'} · Semester ${sem}</h2>
+      <p class="ql-intro">${total} ${isF ? 'formulas, each with its symbols, units and conditions' : 'definitions, laws and statements, with the key words the marking scheme looks for in bold'}, chapter by chapter. Taken from the notes, so it always matches them.</p>`;
+    data.forEach(ch => {
+      const items = ch.topics.filter(t => (isF ? t.rows : t.defs).length);
+      if (!items.length) return;
+      h += `<section class="ql-ch"><h3 class="ql-chh">${escapeHtml(ch.label)}</h3>`;
+      items.forEach(t => {
+        h += `<h4 class="ql-topic">${escapeHtml(t.name)}</h4>`;
+        if (isF) h += `<ol class="ql-f">${t.rows.map(r => `<li><span class="ql-q">${r[0] || ''}</span><span class="ql-eq">${mathify(r[1] || '')}</span><span class="ql-sym">${mathify(r[2] || '')}</span></li>`).join('')}</ol>`;
+        else h += `<ol class="ql-d">${t.defs.map(d => `<li>${mathify(d)}</li>`).join('')}</ol>`;
+      });
+      h += `</section>`;
+    });
+    return h;
+  }
+
   function updateNotesDownloads(key){
     try{
       let sem = 1, ch = null;
       if (key.indexOf('GUIDE-') === 0) sem = parseInt(key.slice(6), 10) || 1;
+      else if (/^(FORMULA|DEFS)-/.test(key)) sem = parseInt(key.split('-')[1], 10) || 1;
       else {
         sem = key.indexOf('S2-') === 0 ? 2 : key.indexOf('S3-') === 0 ? 3 : 1;
         const m = key.match(/^(?:S[23]-)?(\d+)\./); if (m) ch = parseInt(m[1], 10);
@@ -6531,7 +6568,9 @@ const NOTES_EXTRA = (function(){
       const c = document.getElementById('dl-chapter'), f = document.getElementById('dl-semester');
       if (f){ f.href = 'downloads/PhysiQ_Sem' + sem + '_Notes.pdf'; f.textContent = 'Full Semester ' + sem + ' notes'; }
       if (c){
-        if (ch){ c.href = 'downloads/PhysiQ_Sem' + sem + '_Ch' + String(ch).padStart(2, '0') + '.pdf'; c.textContent = 'Chapter ' + ch; c.style.display = ''; }
+        const ql = key.match(/^(FORMULA|DEFS)-(\d)/);
+        if (ql){ c.href = 'downloads/PhysiQ_Sem' + ql[2] + (ql[1] === 'FORMULA' ? '_Formula_List.pdf' : '_Definition_List.pdf'); c.textContent = ql[1] === 'FORMULA' ? 'Formula list' : 'Definition list'; c.style.display = ''; }
+        else if (ch){ c.href = 'downloads/PhysiQ_Sem' + sem + '_Ch' + String(ch).padStart(2, '0') + '.pdf'; c.textContent = 'Chapter ' + ch; c.style.display = ''; }
         else c.style.display = 'none';
       }
     }catch(e){}
@@ -6540,6 +6579,7 @@ const NOTES_EXTRA = (function(){
   function renderNotesContent(){
     const key = $('#notes-topic-select').value;
     if (key.indexOf('DERIV-') === 0){ $('#notes-content').innerHTML = derivPage(key); updateNotesDownloads('GUIDE-' + key.split('-')[1]); return; }
+    if (/^(FORMULA|DEFS)-/.test(key)){ $('#notes-content').innerHTML = quickListPage(key); updateNotesDownloads(key); return; }
     let title = key, body;
     if (key.indexOf('GUIDE-') === 0){
       title = NOTES_EXTRA.titles[key] || 'Section A Guide';
@@ -6558,7 +6598,7 @@ const NOTES_EXTRA = (function(){
     const key = $('#notes-topic-select').value;
     if (EXTRA_NOTES[key]){ $$('.tab').find(t=>t.dataset.tab==='structured').click(); window.scrollTo({top:0, behavior:'smooth'}); return; }
     let wanted;
-    if (key.indexOf('GUIDE-') === 0 || key.indexOf('DERIV-') === 0) wanted = TOPICS.slice();
+    if (key.indexOf('GUIDE-') === 0 || key.indexOf('DERIV-') === 0 || /^(FORMULA|DEFS)-/.test(key)) wanted = TOPICS.slice();
     else wanted = [key];
     $$('.tab').forEach(t=>t.classList.remove('active'));
     const studentTab = $$('.tab').find(t=>t.dataset.tab==='student');

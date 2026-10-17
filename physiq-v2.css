@@ -237,3 +237,21 @@ button{font-weight:600;font-size:14.5px;border-radius:12px;padding:11px 18px;}
   #learn-body .ftable tbody tr:nth-child(even) td{background:inherit;}
   #learn-body .ftable td:nth-child(3){padding-bottom:10px;}
 }
+
+/* Notes: quick lists (formula list, definition list) */
+#notes-content .ql-intro{color:var(--sub);margin:-4px 0 14px;}
+#notes-content .ql-ch{margin:0 0 18px;counter-reset:q;}
+#notes-content .ql-chh{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--navy);text-transform:none;letter-spacing:0;border:0;padding:10px 0 6px;margin:14px 0 6px;border-bottom:2px solid var(--orange);}
+#notes-content .ql-topic{font-size:14px;font-weight:700;color:var(--orange);margin:12px 0 6px;}
+#notes-content ol.ql-f,#notes-content ol.ql-d{margin:0;padding:0;list-style:none;}
+#notes-content ol.ql-f li{counter-increment:q;display:grid;grid-template-columns:2em minmax(0,1fr) minmax(0,1.25fr) minmax(0,1.4fr);gap:4px 12px;align-items:baseline;padding:8px 6px;border-bottom:1px solid var(--line);}
+#notes-content ol.ql-f li::before,#notes-content ol.ql-d li::before{content:counter(q);font-weight:700;color:var(--orange);font-variant-numeric:tabular-nums;}
+#notes-content .ql-q{font-weight:700;color:var(--navy);}
+#notes-content .ql-eq{font-size:15.5px;}
+#notes-content .ql-sym{font-size:13px;color:var(--sub);}
+#notes-content ol.ql-d li{counter-increment:q;display:grid;grid-template-columns:2em minmax(0,1fr);gap:0 8px;padding:7px 6px;border-bottom:1px solid var(--line);line-height:1.55;}
+@media (max-width:600px){
+  #notes-content ol.ql-f li{grid-template-columns:1.8em minmax(0,1fr);}
+  #notes-content ol.ql-f li .ql-eq,#notes-content ol.ql-f li .ql-sym{grid-column:2;}
+  #notes-content ol.ql-f li .ql-eq{background:#F5F0E2;border-radius:8px;padding:6px 10px;overflow-x:auto;}
+}
