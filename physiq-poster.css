@@ -1,0 +1,148 @@
+/* PhysiQ poster theme (after the SUSeSS "Aspirasi PERMATA" poster): deep green with a lime swoosh,
+   lime-yellow tag headings with a violet chevron, violet / lilac blocks, orange pills, bold condensed titles.
+   Loaded after physiq-v2.css and changes colours, type and surfaces only. Remove the <link> to go back to V2. */
+:root{
+  --pg-dark:#1D2B1F; --pg-dark-2:#283A28; --lime:#9CBB35; --lime-deep:#6E8C22; --tagy:#D5DC3B; --tagy-ink:#26301A;
+  --violet-b:#6A63EC; --violet-d:#4A42C9; --lilac:#B7A2F0; --lilac-tint:#EEEAFD; --orange-p:#F2661B;
+  --navy:#1D2B1F; --navy-tint:#EEF2E2;
+  --orange:#F2661B; --orange-tint:#FDE7D8;
+  --teal:#6A63EC; --teal-ink:#4A42C9;
+  --ink:#1C2230; --sub:#5A6170; --line:#E3E6D8; --paper:#FFFFFF; --bg:#F5F6EE;
+  --violet:#6A63EC; --violet-tint:#EEEAFD; --amber:#8A7A10; --amber-tint:#F6F7D5; --blue:#6A63EC; --blue-tint:#EEEAFD;
+  --green:#2F7D3A; --green-tint:#E3F1DF;
+  --hero-a:#1D2B1F; --hero-b:#283A28;
+  --shadow:0 1px 2px rgba(29,43,31,.06), 0 8px 22px rgba(29,43,31,.07);
+  --display:"Anton", "Oswald", "Arial Narrow", Impact, sans-serif;
+  --head:"Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  --script:"Dancing Script", "Brush Script MT", cursive;
+}
+html,body{background:var(--bg);}
+::selection{background:#E4E9A6;}
+
+/* type: condensed headings instead of the V2 serif */
+.masthead h1,.card h2,.v2-intro h2,.v2-sec-h h3,#notes-content h2,#learn-content h2,.mm-name,.v2-step-body h3,
+.v2-stat .v,.score-num,.v2-ring text:first-of-type,.v2-step-no,#notes-content .ql-chh{font-family:var(--head);letter-spacing:0;}
+
+/* ---------- top bar: deep green ---------- */
+.masthead{background:var(--pg-dark);border-bottom:0;box-shadow:0 2px 0 var(--lime);}
+.masthead h1{font-family:var(--head);font-weight:700;font-size:26px;color:#fff;letter-spacing:.01em;}
+.masthead h1 span{font-family:var(--script) !important;font-style:normal !important;font-weight:700 !important;color:var(--tagy) !important;font-size:19px !important;margin-left:6px;}
+#semester-select{background-color:#fff !important;border:0 !important;color:var(--pg-dark) !important;border-radius:999px !important;}
+
+/* ---------- tabs: active tab is the lime-yellow tag ---------- */
+.tab{border-radius:999px;color:var(--sub);font-weight:600;}
+.tab:hover{background:#EBEFD3;color:var(--pg-dark);}
+.tab.active{background:var(--tagy);border-color:var(--tagy);color:var(--tagy-ink);box-shadow:inset 0 -2px 0 rgba(0,0,0,.08);}
+
+/* ---------- surfaces ---------- */
+.card{border:0;border-radius:20px;box-shadow:var(--shadow);}
+/* card titles read like the poster's tags: lime-yellow block with a violet chevron */
+.card > h2:first-child,.v2-sec-h h3{display:inline-flex;align-items:center;gap:10px;background:var(--tagy);color:var(--tagy-ink);
+  font-family:var(--head);font-weight:600;font-size:19px;text-transform:uppercase;letter-spacing:.02em;line-height:1.2;padding:6px 16px 6px 12px;border-radius:10px;margin:0 0 14px;max-width:100%;}
+.card > h2:first-child::before,.v2-sec-h h3::before{content:"";flex:none;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:13px solid var(--violet-b);}
+.card h2{color:var(--pg-dark);}
+label{color:var(--pg-dark);}
+input[type=text],input[type=number],input[type=password],textarea,select{border:1px solid #D8DCC8;border-radius:12px;background:#fff;}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--violet-b);border-color:var(--violet-b);}
+
+/* buttons: violet pill primary, orange pill for the main download */
+button{border-radius:999px;}
+.btn-primary{background:var(--violet-b);color:#fff;}
+.btn-primary:hover{background:var(--violet-d);}
+.btn-ghost{background:#fff;color:var(--violet-d);border:1.5px solid #CFC6F7;}
+.btn-ghost:hover{background:var(--lilac-tint);}
+.dl-btn{border-radius:999px;color:var(--violet-d);border:1.5px solid #CFC6F7;background:#fff;}
+.dl-btn.dl-full{background:var(--orange-p);border-color:var(--orange-p);color:#fff;}
+.dl-label{color:var(--lime-deep);}
+.qtag{background:var(--navy-tint);color:var(--pg-dark);}
+.note-trap,.pa-tip{background:#FEF0E6;border-left-color:var(--orange-p);}
+.pa-tip b{color:#B5470F;}
+.note-trick{background:var(--lilac-tint);border-left-color:var(--violet-b);}
+.explain{background:#F4F6E6;border-left-color:var(--lime-deep);}
+
+/* answers: lilac marks the student's choice; green and red keep their usual meaning */
+.choice,.rchoice{border:1.5px solid #DDE0CF;border-radius:16px;background:#fff;}
+.choice:hover:not(:disabled),.rchoice:hover:not(:disabled){border-color:#B7A2F0;}
+.choice.picked,.rchoice.picked,.ps-opt.picked,.pt-opt.picked{border-color:var(--violet-b);background:var(--lilac-tint);color:#2F2793;box-shadow:inset 5px 0 0 var(--violet-b);}
+.choice.picked:hover:not(:disabled),.rchoice.picked:hover:not(:disabled){border-color:var(--violet-b);}
+.progress-track{background:#E6EAD3;}
+.progress-fill,.progress-track > div{background:var(--orange-p);}
+.qitem,.sq-row,.sp,.pa-item,.qa-sem,.mm-card,.topic-check,#notes-content details.mm,#notes-content details.dv,#notes-content .tf-fig{border-radius:16px;background:#fff;}
+.topic-check.checked{border-color:var(--violet-b);background:var(--lilac-tint);}
+
+/* tables: deep green head, lime-tinted formula column */
+#notes-content .ftable th,#learn-body .ftable th{background:var(--pg-dark);}
+#notes-content .ftable tbody tr:nth-child(even) td,#learn-body .ftable tbody tr:nth-child(even) td{background:#FAFBF3;}
+#notes-content .ftable td:nth-child(2),#learn-body .ftable td:nth-child(2){background:#F1F4DC;}
+@media (max-width:600px){
+  #notes-content .ftable td:nth-child(2){background:#F1F4DC !important;}
+  #learn-body .ftable td:nth-child(2){background:#F1F4DC !important;}
+  #notes-content .ftable tr,#learn-body .ftable tr{border-left-color:var(--orange-p);}
+}
+#notes-content .ftable td,#learn-body .ftable td{border-color:#E1E5D2;}
+#notes-content .ftable td:nth-child(1),#learn-body .ftable td:nth-child(1){color:var(--pg-dark);}
+#notes-content h3{color:var(--pg-dark);border-left-color:var(--orange-p);}
+#notes-content b{color:var(--pg-dark);}
+
+/* ---------- Home: the poster panel ---------- */
+.v2-hero{background-color:var(--pg-dark);background-image:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'%3E%3Cpath d='M380 -20 C 470 120 560 170 640 160 L640 -20Z' fill='%236E8C22'/%3E%3Cpath d='M300 -20 C 420 150 540 230 640 225 L640 190 C 545 200 440 120 350 -20Z' fill='%239CBB35'/%3E%3Cpath d='M-40 330 C 120 300 260 360 420 440 L-40 440Z' fill='%23283A28'/%3E%3Cpath d='M-40 370 C 140 330 300 380 450 440 L410 440 C 280 390 120 360 -40 395Z' fill='%239CBB35' opacity='.9'/%3E%3C/svg%3E");
+  background-size:100% 100%;background-repeat:no-repeat;border-radius:22px;box-shadow:0 12px 30px rgba(29,43,31,.22);padding:32px 28px 38px;}
+.v2-orbits{display:none;}
+.v2-hero .v2-eyebrow{font-family:var(--script);font-size:24px;font-weight:700;letter-spacing:0;text-transform:none;color:#fff;margin:0;}
+.v2-hero h3{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:44px;line-height:1.02;letter-spacing:.01em;color:#fff;margin:4px 0 12px;max-width:13ch;}
+.v2-hero p{color:#D9E2CF;}
+.v2-hero .v2-cta{background:var(--tagy);color:var(--tagy-ink);border-radius:999px;font-weight:700;}
+.v2-hero .v2-cta:hover{background:#E2E85A;}
+/* progress tiles as the poster's coloured blocks */
+.v2-stat{border:0;border-radius:18px;}
+.v2-stat:nth-child(1){background:var(--violet-b);}
+.v2-stat:nth-child(2){background:var(--lilac);}
+.v2-stat:nth-child(3){background:var(--tagy);}
+.v2-stat:nth-child(4){background:var(--orange-p);}
+.v2-stat:nth-child(1) .k,.v2-stat:nth-child(1) .v,.v2-stat:nth-child(1) .s,.v2-stat:nth-child(1) .v small,
+.v2-stat:nth-child(2) .k,.v2-stat:nth-child(2) .v,.v2-stat:nth-child(2) .s,.v2-stat:nth-child(2) .v small,
+.v2-stat:nth-child(4) .k,.v2-stat:nth-child(4) .v,.v2-stat:nth-child(4) .s,.v2-stat:nth-child(4) .v small{color:#fff;}
+.v2-stat:nth-child(3) .k,.v2-stat:nth-child(3) .v,.v2-stat:nth-child(3) .s,.v2-stat:nth-child(3) .v small{color:var(--tagy-ink);}
+.v2-stat .v2-ico{background:rgba(255,255,255,.22);color:inherit;}
+.v2-stat:nth-child(1) .v2-ico,.v2-stat:nth-child(2) .v2-ico,.v2-stat:nth-child(4) .v2-ico{color:#fff;}
+.v2-stat:nth-child(3) .v2-ico{color:var(--tagy-ink);background:rgba(0,0,0,.08);}
+.v2-stat .v{font-weight:700;}
+.t-teal{background:var(--lilac-tint);color:var(--violet-d);} .t-violet{background:#E9EFD0;color:var(--lime-deep);} .t-amber{background:#FDE7D8;color:#C2500F;} .t-blue{background:var(--lilac-tint);color:var(--violet-b);}
+.v2-action,.v2-panel,.v2-ch{border:0;border-radius:18px;box-shadow:var(--shadow);}
+.v2-action:hover,.v2-ch:hover{box-shadow:0 0 0 2px var(--lilac),var(--shadow);}
+.v2-action b,.v2-ch .m b{color:var(--pg-dark);}
+.v2-action .go,.v2-link{color:var(--violet-d);}
+.v2-ch .n{background:var(--violet-b);color:#fff;font-family:var(--head);font-weight:600;}
+.v2-ch .chev{background:var(--tagy);color:var(--tagy-ink);}
+.v2-bar{background:#E6EAD3;}
+.v2-bar > div{background:var(--lime-deep);}
+.v2-ring .bg{stroke:#E6EAD3;}
+.v2-ring .fg{stroke:var(--violet-b);}
+.v2-ring text{fill:var(--pg-dark);}
+.v2-note{background:#F1F5DC;border:0;color:#3A4A1C;border-radius:18px;}
+.v2-note b{color:var(--lime-deep);}
+.v2-note svg{stroke:var(--lime-deep);}
+.v2-step-no{background:var(--orange-p);font-weight:600;}
+.v2-step-body{background:var(--lilac-tint);border:0;border-radius:16px;}
+.v2-step-body h3{color:var(--violet-d);}
+
+/* ---------- notes quick lists ---------- */
+#notes-content .ql-chh{display:inline-block;background:var(--tagy);color:var(--tagy-ink);border:0;border-radius:10px;padding:6px 14px;font-weight:600;font-size:18px;text-transform:uppercase;}
+#notes-content .ql-topic{color:var(--violet-d);}
+#notes-content ol.ql-f li::before,#notes-content ol.ql-d li::before{color:var(--orange-p);}
+#notes-content .ql-q{color:var(--pg-dark);}
+@media (max-width:600px){ #notes-content ol.ql-f li .ql-eq{background:#F1F4DC;} }
+
+/* ---------- phones ---------- */
+@media (max-width:760px){
+  .masthead h1{font-size:23px;}
+  .tab{background:#fff;border:1px solid #E1E5D2;}
+  .tab.active{background:var(--tagy);border-color:var(--tagy);color:var(--tagy-ink);}
+  .v2-hero{padding:26px 20px 34px;border-radius:20px;}
+  .v2-hero h3{font-size:36px;}
+  .card > h2:first-child,.v2-sec-h h3{font-size:16.5px;padding:5px 12px 5px 10px;}
+  .v2-bottomnav{background:var(--pg-dark);border-top:0;box-shadow:0 -2px 0 var(--lime);}
+  .v2-bottomnav button{color:#B9C4B0;}
+  .v2-bottomnav button.on{color:var(--tagy);}
+}
