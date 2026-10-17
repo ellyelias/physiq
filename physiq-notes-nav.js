@@ -34,6 +34,14 @@
   const contentCard = document.getElementById('notes-content-card');
 
   let view = 'sem', ignoreUntil = 0;
+  // the same semester → menu → chapters flow on the Home page (replaces the hero panel); picking opens Notes
+  const homeWrap = document.querySelector('.v2-home');
+  let home = null, homeView = 'sem';
+  if (homeWrap) {
+    home = document.createElement('section'); home.id = 'nn-home'; home.className = 'nn nn-home';
+    homeWrap.insertBefore(home, homeWrap.firstChild);
+    const hero = homeWrap.querySelector('.v2-hero'); if (hero) hero.classList.add('nn-off');
+  }
 
   function groups() {
     return [...sel.querySelectorAll('optgroup')].map(g => ({ label: g.label, opts: [...g.querySelectorAll('option')].map(o => ({ v: o.value, t: o.textContent })) }));
@@ -51,24 +59,32 @@
   }
 
   function pick(v) { if (![...sel.options].some(o => o.value === v)) return; sel.value = v; sel.dispatchEvent(new Event('change')); }
+  function openInNotes(v) {
+    const tab = document.querySelector('.tab[data-tab="notes"]'); if (tab) tab.click();   // untrusted click: Notes keeps its own view
+    pick(v); try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+  }
   function show(v) { view = v; render(); try { nav.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
 
   function render() {
-    const s = semNow();
     const inContent = view === 'content';
     extras.forEach(el => el.classList.toggle('nn-off', !inContent));
     if (contentCard) contentCard.classList.toggle('nn-off', !inContent);
     nav.dataset.view = view;
+    nav.innerHTML = markup(view, false);
+    if (home) { home.dataset.view = homeView; home.innerHTML = markup(homeView, true); }
+  }
+  function markup(view, isHome) {
+    const s = semNow();
+    const intro = isHome ? `<p class="nn-hello">Your STPM Physics companion</p>` : '';
     if (view === 'sem') {
-      nav.innerHTML = `<p class="nn-step">Choose your semester</p><div class="nn-sems">${SEMS.map(x =>
+      return intro + `${isHome ? '<h2 class="nn-big">Choose your semester</h2>' : '<p class="nn-step">Choose your semester</p>'}<div class="nn-sems">${SEMS.map(x =>
         `<button type="button" class="nn-sem${x.v === s.v ? ' cur' : ''}" data-sem="${x.v}"><span class="nn-sem-n">${x.name}</span><span class="nn-sem-s">${esc(x.sub)}</span><span class="nn-sem-c">${x.ch}</span>${svg('go')}</button>`).join('')}</div>`;
-      return;
     }
     const crumbs = [`<button type="button" class="nn-crumb" data-view="sem">${svg('back')}All semesters</button>`];
     if (view !== 'menu') crumbs.push(`<button type="button" class="nn-crumb" data-view="menu">${s.name}</button>`);
     if (view === 'content' && kindOf(sel.value) === 'Chapters') crumbs.push(`<button type="button" class="nn-crumb" data-view="chapters">Chapters</button>`);
     if (view === 'content' && kindOf(sel.value) === 'Section B & C guide' && bcGroup().opts.length > 1) crumbs.push(`<button type="button" class="nn-crumb" data-view="bc">Section B &amp; C guide</button>`);
-    const head = `<div class="nn-crumbs">${crumbs.join('<span class="nn-sep">›</span>')}</div>`;
+    const head = intro + `<div class="nn-crumbs">${crumbs.join('<span class="nn-sep">›</span>')}</div>`;
     if (view === 'menu') {
       const bc = bcGroup(), sem = s.v;
       const items = [
@@ -79,39 +95,42 @@
         { k: 'd', t: 'Definition list', s: 'Definitions and laws, key words in bold', v: 'DEFS-' + sem, c: 'c5' },
         { k: 'dv', t: 'Syllabus derivations', s: 'The derivations STPM 2026 asks for', v: 'DERIV-' + sem, c: 'c6' }
       ].filter(Boolean);
-      nav.innerHTML = head + `<h3 class="nn-title">${s.name} <span>${esc(s.sub)}</span></h3><div class="nn-menu">${items.map(i =>
+      return head + `<h3 class="nn-title">${s.name} <span>${esc(s.sub)}</span></h3><div class="nn-menu">${items.map(i =>
         `<button type="button" class="nn-item ${i.c}" ${i.act ? `data-view="${i.act}"` : `data-pick="${esc(i.v)}"`}><span class="nn-ico">${svg(i.k)}</span><span class="nn-txt"><b>${i.t}</b><span>${i.s}</span></span>${svg('go')}</button>`).join('')}</div>`;
-      return;
     }
     if (view === 'chapters') {
-      const cur = sel.value;
-      nav.innerHTML = head + `<h3 class="nn-title">Chapters <span>${s.name}</span></h3><div class="nn-chs">${chapterGroups().map((g, i) => {
+      const cur = isHome ? '' : sel.value;
+      return head + `<h3 class="nn-title">Chapters <span>${s.name}</span></h3><div class="nn-chs">${chapterGroups().map((g, i) => {
         const m = g.label.match(/^Chapter\s+(\d+)\s*[—–-]\s*(.*)$/i);
         const open = g.opts.some(o => o.v === cur);
         return `<details class="nn-ch"${open ? ' open' : ''}><summary><span class="nn-chn">${m ? m[1] : i + 1}</span><span class="nn-cht">${esc(m ? m[2] : g.label)}</span>${svg('go')}</summary><div class="nn-tps">${g.opts.map(o =>
           `<button type="button" class="nn-tp${o.v === cur ? ' cur' : ''}" data-pick="${esc(o.v)}">${esc(o.t)}</button>`).join('')}</div></details>`;
       }).join('')}</div>`;
-      return;
     }
     if (view === 'bc') {
       const bc = bcGroup();
-      nav.innerHTML = head + `<h3 class="nn-title">Section B &amp; C guide <span>${s.name}</span></h3><div class="nn-chs">${(bc ? bc.opts : []).map(o =>
+      return head + `<h3 class="nn-title">Section B &amp; C guide <span>${s.name}</span></h3><div class="nn-chs">${(bc ? bc.opts : []).map(o =>
         `<button type="button" class="nn-tp nn-tp-big" data-pick="${esc(o.v)}">${esc(o.t)}${svg('go')}</button>`).join('')}</div>`;
-      return;
     }
-    // content
-    nav.innerHTML = head;
+    return head;   // content
   }
 
-  nav.addEventListener('click', e => {
+  function onClick(e, isHome) {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.sem) {
       if (String(semSel.value) !== b.dataset.sem) { ignoreUntil = Date.now() + 800; semSel.value = b.dataset.sem; semSel.dispatchEvent(new Event('change')); }
-      show('menu'); return;
+      if (isHome) { homeView = 'menu'; render(); } else show('menu');
+      return;
     }
-    if (b.dataset.view) { show(b.dataset.view); return; }
-    if (b.dataset.pick) { pick(b.dataset.pick); }
-  });
+    if (b.dataset.view) {
+      if (isHome) { homeView = b.dataset.view === 'content' ? 'menu' : b.dataset.view; render(); try { home.scrollIntoView({ block: 'nearest' }); } catch (err) {} }
+      else show(b.dataset.view);
+      return;
+    }
+    if (b.dataset.pick) { if (isHome) openInNotes(b.dataset.pick); else pick(b.dataset.pick); }
+  }
+  nav.addEventListener('click', e => onClick(e, false));
+  if (home) home.addEventListener('click', e => onClick(e, true));
 
   // anything that renders a note (menu, Learn, Home, mind map "View derivations") opens the content view
   new MutationObserver(() => {
@@ -119,7 +138,7 @@
     if (view !== 'content') { view = 'content'; render(); } else render();
   }).observe(content, { childList: true });
   // a semester change from the top bar re-renders the notes: go back to that semester's menu
-  semSel.addEventListener('change', () => { ignoreUntil = Date.now() + 800; if (view !== 'sem') { view = 'menu'; } setTimeout(render, 0); });
+  semSel.addEventListener('change', () => { ignoreUntil = Date.now() + 800; if (view !== 'sem') { view = 'menu'; } if (homeView !== 'sem') homeView = 'menu'; setTimeout(render, 0); });
   // opening the Notes tab directly starts from the semester choice
   document.addEventListener('click', e => {
     const t = e.target.closest('.tab[data-tab="notes"], #v2-bottomnav [data-go="notes"], .v2-home [data-go="notes"]');

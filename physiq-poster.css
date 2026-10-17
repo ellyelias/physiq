@@ -209,3 +209,13 @@ button{border-radius:999px;}
   .nn-tps{padding:0 12px 12px 12px;}
   .nn-title{font-size:21px;}
 }
+
+/* Home: semester choice and menu at the top (replaces the hero panel) */
+.nn-home{background:#fff;border-radius:22px;padding:22px 22px 24px;box-shadow:var(--shadow);margin:0;}
+.nn-home .nn-hello{font-family:var(--script);font-weight:700;font-size:22px;color:var(--lime-deep);margin:0 0 2px;}
+.nn-home .nn-big{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:38px;line-height:1.02;letter-spacing:.01em;color:var(--pg-dark);margin:0 0 14px;}
+.nn-home .nn-big::after{content:"";display:block;width:84px;height:6px;border-radius:4px;background:var(--tagy);margin-top:8px;}
+@media (max-width:760px){
+  .nn-home{padding:18px 16px 20px;border-radius:20px;}
+  .nn-home .nn-big{font-size:31px;}
+}
