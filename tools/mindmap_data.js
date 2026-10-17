@@ -510,7 +510,7 @@ module.exports = K => ({
       ] },
       { t: 'The four processes', c: 'orange', col: 'M', body: [
         ['svg', K.fig('11.2', 0, 330)],
-        ['tbl', [['Process', 'Condition', 'First law'], ['Isothermal', '$\\Delta T = 0$', '$Q = W$'], ['Adiabatic', '$Q = 0$', '$\\Delta U = -W$'], ['Isobaric', '$\\Delta p = 0$', '$Q = \\Delta U + p\\Delta V$'], ['Isochoric', '$\\Delta V = 0$', '$Q = \\Delta U$']]],
+        ['tbl', [['Process', 'Condition', 'First law'], ['Isothermal', '$\\Delta T = 0$', '$Q = W$'], ['Adiabatic', '$Q = 0$', '$\\Delta U = -W$'], ['Constant pressure (isobaric)', '$\\Delta p = 0$', '$Q = \\Delta U + p\\Delta V$'], ['Constant volume (isochoric)', '$\\Delta V = 0$', '$Q = \\Delta U$']]],
       ] },
       { t: 'Isothermal vs adiabatic', c: 'teal', col: 'R', body: [
         ['sub', ['Isothermal', ['fs', ['pV = \\text{constant}', r`W = nRT\ln\dfrac{V_2}{V_1}`]]], '#0F766E'],
