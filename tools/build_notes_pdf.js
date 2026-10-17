@@ -137,7 +137,7 @@ svg.inf{width:1.3em;height:.65em;vertical-align:-.04em;fill:none;stroke:currentC
 .cover .band{background:var(--navy) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400' preserveAspectRatio='none'%3E%3Cpath d='M380 -20 C 470 120 560 170 640 160 L640 -20Z' fill='%236E8C22'/%3E%3Cpath d='M300 -20 C 420 150 540 230 640 225 L640 190 C 545 200 440 120 350 -20Z' fill='%239CBB35'/%3E%3Cpath d='M-40 330 C 120 300 260 360 420 440 L-40 440Z' fill='%23283A28'/%3E%3Cpath d='M-40 370 C 140 330 300 380 450 440 L410 440 C 280 390 120 360 -40 395Z' fill='%239CBB35' opacity='.9'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;}
 .cover .scale{display:none;}
 .cover .eyebrow{font-family:var(--script);font-size:20pt;font-weight:700;color:#fff;letter-spacing:0;}
-.cover h1{font-family:var(--display);font-weight:400;font-size:64pt;letter-spacing:.01em;text-transform:uppercase;margin:6mm 0 2mm;}
+.cover h1{font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:58pt;letter-spacing:-.01em;text-transform:none;margin:6mm 0 2mm;}
 .cover h1 span{font-family:var(--script);text-transform:none;color:var(--tagy);font-size:26pt;font-weight:700;margin-top:2mm;}
 .cover .sem .big{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:34pt;letter-spacing:.01em;}
 .cover .sem .big::after{content:"";display:block;width:46mm;height:3mm;background:var(--tagy);margin-top:3mm;border-radius:2mm;}

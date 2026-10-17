@@ -20,12 +20,12 @@ html,body{background:var(--bg);}
 ::selection{background:#E4E9A6;}
 
 /* type: condensed headings instead of the V2 serif */
-.masthead h1,.card h2,.v2-intro h2,.v2-sec-h h3,#notes-content h2,#learn-content h2,.mm-name,.v2-step-body h3,
+.card h2,.v2-intro h2,.v2-sec-h h3,#notes-content h2,#learn-content h2,.mm-name,.v2-step-body h3,
 .v2-stat .v,.score-num,.v2-ring text:first-of-type,.v2-step-no,#notes-content .ql-chh{font-family:var(--head);letter-spacing:0;}
 
 /* ---------- top bar: deep green ---------- */
 .masthead{background:var(--pg-dark);border-bottom:0;box-shadow:0 2px 0 var(--lime);}
-.masthead h1{font-family:var(--head);font-weight:700;font-size:26px;color:#fff;letter-spacing:.01em;}
+.masthead h1{font-family:"Newsreader", Georgia, "Times New Roman", serif !important;font-weight:600;font-size:27px;color:#fff;letter-spacing:-.01em;}
 .masthead h1 span{font-family:var(--script) !important;font-style:normal !important;font-weight:700 !important;color:var(--tagy) !important;font-size:19px !important;margin-left:6px;}
 #semester-select{background-color:#fff !important;border:0 !important;color:var(--pg-dark) !important;border-radius:999px !important;}
 
@@ -136,7 +136,7 @@ button{border-radius:999px;}
 
 /* ---------- phones ---------- */
 @media (max-width:760px){
-  .masthead h1{font-size:23px;}
+  .masthead h1{font-size:24px;}
   .tab{background:#fff;border:1px solid #E1E5D2;}
   .tab.active{background:var(--tagy);border-color:var(--tagy);color:var(--tagy-ink);}
   .v2-hero{padding:26px 20px 34px;border-radius:20px;}
