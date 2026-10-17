@@ -255,3 +255,4 @@ button{font-weight:600;font-size:14.5px;border-radius:12px;padding:11px 18px;}
   #notes-content ol.ql-f li .ql-eq,#notes-content ol.ql-f li .ql-sym{grid-column:2;}
   #notes-content ol.ql-f li .ql-eq{background:#F5F0E2;border-radius:8px;padding:6px 10px;overflow-x:auto;}
 }
+#notes-content ol.ql-d li .ql-dt{min-width:0;display:block;}

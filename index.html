@@ -6550,7 +6550,7 @@ const NOTES_EXTRA = (function(){
       items.forEach(t => {
         h += `<h4 class="ql-topic">${escapeHtml(t.name)}</h4>`;
         if (isF) h += `<ol class="ql-f">${t.rows.map(r => `<li><span class="ql-q">${r[0] || ''}</span><span class="ql-eq">${mathify(r[1] || '')}</span><span class="ql-sym">${mathify(r[2] || '')}</span></li>`).join('')}</ol>`;
-        else h += `<ol class="ql-d">${t.defs.map(d => `<li>${mathify(d)}</li>`).join('')}</ol>`;
+        else h += `<ol class="ql-d">${t.defs.map(d => `<li><span class="ql-dt">${mathify(d)}</span></li>`).join('')}</ol>`;
       });
       h += `</section>`;
     });
