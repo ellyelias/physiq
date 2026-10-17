@@ -599,7 +599,7 @@ module.exports = K => ({
       { t: 'Electric potential', c: 'purple', col: 'L', body: [
         ['fs', [r`V = \dfrac{Q}{4\pi\varepsilon_0 r}`, 'U = qV']],
         ['f', r`U = \dfrac{Q_1Q_2}{4\pi\varepsilon_0 r}`],
-        ['b', ['Work done per unit positive charge from **infinity**', 'Scalar: add potentials algebraically', 'Work by external agent: $W = q\\Delta V$']],
+        ['b', ['Work done per unit positive charge from **infinity**', 'Scalar: add potentials algebraically', 'Work by external force: $W = q\\Delta V$']],
       ] },
       { t: 'Field and potential', c: 'orange', col: 'M', body: [
         ['svg', K.fig('S2-12.4', 0, 330)],
@@ -1220,7 +1220,7 @@ module.exports = K => ({
     rows: [
       { cols: '1fr 1fr', boxes: [
         { t: 'Nanoscience', c: 'red', body: [
-          ['b', ['Size 1–100 nm; huge surface-area-to-volume ratio ($3/r$ for a sphere)', 'Quantum confinement: $E_n = \\dfrac{n^2h^2}{8mL^2}$, smaller dot → bluer light', 'STM: tunnelling current depends exponentially on the gap']],
+          ['b', ['Size 1–100 nm; huge surface-area-to-volume ratio ($3/r$ for a sphere)', 'Large fraction of atoms at the surface → high reactivity and catalytic activity', 'STM: tunnelling current depends exponentially on the gap']],
         ] },
         { t: 'Common Section A traps', c: 'amber', body: [
           ['b', ['Using eV in $hf = \\phi + K$ while $h$ is in J s.', 'Saying brighter light gives faster photoelectrons.', 'Forgetting energy levels are **negative**.', 'Using the electron mass for a proton in $\\lambda = h/p$.', '$\\lambda_{\\min}$ depends on the voltage, not the target.']],
