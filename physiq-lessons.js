@@ -41,7 +41,7 @@
   const dot = (x, y, r = 6, c = C.ball) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" stroke="${C.ink}" stroke-width="1.2"/>`;
   // axes with arrow heads, origin (x0,y0), lengths w,h
   const axes = (x0, y0, w, h, xl, yl, o = {}) => L(x0, y0, x0 + w, y0, 'k', 'e', { w: 1.6 }) + L(x0, o.yb != null ? o.yb : y0, x0, y0 - h, 'k', 'e', { w: 1.6 }) +
-    T(x0 + w + 4, y0 + 5, xl, { a: 'start', it: 1 }) + T(x0, y0 - h - 8, yl, { it: 1 }) + (o.noO ? '' : T(x0 - 9, y0 + 15, '0', { fs: 12, c: C.sub }));
+    (String(xl).length > 3 ? T(x0 + w, y0 + 19, xl, { a: 'end', it: 1, fs: 12 }) : T(x0 + w + 4, y0 + 5, xl, { a: 'start', it: 1 })) + T(x0, y0 - h - 8, yl, { it: 1 }) + (o.noO ? '' : T(x0 - 9, y0 + 15, '0', { fs: 12, c: C.sub }));
 
   // a simple table: head = [..], rows = [[..],..]
   const table = (head, rows, cls) => `<div class="ls-tw"><table class="ls-t${cls ? ' ' + cls : ''}"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
@@ -69,6 +69,8 @@
       toc: [['ls-7-1', '7.1 Centre of mass'], ['ls-7-2', '7.2 Moment of inertia'], ['ls-7-3', '7.3 Torque'], ['ls-7-4', '7.4 Angular momentum'], ['ls-7-5', '7.5 Rotational KE']] },
     'LESSON-8': { sem: '1', chapter: 8, title: 'Statics', topics: ['8.1 Equilibrium of Forces', '8.2 Moments and Centre of Gravity'], sims: 1,
       toc: [['ls-8-1', 'Equilibrium of a particle'], ['ls-8-2', 'Equilibrium of a rigid body']] },
+    'LESSON-9': { sem: '1', chapter: 9, title: 'Deformation of Solids', topics: ["9.1 Stress, Strain and Young's Modulus", '9.2 Elastic Energy'], sims: 1,
+      toc: [['ls-9-0', 'Deformation'], ['ls-9-1', '9.1 Stress and strain'], ['ls-9-2', '9.2 Graphs and Young\u2019s modulus'], ['ls-9-3', '9.3 Strain energy']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };

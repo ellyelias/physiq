@@ -160,3 +160,7 @@
 .ls-head > *{position:relative;z-index:1;}
 .ls-head::after{z-index:0;}
 #notes-content .ls-title.long{font-size:clamp(28px,5.4vw,44px);}
+
+.ls-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0;text-align:center;}
+@media (max-width:640px){.ls-grid3{grid-template-columns:minmax(0,1fr);}}
+.ls-svg{overflow:hidden;}
