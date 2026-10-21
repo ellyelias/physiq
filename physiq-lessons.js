@@ -75,6 +75,8 @@
       toc: [['ls-10-1', '10.1 Ideal gas equation'], ['ls-10-2', '10.2 Pressure of a gas'], ['ls-10-3', '10.3 Molecular KE'], ['ls-10-4', '10.4 Degrees of freedom'], ['ls-10-5', '10.5 Internal energy']] },
     'LESSON-11': { sem: '1', chapter: 11, title: 'Thermodynamics of Gases', topics: ['11.1 First Law of Thermodynamics', '11.2 Thermodynamic Processes'], sims: 1,
       toc: [['ls-11-1', '11.1 Molar heat capacity'], ['ls-11-2', '11.2 Work done by a gas'], ['ls-11-3', '11.3 First law'], ['ls-11-4', '11.4 Isothermal and adiabatic']] },
+    'LESSON-12': { sem: '1', chapter: 12, title: 'Heat Transfer', topics: ['12.1 Conduction, Convection and Radiation'], sims: 2,
+      toc: [['ls-12-1', '12.1 Conduction'], ['ls-12-2', '12.2 Convection'], ['ls-12-3', '12.3 Radiation'], ['ls-12-4', '12.4 Global warming']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
