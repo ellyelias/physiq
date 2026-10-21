@@ -67,6 +67,8 @@
       toc: [['ls-6-1', '6.1 Law of gravitation'], ['ls-6-2', '6.2 Gravitational field'], ['ls-6-3', '6.3 Gravitational potential'], ['ls-6-4', '6.4 Satellites'], ['ls-6-5', '6.5 Escape velocity'], ['ls-6-pyq', 'Past-year questions']] },
     'LESSON-7': { sem: '1', chapter: 7, title: 'Rotation of Rigid Bodies', topics: ['7.1 Torque and Angular Acceleration', '7.2 Moment of Inertia', '7.3 Angular Momentum and Rotational Kinetic Energy'], sims: 1,
       toc: [['ls-7-1', '7.1 Centre of mass'], ['ls-7-2', '7.2 Moment of inertia'], ['ls-7-3', '7.3 Torque'], ['ls-7-4', '7.4 Angular momentum'], ['ls-7-5', '7.5 Rotational KE']] },
+    'LESSON-8': { sem: '1', chapter: 8, title: 'Statics', topics: ['8.1 Equilibrium of Forces', '8.2 Moments and Centre of Gravity'], sims: 1,
+      toc: [['ls-8-1', 'Equilibrium of a particle'], ['ls-8-2', 'Equilibrium of a rigid body']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
