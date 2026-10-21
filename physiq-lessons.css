@@ -1,0 +1,141 @@
+/* PhysiQ full lesson notes + simulations. Uses the poster theme tokens (physiq-poster.css). */
+#notes-content .ls{--ls-fs:17px;font-size:var(--ls-fs);line-height:1.68;color:var(--ink);}
+#notes-content .ls[data-size="0"]{--ls-fs:15.5px;}
+#notes-content .ls[data-size="2"]{--ls-fs:19.5px;}
+#notes-content .ls p,#notes-content .ls li{font-size:1em;}
+#notes-content .ls i{font-family:"Newsreader",Georgia,serif;font-size:1.08em;}
+
+/* header */
+.ls-head{background:var(--pg-dark);color:#fff;border-radius:20px;padding:22px 22px 18px;margin:0 0 22px;position:relative;overflow:hidden;}
+.ls-head::after{content:"";position:absolute;right:-90px;top:-120px;width:260px;height:200px;border-radius:50%;border:18px solid var(--tagy);opacity:.9;transform:rotate(-18deg);pointer-events:none;}
+.ls-head-k{font-size:13px;font-weight:600;color:var(--tagy);}
+#notes-content .ls-title{font-family:var(--display);font-weight:400;font-size:clamp(34px,7vw,52px);line-height:1;letter-spacing:.01em;color:#fff;margin:6px 0 4px;text-transform:uppercase;border:0;padding:0;}
+.ls-head-by{font-family:var(--script);font-size:22px;color:var(--tagy);margin-bottom:10px;}
+.ls-head-m{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:#D9DED0;margin-bottom:14px;position:relative;z-index:1;}
+.ls-toc{display:flex;flex-wrap:wrap;gap:8px;position:relative;z-index:1;}
+.ls-toc button{border:0;border-radius:999px;background:#33473A;color:#fff;font:600 13px var(--ui);padding:7px 13px;cursor:pointer;}
+.ls-toc button:hover{background:var(--tagy);color:var(--tagy-ink);}
+.ls-size{display:flex;align-items:center;gap:6px;margin-top:14px;font-size:12px;color:#D9DED0;position:relative;z-index:1;}
+.ls-size button{width:34px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;cursor:pointer;font-family:var(--ui);font-weight:700;line-height:1;}
+.ls-size button:nth-of-type(1){font-size:12px;} .ls-size button:nth-of-type(2){font-size:15px;} .ls-size button:nth-of-type(3){font-size:19px;}
+.ls-size button.on{background:var(--tagy);color:var(--tagy-ink);border-color:var(--tagy);}
+
+/* sections */
+.ls-sec{margin:0 0 34px;}
+#notes-content .ls-h{font-family:var(--head);font-weight:600;font-size:1.45em;line-height:1.2;color:var(--tagy-ink);background:var(--tagy);display:inline-block;padding:6px 16px 6px 14px;border-radius:6px 999px 999px 6px;margin:6px 0 16px;text-transform:none;letter-spacing:0;border:0;}
+#notes-content .ls-h4{font-family:var(--head);font-weight:600;font-size:1.18em;color:var(--violet-d);margin:28px 0 10px;padding-bottom:4px;border-bottom:2px solid var(--lilac-tint);text-transform:none;letter-spacing:0;}
+.ls-def{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;background:#fff;border-left:5px solid var(--violet-b);border-radius:4px 14px 14px 4px;padding:12px 16px;margin:12px 0;box-shadow:var(--shadow);}
+.ls-def-t{color:var(--violet-d);font-size:1.02em;}
+.ls-hl{color:#C2410C;font-weight:600;}
+.ls-eq{font-size:1.15em;text-align:center;padding:10px 8px;margin:8px 0;overflow-x:auto;line-height:2.1;}
+.ls-key{background:var(--orange-tint);border:2px solid var(--orange-p);border-radius:16px;padding:14px 16px;margin:14px auto;max-width:520px;text-align:center;}
+.ls-key-eq{font-size:1.22em;line-height:2.15;}
+.ls-key-n{font-size:.86em;color:var(--sub);margin-top:6px;}
+.ls-ul{margin:8px 0 12px;padding-left:1.3em;}
+.ls-ul li{margin:4px 0;}
+.ls-ul li::marker{color:var(--orange-p);}
+.ls-small{font-size:.88em;color:var(--sub);}
+.ls-note{font-size:.9em;background:var(--amber-tint);border-radius:10px;padding:8px 12px;margin:10px 0;}
+.ls-tip{background:var(--lilac-tint);border-radius:14px;padding:12px 16px;margin:14px 0;}
+.ls-tip b{display:block;color:var(--violet-d);font-family:var(--script);font-size:1.25em;font-weight:700;}
+.ls-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:center;}
+.ls-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+.ls-grid2 p{font-size:.9em;margin:4px 0 0;}
+.ls-figw{margin:10px 0;text-align:center;}
+.ls-figw figcaption{font-size:.85em;color:var(--sub);margin-top:4px;}
+.ls-svg{width:100%;height:auto;display:inline-block;}
+.ls-vec{position:relative;display:inline-block;font-style:italic;font-family:"Newsreader",Georgia,serif;font-size:1.08em;}
+.ls-vec::before{content:"→";position:absolute;left:50%;top:-.78em;transform:translateX(-50%);font-size:.62em;font-style:normal;}
+.ls-tag{display:inline-block;background:var(--lilac-tint);color:var(--violet-d);font-weight:700;font-size:.8em;border-radius:6px;padding:0 6px;margin-right:4px;}
+.ls-steps{display:grid;gap:8px;margin:8px 0;}
+.ls-steps > div{background:#fff;border-radius:10px;padding:8px 12px;border:1px solid var(--line);line-height:2;overflow-x:auto;}
+.ls-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;font-size:.82em;color:var(--sub);}
+.ls-legend i{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+
+/* graph summary grid */
+.ls-gtab{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:8px;align-items:start;margin:12px 0;}
+.ls-gtab > div{background:#fff;border-radius:12px;padding:6px 8px;text-align:center;}
+.ls-gtab p{font-size:.78em;line-height:1.35;margin:2px 0 4px;color:var(--sub);}
+.ls-gh{background:var(--pg-dark) !important;color:#fff;font-weight:600;font-size:.88em;}
+.ls-gh:first-child{background:transparent !important;}
+.ls-gr{background:var(--tagy) !important;color:var(--tagy-ink);font-weight:700;font-size:.85em;display:flex;align-items:center;justify-content:center;writing-mode:horizontal-tb;min-width:6.5em;align-self:stretch;}
+
+/* tables */
+.ls-tw{overflow-x:auto;margin:10px 0;}
+.ls-t{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden;font-size:.95em;}
+.ls-t th{background:var(--pg-dark);color:#fff;font-weight:600;padding:8px 12px;text-align:left;}
+.ls-t td{padding:8px 12px;border-top:1px solid var(--line);line-height:1.9;}
+.ls-t tbody tr:nth-child(even) td{background:#F7F8F0;}
+
+/* max H / R boxes, air resistance comparison */
+.ls-maxc{background:#E3F5DA;border-radius:16px;padding:10px 14px;text-align:center;}
+.ls-maxc.y{background:#FBF7C9;}
+.ls-maxc p{margin:0;}
+.ls-cmp{background:#fff;border-radius:16px;padding:12px 16px;border-top:5px solid var(--violet-b);align-self:stretch;}
+.ls-cmp.o{border-top-color:var(--orange-p);}
+.ls-cmp-h{font-family:var(--head);font-weight:600;font-size:1.1em;}
+
+/* worked examples and exercises */
+.ls-ex{background:#fff;border-radius:18px;padding:16px 18px;margin:16px 0;box-shadow:var(--shadow);border:1px solid var(--line);}
+.ls-ex-h{display:inline-block;font-family:var(--head);font-weight:600;font-size:.95em;color:#fff;background:var(--orange-p);border-radius:999px;padding:3px 14px;margin-bottom:8px;}
+.ls-ex-q{margin-bottom:6px;}
+.ls-sol,.ls-ans{margin-top:8px;}
+.ls-sol > summary,.ls-ans > summary{cursor:pointer;display:inline-block;list-style:none;font:600 14px var(--ui);color:var(--violet-d);background:var(--lilac-tint);border-radius:999px;padding:6px 14px;}
+.ls-sol > summary::-webkit-details-marker,.ls-ans > summary::-webkit-details-marker{display:none;}
+.ls-sol > summary::before,.ls-ans > summary::before{content:"▸ ";}
+.ls-sol[open] > summary::before,.ls-ans[open] > summary::before{content:"▾ ";}
+.ls-sol[open] > summary{background:var(--violet-b);color:#fff;}
+.ls-sol[open] > summary::after{content:"";}
+.ls-sol-b{margin-top:10px;border-left:3px solid var(--lilac);padding-left:12px;}
+.ls-exer{background:var(--lilac-tint);border-radius:18px;padding:14px 18px;margin:18px 0;}
+.ls-exer-h{font-family:var(--head);font-weight:600;font-size:1.15em;color:var(--violet-d);margin-bottom:6px;}
+.ls-exer ol{margin:0;padding-left:1.4em;}
+.ls-exer li{margin:12px 0;}
+.ls-ans > div{margin-top:6px;font-weight:700;color:#B4380C;}
+
+/* simulations */
+.ls-simw{background:var(--pg-dark);border-radius:22px;padding:16px;margin:22px 0;color:#fff;}
+.ls-sim-h{font-family:var(--head);font-weight:600;font-size:1.2em;display:flex;flex-wrap:wrap;align-items:center;gap:10px;}
+.ls-sim-tag{font-family:var(--script);font-weight:700;font-size:1.2em;color:var(--tagy-ink);background:var(--tagy);border-radius:999px;padding:0 12px;}
+.ls-sim-i{font-size:.86em;color:#D9DED0;margin:6px 0 12px;}
+.ls-sim{background:#fff;color:var(--ink);border-radius:16px;padding:12px;font-size:14px;line-height:1.4;}
+.sm-row{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:0 0 10px;}
+.sm-pre{gap:6px;}
+.sm-chip{border:1px solid var(--line);background:#F7F8F0;color:var(--ink);border-radius:999px;padding:6px 12px;font:600 12.5px var(--ui);cursor:pointer;}
+.sm-chip.on{background:var(--tagy);border-color:var(--tagy);color:var(--tagy-ink);}
+.sm-sl{display:flex;align-items:center;gap:8px;flex:1 1 240px;min-width:0;font-size:13px;}
+.sm-sl-l{flex:0 0 auto;color:var(--sub);}
+.sm-sl input{flex:1 1 auto;min-width:80px;accent-color:var(--violet-b);}
+.sm-sl output{flex:0 0 5.5em;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;}
+.sm-btn,.sm-tg{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;font:600 13px var(--ui);cursor:pointer;color:var(--ink);}
+.sm-btn.sm-main{background:var(--orange-p);border-color:var(--orange-p);color:#fff;min-width:7.5em;}
+.sm-tg.on{background:var(--violet-b);border-color:var(--violet-b);color:#fff;}
+.sm-bar{margin-top:10px;}
+.sm-cv{display:block;width:100%;border-radius:12px;}
+.sm-track{margin-bottom:10px;}
+.sm-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.sm-ro{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:10px;}
+.sm-ro > div{background:#F4F5EE;border-radius:10px;padding:6px 10px;display:flex;flex-direction:column;}
+.sm-ro span{font-size:11.5px;color:var(--sub);}
+.sm-ro b{font-size:15px;font-variant-numeric:tabular-nums;}
+.sm-ro .hl{background:#FBF7C9;} .sm-ro .o b{color:#C2410C;} .sm-ro .v b{color:var(--violet-d);} .sm-ro .ao{background:var(--orange-tint);}
+.sm-err{color:#A3302A;}
+
+@media (max-width:640px){
+  #notes-content .ls{--ls-fs:16.5px;}
+  #notes-content .ls[data-size="0"]{--ls-fs:15px;}
+  #notes-content .ls[data-size="2"]{--ls-fs:19px;}
+  .ls-two,.ls-grid2,.sm-split{grid-template-columns:minmax(0,1fr);}
+  .ls-head{padding:18px 16px 16px;}
+  .ls-ex{padding:14px 12px;}
+  .ls-simw{padding:12px 10px;margin:18px -6px;}
+  .ls-sim{padding:10px 8px;}
+  .ls-gtab{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .ls-gtab .ls-gh:first-child{display:none;}
+  .ls-gr{grid-column:1 / -1;min-width:0;padding:4px !important;}
+  .sm-sl{flex-basis:100%;}
+}
+
+/* the "Full notes" entry stands out in the chapter list (Notes and Home) */
+.nn-tp[data-pick^="LESSON-"]{background:var(--tagy) !important;color:var(--tagy-ink) !important;border-color:var(--tagy) !important;font-weight:700;}
+.nn-tp[data-pick^="LESSON-"]::before{content:"★ ";}

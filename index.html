@@ -538,6 +538,7 @@
 </style>
 <link rel="stylesheet" href="physiq-v2.css">
 <link rel="stylesheet" href="physiq-poster.css">
+<link rel="stylesheet" href="physiq-lessons.css">
 </head>
 <body>
 <div class="app">
@@ -1112,6 +1113,8 @@
 </nav>
 
 <script src="diagrams.js" defer></script>
+<script src="physiq-sims.js"></script>
+<script src="physiq-lessons.js"></script>
 <script>
 (function(){
 
@@ -6468,6 +6471,15 @@ const NOTES_EXTRA = (function(){
 })();
 
   let notesListenerBound = false;
+  // full lesson notes (teacher's own notes, physiq-lessons.js): one option at the top of its chapter
+  function lessonFor(groupLabel){
+    const LS = window.PhysiQLessons; if (!LS) return null;
+    return Object.entries(LS.LESSONS).find(([k, L]) => L.sem === String(currentSemester) && chapterGroupLabel(L.topics[0]) === groupLabel) || null;
+  }
+  function lessonOption(groupLabel){
+    const f = lessonFor(groupLabel);
+    return f ? `<option value="${escapeHtml(f[0])}">${escapeHtml(f[1].label)}</option>` : '';
+  }
   function populateNotesSelect(){
     const sel = $('#notes-topic-select');
     const sem = currentSemester;
@@ -6482,7 +6494,7 @@ const NOTES_EXTRA = (function(){
       groups[g].push(t);
     });
     html += Object.entries(groups).map(([g, topics])=>
-      `<optgroup label="${escapeHtml(g)}">${topics.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t.replace(/^S[23]-/, ''))}</option>`).join('')}</optgroup>`
+      `<optgroup label="${escapeHtml(g)}">${lessonOption(g)}${topics.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t.replace(/^S[23]-/, ''))}</option>`).join('')}</optgroup>`
     ).join('');
     sel.innerHTML = html;
     if (!notesListenerBound){ sel.addEventListener('change', renderNotesContent); notesListenerBound = true; }
@@ -6609,6 +6621,10 @@ const NOTES_EXTRA = (function(){
     const key = $('#notes-topic-select').value;
     if (key.indexOf('DERIV-') === 0){ $('#notes-content').innerHTML = derivPage(key); updateNotesDownloads('GUIDE-' + key.split('-')[1]); return; }
     if (/^(FORMULA|DEFS)-/.test(key)){ $('#notes-content').innerHTML = quickListPage(key); updateNotesDownloads(key); return; }
+    if (key.indexOf('LESSON-') === 0 && window.PhysiQLessons && window.PhysiQLessons.has(key)){
+      const LS = window.PhysiQLessons, box = $('#notes-content');
+      box.innerHTML = LS.render(key); LS.init(box); updateNotesDownloads(LS.LESSONS[key].topics[0]); return;
+    }
     let title = key, body;
     if (key.indexOf('GUIDE-') === 0){
       title = NOTES_EXTRA.titles[key] || 'Section A Guide';
@@ -6627,7 +6643,8 @@ const NOTES_EXTRA = (function(){
     const key = $('#notes-topic-select').value;
     if (EXTRA_NOTES[key]){ $$('.tab').find(t=>t.dataset.tab==='structured').click(); window.scrollTo({top:0, behavior:'smooth'}); return; }
     let wanted;
-    if (key.indexOf('GUIDE-') === 0 || key.indexOf('DERIV-') === 0 || /^(FORMULA|DEFS)-/.test(key)) wanted = TOPICS.slice();
+    if (key.indexOf('LESSON-') === 0 && window.PhysiQLessons && window.PhysiQLessons.has(key)) wanted = window.PhysiQLessons.LESSONS[key].topics.slice();
+    else if (key.indexOf('GUIDE-') === 0 || key.indexOf('DERIV-') === 0 || /^(FORMULA|DEFS)-/.test(key)) wanted = TOPICS.slice();
     else wanted = [key];
     $$('.tab').forEach(t=>t.classList.remove('active'));
     const studentTab = $$('.tab').find(t=>t.dataset.tab==='student');
