@@ -79,6 +79,8 @@
       toc: [['ls-12-1', '12.1 Conduction'], ['ls-12-2', '12.2 Convection'], ['ls-12-3', '12.3 Radiation'], ['ls-12-4', '12.4 Global warming']] },
     'LESSON-S3-19': { sem: '3', chapter: 19, title: 'Oscillations', topics: ['S3-19.1 Characteristics of Simple Harmonic Motion', 'S3-19.2 Kinematics of Simple Harmonic Motion', 'S3-19.3 Energy in Simple Harmonic Motion', 'S3-19.4 Systems in Simple Harmonic Motion', 'S3-19.5 Damped Oscillation', 'S3-19.6 Forced Oscillation and Resonance'], sims: 4,
       toc: [['ls-19-1', '19.1 Characteristics'], ['ls-19-2', '19.2 Kinematics'], ['ls-19-3', '19.3 Energy'], ['ls-19-4', '19.4 Systems'], ['ls-19-5', '19.5 Damping'], ['ls-19-6', '19.6 Resonance'], ['ls-19-7', 'Summary']] },
+    'LESSON-S3-20': { sem: '3', chapter: 20, title: 'Wave Motion', topics: ['S3-20.1 Progressive Waves', 'S3-20.2 Wave Intensity', 'S3-20.3 Principle of Superposition', 'S3-20.4 Standing Waves', 'S3-20.5 Electromagnetic Waves'], sims: 4,
+      toc: [['ls-20-1', '20.1 Progressive waves'], ['ls-20-2', '20.2 Intensity'], ['ls-20-3', '20.3 Superposition'], ['ls-20-4', '20.4 Standing waves'], ['ls-20-5', '20.5 EM waves'], ['ls-20-6', 'Summary']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
