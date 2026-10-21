@@ -140,7 +140,7 @@ ${exercises('Exercises: deformation of solids', [
     function draw() {
       const ctx = cv.ctx, { w, h } = cv.size(0.55, 280, 420);
       ctx.clearRect(0, 0, w, h);
-      const p = panel(ctx, { x: 56, y: 24, w: w - 80, h: h - 70 }, 0, 1, 0, 1.1, 'strain ε (relative)', 'σ', '(relative)');
+      const p = panel(ctx, { x: 56, y: 44, w: w - 80, h: h - 90 }, 0, 1, 0, 1.1, 'strain ε (relative)', 'σ', '(relative)');
       ctx.strokeStyle = 'rgba(28,34,48,.25)'; ctx.lineWidth = 2; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const e = eMax() * i / 200; i ? ctx.lineTo(p.X(e), p.Y(curve(S.m, e))) : ctx.moveTo(p.X(e), p.Y(curve(S.m, e))); } ctx.stroke();
       ctx.strokeStyle = COL.v; ctx.lineWidth = 3; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const e = S.maxStrain * i / 200; i ? ctx.lineTo(p.X(e), p.Y(curve(S.m, e))) : ctx.moveTo(p.X(e), p.Y(curve(S.m, e))); } ctx.stroke();
       let curE = S.maxStrain, curS = curve(S.m, S.maxStrain);
@@ -155,7 +155,7 @@ ${exercises('Exercises: deformation of solids', [
         if (perm > 0) text(ctx, 'permanent strain', p.X(perm) + 6, p.Y(0) - 8, { fs: 11, c: COL.r, b: 1 });
       } else if (S.released) { curE = 0; curS = 0; }
       ctx.beginPath(); ctx.arc(p.X(curE), p.Y(curS), 6, 0, 7); ctx.fillStyle = COL.r; ctx.fill();
-      text(ctx, S.broken ? 'The wire has broken' : (S.released ? (perm > 0 ? 'Load removed: the wire stays longer (plastic deformation)' : 'Load removed: the wire returns to its original length (elastic)') : region(S.maxStrain)), 62, 16, { b: 1, fs: 12, c: S.broken ? COL.r : COL.gr });
+      text(ctx, S.broken ? 'The wire has broken' : (S.released ? (perm > 0 ? 'Load removed: the wire stays longer (plastic deformation)' : 'Load removed: the wire returns to its original length (elastic)') : region(S.maxStrain)), w - 12, 16, { a: 'right', b: 1, fs: 12, c: S.broken ? COL.r : COL.gr });
       ro([['material', MAT[S.m].name], ['stress now', fmt(curS, 2)], ['strain now', fmt(curE, 3)], ['permanent strain', fmt(perm, 3), perm > 0 ? 'ao' : '']]);
     }
     new ResizeObserver(() => draw()).observe(root);
