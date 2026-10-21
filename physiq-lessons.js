@@ -77,6 +77,8 @@
       toc: [['ls-11-1', '11.1 Molar heat capacity'], ['ls-11-2', '11.2 Work done by a gas'], ['ls-11-3', '11.3 First law'], ['ls-11-4', '11.4 Isothermal and adiabatic']] },
     'LESSON-12': { sem: '1', chapter: 12, title: 'Heat Transfer', topics: ['12.1 Conduction, Convection and Radiation'], sims: 2,
       toc: [['ls-12-1', '12.1 Conduction'], ['ls-12-2', '12.2 Convection'], ['ls-12-3', '12.3 Radiation'], ['ls-12-4', '12.4 Global warming']] },
+    'LESSON-S3-19': { sem: '3', chapter: 19, title: 'Oscillations', topics: ['S3-19.1 Characteristics of Simple Harmonic Motion', 'S3-19.2 Kinematics of Simple Harmonic Motion', 'S3-19.3 Energy in Simple Harmonic Motion', 'S3-19.4 Systems in Simple Harmonic Motion', 'S3-19.5 Damped Oscillation', 'S3-19.6 Forced Oscillation and Resonance'], sims: 4,
+      toc: [['ls-19-1', '19.1 Characteristics'], ['ls-19-2', '19.2 Kinematics'], ['ls-19-3', '19.3 Energy'], ['ls-19-4', '19.4 Systems'], ['ls-19-5', '19.5 Damping'], ['ls-19-6', '19.6 Resonance'], ['ls-19-7', 'Summary']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
