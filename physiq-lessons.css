@@ -139,3 +139,22 @@
 /* the "Full notes" entry stands out in the chapter list (Notes and Home) */
 .nn-tp[data-pick^="LESSON-"]{background:var(--tagy) !important;color:var(--tagy-ink) !important;border-color:var(--tagy) !important;font-weight:700;}
 .nn-tp[data-pick^="LESSON-"]::before{content:"★ ";}
+.ls-dim{font-family:"Newsreader",Georgia,serif;font-size:1.08em;letter-spacing:.02em;}
+.ls-opts{margin:6px 0 4px;padding-left:1.6em;}
+.ls-opts li{margin:3px 0;}
+.ls-pq .ls-ex-h{background:var(--violet-b);}
+.ls-stpm .ls-ex-h{background:var(--pg-dark);color:var(--tagy);}
+.ls-flow{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin:10px 0;}
+.ls-flow span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-weight:600;}
+.ls-checks{list-style:none;padding:0;margin:8px 0;}
+.ls-checks li{padding:4px 0 4px 1.7em;position:relative;}
+.ls-checks li::before{content:"✓";position:absolute;left:0;color:#2F7D3A;font-weight:800;}
+.ls-checks.x li::before{content:"✗";color:#C0392B;}
+.sm-tablew{overflow-x:auto;margin-top:10px;}
+.sm-table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums;}
+.sm-table th{background:#F4F5EE;text-align:left;padding:6px 10px;font-weight:600;color:var(--sub);}
+.sm-table td{padding:6px 10px;border-top:1px solid var(--line);}
+.sm-table tr.sum td{background:#FBF7C9;font-weight:700;}
+.ls-head > *{position:relative;z-index:1;}
+.ls-head::after{z-index:0;}
+#notes-content .ls-title.long{font-size:clamp(28px,5.4vw,44px);}

@@ -319,12 +319,14 @@
     reset(false);
   }
 
+  // chapter files add their own simulations with PhysiQSims.add(kind, fn) and use these helpers
   const KINDS = { graphs: simGraphs, vertical: simVertical, projectile: simProjectile };
+  const U = { g, COL, fmt, clamp, el, slider, toggle, button, canvas, arrow, text, niceStep, ball, panel, loop, readouts };
   function mountAll(scope) {
     (scope || document).querySelectorAll('.ls-sim[data-sim]:not([data-on])').forEach(d => {
       const f = KINDS[d.dataset.sim]; if (!f) return; d.dataset.on = '1';
       try { f(d); } catch (e) { d.innerHTML = '<p class="sm-err">This simulation could not start on this browser.</p>'; if (window.console) console.error(e); }
     });
   }
-  window.PhysiQSims = { mountAll };
+  window.PhysiQSims = { mountAll, U, add: (k, f) => { KINDS[k] = f; } };
 })();
