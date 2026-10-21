@@ -59,6 +59,8 @@
       toc: [['ls-1-1', '1.1 Dimensions and SI units'], ['ls-1-1-u', 'Unit conversion'], ['ls-1-1-d', 'Dimensions'], ['ls-1-1-a', 'Applications of dimensions'], ['ls-1-2', '1.2 Scalars and vectors'], ['ls-1-2-p', 'Dot and cross product'], ['ls-1-2-c', 'Component method'], ['ls-1-3', '1.3 Uncertainties'], ['ls-1-tips', 'Exam tips']] },
     'LESSON-3': { sem: '1', chapter: 3, title: 'Dynamics', topics: ["3.1 Newton's Laws of Motion", '3.2 Linear Momentum', '3.3 Elastic and Inelastic Collisions', '3.4 Friction'], sims: 2,
       toc: [['ls-3-1', "3.1 Newton's laws"], ['ls-3-2', '3.2 Momentum and impulse'], ['ls-3-3', '3.3 Reaction and friction']] },
+    'LESSON-4': { sem: '1', chapter: 4, title: 'Work, Energy and Power', topics: ['4.1 Work Done by a Force', '4.2 Conservation of Energy', '4.3 Power and Efficiency'], sims: 1,
+      toc: [['ls-4-1', '4.1 Work'], ['ls-4-2', '4.2 Conservation of energy'], ['ls-4-3', '4.3 Power and efficiency']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
