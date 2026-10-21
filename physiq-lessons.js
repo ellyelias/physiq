@@ -36,7 +36,7 @@
   }
   // line: c = colour key (k v o g r s), a = 'e' arrow at end, 'b' both, '' none
   const L = (x1, y1, x2, y2, c = 'k', a = '', o = {}) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${C[c === 'k' ? 'ink' : c === 's' ? 'sub' : c]}" stroke-width="${o.w || 2}"${o.d ? ` stroke-dasharray="${o.d}"` : ''}${a === 'e' || a === 'b' ? ` marker-end="url(#§${c})"` : ''}${a === 'b' ? ` marker-start="url(#§${c})"` : ''} stroke-linecap="round"/>`;
-  const T = (x, y, s, o = {}) => (s = String(s).replace(/([a-z])ᵧ(.*)$/, '$1<tspan font-size="10" dy="3">y</tspan><tspan dy="-3">$2</tspan>'), `<text x="${x}" y="${y}" font-size="${o.fs || 14}" fill="${o.c || C.ink}" text-anchor="${o.a || 'middle'}"${o.it ? ' font-style="italic"' : ''}${o.b ? ' font-weight="700"' : ''}>${s}</text>`);
+  const T = (x, y, s, o = {}) => (s = String(s).replace(/([A-Za-z])_([A-Za-z0-9]+)/g, '$1<tspan font-size="0.72em" dy="0.25em">$2</tspan><tspan dy="-0.25em"></tspan>').replace(/([a-z])ᵧ(.*)$/, '$1<tspan font-size="10" dy="3">y</tspan><tspan dy="-3">$2</tspan>'), `<text x="${x}" y="${y}" font-size="${o.fs || 14}" fill="${o.c || C.ink}" text-anchor="${o.a || 'middle'}"${o.it ? ' font-style="italic"' : ''}${o.b ? ' font-weight="700"' : ''}>${s}</text>`);
   const P = (d, c = 'ink', o = {}) => `<path d="${d}" fill="${o.fill || 'none'}" stroke="${C[c] || c}" stroke-width="${o.w || 2.4}"${o.d ? ` stroke-dasharray="${o.d}"` : ''}${o.a ? ` marker-end="url(#§${o.a})"` : ''} stroke-linejoin="round" stroke-linecap="round"/>`;
   const dot = (x, y, r = 6, c = C.ball) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" stroke="${C.ink}" stroke-width="1.2"/>`;
   // axes with arrow heads, origin (x0,y0), lengths w,h
@@ -65,6 +65,8 @@
       toc: [['ls-5-1', '5.1 Angular velocity'], ['ls-5-2', '5.2 Centripetal acceleration'], ['ls-5-3', '5.3 Centripetal force']] },
     'LESSON-6': { sem: '1', chapter: 6, title: 'Gravitation', topics: ["6.1 Newton's Law of Gravitation", '6.2 Gravitational Field and Potential', '6.3 Satellite Motion'], sims: 1,
       toc: [['ls-6-1', '6.1 Law of gravitation'], ['ls-6-2', '6.2 Gravitational field'], ['ls-6-3', '6.3 Gravitational potential'], ['ls-6-4', '6.4 Satellites'], ['ls-6-5', '6.5 Escape velocity'], ['ls-6-pyq', 'Past-year questions']] },
+    'LESSON-7': { sem: '1', chapter: 7, title: 'Rotation of Rigid Bodies', topics: ['7.1 Torque and Angular Acceleration', '7.2 Moment of Inertia', '7.3 Angular Momentum and Rotational Kinetic Energy'], sims: 1,
+      toc: [['ls-7-1', '7.1 Centre of mass'], ['ls-7-2', '7.2 Moment of inertia'], ['ls-7-3', '7.3 Torque'], ['ls-7-4', '7.4 Angular momentum'], ['ls-7-5', '7.5 Rotational KE']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
