@@ -73,6 +73,8 @@
       toc: [['ls-9-0', 'Deformation'], ['ls-9-1', '9.1 Stress and strain'], ['ls-9-2', '9.2 Graphs and Young\u2019s modulus'], ['ls-9-3', '9.3 Strain energy']] },
     'LESSON-10': { sem: '1', chapter: 10, title: 'Kinetic Theory of Gases', topics: ['10.1 Ideal Gas Equation', '10.2 Kinetic Theory and Molecular Speeds'], sims: 1,
       toc: [['ls-10-1', '10.1 Ideal gas equation'], ['ls-10-2', '10.2 Pressure of a gas'], ['ls-10-3', '10.3 Molecular KE'], ['ls-10-4', '10.4 Degrees of freedom'], ['ls-10-5', '10.5 Internal energy']] },
+    'LESSON-11': { sem: '1', chapter: 11, title: 'Thermodynamics of Gases', topics: ['11.1 First Law of Thermodynamics', '11.2 Thermodynamic Processes'], sims: 1,
+      toc: [['ls-11-1', '11.1 Molar heat capacity'], ['ls-11-2', '11.2 Work done by a gas'], ['ls-11-3', '11.3 First law'], ['ls-11-4', '11.4 Isothermal and adiabatic']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
