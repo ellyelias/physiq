@@ -219,3 +219,32 @@ button{border-radius:999px;}
   .nn-home{padding:18px 16px 20px;border-radius:20px;}
   .nn-home .nn-big{font-size:31px;}
 }
+
+/* Practice summary: review every answer after a session */
+#summary-review{margin:18px 0 6px;}
+.rv-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+.rv-head h3{margin:0;font-family:var(--head);font-weight:600;font-size:19px;text-transform:uppercase;color:var(--pg-dark);}
+.rv-tabs{display:flex;gap:6px;}
+.rv-tab{background:#fff;border:1.5px solid #CFC6F7;color:var(--violet-d);padding:6px 14px;font-size:13.5px;}
+.rv-tab.on{background:var(--violet-b);border-color:var(--violet-b);color:#fff;}
+.rv-item{border:1.5px solid #E1E5D2;border-radius:14px;margin:0 0 8px;background:#fff;overflow:hidden;}
+.rv-item.bad{border-color:#F0C4BF;}
+.rv-item summary{list-style:none;display:flex;align-items:baseline;gap:8px;padding:11px 14px;cursor:pointer;}
+.rv-item summary::-webkit-details-marker{display:none;}
+.rv-n{font-weight:700;color:var(--sub);font-size:13px;min-width:2.2em;}
+.rv-mark{font-weight:800;}
+.rv-item.ok .rv-mark{color:var(--green);} .rv-item.bad .rv-mark{color:var(--red);}
+.rv-t{flex:1;min-width:0;font-size:14px;color:var(--ink);}
+.rv-item[open] .rv-t{color:var(--sub);}
+.rv-body{padding:0 14px 14px;}
+.rv-topic{font-size:12.5px;font-weight:700;color:var(--violet-d);margin-bottom:4px;}
+.rv-q{font-size:15px;margin:0 0 10px;line-height:1.55;}
+.rv-fig{margin:0 0 10px;max-width:420px;}
+.rv-fig svg{width:100%;height:auto;}
+.rv-opt{border:1.5px solid #E1E5D2;border-radius:12px;padding:8px 12px;margin:0 0 6px;font-size:14px;}
+.rv-opt b{font-size:12px;margin-left:6px;}
+.rv-opt.rv-right{border-color:var(--green);background:var(--green-tint);color:#1F5A30;}
+.rv-opt.rv-wrong{border-color:var(--red);background:var(--red-tint);color:#7E241F;}
+.rv-exp{margin-top:10px;background:#F4F6E6;border-left:4px solid var(--lime-deep);border-radius:0 12px 12px 0;padding:10px 12px;font-size:14px;line-height:1.55;white-space:pre-line;}
+.rv-why{margin-top:8px;font-size:13.5px;color:#7E241F;}
+.rv-none{color:var(--sub);}

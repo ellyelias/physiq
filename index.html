@@ -744,6 +744,7 @@
         <p class="score-label" id="score-pct-label"></p>
       </div>
       <div class="breakdown" id="summary-breakdown"></div>
+      <div id="summary-review"></div>
       <div class="btn-row">
         <button class="btn-primary" id="retry-btn">New session</button>
         <button class="btn-ghost" id="learn-back-a" hidden>← Back to chapter</button>
@@ -5577,9 +5578,36 @@ const SEM3_BATCH3_CH25 = [
       </div>
     `).join('');
 
+    renderQuizReview();
+
     const topicList = Object.keys(byTopic).map(t=>t.split(' ')[0]).join(', ');
     await appendHistory({topics: topicList, correct, total, date: new Date().toISOString()});
     await renderHistory();
+  }
+
+  // After a session: every question again with the student's answer, the correct answer and the explanation (wrong ones first shown).
+  function renderQuizReview(showAll){
+    const box = $('#summary-review'); if (!box || !quizState) return;
+    const items = quizState.questions.map((q, i) => ({q, i, a: quizState.answers[i]})).filter(x => x.a);
+    const wrong = items.filter(x => !x.a.correct);
+    const list = showAll ? items : wrong;
+    const L = 'ABCDEFGH';
+    const one = ({q, i, a}) => {
+      const opts = q.options.map((o, k) => {
+        const cls = k === q.correctIndex ? ' rv-right' : (k === a.selected ? ' rv-wrong' : '');
+        const tag = k === q.correctIndex ? ' <b>✓ correct answer</b>' : (k === a.selected ? ' <b>✗ your answer</b>' : '');
+        return `<div class="rv-opt${cls}">${L[k]}. ${mathify(escapeHtml(o))}${tag}</div>`;
+      }).join('');
+      const exp = mathify(escapeHtml(q.explanation || '').replace(/^(Formula|Working|Answer|Key point|Reason|Note):/gm, '<b>$1:</b>'));
+      const note = Array.isArray(q.optionNotes) && !a.correct && q.optionNotes[a.selected] ? `<div class="rv-why"><b>Why ${L[a.selected]} is wrong:</b> ${mathify(escapeHtml(q.optionNotes[a.selected]))}</div>` : '';
+      const fig = (window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
+      return `<details class="rv-item${a.correct ? ' ok' : ' bad'}"${a.correct ? '' : ' open'}><summary><span class="rv-n">Q${i + 1}</span><span class="rv-mark">${a.correct ? '✓' : '✗'}</span><span class="rv-t">${escapeHtml(q.topic.replace(/^S[23]-/, ''))}</span></summary>
+        <div class="rv-body"><div class="rv-q">${mathify(escapeHtml(q.question))}</div>${fig ? `<div class="rv-fig">${fig}</div>` : ''}${opts}<div class="rv-exp">${exp}</div>${note}</div></details>`;
+    };
+    box.innerHTML = `<div class="rv-head"><h3>Review your answers</h3>
+      <div class="rv-tabs"><button type="button" class="rv-tab${showAll ? '' : ' on'}" data-all="0">Wrong (${wrong.length})</button><button type="button" class="rv-tab${showAll ? ' on' : ''}" data-all="1">All (${items.length})</button></div></div>
+      ${list.length ? list.map(one).join('') : '<p class="rv-none">No wrong answers in this session. Tap All to look through the questions again.</p>'}`;
+    box.querySelectorAll('.rv-tab').forEach(b => b.addEventListener('click', () => renderQuizReview(b.dataset.all === '1')));
   }
 
   $('#retry-btn').addEventListener('click', ()=>{
@@ -6494,7 +6522,7 @@ const NOTES_EXTRA = (function(){
       t=t.replace(/_\{([^}]+)\}/g,(m,a)=>'<sub>'+a+'</sub>');
       t=t.replace(/([A-Za-zΑ-Ωα-ωπ0-9\)′'])_([A-Za-z0-9]+)/g,(m,a,b)=>a+'<sub>'+b+'</sub>');
       t=t.replace(/\^\(([^()]+)\)/g,(m,a)=>'<sup>'+a.replace(/^-/,'−')+'</sup>');
-      t=t.replace(/\^([-+−]?[A-Za-zΑ-Ωα-ω0-9]+(?:\.\d+)?)/g,(m,a)=>'<sup>'+a.replace(/^-/,'−')+'</sup>');
+      t=t.replace(/\^([-+−]?(?:\d+(?:\.\d+)?|[A-Za-zΑ-Ωα-ω][A-Za-zΑ-Ωα-ω0-9]*))/g,(m,a)=>'<sup>'+a.replace(/^-/,'−')+'</sup>');
       // square roots
       t=t.replace(/√\(((?:[^()]|\([^()]*\))*)\)/g,(m,a)=>'<span class="sqrt">√<span class="rad">'+a+'</span></span>');
       t=t.replace(/√([A-Za-z0-9π]+(?:\.\d+)?(?:<su[bp]>[^<]*<\/su[bp]>)?)/g,(m,a)=>'<span class="sqrt">√<span class="rad">'+a+'</span></span>');
