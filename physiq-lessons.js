@@ -63,6 +63,8 @@
       toc: [['ls-4-1', '4.1 Work'], ['ls-4-2', '4.2 Conservation of energy'], ['ls-4-3', '4.3 Power and efficiency']] },
     'LESSON-5': { sem: '1', chapter: 5, title: 'Circular Motion', topics: ['5.1 Angular Velocity and Centripetal Acceleration', '5.2 Centripetal Force'], sims: 2,
       toc: [['ls-5-1', '5.1 Angular velocity'], ['ls-5-2', '5.2 Centripetal acceleration'], ['ls-5-3', '5.3 Centripetal force']] },
+    'LESSON-6': { sem: '1', chapter: 6, title: 'Gravitation', topics: ["6.1 Newton's Law of Gravitation", '6.2 Gravitational Field and Potential', '6.3 Satellite Motion'], sims: 1,
+      toc: [['ls-6-1', '6.1 Law of gravitation'], ['ls-6-2', '6.2 Gravitational field'], ['ls-6-3', '6.3 Gravitational potential'], ['ls-6-4', '6.4 Satellites'], ['ls-6-5', '6.5 Escape velocity'], ['ls-6-pyq', 'Past-year questions']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };

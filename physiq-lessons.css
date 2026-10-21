@@ -133,7 +133,9 @@
   .ls-gtab{grid-template-columns:repeat(3,minmax(0,1fr));}
   .ls-gtab .ls-gh:first-child{display:none;}
   .ls-gr{grid-column:1 / -1;min-width:0;padding:4px !important;}
-  .sm-sl{flex-basis:100%;}
+  .sm-sl{flex-basis:100%;flex-wrap:wrap;gap:2px 8px;}
+  .sm-sl-l{flex:1 1 100%;}
+  .sm-sl input{flex:1 1 0;}
 }
 
 /* the "Full notes" entry stands out in the chapter list (Notes and Home) */
