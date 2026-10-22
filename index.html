@@ -338,6 +338,8 @@
   .sp-photo-hint{font-size:12px;color:var(--sub);}
   .sp-photo-preview{margin-top:8px;}
   .sp-photo-preview img{display:block;max-width:100%;max-height:420px;border:1px solid var(--line);border-radius:6px;margin-bottom:6px;}
+  .sp-photo-preview{display:flex;flex-wrap:wrap;gap:10px;} .sp-photo-preview[hidden]{display:none;} .sp-photo-fig{margin:0;max-width:240px;} .sp-photo-fig figcaption,.pt-photo figcaption{font-size:12px;font-weight:700;color:var(--sub);}
+  .sp-photo-fig img{max-height:260px;}
 
   .past-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;}
   @media (min-width: 760px){ .past-layout{grid-template-columns:minmax(0,1fr) 300px;align-items:start;} .past-side{position:sticky;top:12px;} }
@@ -9659,8 +9661,8 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
         ${symbolBarHTML(i)}
         <div class="sp-photo-row">
           <label class="sp-photo-btn" for="sp-photo-${i}">📷 Photo of my working</label>
-          <input type="file" accept="image/*" id="sp-photo-${i}" class="sp-photo-input" data-i="${i}" hidden>
-          <span class="sp-photo-hint">Write on paper, then add a photo to compare with the scheme.</span>
+          <input type="file" accept="image/*" multiple id="sp-photo-${i}" class="sp-photo-input" data-i="${i}" hidden>
+          <span class="sp-photo-hint">Write on paper, then add a photo to compare with the scheme. Answer longer than one page? Add one photo for each page.</span>
         </div>
         <div class="sp-photo-preview" id="sp-photo-prev-${i}" hidden></div>
         <div class="btn-row sp-btns"><button class="btn-ghost sp-check" data-i="${i}">Check against scheme</button></div>
@@ -9768,18 +9770,21 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
         insertAt(el, b.dataset.s);
       }
     }));
-    $$('.sp-photo-input').forEach(inp => inp.addEventListener('change', () => {
-      const i = inp.dataset.i;
-      const box = document.getElementById(`sp-photo-prev-${i}`);
-      const f = inp.files && inp.files[0];
-      if (!f) return;
-      const r = new FileReader();
-      r.onload = () => {
-        box.innerHTML = `<img src="${r.result}" alt="Photo of working for part ${i}"><button type="button" class="icon-btn sp-photo-remove">Remove photo</button>`;
-        box.hidden = false;
-        box.querySelector('.sp-photo-remove').addEventListener('click', () => { box.innerHTML = ''; box.hidden = true; inp.value = ''; });
-      };
-      r.readAsDataURL(f);
+    const spPhotos = {};
+    const spRender = i => {
+      const box = document.getElementById(`sp-photo-prev-${i}`), list = spPhotos[i] || [], btn = document.querySelector(`label[for="sp-photo-${i}"]`);
+      if (btn) btn.textContent = list.length ? '📷 Add another page' : '📷 Photo of my working';
+      box.hidden = !list.length;
+      box.innerHTML = list.map((src, k) => `<figure class="sp-photo-fig"><figcaption>Page ${k + 1}</figcaption><img src="${src}" alt="Page ${k + 1} of your working for part ${i}"><button type="button" class="icon-btn sp-photo-remove" data-k="${k}">Remove page ${k + 1}</button></figure>`).join('');
+      box.querySelectorAll('.sp-photo-remove').forEach(rb => rb.addEventListener('click', () => { list.splice(+rb.dataset.k, 1); spRender(i); }));
+    };
+    $$('.sp-photo-input').forEach(inp => inp.addEventListener('change', async () => {
+      const i = inp.dataset.i, files = [...(inp.files || [])];
+      inp.value = '';
+      for (const f of files){
+        try{ (spPhotos[i] = spPhotos[i] || []).push(await ptShrink(f)); }catch(e){ console.error('photo', e); }
+      }
+      spRender(i);
     }));
   }
 
@@ -9879,7 +9884,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     return `<textarea class="pt-box${sub ? ' pt-box-sub' : ''}" data-q="${n}" data-k="${n}|${j}" rows="3" maxlength="4000" placeholder="Type your answer and working here" aria-label="Your answer for Question ${n}, part ${j + 1}"></textarea>`;
   }
   function ptSelfHTML(n, total){
-    return `<div class="sp-photo-row"><label class="sp-photo-btn"><span class="pt-when-type">Add photo of handwritten working</span><span class="pt-when-paper">Snap my answer to Question ${n}</span><input type="file" accept="image/*" multiple class="pt-photo-in" data-q="${n}" hidden></label>
+    return `<div class="sp-photo-row"><label class="sp-photo-btn"><span class="pt-when-type">Add photo of handwritten working</span><span class="pt-when-paper pt-snap-l" data-q="${n}">Snap my answer to Question ${n}</span><input type="file" accept="image/*" multiple class="pt-photo-in" data-q="${n}" hidden></label>
       <span class="sp-photo-hint pt-when-type">For sketches, graphs and diagrams. The photos go into your PDF.</span>
       <span class="sp-photo-hint pt-when-paper">Write all parts of Question ${n} on paper, then snap it. Add another photo for each extra page.</span></div>
       <div class="pt-photos" data-q="${n}"></div>
@@ -10005,8 +10010,10 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     const box = document.querySelector(`.pt-photos[data-q="${q}"]`);
     if (!box) return;
     const list = ptState.photos[q] || [];
-    box.innerHTML = list.map((src, i) => `<figure class="pt-photo"><img src="${src}" alt="Photo ${i + 1} of your working for Question ${q}">
-      <button type="button" class="btn-ghost pt-photo-rm" data-i="${i}">Remove photo</button></figure>`).join('');
+    box.innerHTML = list.map((src, i) => `<figure class="pt-photo"><figcaption>Page ${i + 1}</figcaption><img src="${src}" alt="Page ${i + 1} of your working for Question ${q}">
+      <button type="button" class="btn-ghost pt-photo-rm" data-i="${i}">Remove page ${i + 1}</button></figure>`).join('');
+    const lab = document.querySelector(`.pt-snap-l[data-q="${q}"]`);
+    if (lab) lab.textContent = list.length ? `+ Snap the next page (page ${list.length + 1})` : `Snap my answer to Question ${q}`;
     box.querySelectorAll('.pt-photo-rm').forEach(b => b.addEventListener('click', () => {
       ptState.photos[q].splice(+b.dataset.i, 1);
       if (!ptState.photos[q].length) delete ptState.photos[q];
