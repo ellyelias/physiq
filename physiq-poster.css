@@ -248,3 +248,5 @@ button{border-radius:999px;}
 .rv-exp{margin-top:10px;background:#F4F6E6;border-left:4px solid var(--lime-deep);border-radius:0 12px 12px 0;padding:10px 12px;font-size:14px;line-height:1.55;white-space:pre-line;}
 .rv-why{margin-top:8px;font-size:13.5px;color:#7E241F;}
 .rv-none{color:var(--sub);}
+.rv-sum{display:flex;align-items:baseline;gap:8px;padding:11px 14px;}
+.rv-open{width:100%;}

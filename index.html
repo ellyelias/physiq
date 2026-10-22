@@ -539,7 +539,7 @@
   }
 </style>
 <link rel="stylesheet" href="physiq-v2.css">
-<link rel="stylesheet" href="physiq-poster.css">
+<link rel="stylesheet" href="physiq-poster.css?v=20261022c">
 <link rel="stylesheet" href="physiq-lessons.css?v=20261022b">
 </head>
 <body>
@@ -5486,9 +5486,9 @@ const SEM3_BATCH3_CH25 = [
     const q = questions[index];
     $('#qcounter').textContent = `Q${index+1} / ${questions.length}`;
     $('#progress-fill').style.width = `${(index/questions.length)*100}%`;
-    const answeredSoFar = quizState.answers.length;
-    const acc = answeredSoFar ? Math.round((quizState.correctCount/answeredSoFar)*100) : 0;
-    $('#accuracy-badge').textContent = `± ${acc}% so far`;
+    // Exam style: no right/wrong until the whole set is finished.
+    const answeredSoFar = quizState.answers.filter(Boolean).length;
+    $('#accuracy-badge').textContent = `${answeredSoFar} / ${questions.length} answered`;
     $('#quiz-qtag').innerHTML = `${q.topic} ${diffPillHTML(q.difficulty)}${srcPillHTML(q)}`;
     $('#quiz-qtext').innerHTML = mathify(escapeHtml(q.question));
     $('#quiz-diagram').innerHTML = (window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
@@ -5505,45 +5505,20 @@ const SEM3_BATCH3_CH25 = [
       btn.addEventListener('click', ()=> handleAnswer(parseInt(btn.dataset.idx,10)));
     });
     $('#back-btn').style.display = index > 0 ? 'inline-block' : 'none';
-    // A question already answered (student pressed Back) is shown again with its feedback; it cannot be re-scored.
+    // A question already answered (student pressed Back) shows the chosen option; the student may change it before finishing.
     const had = quizState.answers[index];
     if (had && typeof had.selected === 'number') handleAnswer(had.selected, true);
   }
 
-  function handleAnswer(selectedIdx, replay){
+  function handleAnswer(selectedIdx){
     const {questions, index} = quizState;
     const q = questions[index];
-    const isCorrect = selectedIdx === q.correctIndex;
-    if (!replay){
-      if (isCorrect) quizState.correctCount++;
-      quizState.answers.push({topic:q.topic, correct:isCorrect, selected:selectedIdx});
-    }
-
-    $$('.choice').forEach((btn,i)=>{
-      btn.disabled = true;
-      if (i===q.correctIndex) btn.classList.add('correct');
-      else if (i===selectedIdx) btn.classList.add('incorrect');
-    });
-
-    const explainEl = $('#quiz-explain');
-    let notesHtml = '';
-    if (Array.isArray(q.optionNotes)){
-      q.optionNotes.forEach((note, i) => {
-        if (i !== q.correctIndex && note){
-          notesHtml += `<div style="margin-top:6px;"><b>${String.fromCharCode(65+i)}.</b> ${mathify(escapeHtml(note))}</div>`;
-        }
-      });
-    }
-    const expHtml = mathify(escapeHtml(q.explanation).replace(/^(Formula|Working|Answer|Key point|Reason|Note):/gm, '<b>$1:</b>'));
-    explainEl.innerHTML = `<b>${isCorrect ? 'Correct.' : 'Not quite.'}</b>${q.explanation.indexOf('\n') > -1 ? '\n' : ' '}${expHtml}` +
-      (notesHtml ? `<div style="margin-top:10px;font-weight:700;color:var(--navy);">Why the other options are wrong:</div>${notesHtml}` : '');
-    explainEl.classList.add('show');
-
-    const acc = Math.round((quizState.correctCount/quizState.answers.length)*100);
-    $('#accuracy-badge').textContent = `± ${acc}% so far`;
-
+    quizState.answers[index] = {topic:q.topic, correct: selectedIdx === q.correctIndex, selected:selectedIdx};
+    $$('.choice').forEach((btn,i)=> btn.classList.toggle('picked', i === selectedIdx));
+    const answeredSoFar = quizState.answers.filter(Boolean).length;
+    $('#accuracy-badge').textContent = `${answeredSoFar} / ${questions.length} answered`;
     $('#next-btn').style.display = 'inline-block';
-    $('#next-btn').textContent = (index === questions.length-1) ? 'See results →' : 'Next question →';
+    $('#next-btn').textContent = (index === questions.length-1) ? 'Finish and see my score →' : 'Next question →';
   }
 
   $('#back-btn').addEventListener('click', ()=>{
@@ -5563,11 +5538,13 @@ const SEM3_BATCH3_CH25 = [
     $('#quiz-card').style.display = 'none';
     $('#summary-card').style.display = 'block';
 
+    quizState.answers = quizState.answers.filter(Boolean);
     const total = quizState.answers.length;
-    const correct = quizState.correctCount;
+    const correct = quizState.answers.filter(a => a.correct).length;
+    quizState.correctCount = correct;
     $('#score-got').textContent = correct;
     $('#score-total').textContent = total;
-    $('#score-pct-label').textContent = `${Math.round((correct/total)*100)}% correct`;
+    $('#score-pct-label').innerHTML = `<b style="color:var(--green)">${correct} correct</b> · <b style="color:var(--red)">${total - correct} wrong</b> · ${Math.round((correct/total)*100)}%`;
 
     const byTopic = {};
     quizState.answers.forEach(a=>{
@@ -5590,29 +5567,31 @@ const SEM3_BATCH3_CH25 = [
     await renderHistory();
   }
 
-  // After a session: every question again with the student's answer, the correct answer and the explanation (wrong ones first shown).
-  function renderQuizReview(showAll){
+  // After a session: one button opens the full paper - every question with the student's answer,
+  // the correct answer, the full explanation and why each other option is wrong.
+  function renderQuizReview(open){
     const box = $('#summary-review'); if (!box || !quizState) return;
     const items = quizState.questions.map((q, i) => ({q, i, a: quizState.answers[i]})).filter(x => x.a);
-    const wrong = items.filter(x => !x.a.correct);
-    const list = showAll ? items : wrong;
+    if (!open){
+      box.innerHTML = `<button type="button" class="btn-primary rv-open">See full paper with answers and explanations</button>`;
+      box.querySelector('.rv-open').addEventListener('click', () => { renderQuizReview(true); box.scrollIntoView({behavior:'smooth', block:'start'}); });
+      return;
+    }
     const L = 'ABCDEFGH';
     const one = ({q, i, a}) => {
       const opts = q.options.map((o, k) => {
         const cls = k === q.correctIndex ? ' rv-right' : (k === a.selected ? ' rv-wrong' : '');
-        const tag = k === q.correctIndex ? ' <b>✓ correct answer</b>' : (k === a.selected ? ' <b>✗ your answer</b>' : '');
+        const tag = k === q.correctIndex ? (k === a.selected ? ' <b>✓ your answer · correct</b>' : ' <b>✓ correct answer</b>') : (k === a.selected ? ' <b>✗ your answer</b>' : '');
         return `<div class="rv-opt${cls}">${L[k]}. ${mathify(escapeHtml(o))}${tag}</div>`;
       }).join('');
       const exp = mathify(escapeHtml(q.explanation || '').replace(/^(Formula|Working|Answer|Key point|Reason|Note):/gm, '<b>$1:</b>'));
-      const note = Array.isArray(q.optionNotes) && !a.correct && q.optionNotes[a.selected] ? `<div class="rv-why"><b>Why ${L[a.selected]} is wrong:</b> ${mathify(escapeHtml(q.optionNotes[a.selected]))}</div>` : '';
+      const notes = Array.isArray(q.optionNotes) ? q.optionNotes.map((n, k) => (k !== q.correctIndex && n) ? `<div class="rv-why"><b>Why ${L[k]} is wrong:</b> ${mathify(escapeHtml(n))}</div>` : '').join('') : '';
       const fig = (window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
-      return `<details class="rv-item${a.correct ? ' ok' : ' bad'}"${a.correct ? '' : ' open'}><summary><span class="rv-n">Q${i + 1}</span><span class="rv-mark">${a.correct ? '✓' : '✗'}</span><span class="rv-t">${escapeHtml(q.topic.replace(/^S[23]-/, ''))}</span></summary>
-        <div class="rv-body"><div class="rv-q">${mathify(escapeHtml(q.question))}</div>${fig ? `<div class="rv-fig">${fig}</div>` : ''}${opts}<div class="rv-exp">${exp}</div>${note}</div></details>`;
+      return `<div class="rv-item${a.correct ? ' ok' : ' bad'}"><div class="rv-sum"><span class="rv-n">Q${i + 1}</span><span class="rv-mark">${a.correct ? '✓ Correct' : '✗ Wrong'}</span><span class="rv-t">${escapeHtml(q.topic.replace(/^S[23]-/, ''))}</span></div>
+        <div class="rv-body"><div class="rv-q">${mathify(escapeHtml(q.question))}</div>${fig ? `<div class="rv-fig">${fig}</div>` : ''}${opts}<div class="rv-exp">${exp}</div>${notes}</div></div>`;
     };
-    box.innerHTML = `<div class="rv-head"><h3>Review your answers</h3>
-      <div class="rv-tabs"><button type="button" class="rv-tab${showAll ? '' : ' on'}" data-all="0">Wrong (${wrong.length})</button><button type="button" class="rv-tab${showAll ? ' on' : ''}" data-all="1">All (${items.length})</button></div></div>
-      ${list.length ? list.map(one).join('') : '<p class="rv-none">No wrong answers in this session. Tap All to look through the questions again.</p>'}`;
-    box.querySelectorAll('.rv-tab').forEach(b => b.addEventListener('click', () => renderQuizReview(b.dataset.all === '1')));
+    box.innerHTML = `<div class="rv-head"><h3>Full paper</h3><button type="button" class="rv-tab rv-close">Hide</button></div>${items.map(one).join('')}`;
+    box.querySelector('.rv-close').addEventListener('click', () => renderQuizReview(false));
   }
 
   $('#retry-btn').addEventListener('click', ()=>{
