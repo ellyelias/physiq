@@ -1,380 +1,396 @@
-/* Semester 3 Chapter 20 Wave Motion: full notes by Cikgu Suhaili (from chap20_Waves_Motion_latest.pptx).
-   App chapter 20 = STPM 2026 syllabus chapter 21. 20.1, 20.2 and 20.5 are written from the syllabus (the deck covers 20.3 and 20.4). */
+/* Semester 3 Chapter 19 Oscillations: full notes by Cikgu Suhaili (from STPM_2026_CHAPTER_20_OSCILLATION.pdf).
+   App chapter 19 = STPM 2026 syllabus chapter 20. */
 (function () {
   'use strict';
-  const { fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq, ms, ms2, rw } = window.PhysiQLessons.H;
-  const kx = `${fr('2π<i>x</i>', 'λ')}`;
+  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq, half, ms, ms2 } = window.PhysiQLessons.H;
+  const w2 = 'ω<sup>2</sup>', A2x2 = sq('<i>A</i><sup>2</sup> − <i>x</i><sup>2</sup>');
 
   // ---------- figures ----------
-  const curve = (x0, y0, w, a, lam, ph = 0, n = 120, f = Math.sin) => { let d = ''; for (let i = 0; i <= n; i++) { const x = w * i / n; d += (i ? ' L' : 'M') + (x0 + x).toFixed(1) + ',' + (y0 - a * f(2 * Math.PI * x / lam + ph)).toFixed(1); } return d; };
+  const coil = (x1, x2, y, n = 9, amp = 9) => { let d = `M${x1},${y} L${x1 + 8},${y}`; const s = (x2 - x1 - 16) / n; for (let i = 0; i < n; i++) d += ` L${(x1 + 8 + s * (i + 0.5)).toFixed(1)},${y + (i % 2 ? amp : -amp)}`; return P(d + ` L${x2 - 8},${y} L${x2},${y}`, 'sub', { w: 1.8 }); };
   const F = {};
-  F.kinds = () => {
-    let tr = '', lo = '';
-    for (let i = 0; i < 17; i++) { const x = 30 + i * 18; tr += dot(x, 60 - 26 * Math.sin(2 * Math.PI * i / 12), 4, C.ball); }
-    for (let i = 0; i < 34; i++) { const x0 = 30 + i * 9, x = x0 + 8 * Math.sin(2 * Math.PI * i / 16); lo += L(x, 150, x, 190, 'v', '', { w: 1.6 }); }
-    return svg(360, 230, T(10, 20, 'Transverse wave', { a: 'start', b: 1, fs: 13 }) + L(30, 60, 330, 60, 's', '', { d: '3 3', w: 1 }) + tr + L(342, 60, 352, 60, 'k', '') + L(250, 22, 300, 22, 'o', 'e') + T(305, 26, 'wave', { a: 'start', fs: 11, c: C.o }) + L(84, 40, 84, 80, 'r', 'b', { w: 1.6 }) + T(90, 100, 'particles vibrate ⊥ to the direction of travel', { a: 'start', fs: 11, c: C.r }) +
-      T(10, 136, 'Longitudinal wave', { a: 'start', b: 1, fs: 13 }) + lo + T(70, 210, 'C', { fs: 11, b: 1 }) + T(140, 210, 'R', { fs: 11, b: 1 }) + T(10, 226, 'C = compression, R = rarefaction; particles vibrate ∥ to travel', { a: 'start', fs: 11, c: C.r }) + L(250, 132, 300, 132, 'o', 'e') + T(305, 136, 'wave', { a: 'start', fs: 11, c: C.o }), 380);
+  F.spring = () => {
+    const row = (y, xm, lab, fl) => `<rect x="20" y="${y - 22}" width="10" height="44" fill="#CFC6A8"/>` + coil(30, xm - 18, y) + `<rect x="${xm - 18}" y="${y - 16}" width="36" height="32" rx="4" fill="#BFE6E0" stroke="${C.ink}" stroke-width="1.4"/>` + T(xm, y + 5, 'm', { it: 1, fs: 13 }) +
+      L(20, y + 18, 340, y + 18, 's', '', { w: 1 }) + T(8, y + 5, lab, { b: 1, fs: 13 }) + (fl || '');
+    return svg(360, 250, L(190, 10, 190, 236, 's', '', { d: '4 4', w: 1.2 }) + T(190, 248, 'equilibrium position O', { fs: 11, c: C.sub }) +
+      row(40, 260, '(a)', L(240, 40, 200, 40, 'r', 'e', { w: 2.6 }) + T(224, 30, 'F', { it: 1, c: C.r, b: 1 }) + L(190, 72, 260, 72, 'v', 'e', { w: 1.6 }) + T(225, 86, 'x', { it: 1, c: C.v, fs: 13 })) +
+      row(120, 190, '(b)', T(250, 124, 'x = 0, F = 0', { fs: 12, a: 'start' })) +
+      row(195, 120, '(c)', L(140, 195, 180, 195, 'r', 'e', { w: 2.6 }) + T(162, 185, 'F', { it: 1, c: C.r, b: 1 }) + L(190, 227, 120, 227, 'v', 'e', { w: 1.6 }) + T(155, 241, 'x', { it: 1, c: C.v, fs: 13 })), 380);
   };
-  F.yx = () => svg(360, 170, axes(30, 85, 315, 70, 'x', 'y', { noO: 1, yb: 160 }) + P(curve(30, 85, 300, 55, 160), 'v', { w: 2.4 }) + L(70, 22, 230, 22, 'k', 'b', { w: 1.2 }) + T(150, 16, 'λ', { it: 1 }) + L(70, 30, 70, 85, 's', '', { d: '3 3', w: 1 }) + L(230, 30, 230, 85, 's', '', { d: '3 3', w: 1 }) +
-    L(250, 85, 250, 30, 'r', 'b', { w: 1.4 }) + T(258, 60, 'A', { it: 1, c: C.r, a: 'start' }) + L(300, 50, 340, 50, 'o', 'e') + T(320, 44, 'v', { it: 1, c: C.o }) + T(180, 166, 'a snapshot at one instant (displacement–distance graph)', { fs: 11, c: C.sub }), 380);
-  F.yt = () => svg(360, 170, axes(30, 85, 315, 70, 't', 'y', { noO: 1, yb: 160 }) + P(curve(30, 85, 300, 55, 160, 0, 120, x => -Math.sin(x)), 'g', { w: 2.4 }) + L(30, 148, 190, 148, 'k', 'b', { w: 1.2 }) + T(110, 142, 'T', { it: 1 }) + T(180, 166, 'one particle followed in time (displacement–time graph)', { fs: 11, c: C.sub }), 380);
-  F.phase = () => svg(360, 160, axes(30, 80, 315, 70, 'x', 'y', { noO: 1, yb: 150 }) + P(curve(30, 80, 300, 50, 200), 'v', { w: 2.4 }) + dot(80, 80 - 50 * Math.sin(2 * Math.PI * 50 / 200), 6, C.o) + dot(170, 80 - 50 * Math.sin(2 * Math.PI * 140 / 200), 6, C.o) +
-    T(80, 22, 'P', { b: 1 }) + T(170, 138, 'Q', { b: 1 }) + L(80, 146, 170, 146, 'k', 'b', { w: 1.2 }) + T(125, 140, 'Δx', { it: 1, fs: 12 }) + T(200, 140, 'φ = 2πΔx/λ', { fs: 13, a: 'start', c: C.r }), 380);
-  F.point = () => svg(380, 200, [40, 80, 120].map((r, i) => `<circle cx="80" cy="100" r="${r}" fill="none" stroke="${C.v}" stroke-width="1.4" stroke-dasharray="${i ? '5 4' : ''}"/>`).join('') + dot(80, 100, 6, '#E7B54A') + T(80, 124, 'S', { b: 1 }) + L(80, 100, 196, 70, 'k', 'e', { w: 1.2 }) + T(150, 74, 'r', { it: 1 }) +
-    T(220, 60, 'power P spreads over', { fs: 12, a: 'start' }) + T(220, 76, 'a sphere of area 4πr²', { fs: 12, a: 'start' }) + T(220, 112, 'I = P / 4πr²', { fs: 14, a: 'start', it: 1, b: 1, c: C.v }) + T(220, 136, 'I ∝ 1/r²,  A ∝ 1/r', { fs: 12, a: 'start', c: C.r }), 380);
-  const pulse = (x0, y0, c, h, w = 40) => { let d = ''; for (let i = 0; i <= 40; i++) { const x = -w + 2 * w * i / 40; d += (i ? ' L' : 'M') + (x0 + x).toFixed(1) + ',' + (y0 - h * Math.exp(-x * x / (w * w / 6))).toFixed(1); } return P(d, c, { w: 2.4 }); };
-  F.superpose = () => svg(360, 270, [0, 1].map(j => { const y0 = 70 + j * 130, s = j ? -1 : 1; return T(8, y0 - 46, j ? '(b) opposite displacements' : '(a) same direction', { a: 'start', b: 1, fs: 12 }) +
-    L(20, y0, 170, y0, 's', '', { w: 1 }) + pulse(60, y0, C.v, 30) + pulse(130, y0, C.o, 22 * s) + L(70, y0 - 40, 90, y0 - 40, 'v', 'e', { w: 1.4 }) + L(130, y0 - 40, 110, y0 - 40, 'o', 'e', { w: 1.4 }) +
-    T(185, y0 + 4, '→', { fs: 18 }) + L(205, y0, 350, y0, 's', '', { w: 1 }) + pulse(278, y0, C.g, 30 + 22 * s) + T(278, y0 + 22 - (j ? -8 : 0), j ? 'partly cancel: y = y₁ + y₂' : 'add: y = y₁ + y₂', { fs: 11, c: C.g }); }).join(''), 380);
-  F.reflect = () => two(svg(220, 160, T(110, 16, 'fixed end', { b: 1, fs: 12 }) + L(200, 20, 200, 140, 'k', '', { w: 3 }) + L(20, 60, 200, 60, 's', '', { w: 1 }) + pulse(90, 60, C.v, 28, 30) + L(105, 22, 135, 22, 'v', 'e', { w: 1.4 }) + L(20, 110, 200, 110, 's', '', { w: 1 }) + pulse(110, 110, C.o, -24, 30) + L(125, 76, 95, 76, 'o', 'e', { w: 1.4 }) + T(110, 154, 'inverted (phase change of π)', { fs: 11, c: C.o }), 220),
-    svg(220, 160, T(110, 16, 'free end', { b: 1, fs: 12 }) + L(200, 20, 200, 140, 's', '', { w: 1.4, d: '4 3' }) + L(20, 60, 200, 60, 's', '', { w: 1 }) + pulse(90, 60, C.v, 28, 30) + L(105, 22, 135, 22, 'v', 'e', { w: 1.4 }) + L(20, 110, 200, 110, 's', '', { w: 1 }) + pulse(110, 110, C.o, 24, 30) + L(125, 76, 95, 76, 'o', 'e', { w: 1.4 }) + T(110, 154, 'not inverted (no phase change)', { fs: 11, c: C.o }), 220));
-  F.standing = () => { const env = (s) => curve(30, 90, 300, 55 * s, 200, Math.PI / 2, 120, Math.sin); return svg(360, 190, L(30, 90, 330, 90, 's', '', { w: 1 }) + P(env(1), 'v', { w: 2.2 }) + P(env(-1), 'v', { w: 2.2, d: '6 4' }) + P(env(0.45), 'v', { w: 1, d: '2 3' }) +
-    [80, 180, 280].map(x => dot(x, 90, 4.5, C.r) + T(x, 112, 'N', { b: 1, fs: 12, c: C.r })).join('') + [30, 130, 230, 330].map(x => T(x, 22, 'A', { b: 1, fs: 12, c: C.g })).join('') +
-    L(80, 150, 180, 150, 'k', 'b', { w: 1.2 }) + T(130, 166, 'λ/2 (node to node)', { fs: 11 }) + L(180, 130, 230, 130, 'k', 'b', { w: 1.2 }) + T(205, 124, 'λ/4', { fs: 11 }) + T(330, 184, 'N = node, A = antinode', { fs: 11, a: 'end', c: C.sub }), 380); };
-  F.harm = () => [1, 2, 3].map(n => svg(370, 70, L(20, 12, 20, 58, 'k', '', { w: 3 }) + L(300, 12, 300, 58, 'k', '', { w: 3 }) + P(curve(20, 35, 280, 20, 560 / n), 'v', { w: 2.2 }) + P(curve(20, 35, 280, -20, 560 / n), 'v', { w: 2.2, d: '5 4' }) +
-    T(310, 30, n === 1 ? 'n = 1' : 'n = ' + n, { a: 'start', fs: 11, b: 1 }) + T(310, 46, n === 1 ? 'L = λ/2' : n === 2 ? 'L = λ' : 'L = 3λ/2', { a: 'start', fs: 11 }), 380)).join('');
-  F.em = () => { let e = '', b = ''; const ox = 40, oy = 110; for (let i = 0; i <= 120; i++) { const t = i / 120, x = ox + t * 280, s = Math.sin(2 * Math.PI * t * 1.5); e += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (oy - 60 * s).toFixed(1); b += (i ? ' L' : 'M') + (x - 34 * s).toFixed(1) + ',' + (oy + 22 * s).toFixed(1); }
-    let fill = ''; for (let i = 1; i < 30; i++) { const t = i / 30, x = ox + t * 280, s = Math.sin(2 * Math.PI * t * 1.5); fill += L(x, oy, x, oy - 60 * s, 'r', '', { w: 0.7 }) + L(x, oy, x - 34 * s, oy + 22 * s, 'v', '', { w: 0.7 }); }
-    return svg(380, 210, fill + L(ox, oy, 350, oy, 'k', 'e', { w: 1.6 }) + P(e, 'r', { w: 2.4 }) + P(b, 'v', { w: 2.4 }) + L(ox, oy, ox, 30, 'k', 'e', { w: 1.2 }) + L(ox, oy, ox - 30, oy + 22, 'k', 'e', { w: 1.2 }) +
-      T(ox + 4, 26, 'E', { it: 1, b: 1, c: C.r, a: 'start' }) + T(ox - 34, oy + 38, 'B', { it: 1, b: 1, c: C.v }) + T(354, oy + 4, 'x', { it: 1, a: 'start' }) + T(200, 200, 'E ⊥ B ⊥ direction of travel; E and B in phase', { fs: 11, c: C.sub }), 400); };
-  F.spec = () => { const bands = [['γ-rays', '#7A5AE0', '< 10⁻¹¹'], ['X-rays', '#5E7CE8', '10⁻¹⁰'], ['UV', '#4AA3E0', '10⁻⁸'], ['visible', null, '4–7 × 10⁻⁷'], ['IR', '#E0904A', '10⁻⁵'], ['micro-', '#D7604A', '10⁻²'], ['radio', '#B54242', '> 10⁻¹']];
-    const w = 52; return svg(380, 110, bands.map(([n, c, l], i) => `<rect x="${10 + i * w}" y="20" width="${w - 2}" height="34" fill="${c || 'url(#vis2)'}"/>` + T(10 + i * w + w / 2 - 1, 42, n, { fs: 11, c: '#fff', b: 1 }) + T(10 + i * w + w / 2 - 1, 72, l, { fs: 10 })).join('') +
-      `<defs><linearGradient id="vis2"><stop offset="0" stop-color="#7B2FF7"/><stop offset=".3" stop-color="#2F6FE0"/><stop offset=".55" stop-color="#2FBF3F"/><stop offset=".8" stop-color="#E2C21F"/><stop offset="1" stop-color="#E5332F"/></linearGradient></defs>` +
-      T(190, 90, 'typical wavelength / m  →  increasing wavelength, decreasing frequency', { fs: 10, c: C.sub }) + L(20, 102, 360, 102, 's', 'e', { w: 1 }), 400); };
-  F.wire = () => svg(320, 80, L(20, 12, 20, 68, 'k', '', { w: 3 }) + L(300, 12, 300, 68, 'k', '', { w: 3 }) + P(curve(20, 40, 280, 22, 560 / 3), 'v', { w: 2.2 }) + P(curve(20, 40, 280, -22, 560 / 3), 'v', { w: 2.2, d: '5 4' }) + T(160, 78, 'L = 3.00 m', { fs: 11 }), 340);
+  F.ref = () => {
+    const cx = 120, cy = 110, R = 80, th = 0.75, px = cx + R * Math.cos(th), py = cy - R * Math.sin(th);
+    return svg(360, 220, `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${C.g}" stroke-width="1.6" stroke-dasharray="5 4"/>` + L(cx - R - 14, cy, cx + R + 18, cy, 'k', 'e', { w: 1.3 }) + L(cx, cy + R + 12, cx, cy - R - 16, 'k', 'e', { w: 1.3 }) +
+      L(cx, cy, px, py, 'k', '', { w: 1.6 }) + L(px, py, cx, py, 's', '', { d: '4 3', w: 1.3 }) + P(`M${cx + 26},${cy} A26,26 0 0,0 ${cx + 26 * Math.cos(th)},${cy - 26 * Math.sin(th)}`, 'o', { w: 1.6 }) +
+      T(cx + 34, cy - 10, 'θ', { it: 1, fs: 13, c: C.o, a: 'start' }) + dot(px, py, 6, '#E7B54A') + T(px + 10, py - 6, 'P', { b: 1, a: 'start' }) + dot(cx, py, 6, C.ball) + T(cx - 10, py + 2, 'Q', { b: 1, a: 'end' }) +
+      T(cx + (px - cx) / 2 + 8, cy - (cy - py) / 2 + 14, 'A', { it: 1, fs: 13 }) + T(cx - 10, cy + 16, 'O', { fs: 12 }) + T(cx + R + 4, cy + 16, 'R', { fs: 12 }) + T(cx + 8, cy - R - 16, 'y', { it: 1, a: 'start' }) +
+      T(222, 70, 'P moves round the circle', { fs: 12, a: 'start' }) + T(222, 86, 'at constant ω.', { fs: 12, a: 'start' }) + T(222, 112, 'Its projection Q on the', { fs: 12, a: 'start' }) + T(222, 128, 'diameter performs SHM:', { fs: 12, a: 'start' }) + T(222, 154, 'y = A sin ωt', { fs: 14, a: 'start', it: 1, b: 1, c: C.v }), 380);
+  };
+  const wave = (x0, y0, w, a, f, ph = 0, n = 80) => { let d = ''; for (let i = 0; i <= n; i++) { const t = i / n; d += (i ? ' L' : 'M') + (x0 + t * w).toFixed(1) + ',' + (y0 - a * f(2 * Math.PI * t + ph)).toFixed(1); } return d; };
+  F.xvat = () => {
+    const g1 = (y0, lab, c, f, amp) => axes(40, y0, 290, 50, 't', lab, { noO: 1 }) + P(wave(40, y0, 260, 36, f), c, { w: 2.4 }) + L(36, y0 - 36, 300, y0 - 36, 's', '', { d: '2 4', w: 0.8 }) + L(36, y0 + 36, 300, y0 + 36, 's', '', { d: '2 4', w: 0.8 }) + T(34, y0 - 32, amp, { fs: 11, a: 'end', c: C.sub }) + T(34, y0 + 40, '−' + amp, { fs: 11, a: 'end', c: C.sub }) +
+      [['T/4', 65], ['T/2', 130], ['3T/4', 195], ['T', 260]].map(([s, x]) => L(40 + x, y0 - 3, 40 + x, y0 + 3, 'k', '', { w: 1 }) + T(40 + x, y0 + 15, s, { fs: 10, c: C.sub })).join('');
+    return svg(360, 370, g1(70, 'x', 'v', Math.sin, 'A') + g1(190, 'v', 'o', Math.cos, 'ωA') + g1(310, 'a', 'r', t => -Math.sin(t), 'ω²A'), 380);
+  };
+  F.vx = () => two(svg(220, 190, axes(110, 95, 90, 80, 'x', 'v', { noO: 1, yb: 180 }) + L(20, 95, 110, 95, 'k', '', { w: 1.6 }) + `<ellipse cx="110" cy="95" rx="70" ry="55" fill="none" stroke="${C.o}" stroke-width="2.4"/>` + T(180, 112, 'A', { it: 1, fs: 12 }) + T(40, 112, '−A', { it: 1, fs: 12 }) + T(116, 36, 'ωA', { fs: 11, a: 'start', it: 1 }) + T(116, 162, '−ωA', { fs: 11, a: 'start', it: 1 }) + T(110, 188, 'v = ±ω√(A² − x²): an ellipse', { fs: 11, c: C.sub }), 220),
+    svg(220, 190, axes(110, 95, 90, 80, 'x', 'a', { noO: 1, yb: 180 }) + L(20, 95, 110, 95, 'k', '', { w: 1.6 }) + P('M40,45 L180,145', 'r', { w: 2.6 }) + L(40, 45, 40, 95, 's', '', { d: '3 3', w: 1 }) + L(180, 145, 180, 95, 's', '', { d: '3 3', w: 1 }) + T(180, 88, 'A', { it: 1, fs: 12 }) + T(40, 110, '−A', { it: 1, fs: 12 }) + T(116, 49, 'ω²A', { fs: 11, a: 'start', it: 1 }) + T(104, 152, '−ω²A', { fs: 11, a: 'end', it: 1 }) + T(110, 188, 'a = −ω²x: straight line, gradient −ω²', { fs: 11, c: C.sub }), 220));
+  F.energy = () => {
+    const sq2 = (f) => t => f(t) * f(t);
+    const gt = axes(40, 150, 280, 125, 't', 'E', { noO: 1 }) + P(wave(40, 150, 260, 100, sq2(Math.cos)), 'o', { w: 2.4 }) + P(wave(40, 150, 260, 100, sq2(Math.sin)), 'v', { w: 2.4 }) + L(40, 50, 300, 50, 'g', '', { w: 2.4 }) +
+      [['T/4', 65], ['T/2', 130], ['3T/4', 195], ['T', 260]].map(([s, x]) => T(40 + x, 166, s, { fs: 10, c: C.sub })).join('') + T(302, 44, 'E', { it: 1, c: C.g, b: 1, a: 'start' }) + T(52, 66, 'K', { it: 1, c: C.o, b: 1 }) + T(98, 66, 'U', { it: 1, c: C.v, b: 1 });
+    let pk = '', pu = ''; for (let i = 0; i <= 60; i++) { const x = -1 + 2 * i / 60, X = 140 + x * 100; pk += (i ? ' L' : 'M') + X.toFixed(1) + ',' + (150 - 100 * (1 - x * x)).toFixed(1); pu += (i ? ' L' : 'M') + X.toFixed(1) + ',' + (150 - 100 * x * x).toFixed(1); }
+    const gx = axes(140, 150, 130, 125, 'x', 'E', { noO: 1 }) + L(30, 150, 140, 150, 'k', '', { w: 1.6 }) + P(pk, 'o', { w: 2.4 }) + P(pu, 'v', { w: 2.4 }) + L(40, 50, 240, 50, 'g', '', { w: 2.4 }) + T(40, 166, '−A', { it: 1, fs: 12 }) + T(240, 166, 'A', { it: 1, fs: 12 }) + T(140, 166, '0', { fs: 12, c: C.sub }) +
+      T(246, 46, 'E', { it: 1, c: C.g, b: 1, a: 'start' }) + T(150, 72, 'K', { it: 1, c: C.o, b: 1, a: 'start' }) + T(60, 72, 'U', { it: 1, c: C.v, b: 1 });
+    return two(svg(320, 180, gt, 320), svg(280, 180, gx, 280));
+  };
+  F.pend = () => svg(320, 250, L(60, 20, 260, 20, 'k', '', { w: 3 }) + `<path d="M60,20 l-8,-8 M80,20 l-8,-8 M100,20 l-8,-8 M120,20 l-8,-8 M140,20 l-8,-8 M160,20 l-8,-8 M180,20 l-8,-8 M200,20 l-8,-8 M220,20 l-8,-8 M240,20 l-8,-8 M260,20 l-8,-8" stroke="${C.sub}" stroke-width="1"/>` +
+    L(160, 20, 160, 200, 's', '', { d: '4 4', w: 1.2 }) + L(160, 20, 222, 182, 'k', '', { w: 1.8 }) + P('M160,62 A42,42 0 0,0 174,59', 'o', { w: 1.6 }) + T(172, 80, 'θ', { it: 1, c: C.o, fs: 13 }) + T(186, 98, 'l', { it: 1, fs: 14 }) +
+    P('M160,200 A180,180 0 0,0 222,182', 'v', { w: 1.6, d: '4 3' }) + T(190, 212, 'x', { it: 1, c: C.v }) + dot(222, 182, 11, '#E7B54A') + L(222, 182, 222, 242, 'g', 'e', { w: 2.4 }) + T(230, 238, 'mg', { it: 1, c: C.g, a: 'start' }) + L(222, 182, 201, 125, 'r', 'e', { w: 2.4 }) + T(196, 140, 'T', { it: 1, c: C.r, a: 'end' }) +
+    L(222, 182, 166, 202, 'o', 'e', { w: 2.4 }) + T(124, 230, 'mg sin θ (restoring force)', { fs: 12, c: C.o }), 340);
+  F.damp = () => {
+    let u = '', c = '', o = ''; for (let i = 0; i <= 160; i++) { const t = i / 160 * 6, X = 40 + i / 160 * 280; u += (i ? ' L' : 'M') + X.toFixed(1) + ',' + (100 - 70 * Math.exp(-0.35 * t) * Math.cos(2 * Math.PI * t * 0.9)).toFixed(1); const w0 = 2 * Math.PI * 0.9; c += (i ? ' L' : 'M') + X.toFixed(1) + ',' + (100 - 70 * (1 + w0 * t) * Math.exp(-w0 * t)).toFixed(1); const r1 = -1.1, r2 = -w0 * w0 / 1.1 * -1; o += (i ? ' L' : 'M') + X.toFixed(1) + ',' + (100 - 70 * Math.exp(-0.55 * t)).toFixed(1); }
+    return svg(360, 190, axes(40, 100, 300, 85, 't', 'x', { noO: 1, yb: 180 }) + P(u, 'v', { w: 2.2 }) + P(c, 'g', { w: 2.6 }) + P(o, 'o', { w: 2.4 }) +
+      T(330, 152, 'under damped', { fs: 11, a: 'end', c: C.v, b: 1 }) + T(190, 132, 'critically damped', { fs: 11, a: 'start', c: C.g, b: 1 }) + T(150, 46, 'over damped', { fs: 11, a: 'start', c: C.o, b: 1 }), 380);
+  };
+  F.envelope = () => { let u = '', e1 = '', e2 = ''; for (let i = 0; i <= 200; i++) { const t = i / 200 * 8, X = 40 + i / 200 * 290, en = 60 * Math.exp(-0.28 * t); u += (i ? ' L' : 'M') + X.toFixed(1) + ',' + (90 - en * Math.cos(2 * Math.PI * t * 0.8)).toFixed(1); e1 += (i ? ' L' : 'M') + X.toFixed(1) + ',' + (90 - en).toFixed(1); e2 += (i ? ' L' : 'M') + X.toFixed(1) + ',' + (90 + en).toFixed(1); }
+    return svg(360, 170, axes(40, 90, 300, 75, 't', 'x', { noO: 1, yb: 165 }) + P(e1, 'r', { w: 1.4, d: '5 4' }) + P(e2, 'r', { w: 1.4, d: '5 4' }) + P(u, 'v', { w: 2.2 }) + T(200, 30, 'amplitude decreases with time', { fs: 11, c: C.r, a: 'start' }), 380); };
+  F.barton = () => { const bob = (x, l, lab, c) => L(x, 40, x + l * 0.14, 40 + l, 's', '', { w: 1.4 }) + dot(x + l * 0.14, 40 + l, lab === 'D' ? 11 : 7, c) + T(x + l * 0.14, 62 + l, lab, { b: 1, fs: 13 });
+    return svg(340, 220, P('M20,30 Q170,48 320,30', 'ink', { w: 1.6 }) + L(20, 18, 20, 32, 'k', '', { w: 3 }) + L(320, 18, 320, 32, 'k', '', { w: 3 }) + bob(70, 120, 'D', '#E7B54A') + bob(140, 70, 'X', C.ball) + bob(200, 120, 'Y', '#F2661B') + bob(260, 160, 'Z', C.ball) +
+      T(70, 210, 'driver', { fs: 11, c: C.sub }), 360); };
+  F.res = () => { const curve = (b, c) => { let d = ''; for (let i = 0; i <= 140; i++) { const r = 0.3 + 1.4 * i / 140, A = 1 / Math.sqrt((1 - r * r) ** 2 + (b * r) ** 2); d += (i ? ' L' : 'M') + (40 + (r - 0.3) / 1.4 * 280).toFixed(1) + ',' + (170 - Math.min(A, 6.5) * 22).toFixed(1); } return P(d, c, { w: 2.4 }); };
+    return svg(360, 200, axes(40, 170, 300, 160, 'f', 'A', { noO: 1 }) + curve(0.15, C.v) + curve(0.35, C.o) + curve(0.9, C.g) + L(180, 170, 180, 22, 's', '', { d: '4 4', w: 1.2 }) + T(180, 186, 'f₀', { it: 1 }) +
+      T(196, 36, 'light damping', { fs: 11, c: C.v, a: 'start', b: 1 }) + T(212, 100, 'heavier damping', { fs: 11, c: C.o, a: 'start', b: 1 }) + T(48, 128, 'heavy damping', { fs: 11, c: C.g, a: 'start', b: 1 }) + T(330, 196, 'driving frequency', { fs: 11, c: C.sub, a: 'end' }), 380); };
+  // graphs used in examples
+  F.ex1 = () => svg(320, 150, axes(40, 75, 260, 60, 't / s', 'x / m', { noO: 1, yb: 140 }) + P(wave(40, 75, 220, 50, Math.sin), 'v', { w: 2.4 }) + T(34, 30, '0.3', { fs: 11, a: 'end' }) + T(34, 129, '−0.3', { fs: 11, a: 'end' }) + L(260, 72, 260, 78, 'k', '', { w: 1 }) + T(260, 92, '0.4', { fs: 11 }) + T(32, 80, '0', { fs: 11, a: 'end', c: C.sub }), 340);
+  F.ex2 = () => svg(320, 150, axes(40, 75, 260, 60, 't / s', 'x / m', { noO: 1, yb: 140 }) + P(wave(40, 75, 220, 50, Math.sin, 0, 120).replace(/^M/, 'M'), 'v', { w: 2.4 }) + T(34, 30, '0.2', { fs: 11, a: 'end' }) + T(34, 129, '−0.2', { fs: 11, a: 'end' }) + [['2', 95], ['4', 260]].map(([s, x]) => L(x, 72, x, 78, 'k', '', { w: 1 }) + T(x, 92, s, { fs: 11 })).join('') + T(32, 80, '0', { fs: 11, a: 'end', c: C.sub }), 340);
+  F.ex3 = () => svg(260, 190, axes(130, 95, 100, 80, 'x', 'F', { noO: 1, yb: 180 }) + L(30, 95, 130, 95, 'k', '', { w: 1.6 }) + P('M70,35 L190,155', 'r', { w: 2.6 }) + L(190, 95, 190, 155, 's', '', { d: '3 3', w: 1 }) + L(70, 95, 70, 35, 's', '', { d: '3 3', w: 1 }) + L(130, 35, 70, 35, 's', '', { d: '3 3', w: 1 }) + L(130, 155, 190, 155, 's', '', { d: '3 3', w: 1 }) +
+    T(190, 88, '0.1 m', { fs: 11 }) + T(70, 110, '−0.1 m', { fs: 11 }) + T(136, 39, '20 N', { fs: 11, a: 'start' }) + T(124, 159, '−20 N', { fs: 11, a: 'end' }), 280);
+  F.pabc = () => svg(260, 150, L(130, 20, 130, 120, 's', '', { d: '4 4', w: 1 }) + L(130, 20, 70, 110, 'k', '', { w: 1.4 }) + L(130, 20, 190, 110, 'k', '', { w: 1.4 }) + P('M70,110 Q130,140 190,110', 'v', { w: 1.4, d: '4 3' }) + dot(70, 110, 8, C.ball) + dot(130, 128, 8, '#E7B54A') + dot(190, 110, 8, C.ball) + T(56, 114, 'A', { b: 1, a: 'end' }) + T(130, 148, 'B', { b: 1 }) + T(204, 114, 'C', { b: 1, a: 'start' }), 280);
 
   const S = `
-${sec('20-0', 'Waves: introduction', `
-<p>A wave transfers <b>energy</b> from one place to another without transferring matter. The particles of the medium only vibrate about their equilibrium positions.</p>
-${fig(F.kinds(), 'Figure 20.1: transverse and longitudinal waves.')}
-${table(['Transverse wave', 'Longitudinal wave'], [['The particles vibrate <b>perpendicular</b> to the direction of propagation.', 'The particles vibrate <b>parallel</b> to the direction of propagation.'], ['crests and troughs', 'compressions and rarefactions'], ['e.g. waves on a string, water waves, electromagnetic waves', 'e.g. sound waves, waves along a slinky spring pushed back and forth']])}
+${sec('19-0', 'Oscillations: introduction', `
+${def('Oscillation (periodic motion)', `is ${red('the back-and-forth motion of an object about a fixed point')}.`)}
+${ul([`a mass on the end of a spring (horizontal or vertical)`, `atoms vibrating in a crystal`, `a simple pendulum`, `a child on a swing`])}
+<p>The simplest oscillation is a mass on a spring sliding on a smooth horizontal surface (Figure 20.1). We assume the spring is light (its mass is ignored) and there is no friction.</p>
+${fig(F.spring(), 'Figure 20.1: (a) spring stretched, the force acts to the left; (b) at the equilibrium position, F = 0; (c) spring compressed, the force acts to the right.')}
+${ul([`The spring has a natural length at which it exerts no force on the mass. The position of the mass at this point is the ${red('equilibrium position')}.`, `If the mass is pulled to the right (spring stretched) or pushed to the left (spring compressed), the spring exerts a force that acts to return it to equilibrium. This is the ${red('restoring force')}.`, `At <i>x</i> = 0 the restoring force is zero, but the mass keeps moving past O because of its <b>inertia</b>.`, `The restoring force is always directed towards the equilibrium position.`])}
 `)}
 
-${sec('20-1', '20.1 Progressive waves', `
-${def('Progressive wave', `is ${red('a wave in which the wave profile moves through the medium, transferring energy from one point to another')}.`)}
-${h4('Equation of a progressive wave')}
-<p>If the particle at <i>x</i> = 0 moves in SHM, <i>y</i> = <i>A</i> sin ω<i>t</i>, the disturbance reaches a particle at distance <i>x</i> a time <i>x</i>/<i>v</i> later. So the particle at <i>x</i> does the same motion, but later:</p>
-${steps([`<i>y</i> = <i>A</i> sin ω(<i>t</i> − ${fr('<i>x</i>', '<i>v</i>')}) = <i>A</i> sin (ω<i>t</i> − ${fr('ω', '<i>v</i>')}<i>x</i>)`, `With <i>k</i> = ${fr('ω', '<i>v</i>')} = ${fr('2π', 'λ')} (the wave number):`])}
-${key(`<i>y</i> = <i>A</i> sin (ω<i>t</i> − <i>kx</i>) &nbsp; or &nbsp; <i>y</i> = <i>A</i> cos (ω<i>t</i> − <i>kx</i>)`, '(ω<i>t</i> − <i>kx</i>): wave travelling in the <b>+<i>x</i></b> direction. (ω<i>t</i> + <i>kx</i>): wave travelling in the <b>−<i>x</i></b> direction. <i>A</i> = amplitude, ω = 2π<i>f</i>, <i>k</i> = 2π/λ (rad m<sup>−1</sup>).')}
-${table(['Quantity', 'Meaning'], [['Wavelength, λ (m)', 'the distance between two successive points that vibrate in phase (e.g. crest to crest)'], ['Period, <i>T</i> (s)', 'the time for one complete oscillation of a particle'], ['Frequency, <i>f</i> (Hz)', 'the number of oscillations per second; <i>f</i> = 1/<i>T</i>'], ['Wave number, <i>k</i> (rad m<sup>−1</sup>)', '<i>k</i> = 2π/λ'], ['Wave speed, <i>v</i> (m s<sup>−1</sup>)', 'the distance moved by the wave profile per second']])}
-${h4('Displacement–distance and displacement–time graphs')}
-${fig(F.yx(), 'Figure 20.2: the displacement–distance (y–x) graph is a snapshot of all the particles at one instant. The distance for one cycle is λ.')}
-${fig(F.yt(), 'Figure 20.3: the displacement–time (y–t) graph follows one particle. The time for one cycle is T.')}
-${tip(`Read the axis first. On a <i>y</i>–<i>x</i> graph, one cycle is the wavelength λ. On a <i>y</i>–<i>t</i> graph, one cycle is the period <i>T</i>. Many students mix these up.`)}
-${h4('Phase difference')}
-${fig(F.phase(), 'Figure 20.4: two points P and Q a distance Δx apart on the same wave.')}
-${steps([`At P (<i>x</i><sub>1</sub>): phase = ω<i>t</i> − <i>kx</i><sub>1</sub>; &nbsp; at Q (<i>x</i><sub>2</sub>): phase = ω<i>t</i> − <i>kx</i><sub>2</sub>`, `phase difference φ = <i>k</i>(<i>x</i><sub>2</sub> − <i>x</i><sub>1</sub>) = <i>k</i>Δ<i>x</i>`])}
-${key(`φ = <i>kx</i> = ${kx}`, 'the phase difference between two points a distance <i>x</i> apart. Points λ apart are in phase (φ = 2π); points λ/2 apart are in antiphase (φ = π).')}
-${h4('Wave speed')}
-${steps([`In one period <i>T</i>, the wave profile moves forward one wavelength λ.`, `<i>v</i> = ${fr('λ', '<i>T</i>')} = <i>f</i>λ &nbsp; (also <i>v</i> = ${fr('ω', '<i>k</i>')})`])}
-${key(`<i>v</i> = <i>f</i>λ`)}
-${note(`The <b>wave speed</b> <i>v</i> = <i>f</i>λ is constant in a given medium. The <b>particle velocity</b> ∂<i>y</i>/∂<i>t</i> = <i>A</i>ω cos (ω<i>t</i> − <i>kx</i>) changes all the time, with maximum <i>A</i>ω. Do not mix them up.`)}
-${sim('wave', 'Progressive wave', 'Change the amplitude, wavelength, frequency and direction. Follow the marked particle: it only moves up and down (or back and forth for a longitudinal wave) while the wave profile moves along. The two orange points show the phase difference.')}
-${example('20.1.1', `A progressive wave is represented by <i>y</i> = 0.05 sin (8π<i>t</i> − 0.4π<i>x</i>), where <i>x</i> and <i>y</i> are in metres and <i>t</i> in seconds. Find (a) the amplitude, (b) the frequency, (c) the wavelength, (d) the wave speed and its direction, (e) the maximum speed of a particle.`,
-  steps([`Compare with <i>y</i> = <i>A</i> sin (ω<i>t</i> − <i>kx</i>).`, `(a) <i>A</i> = <b>0.05 m</b> &nbsp; (b) ω = 8π ⇒ <i>f</i> = <b>4 Hz</b>`, `(c) <i>k</i> = 0.4π = 2π/λ ⇒ λ = <b>5 m</b>`, `(d) <i>v</i> = <i>f</i>λ = <b>20 ${ms}</b>, in the <b>+<i>x</i></b> direction (minus sign)`, `(e) <i>v</i><sub>max</sub> = <i>A</i>ω = 0.05 × 8π = <b>1.26 ${ms}</b>`]))}
-${example('20.1.2', `A wave of frequency 500 Hz travels at 350 ${ms}. (a) What is the distance between two points that are π/3 rad out of phase? (b) What is the phase difference between two displacements at one point 1.0 ms apart?`,
-  steps([`λ = <i>v</i>/<i>f</i> = 350/500 = 0.70 m`, `(a) φ = 2π<i>x</i>/λ ⇒ <i>x</i> = (π/3)(0.70)/(2π) = <b>0.117 m</b>`, `(b) φ = ω<i>t</i> = 2π(500)(1.0 × 10<sup>−3</sup>) = <b>π rad</b>`]))}
+${sec('19-1', '20.1 Characteristics of simple harmonic motion', `
+${h4('Equation of SHM')}
+<p>By Hooke’s law, the restoring force varies with the displacement <i>x</i> as</p>
+${key(`<i>F</i> = −<i>kx</i>`, '<i>k</i> = spring constant (N m<sup>−1</sup>), a measure of the stiffness of the spring. The minus sign shows that <i>F</i> is always opposite to the displacement <i>x</i>.')}
+<p>With no friction this is the net force, so by Newton’s second law, <i>F</i> = <i>ma</i>:</p>
+${steps([`<i>ma</i> = −<i>kx</i>`, `<i>a</i> = ${fr('d<sup>2</sup><i>x</i>', 'd<i>t</i><sup>2</sup>')} = −${fr('<i>k</i>', '<i>m</i>')}<i>x</i>`, `Since <i>k</i>/<i>m</i> is a positive constant, write it as ${w2}:`])}
+${key(`<i>a</i> = −${w2}<i>x</i>`, 'ω = angular frequency (rad s<sup>−1</sup>). Acceleration ∝ displacement, and is opposite in direction to the displacement.')}
+${def('Simple harmonic motion (SHM)', `is the periodic motion of an object in which ${red('the acceleration (and the restoring force) is directly proportional to the displacement from a fixed point (the equilibrium position), and is always directed towards that point')}.`)}
+${tip(`Whenever a question gives an equation of motion such as d<sup>2</sup><i>x</i>/d<i>t</i><sup>2</sup> + 100<i>x</i> = 0, rewrite it as <i>a</i> = −${w2}<i>x</i> first. Here <i>a</i> = −100<i>x</i>, so ${w2} = 100 and ω = 10 rad s<sup>−1</sup>. Every other SHM quantity follows from ω.`)}
 `)}
 
-${sec('20-2', '20.2 Wave intensity', `
-${def('Intensity of a wave', `is ${red('the rate of energy transferred (power) per unit area perpendicular to the direction of propagation')}.`)}
-${key(`<i>I</i> = ${fr('<i>P</i>', '<i>A</i>')}`, 'unit: W m<sup>−2</sup>')}
-${h4('Intensity and amplitude')}
-<p>The energy of a particle in SHM is ½<i>m</i>ω<sup>2</sup><i>A</i><sup>2</sup>, so for waves of the same frequency the energy carried is proportional to the square of the amplitude:</p>
-${key(`<i>I</i> ∝ <i>A</i><sup>2</sup>`, 'doubling the amplitude makes the intensity four times larger')}
-${h4('Intensity from a point source')}
-${fig(F.point(), 'Figure 20.5: a point source radiates power P equally in all directions.')}
-${ul([`The energy spreads out over the surface of a sphere of area 4π<i>r</i><sup>2</sup>, so <i>I</i> = ${fr('<i>P</i>', '4π<i>r</i><sup>2</sup>')}.`, `The intensity therefore decreases with distance: <i>I</i> ∝ ${fr('1', '<i>r</i><sup>2</sup>')} (the inverse square law).`, `Since <i>I</i> ∝ <i>A</i><sup>2</sup>, the amplitude decreases as <i>A</i> ∝ ${fr('1', '<i>r</i>')}.`])}
-${example('20.2.1', `A point source emits sound of power 2.0 W uniformly in all directions. Find (a) the intensity 5.0 m from the source, (b) the ratio of the amplitudes at 5.0 m and at 10.0 m.`,
-  steps([`(a) <i>I</i> = ${fr('<i>P</i>', '4π<i>r</i><sup>2</sup>')} = ${fr('2.0', '4π(5.0)<sup>2</sup>')} = <b>6.4 × 10<sup>−3</sup> W m<sup>−2</sup></b>`, `(b) <i>A</i> ∝ 1/<i>r</i> ⇒ <i>A</i><sub>5</sub> : <i>A</i><sub>10</sub> = 10 : 5 = <b>2 : 1</b>`]))}
-${example('20.2.2', `The amplitude of a wave is reduced to 60% of its original value. What percentage of the original intensity remains?`,
-  steps([`<i>I</i> ∝ <i>A</i><sup>2</sup> ⇒ <i>I</i>′/<i>I</i> = (0.60)<sup>2</sup> = 0.36, i.e. <b>36%</b>`]))}
+${sec('19-2', '20.2 Kinematics of simple harmonic motion', `
+${h4('The reference circle')}
+${def('Reference circle', `is the circle in which a particle moves at constant angular velocity so that ${red('its projection onto a diameter of the circle performs SHM')}.`)}
+${fig(F.ref(), 'Figure 20.2: P moves anticlockwise round a circle of radius A at constant ω. Its projection Q moves up and down the diameter in SHM.')}
+<p>If OQ = <i>y</i> and θ = ω<i>t</i>, then <i>y</i> = <i>A</i> sin θ, so</p>
+${eq(`<i>y</i> = <i>A</i> sin ω<i>t</i> &nbsp; or &nbsp; <i>x</i> = <i>A</i> sin ω<i>t</i>`)}
+<p>This is why ω is called the <b>angular frequency</b>, even though the oscillating mass moves only in a straight line.</p>
+${h4('Terms used in SHM')}
+${table(['Quantity', 'Meaning'], [[`Displacement, <i>x</i> (m)`, `the distance of the particle from the equilibrium position (with direction)`], [`Amplitude, <i>A</i> (m)`, `the maximum magnitude of the displacement`], [`Period, <i>T</i> (s)`, `the time for one complete oscillation`], [`Frequency, <i>f</i> (Hz)`, `the number of complete oscillations per second; <i>f</i> = ${fr('1', '<i>T</i>')}`], [`Angular frequency, ω (rad s<sup>−1</sup>)`, `ω = 2π<i>f</i> = ${fr('2π', '<i>T</i>')}`]])}
+${h4('Solutions of a = −ω²x')}
+<p>Both of these satisfy <i>a</i> = −${w2}<i>x</i>. The only difference is where the clock starts (<i>t</i> = 0).</p>
+${table(['<i>x</i> = <i>A</i> sin ω<i>t</i>', '<i>x</i> = <i>A</i> cos ω<i>t</i>'], [['starts at the equilibrium position (<i>x</i> = 0), moving at maximum speed', 'starts at the maximum displacement (<i>x</i> = <i>A</i>), momentarily at rest'], [`check: <i>v</i> = d<i>x</i>/d<i>t</i> = <i>A</i>ω cos ω<i>t</i>; <i>a</i> = d<i>v</i>/d<i>t</i> = −<i>A</i>${w2} sin ω<i>t</i> = −${w2}<i>x</i> ✓`, `check: <i>v</i> = −<i>A</i>ω sin ω<i>t</i>; <i>a</i> = −<i>A</i>${w2} cos ω<i>t</i> = −${w2}<i>x</i> ✓`]])}
+${note(`A mass pulled to <i>x</i> = +<i>A</i> and released from rest follows <i>x</i> = <i>A</i> cos ω<i>t</i>. A mass given a push through the equilibrium position at <i>t</i> = 0 follows <i>x</i> = <i>A</i> sin ω<i>t</i>.`)}
+${h4('Velocity and acceleration')}
+${two(`<p><b>Velocity</b> (for <i>x</i> = <i>A</i> sin ω<i>t</i>)</p>${eq(`<i>v</i> = ${fr('d<i>x</i>', 'd<i>t</i>')} = <i>A</i>ω cos ω<i>t</i>`)}<p>Maximum when cos ω<i>t</i> = ±1:</p>${eq(`<i>v</i><sub>max</sub> = <i>A</i>ω`)}`,
+`<p><b>Acceleration</b></p>${eq(`<i>a</i> = ${fr('d<i>v</i>', 'd<i>t</i>')} = −<i>A</i>${w2} sin ω<i>t</i> = −${w2}<i>x</i>`)}<p>Maximum magnitude when sin ω<i>t</i> = ±1:</p>${eq(`<i>a</i><sub>max</sub> = <i>A</i>${w2}`)}`)}
+${h4('Velocity in terms of displacement')}
+${steps([`<i>x</i> = <i>A</i> sin ω<i>t</i> ⇒ sin ω<i>t</i> = ${fr('<i>x</i>', '<i>A</i>')}`, `sin<sup>2</sup>ω<i>t</i> + cos<sup>2</sup>ω<i>t</i> = 1 ⇒ cos ω<i>t</i> = ±${sq('1 − ' + fr('<i>x</i><sup>2</sup>', '<i>A</i><sup>2</sup>'))}`, `<i>v</i> = <i>A</i>ω cos ω<i>t</i> = ±<i>A</i>ω${sq('1 − ' + fr('<i>x</i><sup>2</sup>', '<i>A</i><sup>2</sup>'))} = ±ω${sq('<i>A</i><sup>2</sup> − <i>x</i><sup>2</sup>')}`])}
+${key(`<i>v</i> = ±ω${A2x2}`, '± : the particle can pass through the same point <i>x</i> in either direction. At <i>x</i> = 0, <i>v</i> = ±ω<i>A</i> (maximum speed); at <i>x</i> = ±<i>A</i>, <i>v</i> = 0.')}
+${sim('shm', 'SHM and the reference circle', 'P goes round the circle at constant ω; its shadow Q (and the mass on the spring) moves in SHM. Watch the x–t, v–t and a–t graphs being drawn together. Change the amplitude and the period, and choose whether the clock starts at the equilibrium position or at the maximum displacement.')}
+${example('20.2.1', `A particle vibrates according to the equation <i>y</i> = 4 sin 3<i>t</i>, where <i>y</i> is in metres and <i>t</i> in seconds. Calculate (a) the amplitude, (b) the angular frequency, (c) the frequency, (d) the period, (e) the maximum speed, (f) the maximum magnitude of the acceleration.`,
+  steps([`Compare with <i>y</i> = <i>A</i> sin ω<i>t</i>.`, `(a) <i>A</i> = <b>4 m</b> &nbsp; (b) ω = <b>3 rad s<sup>−1</sup></b>`, `(c) <i>f</i> = ${fr('ω', '2π')} = ${fr('3', '2π')} = <b>0.48 Hz</b> &nbsp; (d) <i>T</i> = ${fr('1', '<i>f</i>')} = <b>2.09 s</b>`, `(e) <i>v</i><sub>max</sub> = <i>A</i>ω = (4)(3) = <b>12 ${ms}</b>`, `(f) <i>a</i><sub>max</sub> = <i>A</i>${w2} = (4)(3)<sup>2</sup> = <b>36 ${ms2}</b>`]))}
+${example('20.2.2', `A 300 g mass at the end of a spring oscillates with an amplitude of 7.0 cm and a frequency of 1.80 Hz. When it is 3.0 cm from its equilibrium position, calculate (a) its speed, (b) the magnitude of its acceleration.`,
+  steps([`ω = 2π<i>f</i> = 2π(1.80) = 11.3 rad s<sup>−1</sup>`, `(a) <i>v</i> = ω${A2x2} = 11.3${sq('0.070<sup>2</sup> − 0.030<sup>2</sup>')} = <b>0.71 ${ms}</b>`, `(b) <i>a</i> = ${w2}<i>x</i> = (11.3)<sup>2</sup>(0.030) = <b>3.8 ${ms2}</b>`]))}
+${example('20.2.3', `The equation of motion of a mass at the end of a spring is <i>y</i> = 0.30 cos 0.50<i>t</i> (in metres). Find the displacement, velocity and acceleration of the mass at (a) <i>t</i> = 0, (b) <i>t</i> = 3.0 s.`,
+  steps([`<i>v</i> = ${fr('d<i>y</i>', 'd<i>t</i>')} = −(0.30)(0.50) sin 0.50<i>t</i> = −0.15 sin 0.50<i>t</i>; &nbsp; <i>a</i> = ${fr('d<i>v</i>', 'd<i>t</i>')} = −(0.30)(0.50)<sup>2</sup> cos 0.50<i>t</i> = −0.075 cos 0.50<i>t</i>`, `(a) <i>t</i> = 0: <i>y</i> = <b>0.30 m</b>, <i>v</i> = <b>0</b>, <i>a</i> = <b>−0.075 ${ms2}</b>`, `(b) <i>t</i> = 3.0 s (calculator in radians): <i>y</i> = 0.30 cos 1.5 = <b>0.021 m</b>; <i>v</i> = −0.15 sin 1.5 = <b>−0.15 ${ms}</b>; <i>a</i> = −0.075 cos 1.5 = <b>−5.3 × 10<sup>−3</sup> ${ms2}</b>`]))}
+${pq('STPM 2023 · Section A · Q2', `A particle undergoes simple harmonic motion with a period of 2.0 s and amplitude 2.4 cm. What is the velocity of the particle when the displacement is 1.2 cm?`, [`6.5 × 10<sup>−2</sup> ${ms}`, `3.8 × 10<sup>−2</sup> ${ms}`, `2.1 × 10<sup>−2</sup> ${ms}`, `1.3 × 10<sup>−2</sup> ${ms}`], 0,
+  `<p>ω = 2π/<i>T</i> = π rad s<sup>−1</sup>; <i>v</i> = ω${A2x2} = π${sq('0.024<sup>2</sup> − 0.012<sup>2</sup>')} = 6.5 × 10<sup>−2</sup> ${ms}.</p><p><b>Common mistake:</b> using <i>T</i> as ω, or forgetting to change cm to m.</p>`)}
+
+${h4('Graphs of SHM against time')}
+${fig(F.xvat(), 'Figure 20.3: for x = A sin ωt, the velocity leads the displacement by a quarter period (T/4), and the acceleration is always opposite to the displacement.')}
+${table(['<i>t</i>', '<i>x</i>', '<i>v</i>', '<i>a</i>'], [['0', '0', '+ω<i>A</i>', '0'], ['<i>T</i>/4', '+<i>A</i>', '0', '−ω<sup>2</sup><i>A</i>'], ['<i>T</i>/2', '0', '−ω<i>A</i>', '0'], ['3<i>T</i>/4', '−<i>A</i>', '0', '+ω<sup>2</sup><i>A</i>'], ['<i>T</i>', '0', '+ω<i>A</i>', '0']])}
+${ul([`When <i>x</i> is at a maximum or a minimum, <i>v</i> = 0 and |<i>a</i>| is maximum.`, `When <i>x</i> = 0 (passing through equilibrium), |<i>v</i>| is maximum and <i>a</i> = 0.`])}
+${h4('Graphs of velocity and acceleration against displacement')}
+${fig(F.vx(), 'Figure 20.4: v against x is an ellipse; a against x is a straight line through the origin with gradient −ω².')}
+<p>Since <i>F</i> = <i>ma</i> = −<i>m</i>${w2}<i>x</i>, the graph of restoring force against displacement is also a straight line through the origin. Its gradient has magnitude <i>k</i> = <i>m</i>${w2}.</p>
+${example('20.2.4', `The equation of motion of a particle in SHM is <i>x</i> = 5 sin 3<i>t</i>, where <i>x</i> is in cm. (a) What is its amplitude? (b) Find its period. (c) Find its displacement at <i>t</i> = 0.2 s. (d) Sketch the graph of displacement against time.`,
+  steps([`(a) <i>A</i> = <b>5 cm</b>`, `(b) ω = 3 = 2π/<i>T</i> ⇒ <i>T</i> = <b>2.09 s</b>`, `(c) <i>x</i> = 5 sin 3(0.2) = 5 sin 0.6 = <b>2.82 cm</b>`, `(d) a sine curve starting at 0, peak 5 cm at <i>t</i> = 0.52 s, back to 0 at 1.05 s, −5 cm at 1.57 s, 0 at 2.09 s.`]))}
+${example('20.2.5', `The displacement–time graph of an oscillating object is shown. Determine (a) the amplitude, the period and the frequency, (b) the angular frequency, (c) the equation of displacement as a function of time, (d) the equations of velocity and acceleration as functions of time.`,
+  steps([`(a) <i>A</i> = <b>0.3 m</b>, <i>T</i> = <b>0.4 s</b>, <i>f</i> = 1/<i>T</i> = <b>2.5 Hz</b>`, `(b) ω = 2π<i>f</i> = <b>5π rad s<sup>−1</sup></b> (15.7 rad s<sup>−1</sup>)`, `(c) at <i>t</i> = 0, <i>x</i> = 0 and increasing, so <b><i>x</i> = 0.3 sin 5π<i>t</i></b>`, `(d) <i>v</i> = d<i>x</i>/d<i>t</i> = <b>1.5π cos 5π<i>t</i></b> ${ms}; &nbsp; <i>a</i> = d<i>v</i>/d<i>t</i> = <b>−7.5π<sup>2</sup> sin 5π<i>t</i></b> ${ms2}`]), fig(F.ex1()))}
+${example('20.2.6', `The graph shows the force <i>F</i> acting on a particle of mass 2 kg against its displacement <i>x</i>. What type of motion is the particle following? Give a reason. What is its amplitude? Find (i) its angular frequency, (ii) its period, (iii) its maximum speed.`,
+  steps([`<b>SHM</b>, because the force is directly proportional to the displacement and opposite in direction to it (a straight line through the origin with negative gradient).`, `Amplitude = <b>0.1 m</b>`, `(i) |gradient| = <i>m</i>${w2}: ${fr('20', '0.1')} = 2${w2} ⇒ ω = <b>10 rad s<sup>−1</sup></b>`, `(ii) <i>T</i> = 2π/ω = <b>0.63 s</b> &nbsp; (iii) <i>v</i><sub>max</sub> = <i>A</i>ω = (0.1)(10) = <b>1.0 ${ms}</b>`]), fig(F.ex3()))}
 `)}
 
-${sec('20-3', '20.3 Principle of superposition', `
-${def('Principle of superposition', `states that ${red('when two or more waves meet at a point, the resultant displacement at that point is the vector sum of the displacements due to each individual wave')}.`)}
-${key(`<i>y</i> = <i>y</i><sub>1</sub> + <i>y</i><sub>2</sub>`)}
-${fig(F.superpose(), 'Figure 20.6: two pulses meeting. (a) Displacements in the same direction add. (b) Displacements in opposite directions partly cancel. After meeting, each pulse continues unchanged.')}
-${ul([`The waves <b>interfere</b> with each other only while they overlap.`, `<b>Constructive interference</b>: the displacements are in the same direction, giving a larger resultant.`, `<b>Destructive interference</b>: the displacements are in opposite directions, giving a smaller resultant (zero if they are equal and opposite).`])}
-${sim('pulses', 'Superposition of two pulses', 'Send two pulses towards each other, on the same side or on opposite sides. Pause while they overlap: the resultant (green) is the sum of the two displacements at every point. After they pass, each pulse is unchanged.')}
-${example('20.3.1', `Two waves <i>y</i><sub>1</sub> = 3 sin (ω<i>t</i> − <i>kx</i>) cm and <i>y</i><sub>2</sub> = 4 sin (ω<i>t</i> − <i>kx</i> + π) cm travel along the same string. Find the amplitude of the resultant wave.`,
-  steps([`sin (θ + π) = −sin θ, so <i>y</i><sub>2</sub> = −4 sin (ω<i>t</i> − <i>kx</i>)`, `<i>y</i> = <i>y</i><sub>1</sub> + <i>y</i><sub>2</sub> = −1 sin (ω<i>t</i> − <i>kx</i>) ⇒ amplitude <b>1 cm</b> (destructive interference)`]))}
-${h4('A real use: noise-cancelling headphones')}
-${ul([`A small microphone on the outside of each ear cup picks up the noise around you (an aeroplane engine, a bus, an air-conditioner).`, `The electronics produce an "anti-noise" wave with the <b>same amplitude</b> but <b>opposite phase</b> (a phase difference of π), and the speaker plays it into your ear.`, `At your ear the two waves superpose: <i>y</i> = <i>y</i><sub>noise</sub> + <i>y</i><sub>anti</sub> ≈ 0. This is <b>destructive interference</b>.`, `It works best for steady, low-frequency sounds. For high frequencies even a tiny delay in the electronics is a large fraction of a period, so the anti-noise is no longer in antiphase.`])}
-${sim('anc', 'Noise-cancelling headphones', 'Switch the noise cancelling on and off and compare the sound reaching the ear (green). Then add a delay in the electronics or change the noise frequency: the cancellation gets worse once the phase difference moves away from π. Switch on the sound to hear it (use earphones for the low hum).')}
+${sec('19-3', '20.3 Energy in simple harmonic motion', `
+${h4('Kinetic energy')}
+${steps([`<i>K</i> = ${half}<i>mv</i><sup>2</sup> &nbsp; and &nbsp; <i>v</i><sup>2</sup> = ${w2}(<i>A</i><sup>2</sup> − <i>x</i><sup>2</sup>)`])}
+${key(`<i>K</i> = ${half}<i>m</i>${w2}(<i>A</i><sup>2</sup> − <i>x</i><sup>2</sup>)`, 'maximum at <i>x</i> = 0: <i>K</i><sub>max</sub> = ½<i>m</i>ω<sup>2</sup><i>A</i><sup>2</sup>; zero at <i>x</i> = ±<i>A</i>. In terms of time (<i>x</i> = <i>A</i> sin ω<i>t</i>): <i>K</i> = ½<i>m</i>ω<sup>2</sup><i>A</i><sup>2</sup> cos<sup>2</sup> ω<i>t</i>')}
+${h4('Potential energy')}
+${steps([`Work done against the restoring force: <i>U</i> = ∫<sub>0</sub><sup><i>x</i></sup> <i>kx</i> d<i>x</i> = ${half}<i>kx</i><sup>2</sup>`, `<i>k</i> = <i>m</i>${w2}`])}
+${key(`<i>U</i> = ${half}<i>m</i>${w2}<i>x</i><sup>2</sup>`, 'zero at <i>x</i> = 0; maximum at <i>x</i> = ±<i>A</i>: <i>U</i><sub>max</sub> = ½<i>m</i>ω<sup>2</sup><i>A</i><sup>2</sup>. In terms of time: <i>U</i> = ½<i>m</i>ω<sup>2</sup><i>A</i><sup>2</sup> sin<sup>2</sup> ω<i>t</i>')}
+${h4('Total energy is conserved')}
+${steps([`<i>E</i> = <i>K</i> + <i>U</i> = ${half}<i>m</i>${w2}(<i>A</i><sup>2</sup> − <i>x</i><sup>2</sup>) + ${half}<i>m</i>${w2}<i>x</i><sup>2</sup>`])}
+${key(`<i>E</i> = ${half}<i>m</i>${w2}<i>A</i><sup>2</sup> = ${half}<i>kA</i><sup>2</sup> = constant`, 'the total mechanical energy of SHM is conserved if no external force acts on it. <i>E</i> ∝ <i>A</i><sup>2</sup>: doubling the amplitude makes the energy four times larger.')}
+${fig(F.energy(), 'Figure 20.5: left, K and U against time (they vary at twice the frequency of x); right, K and U against displacement (two parabolas). E is constant in both.')}
+${table(['<i>t</i>', '<i>x</i>', '<i>K</i>', '<i>U</i>'], [['0', '<i>A</i>', '0', '½<i>kA</i><sup>2</sup>'], ['<i>T</i>/4', '0', '½<i>kA</i><sup>2</sup>', '0'], ['<i>T</i>/2', '−<i>A</i>', '0', '½<i>kA</i><sup>2</sup>'], ['3<i>T</i>/4', '0', '½<i>kA</i><sup>2</sup>', '0'], ['<i>T</i>', '<i>A</i>', '0', '½<i>kA</i><sup>2</sup>']])}
+<p style="font-size:.9em;color:var(--sub)">(This table starts from <i>x</i> = <i>A</i>, i.e. <i>x</i> = <i>A</i> cos ω<i>t</i>.)</p>
+${table(['Misconception', 'Correct idea'], [['Total energy changes as the object oscillates.', '<i>E</i> = ½<i>m</i>ω<sup>2</sup><i>A</i><sup>2</sup> is constant. Only <i>K</i> and <i>U</i> change.'], ['Kinetic energy is greatest at the extremes.', '<i>K</i> is greatest at <i>x</i> = 0 and zero at <i>x</i> = ±<i>A</i>.'], ['<i>K</i>–<i>t</i> and <i>U</i>–<i>t</i> graphs look like the <i>x</i>–<i>t</i> graph.', 'They vary at twice the frequency of <i>x</i> and are never negative.']])}
+${example('20.3.1', `A 1.0 kg mass vibrates according to <i>y</i> = 0.42 cos 7.4<i>t</i> (<i>y</i> in m, <i>t</i> in s). Determine (a) the amplitude, (b) the frequency, (c) the total energy, (d) the kinetic energy and the potential energy when <i>y</i> = 0.16 m.`,
+  steps([`(a) <i>A</i> = <b>0.42 m</b> &nbsp; (b) <i>f</i> = ω/2π = 7.4/2π = <b>1.2 Hz</b>`, `(c) <i>E</i> = ½<i>m</i>${w2}<i>A</i><sup>2</sup> = ½(1.0)(7.4)<sup>2</sup>(0.42)<sup>2</sup> = <b>4.8 J</b>`, `(d) <i>v</i> = ω${sq('<i>A</i><sup>2</sup> − <i>y</i><sup>2</sup>')} = 7.4${sq('0.42<sup>2</sup> − 0.16<sup>2</sup>')} = 2.87 ${ms}; <i>K</i> = ½(1.0)(2.87)<sup>2</sup> = <b>4.1 J</b>`, `<i>U</i> = <i>E</i> − <i>K</i> = 4.8 − 4.1 = <b>0.7 J</b>`]))}
+${example('20.3.2', `The displacement–time graph of an oscillating object of mass 0.3 kg is shown. Calculate the total energy (kinetic + potential) of the object.`,
+  steps([`<i>A</i> = 0.2 m, <i>T</i> = 4 s ⇒ ω = 2π/<i>T</i> = π/2 rad s<sup>−1</sup>`, `<i>E</i> = ½<i>m</i>${w2}<i>A</i><sup>2</sup> = ½(0.3)(π/2)<sup>2</sup>(0.2)<sup>2</sup> = <b>0.015 J</b>`]), fig(F.ex2()))}
+${pq('STPM 2022 · Section A · Q1', `An object of mass 0.10 kg undergoes SHM along the <i>x</i>-axis according to the equation d<sup>2</sup><i>x</i>/d<i>t</i><sup>2</sup> + 100<i>x</i> = 0. If the total energy of the system is 0.0020 J, what is the amplitude of the motion?`, ['0.040 cm', '0.20 cm', '0.40 cm', '2.0 cm'], 3,
+  `<p>d<sup>2</sup><i>x</i>/d<i>t</i><sup>2</sup> = −100<i>x</i> ⇒ ${w2} = 100.</p><p><i>A</i><sup>2</sup> = 2<i>E</i>/(<i>m</i>${w2}) = 2(0.0020)/(0.10 × 100) = 4.0 × 10<sup>−4</sup> m<sup>2</sup> ⇒ <i>A</i> = 0.02 m = 2.0 cm.</p>`)}
+${pq('STPM 2023 · Section A · Q1', `Which statement is true about simple harmonic motion?`, ['The acceleration is uniform.', 'The amplitude decreases with time.', 'The restoring force dissipates naturally.', 'The kinetic and potential energies interchange continuously.'], 3,
+  `<p>A: the acceleration varies (<i>a</i> = −ω<sup>2</sup><i>x</i>). B and C describe <b>damped</b> oscillation, not ideal SHM. D: the total energy is constant while <i>K</i> and <i>U</i> trade places.</p><p><b>Tip:</b> “true about SHM” questions often hide a damped-oscillation distractor.</p>`)}
+${exercises('Exercises: kinematics and energy of SHM', [
+  { q: `A particle moves in SHM according to <i>y</i> = 10 sin ω<i>t</i> m. If the period is 30 s, find (a) the amplitude, (b) the maximum velocity, (c) the maximum acceleration, (d) the displacement, velocity and acceleration when <i>t</i> = 15 s.`, a: `(a) 10 m &nbsp; (b) 2.1 ${ms} &nbsp; (c) 0.44 ${ms2} &nbsp; (d) at <i>t</i> = <i>T</i>/2: <i>y</i> = 0, <i>v</i> = −2.1 ${ms}, <i>a</i> = 0` },
+  { q: `An object moving with SHM has an amplitude of 2 cm and a frequency of 20 Hz. Calculate (a) the period, (b) the acceleration at the middle and at the end of an oscillation, (c) the velocities at the same two points.`, a: `(a) 0.05 s &nbsp; (b) middle: 0; end: 316 ${ms2} &nbsp; (c) middle: 2.5 ${ms}; end: 0` },
+  { q: `A block of mass 0.25 kg on a frictionless surface is attached to a light spring of spring constant 180 N m<sup>−1</sup>. It is displaced 15 cm from equilibrium and released. Find (a) the total energy of the system, (b) the speed of the block when it is 10 cm from equilibrium.`, a: `(a) 2.0 J &nbsp; (b) 3.0 ${ms}` },
+  { q: `A 50 g mass vibrates in SHM at the end of a spring. The amplitude is 12 cm and the period is 1.70 s. Calculate (a) the frequency, (b) the spring constant, (c) the maximum speed, (d) the maximum acceleration, (e) the speed when the displacement is 6.0 cm, (f) the acceleration when <i>x</i> = 6.0 cm.`, a: `(a) 0.588 Hz &nbsp; (b) 0.68 N m<sup>−1</sup> &nbsp; (c) 0.44 ${ms} &nbsp; (d) 1.6 ${ms2} &nbsp; (e) 0.38 ${ms} &nbsp; (f) −0.82 ${ms2}` },
+  { q: `The diagram shows a pendulum oscillating between A and C; B is the lowest point. State all the positions where (a) the acceleration is maximum, (b) the acceleration is zero, (c) the speed is maximum, (d) the velocity is zero, (e) the kinetic energy is maximum, (f) the potential energy is maximum.`, f: fig(F.pabc()), a: `(a) A and C &nbsp; (b) B &nbsp; (c) B &nbsp; (d) A and C &nbsp; (e) B &nbsp; (f) A and C` }])}
 `)}
 
-${sec('20-4', '20.4 Standing waves', `
-${def('Standing (stationary) wave', `is formed by ${red('the superposition of two progressive waves of the same amplitude and frequency, travelling at the same speed in opposite directions')}.`)}
-${h4('Formation by reflection')}
-<p>A wave travelling along a string is reflected at the end. The incident and reflected waves travel in opposite directions and superpose to form a standing wave.</p>
-${fig(F.reflect(), 'Figure 20.7: a pulse is inverted when it is reflected at a fixed end, and is not inverted at a free end.')}
-${ul([`At some points the two waves are always equal and opposite, so they always cancel: these points do not move. They are <b>nodes</b> (N).`, `Midway between the nodes, the two waves always add, giving the largest oscillation. These points are <b>antinodes</b> (A).`])}
-${fig(F.standing(), 'Figure 20.8: a standing wave. The profile does not move along; each point oscillates with its own amplitude.')}
-${h4('The standing wave equation')}
-${steps([`<i>y</i><sub>1</sub> = <i>a</i> sin (ω<i>t</i> − ${kx}) &nbsp; (to the right), &nbsp; <i>y</i><sub>2</sub> = <i>a</i> sin (ω<i>t</i> + ${kx}) &nbsp; (to the left)`, `<i>y</i> = <i>y</i><sub>1</sub> + <i>y</i><sub>2</sub>, using sin <i>P</i> + sin <i>Q</i> = 2 sin ${fr('<i>P</i> + <i>Q</i>', '2')} cos ${fr('<i>P</i> − <i>Q</i>', '2')}`, `<i>y</i> = 2<i>a</i> sin ω<i>t</i> cos (−${kx}) = 2<i>a</i> cos ${kx} sin ω<i>t</i>`])}
-${key(`<i>y</i> = 2<i>a</i> cos ${kx} sin ω<i>t</i> = (2<i>a</i> cos <i>kx</i>) sin ω<i>t</i>`, 'every point oscillates in SHM (sin ω<i>t</i>) with an amplitude <i>A</i> = 2<i>a</i> cos <i>kx</i> that depends on its position <i>x</i>')}
-${note(`Other books write <i>y</i> = 2<i>A</i> sin <i>kx</i> cos ω<i>t</i>. It is the same standing wave with the origin at a node instead of an antinode.`)}
-${two(`<p><b>Nodes</b>: amplitude = 0</p>${steps([`cos ${kx} = 0 ⇒ ${kx} = ${fr('π', '2')}, ${fr('3π', '2')}, ${fr('5π', '2')}, …`, `<i>x</i> = ${fr('λ', '4')}, ${fr('3λ', '4')}, ${fr('5λ', '4')}, … = ${fr('<i>n</i>λ', '4')}, <i>n</i> = 1, 3, 5, …`, `distance between successive nodes = ${fr('3λ', '4')} − ${fr('λ', '4')} = <b>${fr('λ', '2')}</b>`])}`,
-`<p><b>Antinodes</b>: amplitude = 2<i>a</i> (maximum)</p>${steps([`cos ${kx} = ±1 ⇒ ${kx} = 0, π, 2π, …`, `<i>x</i> = 0, ${fr('λ', '2')}, λ, … = ${fr('<i>n</i>λ', '4')}, <i>n</i> = 0, 2, 4, …`, `distance between successive antinodes = <b>${fr('λ', '2')}</b>; node to next antinode = <b>${fr('λ', '4')}</b>`])}`)}
-${sim('standing', 'Forming a standing wave', 'Two identical waves travel in opposite directions (blue and orange). Their sum (green) is a standing wave: the nodes never move and the antinodes have the largest amplitude. Switch to the string to see the harmonics of a string fixed at both ends.')}
-${h4('Standing waves on a stretched string')}
-${fig(F.harm(), 'Figure 20.9: a string fixed at both ends has a node at each end. Only waves that fit a whole number of half-wavelengths can form.')}
-${ul([`The lowest frequency (the <b>fundamental frequency</b> or <b>first harmonic</b>): <i>L</i> = λ/2, so λ = 2<i>L</i> and <i>f</i><sub>1</sub> = <i>v</i>/2<i>L</i>.`, `Next: <i>L</i> = λ, the second harmonic (first overtone), <i>f</i><sub>2</sub> = 2<i>f</i><sub>1</sub>.`, `In general <i>L</i> = <i>n</i>λ/2 and <i>f<sub>n</sub></i> = <i>nv</i>/2<i>L</i>. More about strings and pipes in Chapter 21 Sound waves.`])}
-${h4('Standing waves and progressive waves')}
-${table(['Standing wave', 'Progressive wave'], [['The wave profile does not move; energy is not transferred from one particle to the next.', 'The wave profile moves in the direction of propagation and energy is transferred.'], ['There are points (nodes) that are not displaced at all.', 'No nodes.'], ['Midway between two successive nodes is an antinode, where the amplitude is maximum.', 'No antinodes.'], ['Points between a node and an antinode have different amplitudes of oscillation.', 'All points have the same amplitude of oscillation.'], ['Points between two successive nodes oscillate in phase, with the same frequency.', 'Neighbouring points are not in phase, but have the same frequency.']])}
-${example('20.4.1', `A standing wave is represented by <i>y</i> = 2 cos 4<i>x</i> sin 6<i>t</i> (SI units). Calculate (a) the frequency, (b) the wavelength, (c) the distance between successive nodes, (d) the amplitude at <i>x</i> = 0.50 m.`,
-  steps([`Compare with <i>y</i> = 2<i>a</i> cos ${kx} sin ω<i>t</i>.`, `(a) ω = 6 = 2π<i>f</i> ⇒ <i>f</i> = <b>0.955 Hz</b>`, `(b) ${fr('2π', 'λ')} = 4 ⇒ λ = <b>1.57 m</b>`, `(c) ${fr('λ', '2')} = ${fr('1.57', '2')} = <b>0.785 m</b>`, `(d) <i>A</i> = 2 cos 4(0.50) = 2 cos 2.0 = −0.832; amplitude = <b>0.832 m</b> (calculator in radians; the amplitude is the magnitude)`]))}
-${example('20.4.2', `A standing-wave pattern is observed in a thin wire of length 3.00 m. The equation of the wave is <i>y</i> = (0.002 m) sin (π<i>x</i>) cos (100π<i>t</i>), with <i>x</i> in metres and <i>t</i> in seconds. (a) How many loops does the pattern have? (b) What is the frequency? (c) What is the distance between adjacent nodes?`,
-  steps([`Compare with <i>y</i> = 2<i>A</i> sin <i>kx</i> cos ω<i>t</i>.`, `<i>k</i> = 2π/λ = π ⇒ λ = 2.00 m; each loop is λ/2 = 1.00 m long`, `(a) number of loops = 3.00/1.00 = <b>3</b>`, `(b) ω = 2π<i>f</i> = 100π ⇒ <i>f</i> = <b>50.0 Hz</b>`, `(c) λ/2 = <b>1.00 m</b>`]), fig(F.wire()))}
-${example('20.4.3', `The speed of waves in a guitar string is 425 ${ms}. Find the fundamental frequency (first harmonic) of the string if its length is 76.5 cm.`,
-  steps([`λ = 2<i>L</i> = 2(0.765) = 1.53 m`, `<i>f</i> = <i>v</i>/λ = 425/1.53 = <b>278 Hz</b>`]))}
-${example('20.4.4', `Find the length of guitar string needed to produce a fundamental frequency of 256 Hz, if the speed of waves in the string is 405 ${ms}.`,
-  steps([`λ = <i>v</i>/<i>f</i> = 405/256 = 1.58 m`, `<i>L</i> = λ/2 = <b>0.791 m</b>`]))}
+${sec('19-4', '20.4 Systems in simple harmonic motion', `
+${h4('Spring–mass system')}
+${steps([`Hooke’s law and Newton’s second law: <i>ma</i> = −<i>kx</i> ⇒ <i>a</i> = −${fr('<i>k</i>', '<i>m</i>')}<i>x</i>`, `Compare with <i>a</i> = −${w2}<i>x</i>: ${w2} = ${fr('<i>k</i>', '<i>m</i>')} ⇒ ω = ${sq(fr('<i>k</i>', '<i>m</i>'))}`, `<i>T</i> = ${fr('2π', 'ω')}`])}
+${key(`<i>T</i> = 2π${sq(fr('<i>m</i>', '<i>k</i>'))}`, 'a larger mass gives a longer period; a stiffer spring (larger <i>k</i>) gives a shorter period. <i>T</i> does not depend on the amplitude.')}
+${note(`For a <b>vertical</b> spring, gravity only shifts the equilibrium position down by <i>mg</i>/<i>k</i>. The mass oscillates about this new equilibrium with the same period, <i>T</i> = 2π√(<i>m</i>/<i>k</i>). <i>g</i> does not appear in the formula.`)}
+${example('20.4.1', `A mass of 200 g is attached to a horizontal spring on a frictionless surface. The mass is pulled 2.00 cm to the right of its equilibrium position and released. If the spring constant is 100 N m<sup>−1</sup>, find the frequency of oscillation.`,
+  steps([`${w2} = <i>k</i>/<i>m</i>`, `<i>f</i> = ${fr('1', '2π')}${sq(fr('<i>k</i>', '<i>m</i>'))} = ${fr('1', '2π')}${sq(fr('100', '0.200'))} = <b>3.56 Hz</b> &nbsp; (the 2.00 cm amplitude is not needed)`]))}
+${example('20.4.2', `A 0.50 kg mass is attached to a spring of spring constant 20 N m<sup>−1</sup> and set oscillating. Find the period. What happens to the period if the spring is replaced by one four times as stiff?`,
+  steps([`<i>T</i> = 2π${sq('0.50/20')} = 2π(0.158) = <b>0.99 s</b>`, `<i>T</i> ∝ 1/√<i>k</i>, so with <i>k</i> = 80 N m<sup>−1</sup> the period <b>halves</b> (0.50 s).`]))}
+${h4('Simple pendulum')}
+${fig(F.pend(), 'Figure 20.6: the component mg sin θ along the arc pulls the bob back towards the equilibrium position.')}
+${steps([`Restoring force along the arc: <i>F</i> = −<i>mg</i> sin θ`, `For small angles (θ < 10°), sin θ ≈ θ = ${fr('<i>x</i>', '<i>l</i>')} (θ in radians)`, `<i>ma</i> = −<i>mg</i>${fr('<i>x</i>', '<i>l</i>')} ⇒ <i>a</i> = −${fr('<i>g</i>', '<i>l</i>')}<i>x</i>`, `Compare with <i>a</i> = −${w2}<i>x</i>: ω = ${sq(fr('<i>g</i>', '<i>l</i>'))}`])}
+${key(`<i>T</i> = 2π${sq(fr('<i>l</i>', '<i>g</i>'))}`, 'depends only on the length <i>l</i> and on <i>g</i>, not on the mass of the bob or (for small angles) on the amplitude')}
+${table(['', 'Spring–mass system', 'Simple pendulum'], [['Period', '<i>T</i> = 2π√(<i>m</i>/<i>k</i>)', '<i>T</i> = 2π√(<i>l</i>/<i>g</i>)'], ['Depends on', 'mass <i>m</i>, spring constant <i>k</i>', 'length <i>l</i>, gravitational acceleration <i>g</i>'], ['Does not depend on', 'amplitude <i>A</i> (and <i>g</i>)', 'mass of the bob, amplitude (small angles)']])}
+${tip(`A heavier phone on a spring bounces more slowly, but a heavier pendulum bob swings at exactly the same rate. Always check which system the question describes before you choose the formula. On the Moon (smaller <i>g</i>) a pendulum clock runs slow; a spring–mass system keeps the same period.`)}
+${sim('shmsys', 'Spring–mass system and simple pendulum', 'Change the mass, spring constant, length and g, and compare the two periods. Change the amplitude too: the period does not change. Try the Moon button.')}
+${example('20.4.3', `A simple pendulum has a length of 1.00 m. Taking <i>g</i> = 9.81 ${ms2}, find its period. What length gives a period of 1.0 s?`,
+  steps([`<i>T</i> = 2π${sq('1.00/9.81')} = <b>2.01 s</b>`, `<i>l</i> = <i>g</i>(<i>T</i>/2π)<sup>2</sup> = 9.81(1.0/2π)<sup>2</sup> = <b>0.25 m</b>`]))}
+${example('20.4.4', `A student uses a simple pendulum of length 80.0 cm to determine <i>g</i>. There are 20 oscillations in 35.9 s. Find (a) the value of <i>g</i>, (b) the period if the experiment is done on the Moon, where the gravitational field strength is 1/6 of that on Earth.`,
+  steps([`<i>T</i> = 35.9/20 = 1.795 s`, `(a) <i>T</i><sup>2</sup> = 4π<sup>2</sup>${fr('<i>l</i>', '<i>g</i>')} ⇒ <i>g</i> = ${fr('4π<sup>2</sup>(0.800)', '(1.795)<sup>2</sup>')} = <b>9.80 ${ms2}</b>`, `(b) <i>T</i><sup>2</sup><i>g</i> = constant: <i>T</i><sup>2</sup>(<i>g</i>/6) = (1.795)<sup>2</sup><i>g</i> ⇒ <i>T</i> = 1.795√6 = <b>4.40 s</b>`]))}
 `)}
 
-${sec('20-5', '20.5 Electromagnetic waves', `
-<p>An electromagnetic (EM) wave is made up of an <b>electric field</b> and a <b>magnetic field</b> that vibrate perpendicular to each other and to the direction of propagation, in phase.</p>
-${fig(F.em(), 'Figure 20.10: an electromagnetic wave travelling in the +x direction.')}
-${key(`<i>E</i> = <i>E</i><sub>0</sub> sin (ω<i>t</i> − <i>kx</i>) &nbsp;&nbsp; <i>B</i> = <i>B</i><sub>0</sub> sin (ω<i>t</i> − <i>kx</i>)`, '<i>E</i><sub>0</sub>, <i>B</i><sub>0</sub> = amplitudes of the electric and magnetic fields; both have the same ω and <i>k</i>, so they are in phase')}
-${sim('emwave', 'Electromagnetic wave', 'The electric field (red) and the magnetic field (violet) vibrate at right angles to each other and to the direction of travel, and reach their maxima together.')}
-${h4('Characteristics of electromagnetic waves')}
-${ul([`They are transverse waves.`, `They do not need a medium: they can travel through a vacuum.`, `They all travel at the same speed in a vacuum, <i>c</i> = 3.00 × 10<sup>8</sup> ${ms}.`, `They carry no charge, so they are not deflected by electric or magnetic fields.`, `They show reflection, refraction, interference, diffraction and polarisation.`, `They obey <i>c</i> = <i>f</i>λ.`])}
-${h4('Electromagnetic waves and mechanical waves')}
-${table(['Electromagnetic waves', 'Mechanical waves'], [['vibrations of electric and magnetic fields', 'vibrations of the particles of a medium'], ['do not need a medium; can travel in a vacuum', 'need a medium; cannot travel in a vacuum'], ['always transverse', 'transverse or longitudinal'], ['speed in a vacuum = 3.00 × 10<sup>8</sup> m s<sup>−1</sup>', 'much slower (e.g. sound in air ≈ 340 m s<sup>−1</sup>)'], ['e.g. light, radio waves, X-rays', 'e.g. sound, water waves, waves on a string']])}
-${h4('The speed of light')}
-${key(`<i>c</i> = ${fr('1', sq('μ<sub>0</sub>ε<sub>0</sub>'))}`, 'μ<sub>0</sub> = 4π × 10<sup>−7</sup> H m<sup>−1</sup> (permeability of free space); ε<sub>0</sub> = 8.85 × 10<sup>−12</sup> F m<sup>−1</sup> (permittivity of free space)')}
-<p><b>Significance</b>: the speed of EM waves can be calculated from two constants of electricity and magnetism: 1/√(4π × 10<sup>−7</sup> × 8.85 × 10<sup>−12</sup>) = 3.00 × 10<sup>8</sup> ${ms}, which is the measured speed of light. This showed that <b>light is an electromagnetic wave</b>.</p>
-${h4('The electromagnetic spectrum')}
-${fig(F.spec(), 'Figure 20.11: the electromagnetic spectrum.')}
-${table(['Radiation', 'Typical wavelength / m', 'Typical frequency / Hz'], [['γ-rays', '< 10<sup>−11</sup>', '> 10<sup>19</sup>'], ['X-rays', '10<sup>−11</sup> – 10<sup>−8</sup>', '10<sup>16</sup> – 10<sup>19</sup>'], ['ultraviolet', '10<sup>−8</sup> – 4 × 10<sup>−7</sup>', '10<sup>15</sup> – 10<sup>16</sup>'], ['visible light', '4 × 10<sup>−7</sup> – 7 × 10<sup>−7</sup>', '≈ 10<sup>14</sup> – 10<sup>15</sup>'], ['infrared', '7 × 10<sup>−7</sup> – 10<sup>−3</sup>', '10<sup>11</sup> – 10<sup>14</sup>'], ['microwaves', '10<sup>−3</sup> – 10<sup>−1</sup>', '10<sup>9</sup> – 10<sup>11</sup>'], ['radio waves', '> 10<sup>−1</sup>', '< 10<sup>9</sup>']])}
-${tip(`For the exam, remember the <b>order</b> of the spectrum and the order of magnitude of each region. The boundaries are not sharp, so books give slightly different values.`)}
-${example('20.5.1', `The electric field of an EM wave in a vacuum is <i>E</i> = 150 sin (6.0 × 10<sup>15</sup><i>t</i> − <i>kx</i>) V m<sup>−1</sup>. Find (a) the frequency, (b) the wavelength, (c) the region of the spectrum.`,
-  steps([`(a) <i>f</i> = ω/2π = 6.0 × 10<sup>15</sup>/2π = <b>9.5 × 10<sup>14</sup> Hz</b>`, `(b) λ = <i>c</i>/<i>f</i> = 3.00 × 10<sup>8</sup>/9.5 × 10<sup>14</sup> = <b>3.1 × 10<sup>−7</sup> m</b>`, `(c) <b>ultraviolet</b>`]))}
+${sec('19-5', '20.5 Damped oscillation', `
+${def('Damping', `is ${red('the decrease in amplitude of an oscillation caused by dissipative forces')} such as friction and air resistance.`)}
+${ul([`Part of the energy of the system is used to overcome these resistive forces, and is lost as heat.`, `So the amplitude does not stay constant: it decreases gradually (exponentially) until the oscillation stops. Since <i>E</i> ∝ <i>A</i><sup>2</sup>, the energy decreases too.`, `A damped oscillation is therefore not perfect SHM.`])}
+${fig(F.envelope(), 'Figure 20.7: under damping: the oscillation continues but the amplitude decreases with time.')}
+${h4('Three types of damping')}
+${fig(F.damp(), 'Figure 20.8: displacement against time for the three types of damping, each released from the same displacement.')}
+${table(['Type', 'What happens', 'Example'], [['<b>Under damping</b> (light damping)', 'The system oscillates, with the amplitude decreasing with time until it becomes zero. It takes a long time to die away.', 'a mass oscillating in air; a plucked guitar string'], ['<b>Critical damping</b>', 'The system does not oscillate. It returns to the equilibrium position in the <b>shortest possible time</b>.', 'the shock absorbers of a car'], ['<b>Over damping</b> (heavy damping)', 'The system does not oscillate, but it takes a <b>long time</b> to return to equilibrium.', 'a car fuel gauge; bathroom scales; a heavy door closer']])}
+${sim('damped', 'Damped oscillation', 'Increase the damping from none to under, critical and over damping. Watch the mass, the displacement–time graph and the energy. Critical damping brings the mass back to O fastest without overshooting.')}
 `)}
 
-${sec('20-6', 'Summary and exercises', `
-${table(['Subtopic', 'Key results'], [['20.1', '<i>y</i> = <i>A</i> sin (ω<i>t</i> ± <i>kx</i>); <i>k</i> = 2π/λ; φ = 2π<i>x</i>/λ; <i>v</i> = <i>f</i>λ'], ['20.2', '<i>I</i> = <i>P</i>/<i>A</i>; <i>I</i> ∝ <i>A</i><sup>2</sup>; point source <i>I</i> = <i>P</i>/4π<i>r</i><sup>2</sup>'], ['20.3', '<i>y</i> = <i>y</i><sub>1</sub> + <i>y</i><sub>2</sub>'], ['20.4', '<i>y</i> = 2<i>a</i> cos <i>kx</i> sin ω<i>t</i>; node to node = λ/2; node to antinode = λ/4'], ['20.5', '<i>E</i> = <i>E</i><sub>0</sub> sin (ω<i>t</i> − <i>kx</i>), <i>B</i> = <i>B</i><sub>0</sub> sin (ω<i>t</i> − <i>kx</i>); <i>c</i> = 1/√(μ<sub>0</sub>ε<sub>0</sub>)']])}
-${exercises('Exercises', [
-  { q: `A wave on a string is described by <i>y</i> = 0.02 sin (30<i>t</i> + 4<i>x</i>) (SI units). Find the wavelength, the frequency, and the speed and direction of the wave.`, a: `λ = 1.57 m, <i>f</i> = 4.77 Hz, <i>v</i> = 7.5 ${ms} in the −<i>x</i> direction` },
-  { q: `Two points on a progressive wave of wavelength 1.2 m are 0.30 m apart. What is the phase difference between them?`, a: `π/2 rad` },
-  { q: `The intensity of a wave 2.0 m from a point source is 0.80 W m<sup>−2</sup>. What is the intensity 8.0 m from the source?`, a: `0.050 W m<sup>−2</sup>` },
-  { q: `A standing wave on a string has nodes 0.25 m apart. The wave speed is 100 ${ms}. Find the frequency.`, a: `λ = 0.50 m, <i>f</i> = 200 Hz` },
-  { q: `State two differences between an electromagnetic wave and a sound wave.`, a: `e.g. EM waves can travel through a vacuum but sound needs a medium; EM waves are transverse but sound is longitudinal; EM waves travel at 3.00 × 10<sup>8</sup> ${ms} in a vacuum, much faster than sound.` }])}
+${sec('19-6', '20.6 Forced oscillation and resonance', `
+${table(['Free oscillation', 'Forced oscillation'], [['The system is displaced and released, then left alone: no driving force.', 'A periodic external force (the driving force) acts on the system continuously.'], ['It oscillates at its own <b>natural frequency</b> <i>f</i><sub>0</sub>.', 'After a short time, it oscillates at the <b>driving (forcing) frequency</b> <i>f</i>, not at <i>f</i><sub>0</sub>.'], ['Its amplitude depends only on the energy given at the start (it is damped gradually if there is resistance).', 'Its amplitude depends on how close <i>f</i> is to <i>f</i><sub>0</sub>.']])}
+${def('Natural frequency', `is ${red('the frequency at which a system oscillates when there is no driving force and no damping')}. For a simple pendulum, <i>f</i><sub>0</sub> = ${fr('1', '2π')}${sq(fr('<i>g</i>', '<i>l</i>'))}.`)}
+${h4('Barton’s pendulums')}
+${fig(F.barton(), 'Figure 20.9: the driver pendulum D and pendulums X, Y, Z hang from the same string. Only Y has the same length as D.')}
+${ul([`X, Y and Z are at rest at first. D is set swinging.`, `Energy is passed along the string, so X, Y and Z start to oscillate (forced oscillation), all at the frequency of D.`, `Y, with the same length (and so the same natural frequency) as D, oscillates with the <b>largest amplitude</b>. Y is in <b>resonance</b>.`])}
+${def('Resonance', `occurs when ${red('the frequency of the driving force is equal to the natural frequency of the system')}. The system then absorbs energy from the driving force most efficiently, and the amplitude of oscillation is maximum.`)}
+${key(`resonance: <i>f</i> = <i>f</i><sub>0</sub>`, 'the condition for resonance. This frequency is the resonance frequency.')}
+${h4('Resonance and damping')}
+${fig(F.res(), 'Figure 20.10: amplitude of the forced oscillation against driving frequency for different amounts of damping.')}
+${ul([`Damping absorbs energy and reduces the effect of resonance.`, `As the damping increases, the amplitude at resonance decreases and the resonance peak becomes broader (flatter).`, `With heavier damping, the peak also moves slightly below <i>f</i><sub>0</sub>.`])}
+${sim('resonance', 'Forced oscillation and resonance', 'Slowly change the driving frequency and watch the amplitude of the driven mass. The amplitude is largest when the driving frequency equals the natural frequency. Then increase the damping and see the peak fall and become broader.')}
+${h4('Examples of resonance')}
+${two(`<p><b>Destructive</b></p>${ul([`1940, Washington State, USA: the Tacoma Narrows suspension bridge collapsed about four months after opening. A strong wind drove the bridge into large oscillations.`, `1850, Angers, France: more than 200 soldiers died when a bridge they were marching over collapsed. This is why soldiers break step when they march across a bridge.`, `A singer can shatter a wine glass with a note at its natural frequency.`])}`,
+`<p><b>Useful</b></p>${ul([`The tuning circuit of a radio or TV resonates at the frequency of the chosen station.`, `Wind instruments produce sound by making the air column inside resonate.`, `Microwave ovens heat food because water molecules absorb energy from the microwaves.`])}`)}
+${tip(`Questions often ask for the condition for resonance. Write it as a full sentence: “the driving frequency is equal to the natural frequency of the system”.`)}
 `)}
 
-${sec('20-rw', 'Real-World Physics: Japan’s tsunami sea wall', rw({
-  id: 'ls-20-rw-tsunami',
-  meta: 'Tōhoku coast, Japan · built after 11 March 2011',
-  title: 'Why does a tsunami grow taller as it reaches the shore?',
-  lead: `<p>On 11 March 2011 a magnitude 9 earthquake off north-east Japan sent a tsunami onto the Tōhoku coast. The old sea walls were designed for waves of about 8 m, but the waves reached 12–15 m, poured over the walls and destroyed many of them. About 20 000 people died.</p><p>Japan then built nearly <b>400 km</b> of new concrete sea walls along the coast, up to <b>14.7 m</b> high, with deep foundations and wider bases so they do not collapse if a wave goes over the top.</p>`,
-  video: { id: 'tJ6G2lTo6xA', title: 'Japan’s giant tsunami sea wall', channel: 'YouTube documentary' },
-  watch: 'compare the height of the tsunami in the open ocean with its height when it reaches the coast.',
-  physics: ul([`A tsunami is a <b>progressive wave</b> with a very long wavelength (hundreds of kilometres). Its speed depends on the depth of the water: <i>v</i> = √(<i>gd</i>) (given).`, `In the deep ocean it travels at about 700–900 km h<sup>−1</sup> but is often less than 1 m high. Near the coast the water becomes shallow, so the wave <b>slows down</b>.`, `The <b>frequency stays the same</b> (it is set by the source), so from <i>v</i> = <i>f</i>λ the <b>wavelength becomes shorter</b>. The same energy is squeezed into a shorter, slower wave, so the <b>amplitude grows</b>. Since <i>I</i> ∝ <i>A</i><sup>2</sup>, the wave arriving at the wall is extremely powerful.`]),
-  qs: [
-    { q: `The speed of a tsunami is given by <i>v</i> = √(<i>gd</i>), where <i>d</i> is the depth of the water. What is its speed in the open ocean where <i>d</i> = 4000 m?`, opts: ['63 m s<sup>−1</sup>', '198 m s<sup>−1</sup>', '3.9 × 10<sup>4</sup> m s<sup>−1</sup>', '713 m s<sup>−1</sup>'], ans: 1,
-      why: steps([`<i>v</i> = √(<i>gd</i>) = √(9.81 × 4000)`, `= <b>198 m s<sup>−1</sup></b> (about 713 km h<sup>−1</sup>, as fast as a jet aircraft)`]) },
-    { q: `The tsunami in Quick check 1 has a period of 20 minutes. What is its wavelength in the open ocean?`, opts: ['9.9 m', '2.4 × 10<sup>3</sup> m', '2.4 × 10<sup>5</sup> m', '1.4 × 10<sup>7</sup> m'], ans: 2,
-      why: steps([`<i>T</i> = 20 × 60 = 1200 s`, `λ = <i>vT</i> = (198)(1200)`, `= <b>2.4 × 10<sup>5</sup> m</b> (about 240 km)`]) },
-    { q: `As a tsunami moves from deep water into shallow water near the coast, which statement is correct?`, opts: ['Its frequency decreases and its wavelength stays the same.', 'Its speed increases and its wavelength increases.', 'Its frequency stays the same, its speed decreases and its wavelength decreases.', 'Its speed stays the same and its amplitude decreases.'], ans: 2,
-      why: `<p>The frequency is fixed by the source. The speed falls in shallow water, so λ = <i>v</i>/<i>f</i> falls. The energy is concentrated into a shorter wave, so the amplitude increases.</p>` },
-    { q: `Near the coast, the amplitude of a tsunami increases from 1.0 m to 4.0 m. Assuming intensity ∝ (amplitude)<sup>2</sup>, by what factor does the intensity increase?`, opts: ['2', '4', '8', '16'], ans: 3,
-      why: steps([`${fr('<i>I</i><sub>2</sub>', '<i>I</i><sub>1</sub>')} = (${fr('<i>A</i><sub>2</sub>', '<i>A</i><sub>1</sub>')})<sup>2</sup> = (${fr('4.0', '1.0')})<sup>2</sup>`, `= <b>16</b>`]) }
-  ],
-  src: `Sources: The B1M; NOAA U.S. Tsunami Warning System. The depth and period in the calculations are typical values for practice. Preview the clip before class. <a href="https://www.youtube.com/watch?v=tJ6G2lTo6xA" target="_blank" rel="noopener">youtube.com/watch?v=tJ6G2lTo6xA</a>`
-}))}
+${sec('19-7', 'Summary', `
+${table(['Subtopic', 'Key results'], [['20.1', '<i>F</i> = −<i>kx</i>; &nbsp; <i>a</i> = −ω<sup>2</sup><i>x</i>'], ['20.2', '<i>x</i> = <i>A</i> sin ω<i>t</i> or <i>A</i> cos ω<i>t</i>; &nbsp; <i>v</i> = ±ω√(<i>A</i><sup>2</sup> − <i>x</i><sup>2</sup>); &nbsp; <i>v</i><sub>max</sub> = ω<i>A</i>; &nbsp; <i>a</i><sub>max</sub> = ω<sup>2</sup><i>A</i>'], ['20.3', '<i>K</i> = ½<i>m</i>ω<sup>2</sup>(<i>A</i><sup>2</sup> − <i>x</i><sup>2</sup>); &nbsp; <i>U</i> = ½<i>m</i>ω<sup>2</sup><i>x</i><sup>2</sup>; &nbsp; <i>E</i> = ½<i>m</i>ω<sup>2</sup><i>A</i><sup>2</sup> (constant)'], ['20.4', '<i>T</i> = 2π√(<i>m</i>/<i>k</i>) (spring–mass); &nbsp; <i>T</i> = 2π√(<i>l</i>/<i>g</i>) (simple pendulum)'], ['20.5', 'amplitude and energy decrease; under, critical and over damping'], ['20.6', 'resonance when the driving frequency = natural frequency']])}
+${ul([`Always match the given equation to <i>a</i> = −ω<sup>2</sup><i>x</i> first to find ω.`, `Keep every quantity in SI units (m, s) before substituting.`, `Use radians on your calculator for sin ω<i>t</i> and cos ω<i>t</i>.`, `<i>T</i> is independent of amplitude in SHM; it is damping that makes the amplitude decrease.`])}
+`)}
 `;
   window.PhysiQLessons.register('LESSON-S3-20', { html: () => S });
 
   // ===================== simulations =====================
   const TAU = 2 * Math.PI;
-  // ---------- 1. progressive wave ----------
-  window.PhysiQSims.add('wave', function (root) {
-    const { COL, fmt, el, slider, button, canvas, text, loop, readouts } = window.PhysiQSims.U;
-    const S = { A: 0.5, lam: 2, f: 0.5, dir: 1, lon: false, t: 0, play: true, dx: 0.5 };
+  function springPath(ctx, x1, x2, y, n, amp) { ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x1 + 6, y); const s = (x2 - x1 - 12) / n; for (let i = 0; i < n; i++) ctx.lineTo(x1 + 6 + s * (i + 0.5), y + (i % 2 ? amp : -amp)); ctx.lineTo(x2 - 6, y); ctx.lineTo(x2, y); ctx.stroke(); }
+  function trace(ctx, box, data, tmax, ymax, col, lab, U) {
+    const { text } = U; ctx.fillStyle = '#fff'; ctx.fillRect(box.x, box.y, box.w, box.h); ctx.strokeStyle = '#E6E9DC'; ctx.lineWidth = 1; ctx.strokeRect(box.x, box.y, box.w, box.h);
+    const my = box.y + box.h / 2; ctx.strokeStyle = '#1C2230'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(box.x, my); ctx.lineTo(box.x + box.w, my); ctx.stroke();
+    ctx.strokeStyle = col; ctx.lineWidth = 2.2; ctx.beginPath(); data.forEach(([t, v], i) => { const X = box.x + t / tmax * box.w, Y = my - v / ymax * (box.h / 2 - 4); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+    text(ctx, lab, box.x + 4, box.y + 13, { it: 1, b: 1, c: col, fs: 12 });
+  }
+
+  // ---------- 1. SHM with the reference circle ----------
+  window.PhysiQSims.add('shm', function (root) {
+    const U = window.PhysiQSims.U, { COL, fmt, el, slider, toggle, button, canvas, arrow, text, loop, readouts } = U;
+    const S = { A: 0.10, T: 2.0, cos: false, t: 0, play: true, hist: [] };
     const ctl = el('div', 'sm-row'); root.appendChild(ctl);
-    slider(ctl, 'amplitude <i>A</i>', 0.1, 0.8, 0.05, S.A, 'm', v => { S.A = v; });
-    slider(ctl, 'wavelength λ', 1, 4, 0.1, S.lam, 'm', v => { S.lam = v; });
-    slider(ctl, 'frequency <i>f</i>', 0.2, 1.5, 0.05, S.f, 'Hz', v => { S.f = v; });
-    slider(ctl, 'P to Q distance', 0.1, 4, 0.05, S.dx, 'm', v => { S.dx = v; });
-    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
-    const d1 = button(pre, 'moving to +x', 'sm-chip on', () => { S.dir = 1; d1.classList.add('on'); d2.classList.remove('on'); });
-    const d2 = button(pre, 'moving to −x', 'sm-chip', () => { S.dir = -1; d2.classList.add('on'); d1.classList.remove('on'); });
-    const k1 = button(pre, 'transverse', 'sm-chip on', () => { S.lon = false; k1.classList.add('on'); k2.classList.remove('on'); });
-    const k2 = button(pre, 'longitudinal', 'sm-chip', () => { S.lon = true; k2.classList.add('on'); k1.classList.remove('on'); });
+    slider(ctl, 'amplitude <i>A</i>', 0.02, 0.15, 0.01, S.A, 'm', v => { S.A = v; reset(); });
+    slider(ctl, 'period <i>T</i>', 1, 4, 0.1, S.T, 's', v => { S.T = v; reset(); });
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre); pre.appendChild(el('span', 'sm-sl-l', 'at t = 0 the mass is'));
+    const c1 = button(pre, 'at O, moving (x = A sin ωt)', 'sm-chip on', () => { S.cos = false; c1.classList.add('on'); c2.classList.remove('on'); reset(); });
+    const c2 = button(pre, 'at x = A, at rest (x = A cos ωt)', 'sm-chip', () => { S.cos = true; c2.classList.add('on'); c1.classList.remove('on'); reset(); });
     const cv = canvas(root);
     const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
     const pb = button(bar, '❚❚ Pause', 'sm-main', () => { S.play = !S.play; pb.textContent = S.play ? '❚❚ Pause' : '▶ Play'; });
-    const ro = readouts(root), xP = 1.5;
+    button(bar, '↺ Restart', '', reset);
+    const ro = readouts(root), m = 0.5;
+    function reset() { S.t = 0; S.hist = []; draw(); }
+    const st = t => { const w = TAU / S.T, ph = w * t + (S.cos ? Math.PI / 2 : 0); return { w, ph, x: S.A * Math.sin(ph), v: S.A * w * Math.cos(ph), a: -S.A * w * w * Math.sin(ph) }; };
     function draw() {
-      const nw = (root.clientWidth || 600) < 560, ctx = cv.ctx, { w, h } = cv.size(nw ? 0.95 : 0.5, 300, 440); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const XL = nw ? 6 : 10, k = TAU / S.lam, ls = Math.min(0.25, 0.7 / (k * S.A)), om = TAU * S.f, y = x => S.A * Math.sin(om * S.t - S.dir * k * x), x0 = 20, sx = (w - 40) / XL, my = h * 0.42, sy = Math.min(h * 0.3, 110) / 0.8;
-      ctx.strokeStyle = COL.grid; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, my); ctx.lineTo(x0 + XL * sx, my); ctx.stroke();
-      if (!S.lon) {
-        ctx.strokeStyle = COL.v; ctx.lineWidth = 2.4; ctx.beginPath(); for (let i = 0; i <= 300; i++) { const x = XL * i / 300; i ? ctx.lineTo(x0 + x * sx, my - y(x) * sy) : ctx.moveTo(x0 + x * sx, my - y(x) * sy); } ctx.stroke();
-        for (let i = 0; i <= 40; i++) { const x = XL * i / 40; ctx.beginPath(); ctx.arc(x0 + x * sx, my - y(x) * sy, 2.6, 0, 7); ctx.fillStyle = COL.ball; ctx.fill(); }
-      } else {
-        for (let i = 0; i <= 80; i++) { const x = XL * i / 80, X = x0 + (x + y(x) * ls) * sx; ctx.strokeStyle = COL.v; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(X, my - 50); ctx.lineTo(X, my + 50); ctx.stroke(); }
+      const nw = (root.clientWidth || 600) < 560, ctx = cv.ctx, { w, h } = cv.size(nw ? 1.7 : 0.62, 380, nw ? 700 : 520); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const q = st(S.t), narrow = w < 560, R = narrow ? Math.min(62, w * 0.17) : Math.min(80, h * 0.2), cx = R + 22, cy = R + 24, sc = R / 0.15 * (0.15 / Math.max(S.A, 0.15));
+      const rA = S.A / 0.15 * R;
+      // reference circle (horizontal diameter: projection onto x)
+      ctx.setLineDash([5, 4]); ctx.strokeStyle = COL.gr; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(cx, cy, rA, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx - R - 8, cy); ctx.lineTo(cx + R + 8, cy); ctx.stroke();
+      const th = q.ph - Math.PI / 2, px = cx + rA * Math.sin(q.ph), py = cy - rA * Math.cos(q.ph);
+      ctx.strokeStyle = COL.sub; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke(); ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, cy); ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(px, py, 7, 0, 7); ctx.fillStyle = '#E7B54A'; ctx.fill(); ctx.strokeStyle = COL.ink; ctx.stroke(); text(ctx, 'P', px + 9, py - 6, { b: 1 });
+      ctx.beginPath(); ctx.arc(px, cy, 5, 0, 7); ctx.fillStyle = COL.ball; ctx.fill(); ctx.stroke(); text(ctx, 'Q', px + 6, cy + 16, { b: 1, fs: 11 });
+      text(ctx, 'reference circle', 8, 14, { fs: 11, c: COL.sub });
+      // spring and mass below/next to it, same x scale
+      const sy = narrow ? cy + R + 52 : cy + R + 56, wall = cx - R - 14 < 6 ? 6 : cx - R - 14;
+      const bx = cx + q.x / 0.15 * R;
+      ctx.fillStyle = '#CFC6A8'; ctx.fillRect(wall - 6, sy - 22, 6, 44); ctx.strokeStyle = COL.sub; ctx.lineWidth = 1.6; springPath(ctx, wall, bx - 16, sy, 10, 8);
+      ctx.fillStyle = '#BFE6E0'; ctx.fillRect(bx - 16, sy - 16, 32, 32); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.4; ctx.strokeRect(bx - 16, sy - 16, 32, 32); text(ctx, 'm', bx, sy + 5, { a: 'center', it: 1 });
+      ctx.strokeStyle = COL.sub; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(wall, sy + 17); ctx.lineTo(cx + R + 30, sy + 17); ctx.stroke();
+      ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(cx, sy - 26); ctx.lineTo(cx, sy + 22); ctx.stroke(); ctx.setLineDash([]); text(ctx, 'O', cx, sy + 32, { a: 'center', fs: 11 });
+      if (Math.abs(q.v) > 1e-3) arrow(ctx, bx, sy - 24, bx + q.v / (S.A * q.w) * 30, sy - 24, COL.o, 2.4);
+      if (Math.abs(q.a) > 1e-3) arrow(ctx, bx, sy + 26, bx + q.a / (S.A * q.w * q.w) * 30, sy + 26, COL.r, 2.4);
+      text(ctx, 'v', bx + 2, sy - 30, { it: 1, b: 1, c: COL.o, fs: 11 }); text(ctx, 'a', bx + 2, sy + 44, { it: 1, b: 1, c: COL.r, fs: 11 });
+      // graphs
+      const gx = narrow ? 12 : cx + R + 48, gy = narrow ? sy + 56 : 14, gw = w - gx - 12, gh = narrow ? (h - gy - 10) / 3 - 6 : (h - 28) / 3 - 8;
+      if (gh > 30) {
+        const tmax = 2 * S.T, hs = S.hist;
+        trace(ctx, { x: gx, y: gy, w: gw, h: gh }, hs.map(p => [p[0], p[1]]), tmax, S.A * 1.1, COL.v, 'x', U);
+        trace(ctx, { x: gx, y: gy + gh + 8, w: gw, h: gh }, hs.map(p => [p[0], p[2]]), tmax, S.A * q.w * 1.1, COL.o, 'v', U);
+        trace(ctx, { x: gx, y: gy + 2 * (gh + 8), w: gw, h: gh }, hs.map(p => [p[0], p[3]]), tmax, S.A * q.w * q.w * 1.1, COL.r, 'a', U);
+        text(ctx, 't → (two periods)', gx + gw, gy + 3 * (gh + 8) - 10, { a: 'right', fs: 10, c: COL.sub });
       }
-      const mark = (x, c, lab) => { const X = S.lon ? x0 + (x + y(x) * ls) * sx : x0 + x * sx, Y = S.lon ? my : my - y(x) * sy; ctx.beginPath(); ctx.arc(X, Y, 7, 0, 7); ctx.fillStyle = c; ctx.fill(); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.2; ctx.stroke(); text(ctx, lab, X, Y - 12, { a: 'center', b: 1, fs: 12 }); };
-      mark(xP, COL.o, 'P'); if (xP + S.dx <= XL) mark(xP + S.dx, COL.o, 'Q');
-      // wave direction arrow
-      text(ctx, S.dir > 0 ? 'wave →' : '← wave', S.dir > 0 ? w - 20 : 20, 20, { a: S.dir > 0 ? 'right' : 'left', b: 1, c: COL.o, fs: 13 });
-      // λ marker (transverse)
-      if (!S.lon) { const yb = Math.max(34, my - 0.8 * sy - 6); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0 + 0.2 * sx, yb); ctx.lineTo(x0 + (0.2 + S.lam) * sx, yb); ctx.stroke(); text(ctx, 'λ', x0 + (0.2 + S.lam / 2) * sx, yb - 4, { a: 'center', it: 1, b: 1 }); }
-      // y–t of P
-      const box = { x: 40, y: h - 70, w: w - 60, h: 56 }; ctx.fillStyle = '#fff'; ctx.fillRect(box.x, box.y, box.w, box.h); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(box.x, box.y + box.h / 2); ctx.lineTo(box.x + box.w, box.y + box.h / 2); ctx.stroke();
-      ctx.strokeStyle = COL.gr; ctx.lineWidth = 2; ctx.beginPath(); const span = 3 / S.f; for (let i = 0; i <= 200; i++) { const tt = S.t - span + span * i / 200, yy = S.A * Math.sin(om * tt - S.dir * k * xP); const X = box.x + box.w * i / 200, Y = box.y + box.h / 2 - yy / 0.8 * (box.h / 2 - 3); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); } ctx.stroke();
-      text(ctx, 'y of P against t (last 3 periods)', box.x + 4, box.y + 12, { fs: 11, c: COL.gr, b: 1 });
-      let phi = (k * S.dx) % TAU; const ph = phi / Math.PI;
-      ro([['v = fλ', fmt(S.f * S.lam, 2) + ' m/s', 'hl'], ['k = 2π/λ', fmt(k, 2) + ' rad/m'], ['ω = 2πf', fmt(om, 2) + ' rad/s'], ['T = 1/f', fmt(1 / S.f, 2) + ' s'], ['phase difference P–Q (2πΔx/λ)', fmt(k * S.dx, 2) + ' rad = ' + fmt(S.dx / S.lam, 2) + ' cycle', 'hl'], ['P and Q', Math.abs(ph - Math.round(ph)) < 0.03 ? (Math.round(ph) % 2 ? 'in antiphase' : 'in phase') : 'out of phase']]);
+      const K = 0.5 * m * q.v * q.v, Uu = 0.5 * m * q.w * q.w * q.x * q.x;
+      ro([['t', fmt(S.t % (2 * S.T), 2) + ' s'], ['ω = 2π/T', fmt(q.w, 2) + ' rad/s'], ['x', fmt(q.x * 100, 1) + ' cm'], ['v', fmt(q.v, 3) + ' m/s', 'o'], ['a = −ω²x', fmt(q.a, 3) + ' m/s²'], ['K (m = 0.5 kg)', fmt(K * 1000, 1) + ' mJ'], ['U', fmt(Uu * 1000, 1) + ' mJ'], ['E = K + U', fmt((K + Uu) * 1000, 1) + ' mJ', 'hl']]);
     }
-    loop(cv, dt => { if (S.play) S.t += dt; draw(); });
+    loop(cv, dt => { if (S.play) { S.t += dt; const tm = S.t % (2 * S.T); if (S.hist.length && tm < S.hist[S.hist.length - 1][0]) S.hist = []; const q = st(S.t); S.hist.push([tm, q.x, q.v, q.a]); } draw(); });
     new ResizeObserver(() => draw()).observe(root);
     draw();
   });
 
-  // ---------- 2. two pulses ----------
-  window.PhysiQSims.add('pulses', function (root) {
-    const { COL, el, button, canvas, text, loop } = window.PhysiQSims.U;
-    const S = { s: 1, t: 0, play: true };
-    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
-    const c1 = button(pre, 'same side (constructive)', 'sm-chip on', () => { S.s = 1; c1.classList.add('on'); c2.classList.remove('on'); S.t = 0; });
-    const c2 = button(pre, 'opposite sides (destructive)', 'sm-chip', () => { S.s = -1; c2.classList.add('on'); c1.classList.remove('on'); S.t = 0; });
-    const cv = canvas(root);
-    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
-    const pb = button(bar, '❚❚ Pause', 'sm-main', () => { S.play = !S.play; pb.textContent = S.play ? '❚❚ Pause' : '▶ Play'; });
-    button(bar, '↺ Restart', '', () => { S.t = 0; });
-    const g = (x, c, wd) => Math.exp(-((x - c) ** 2) / (wd * wd));
-    function draw() {
-      const ctx = cv.ctx, { w, h } = cv.size(0.4, 240, 330); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const my = h * 0.6, sc = h * 0.22, D = 10, c1p = 2 + S.t * 1.2, c2p = 8 - S.t * 1.2, X = x => 16 + x / D * (w - 32);
-      const y1 = x => g(x, c1p, 0.6), y2 = x => S.s * 0.7 * g(x, c2p, 0.6);
-      ctx.strokeStyle = COL.grid; ctx.beginPath(); ctx.moveTo(16, my); ctx.lineTo(w - 16, my); ctx.stroke();
-      const plot = (f, c, wd, dash) => { ctx.strokeStyle = c; ctx.lineWidth = wd; ctx.setLineDash(dash || []); ctx.beginPath(); for (let i = 0; i <= 300; i++) { const x = D * i / 300; i ? ctx.lineTo(X(x), my - f(x) * sc) : ctx.moveTo(X(x), my - f(x) * sc); } ctx.stroke(); ctx.setLineDash([]); };
-      plot(y1, COL.v, 1.6, [5, 4]); plot(y2, COL.o, 1.6, [5, 4]); plot(x => y1(x) + y2(x), COL.gr, 3);
-      text(ctx, 'y₁', X(c1p), my - sc - 8, { a: 'center', b: 1, c: COL.v }); text(ctx, 'y₂', X(c2p), my - S.s * 0.7 * sc - (S.s > 0 ? 8 : -18), { a: 'center', b: 1, c: COL.o });
-      text(ctx, 'resultant y = y₁ + y₂', w - 16, 18, { a: 'right', b: 1, c: COL.gr, fs: 12 });
-      if (Math.abs(c1p - c2p) < 1.2) text(ctx, S.s > 0 ? 'overlapping: displacements add' : 'overlapping: displacements partly cancel', 16, 18, { b: 1, fs: 12, c: COL.r });
-    }
-    loop(cv, dt => { if (S.play) { S.t += dt; if (S.t > 6.5) S.t = 0; } draw(); });
-    new ResizeObserver(() => draw()).observe(root);
-    draw();
-  });
-
-  // ---------- 3. standing waves ----------
-  window.PhysiQSims.add('standing', function (root) {
-    const { COL, fmt, el, button, canvas, text, loop, readouts } = window.PhysiQSims.U;
-    const S = { mode: 'two', n: 1, t: 0, play: true, comp: true };
-    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
-    const m1 = button(pre, 'two travelling waves', 'sm-chip on', () => { S.mode = 'two'; m1.classList.add('on'); m2.classList.remove('on'); hb.style.display = 'none'; });
-    const m2 = button(pre, 'string fixed at both ends', 'sm-chip', () => { S.mode = 'str'; m2.classList.add('on'); m1.classList.remove('on'); hb.style.display = ''; });
-    const hb = el('div', 'sm-row sm-pre'); root.appendChild(hb); hb.style.display = 'none'; hb.appendChild(el('span', 'sm-sl-l', 'harmonic'));
-    const hs = [1, 2, 3, 4, 5].map(n => { const b = button(hb, 'n = ' + n, 'sm-chip' + (n === 1 ? ' on' : ''), () => { S.n = n; hs.forEach(x => x.classList.toggle('on', x === b)); }); return b; });
-    const cv = canvas(root);
-    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
-    const pb = button(bar, '❚❚ Pause', 'sm-main', () => { S.play = !S.play; pb.textContent = S.play ? '❚❚ Pause' : '▶ Play'; });
-    const cb = button(bar, 'Hide the two waves', '', () => { S.comp = !S.comp; cb.textContent = S.comp ? 'Hide the two waves' : 'Show the two waves'; });
-    const ro = readouts(root), Lm = 1.2, v = 120;
-    function draw() {
-      const ctx = cv.ctx, { w, h } = cv.size(0.45, 260, 360); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const x0 = 24, x1 = w - 24, my = h / 2, sc = h * 0.17, str = S.mode === 'str';
-      const lamPx = str ? 2 * (x1 - x0) / S.n : (x1 - x0) / 1.75, k = TAU / lamPx, om = 1.6;
-      // origin at a node for the string: y = 2a sin kx cos wt ; for 'two', y1 = a sin(wt - kx), y2 = a sin(wt + kx)
-      const y1 = X => 0.5 * Math.sin(om * S.t - k * (X - x0)), y2 = X => (str ? -1 : 1) * 0.5 * Math.sin(om * S.t + k * (X - x0));
-      ctx.strokeStyle = COL.grid; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, my); ctx.lineTo(x1, my); ctx.stroke();
-      // envelope
-      ctx.setLineDash([3, 4]); ctx.strokeStyle = '#B9BFAE'; [1, -1].forEach(s => { ctx.beginPath(); for (let X = x0; X <= x1; X += 2) { const e = s * Math.abs(str ? Math.sin(k * (X - x0)) : Math.cos(k * (X - x0))); X === x0 ? ctx.moveTo(X, my - e * sc) : ctx.lineTo(X, my - e * sc); } ctx.stroke(); }); ctx.setLineDash([]);
-      const plot = (f, c, wd) => { ctx.strokeStyle = c; ctx.lineWidth = wd; ctx.beginPath(); for (let X = x0; X <= x1; X += 2) { X === x0 ? ctx.moveTo(X, my - f(X) * sc) : ctx.lineTo(X, my - f(X) * sc); } ctx.stroke(); };
-      if (S.comp) { plot(y1, 'rgba(106,99,236,.55)', 1.6); plot(y2, 'rgba(242,102,27,.55)', 1.6); }
-      plot(X => y1(X) + y2(X), COL.gr, 3);
-      // nodes and antinodes
-      for (let X = x0, i = 0; X <= x1 + 1; i++) { const node = str ? i % 2 === 0 : i % 2 === 1; const XX = x0 + i * lamPx / 4; if (XX > x1 + 1) break; if (node) { ctx.beginPath(); ctx.arc(XX, my, 4.5, 0, 7); ctx.fillStyle = COL.r; ctx.fill(); text(ctx, 'N', XX, my + sc + 22, { a: 'center', b: 1, c: COL.r, fs: 12 }); } else text(ctx, 'A', XX, my - sc - 12, { a: 'center', b: 1, c: COL.gr, fs: 12 }); X = XX; }
-      if (str) { ctx.fillStyle = COL.ink; ctx.fillRect(x0 - 6, my - sc - 4, 5, 2 * sc + 8); ctx.fillRect(x1 + 1, my - sc - 4, 5, 2 * sc + 8); }
-      if (S.comp) { text(ctx, str ? 'incident and reflected waves' : 'wave to the right', 12, 18, { fs: 11, b: 1, c: COL.v }); text(ctx, str ? '' : 'wave to the left', 12, 34, { fs: 11, b: 1, c: COL.o }); }
-      text(ctx, 'sum: standing wave', w - 12, 18, { a: 'right', fs: 11, b: 1, c: COL.gr });
-      if (str) ro([['harmonic', 'n = ' + S.n, 'hl'], ['length L', fmt(Lm, 2) + ' m'], ['λ = 2L/n', fmt(2 * Lm / S.n, 2) + ' m'], ['f = nv/2L (v = 120 m/s)', fmt(S.n * v / (2 * Lm), 0) + ' Hz', 'hl'], ['nodes', String(S.n + 1)], ['antinodes (loops)', String(S.n)]]);
-      else ro([['node to node', 'λ/2'], ['node to antinode', 'λ/4'], ['amplitude at an antinode', '2a'], ['amplitude at a node', '0']]);
-    }
-    loop(cv, dt => { if (S.play) S.t += dt; draw(); });
-    new ResizeObserver(() => draw()).observe(root);
-    draw();
-  });
-
-  // ---------- 4. EM wave ----------
-  window.PhysiQSims.add('emwave', function (root) {
-    const { COL, el, button, canvas, text, loop } = window.PhysiQSims.U;
-    const S = { t: 0, play: true };
-    const cv = canvas(root);
-    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
-    const pb = button(bar, '❚❚ Pause', 'sm-main', () => { S.play = !S.play; pb.textContent = S.play ? '❚❚ Pause' : '▶ Play'; });
-    function draw() {
-      const ctx = cv.ctx, { w, h } = cv.size(0.45, 240, 340); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const ox = 50, oy = h * 0.55, L = w - 90, k = TAU / (L / 2.2), E0 = h * 0.3, bx = -0.55, by = 0.35, B0 = h * 0.45;
-      const P3 = (x, ey, bz) => [ox + x + bz * bx, oy - ey + bz * by];
-      ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + L + 20, oy); ctx.stroke(); text(ctx, 'x (direction of travel) →', 12, h - 28, { fs: 11, c: COL.sub });
-      for (let i = 0; i <= 60; i++) { const x = L * i / 60, s = Math.sin(1.8 * S.t - k * x); const [ex, ey] = P3(x, E0 * s, 0), [bxp, byp] = P3(x, 0, B0 * s); ctx.lineWidth = 0.8; ctx.strokeStyle = 'rgba(192,57,43,.5)'; ctx.beginPath(); ctx.moveTo(ox + x, oy); ctx.lineTo(ex, ey); ctx.stroke(); ctx.strokeStyle = 'rgba(106,99,236,.5)'; ctx.beginPath(); ctx.moveTo(ox + x, oy); ctx.lineTo(bxp, byp); ctx.stroke(); }
-      [[COL.r, s => [0, E0 * s, 0]], [COL.v, s => [0, 0, B0 * s]]].forEach(([c, f]) => { ctx.strokeStyle = c; ctx.lineWidth = 2.6; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const x = L * i / 200, s = Math.sin(1.8 * S.t - k * x), [, ey, bz] = f(s), [X, Y] = P3(x, ey, bz); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); } ctx.stroke(); });
-      text(ctx, 'E (electric field)', 12, 18, { b: 1, c: COL.r, fs: 12 }); text(ctx, 'B (magnetic field)', 12, 34, { b: 1, c: COL.v, fs: 12 });
-      text(ctx, 'E ⊥ B, both ⊥ x, in phase; speed c = 3.00 × 10⁸ m/s', w - 12, h - 10, { a: 'right', fs: 11, c: COL.sub });
-    }
-    loop(cv, dt => { if (S.play) S.t += dt; draw(); });
-    new ResizeObserver(() => draw()).observe(root);
-    draw();
-  });
-  // ---------- noise-cancelling headphones ----------
-  window.PhysiQSims.add('anc', function (root) {
-    const { COL, fmt, el, slider, toggle, canvas, text, readouts, loop } = window.PhysiQSims.U;
-    const S = { on: true, f: 150, d: 0, t: 0, snd: false };
-    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
-    toggle(bar, 'Noise cancelling ON', S.on, v => { S.on = v; upd(); });
-    toggle(bar, '🔊 Sound', false, v => { S.snd = v; v ? start() : stop(); });
+  // ---------- 2. spring-mass and pendulum periods ----------
+  window.PhysiQSims.add('shmsys', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, loop, readouts } = window.PhysiQSims.U;
+    const S = { m: 0.5, k: 20, l: 1.0, g: 9.81, amp: 0.6, t: 0 };
     const ctl = el('div', 'sm-row'); root.appendChild(ctl);
-    slider(ctl, 'frequency of the noise', 50, 1000, 10, S.f, 'Hz', x => { S.f = x; upd(); });
-    slider(ctl, 'delay in the electronics', 0, 2, 0.05, S.d, 'ms', x => { S.d = x; upd(); });
+    slider(ctl, 'mass <i>m</i>', 0.1, 2, 0.1, S.m, 'kg', v => { S.m = v; });
+    slider(ctl, 'spring constant <i>k</i>', 5, 80, 1, S.k, 'N/m', v => { S.k = v; });
+    slider(ctl, 'pendulum length <i>l</i>', 0.2, 2, 0.05, S.l, 'm', v => { S.l = v; });
+    const sg = slider(ctl, 'g', 1.6, 9.8, 0.1, S.g, 'm/s²', v => { S.g = v; });
+    slider(ctl, 'amplitude', 0.2, 1, 0.1, S.amp, '× max', v => { S.amp = v; });
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    button(pre, 'Earth (g = 9.81)', 'sm-chip', () => { S.g = 9.81; sg.set(9.8); });
+    button(pre, 'Moon (g = 1.62)', 'sm-chip', () => { S.g = 1.62; sg.set(1.6); });
+    button(pre, '↺ Start together', 'sm-chip', () => { S.t = 0; });
     const cv = canvas(root); const ro = readouts(root);
-    // sound: the noise and the anti-noise really are added together before they reach the speaker
-    let ac = null, nodes = null;
-    function start() {
-      try { if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); } catch (e) { ac = null; return; }
-      stop(); const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = S.f;
-      const g = ac.createGain(); g.gain.value = 0.25; const inv = ac.createGain(); const dl = ac.createDelay(0.01); const out = ac.createGain(); out.gain.value = 0.6;
-      o.connect(g); g.connect(out); g.connect(dl); dl.connect(inv); inv.connect(out); out.connect(ac.destination); o.start();
-      nodes = { o, inv, dl, out }; upd();
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.55, 300, 420); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const Ts = 2 * Math.PI * Math.sqrt(S.m / S.k), Tp = 2 * Math.PI * Math.sqrt(S.l / S.g), half = w / 2;
+      // vertical spring
+      const top = 30, eqY = top + (h - 110) * 0.55, Amp = Math.min(60, (h - 110) * 0.35) * S.amp, y = eqY + Amp * Math.cos(2 * Math.PI * S.t / Ts), sx = half / 2;
+      ctx.fillStyle = '#CFC6A8'; ctx.fillRect(sx - 40, top - 8, 80, 8); ctx.strokeStyle = COL.sub; ctx.lineWidth = 1.6;
+      ctx.save(); ctx.translate(sx, 0); ctx.rotate(Math.PI / 2); springPath(ctx, top, y - 18, 0, 12, 9); ctx.restore();
+      const bs = 22 + S.m * 8; ctx.fillStyle = '#BFE6E0'; ctx.fillRect(sx - bs / 2, y - 18, bs, 36); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.4; ctx.strokeRect(sx - bs / 2, y - 18, bs, 36); text(ctx, fmt(S.m, 1) + ' kg', sx + bs / 2 + 6, y + 4, { fs: 11, b: 1 });
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = COL.gr; ctx.beginPath(); ctx.moveTo(sx - 60, eqY); ctx.lineTo(sx + 60, eqY); ctx.stroke(); ctx.setLineDash([]); text(ctx, 'equilibrium', sx + 62, eqY + 4, { fs: 10, c: COL.gr });
+      text(ctx, 'T = 2π√(m/k) = ' + fmt(Ts, 2) + ' s', sx, h - 18, { a: 'center', b: 1, c: COL.v, fs: 13 });
+      // pendulum
+      const px = half + half / 2, Lpx = Math.min(h - 110, 60 + S.l * 110), th = 0.25 * S.amp * Math.cos(2 * Math.PI * S.t / Tp), bxp = px + Lpx * Math.sin(th), byp = top + Lpx * Math.cos(th);
+      ctx.fillStyle = COL.ink; ctx.fillRect(px - 40, top - 8, 80, 6); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(px, top - 2); ctx.lineTo(bxp, byp); ctx.stroke();
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = COL.gr; ctx.beginPath(); ctx.moveTo(px, top); ctx.lineTo(px, top + Lpx + 14); ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(bxp, byp, 12, 0, 7); ctx.fillStyle = '#E7B54A'; ctx.fill(); ctx.strokeStyle = COL.ink; ctx.stroke();
+      text(ctx, 'T = 2π√(l/g) = ' + fmt(Tp, 2) + ' s', px, h - 18, { a: 'center', b: 1, c: COL.o, fs: 13 });
+      ctx.strokeStyle = '#E6E9DC'; ctx.beginPath(); ctx.moveTo(half, 10); ctx.lineTo(half, h - 40); ctx.stroke();
+      ro([['spring–mass period', fmt(Ts, 2) + ' s', 'hl'], ['spring–mass frequency', fmt(1 / Ts, 2) + ' Hz'], ['pendulum period', fmt(Tp, 2) + ' s', 'hl'], ['pendulum frequency', fmt(1 / Tp, 2) + ' Hz'], ['the pendulum does not depend on', 'mass, amplitude']]);
     }
-    function stop() { if (nodes) { try { nodes.o.stop(); nodes.out.disconnect(); } catch (e) {} nodes = null; } }
-    function upd() { if (!nodes || !ac) return; const t = ac.currentTime; nodes.o.frequency.setTargetAtTime(S.f, t, 0.02); nodes.dl.delayTime.setTargetAtTime(S.d / 1000, t, 0.02); nodes.inv.gain.setTargetAtTime(S.on ? -1 : 0, t, 0.02); }
-    const watch = setInterval(() => { if (!root.isConnected || document.hidden) { stop(); if (!root.isConnected) clearInterval(watch); } }, 500);
-    function frame(dt) {
-      if (dt < 0) dt = 0; S.t += dt;
-      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(1.25, 420, 500) : cv.size(0.5, 300, 360); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const phi = 2 * Math.PI * S.f * S.d / 1000, res = S.on ? 2 * Math.abs(Math.sin(phi / 2)) : 1;
-      // headphone cup beside an ear
-      const hx = narrow ? w / 2 : w * 0.17, hy = narrow ? 88 : h / 2, sc = narrow ? 0.8 : 1;
-      ctx.save(); ctx.translate(hx, hy); ctx.scale(sc, sc);
-      ctx.fillStyle = '#F1C27D'; ctx.beginPath(); ctx.ellipse(18, 0, 26, 40, 0, 0, 7); ctx.fill(); ctx.strokeStyle = '#C9965A'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(18, 0, 13, 22, 0, -1.2, 1.9); ctx.stroke();
-      ctx.fillStyle = '#2B3140'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-44, -48, 44, 96, 18) : ctx.rect(-44, -48, 44, 96); ctx.fill();
-      ctx.fillStyle = '#5A6170'; ctx.fillRect(-6, -30, 8, 60);
-      ctx.beginPath(); ctx.arc(-48, -32, 5, 0, 7); ctx.fillStyle = COL.r; ctx.fill();
-      ctx.strokeStyle = '#2B3140'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(10, -40, 52, Math.PI * 1.05, Math.PI * 1.6); ctx.stroke();
-      // incoming noise waves
-      for (let i = 0; i < 3; i++) { const r = ((S.t * 40 + i * 20) % 60) + 10; ctx.strokeStyle = 'rgba(192,57,43,' + (0.6 - r / 120) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(-110, -32, r, -0.5, 0.5); ctx.stroke(); }
-      ctx.restore();
-      text(ctx, 'microphone', hx - 58 * sc, hy - 44 * sc, { a: 'right', fs: 10.5, c: COL.r, b: 1 }); text(ctx, 'speaker', hx - 2, hy + 62 * sc, { a: 'center', fs: 10.5, c: COL.sub, b: 1 }); text(ctx, 'noise', hx - 92 * sc, hy - 4, { a: 'center', fs: 10.5, c: COL.r });
-      // three traces
-      const gx = narrow ? 44 : w * 0.36, gw = w - gx - 14, top = narrow ? 150 : 22, gh = (h - top - 12) / 3, A = gh * 0.21;
-      
-      const tr = [['noise at the ear', COL.r, x => Math.sin(x)], ['anti-noise from the speaker', COL.v, x => S.on ? -Math.sin(x - phi) : 0], ['what the ear hears (sum)', '#3E8E1E', x => Math.sin(x) + (S.on ? -Math.sin(x - phi) : 0)]];
-      tr.forEach(([n, c, fn], i) => {
-        const y0 = top + gh * i + gh * 0.57; ctx.strokeStyle = '#D8DBCF'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, y0); ctx.lineTo(gx + gw, y0); ctx.stroke();
-        text(ctx, n, gx, top + gh * i + 12, { fs: 11, b: 1, c });
-        ctx.strokeStyle = c; ctx.lineWidth = i === 2 ? 2.6 : 1.8; ctx.beginPath();
-        for (let k = 0; k <= 240; k++) { const x = 2 * Math.PI * (k / 240 * 4 - S.t * 0.5); const yy = y0 - A * fn(x); k ? ctx.lineTo(gx + gw * k / 240, yy) : ctx.moveTo(gx + gw * k / 240, yy); }
-        ctx.stroke();
-      });
-      ro([['phase difference between noise and anti-noise', S.on ? fmt((180 + phi * 180 / Math.PI) % 360, 0) + '°' : 'no anti-noise', 'hl'], ['amplitude reaching the ear', fmt(res * 100, 0) + '% of the noise', 'hl'], ['delay as a fraction of one period', fmt(S.d / 1000 * S.f, 2) + ' T']]);
-    }
-    loop(cv, frame);
+    loop(cv, dt => { S.t += dt; draw(); });
+    new ResizeObserver(() => draw()).observe(root);
+    draw();
   });
 
+  // ---------- 3. damped oscillation ----------
+  window.PhysiQSims.add('damped', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, loop, readouts } = window.PhysiQSims.U;
+    const w0 = TAU / 1.6, S = { z: 0.1, t: 0, x: 1, v: 0, hist: [], E0: 1 };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    const sz = slider(ctl, 'damping (ζ, 1 = critical)', 0, 3, 0.02, S.z, '', v => { S.z = v; restart(); });
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    [['No damping', 0], ['Under damping', 0.12], ['Critical damping', 1], ['Over damping', 2.5]].forEach(([n, z]) => button(pre, n, 'sm-chip', () => { S.z = z; sz.set(z); restart(); }));
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar); button(bar, '↺ Release again', 'sm-main', restart);
+    const cv = canvas(root); const ro = readouts(root), TM = 8;
+    function restart() { S.t = 0; S.x = 1; S.v = 0; S.hist = [[0, 1]]; }
+    restart();
+    function step(dt) { const n = 8, h = dt / n; for (let i = 0; i < n; i++) { const a = -w0 * w0 * S.x - 2 * S.z * w0 * S.v; S.v += a * h; S.x += S.v * h; } S.t += dt; if (S.t <= TM) S.hist.push([S.t, S.x]); }
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 300, 400); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const my = 44, cx = w / 2, R = Math.min(w * 0.35, 150), bx = cx + S.x * R;
+      ctx.fillStyle = '#CFC6A8'; ctx.fillRect(cx - R - 50, my - 22, 6, 44); ctx.strokeStyle = COL.sub; ctx.lineWidth = 1.6; springPath(ctx, cx - R - 44, bx - 16, my, 12, 8);
+      ctx.fillStyle = '#BFE6E0'; ctx.fillRect(bx - 16, my - 16, 32, 32); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.4; ctx.strokeRect(bx - 16, my - 16, 32, 32);
+      ctx.setLineDash([3, 3]); ctx.strokeStyle = COL.sub; ctx.beginPath(); ctx.moveTo(cx, my - 24); ctx.lineTo(cx, my + 24); ctx.stroke(); ctx.setLineDash([]); text(ctx, 'O', cx, my + 36, { a: 'center', fs: 11 });
+      const box = { x: 40, y: 92, w: w - 56, h: h - 120 }, X = t => box.x + t / TM * box.w, Y = x => box.y + box.h / 2 - x * (box.h / 2 - 6);
+      ctx.fillStyle = '#fff'; ctx.fillRect(box.x, box.y, box.w, box.h); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(box.x, Y(0)); ctx.lineTo(box.x + box.w, Y(0)); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.stroke();
+      if (S.z > 0 && S.z < 1) { ctx.setLineDash([5, 4]); ctx.strokeStyle = COL.r; ctx.lineWidth = 1.2; [1, -1].forEach(sg => { ctx.beginPath(); for (let i = 0; i <= 100; i++) { const t = TM * i / 100, e = sg * Math.exp(-S.z * w0 * t) / Math.sqrt(1 - S.z * S.z); i ? ctx.lineTo(X(t), Y(Math.max(-1.05, Math.min(1.05, e)))) : ctx.moveTo(X(t), Y(Math.min(1.05, Math.max(-1.05, e)))); } ctx.stroke(); }); ctx.setLineDash([]); }
+      ctx.strokeStyle = COL.v; ctx.lineWidth = 2.4; ctx.beginPath(); S.hist.forEach(([t, x], i) => i ? ctx.lineTo(X(t), Y(x)) : ctx.moveTo(X(t), Y(x))); ctx.stroke();
+      text(ctx, 'x', box.x - 14, box.y + 12, { it: 1, b: 1 }); text(ctx, 't', box.x + box.w, box.y + box.h + 16, { it: 1, a: 'right', c: COL.sub });
+      const kind = S.z === 0 ? 'no damping: SHM, constant amplitude' : S.z < 0.98 ? 'under damping: oscillates, amplitude decreases' : S.z <= 1.02 ? 'critical damping: back to O in the shortest time, no oscillation' : 'over damping: no oscillation, slow return to O';
+      text(ctx, kind, w - 12, box.y - 8, { a: 'right', b: 1, fs: 12, c: S.z === 0 ? COL.gr : S.z < 0.98 ? COL.v : S.z <= 1.02 ? COL.gr : COL.o });
+      const E = 0.5 * (S.v * S.v / (w0 * w0) + S.x * S.x) / 0.5;
+      ro([['time', fmt(Math.min(S.t, 99), 1) + ' s'], ['displacement', fmt(S.x, 2) + ' × A₀'], ['energy left', fmt(E * 100, 0) + ' %', 'hl']]);
+    }
+    loop(cv, dt => { step(dt); draw(); });
+    new ResizeObserver(() => draw()).observe(root);
+    draw();
+  });
+
+  // ---------- 4. forced oscillation and resonance ----------
+  window.PhysiQSims.add('resonance', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, loop, readouts } = window.PhysiQSims.U;
+    const f0 = 1.0, S = { r: 0.5, z: 0.08, t: 0, x: 0, v: 0 };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'driving frequency <i>f</i>', 0.2, 2, 0.02, S.r, 'Hz', v => { S.r = v; });
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre); pre.appendChild(el('span', 'sm-sl-l', 'damping'));
+    const chips = [['light', 0.08], ['medium', 0.2], ['heavy', 0.5]].map(([n, z]) => { const b = button(pre, n, 'sm-chip' + (z === S.z ? ' on' : ''), () => { S.z = z; chips.forEach(c => c.classList.toggle('on', c === b)); }); return b; });
+    const cv = canvas(root); const ro = readouts(root);
+    const amp = (r, z) => 1 / Math.sqrt((1 - r * r) ** 2 + (2 * z * r) ** 2);
+    function step(dt) { const w0 = TAU * f0, wd = TAU * S.r, n = 10, h = dt / n; for (let i = 0; i < n; i++) { const a = -w0 * w0 * S.x - 2 * S.z * w0 * S.v + w0 * w0 * 0.08 * Math.cos(wd * S.t); S.v += a * h; S.x += S.v * h; S.t += h; } }
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.55, 320, 420); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const narrow = w < 520, lw = narrow ? w : w * 0.38;
+      // driver (top bar moving) and spring with mass hanging
+      const cx = lw / 2, drv = 0.08 * Math.cos(TAU * S.r * S.t), sc = narrow ? 90 : 110, topY = 34 + drv * sc;
+      ctx.fillStyle = COL.o; ctx.fillRect(cx - 40, topY - 8, 80, 8); text(ctx, 'driver', cx + 46, topY, { fs: 11, c: COL.o });
+      const eqY = topY + 0 + (narrow ? 90 : 120), my = 34 + (narrow ? 90 : 120) + Math.max(-1.2, Math.min(1.2, S.x)) * sc * 0.55;
+      ctx.strokeStyle = COL.sub; ctx.lineWidth = 1.6; ctx.save(); ctx.translate(cx, 0); ctx.rotate(Math.PI / 2); springPath(ctx, topY, my - 16, 0, 12, 8); ctx.restore();
+      ctx.fillStyle = '#BFE6E0'; ctx.fillRect(cx - 18, my - 16, 36, 32); ctx.strokeStyle = COL.ink; ctx.strokeRect(cx - 18, my - 16, 36, 32);
+      // resonance curve
+      const box = narrow ? { x: 44, y: (narrow ? 34 + 90 + 90 : 0), w: w - 60, h: h - (34 + 180) - 30 } : { x: lw + 30, y: 24, w: w - lw - 46, h: h - 60 };
+      if (box.h > 60) {
+        const fmax = 2, Amax = 7, X = f => box.x + f / fmax * box.w, Y = a => box.y + box.h - Math.min(a, Amax) / Amax * box.h;
+        ctx.fillStyle = '#fff'; ctx.fillRect(box.x, box.y, box.w, box.h); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+        [[0.08, '#C9C5F5'], [0.2, '#F7C9AE'], [0.5, '#BFD9A8']].forEach(([z, c]) => { ctx.strokeStyle = z === S.z ? (z === 0.08 ? COL.v : z === 0.2 ? COL.o : COL.gr) : c; ctx.lineWidth = z === S.z ? 2.8 : 1.4; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const f = 0.05 + (fmax - 0.05) * i / 200; i ? ctx.lineTo(X(f), Y(amp(f / f0, z))) : ctx.moveTo(X(f), Y(amp(f / f0, z))); } ctx.stroke(); });
+        ctx.setLineDash([4, 4]); ctx.strokeStyle = COL.sub; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X(f0), box.y); ctx.lineTo(X(f0), box.y + box.h); ctx.stroke(); ctx.setLineDash([]);
+        text(ctx, 'f₀', X(f0), box.y + box.h + 14, { a: 'center', it: 1, fs: 12 }); text(ctx, 'driving frequency', box.x + box.w, box.y + box.h + 28, { a: 'right', fs: 11, c: COL.sub }); text(ctx, 'amplitude', box.x, box.y - 6, { fs: 11, b: 1 });
+        const a = amp(S.r / f0, S.z); ctx.beginPath(); ctx.arc(X(S.r), Y(a), 6, 0, 7); ctx.fillStyle = COL.r; ctx.fill();
+        if (Math.abs(S.r - f0) < 0.03) text(ctx, 'RESONANCE: f = f₀', X(f0) + 8, box.y + 14, { b: 1, c: COL.r, fs: 12 });
+      }
+      const a = amp(S.r / f0, S.z);
+      ro([['natural frequency f₀', fmt(f0, 2) + ' Hz'], ['driving frequency f', fmt(S.r, 2) + ' Hz', 'hl'], ['steady amplitude', fmt(a, 1) + ' × driver', 'hl'], ['the mass oscillates at', fmt(S.r, 2) + ' Hz (= f)']]);
+    }
+    loop(cv, dt => { step(dt); draw(); });
+    new ResizeObserver(() => draw()).observe(root);
+    draw();
+  });
 })();

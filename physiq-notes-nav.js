@@ -10,8 +10,8 @@
 
   const SEMS = [
     { v: '1', name: 'Semester 1', sub: 'Mechanics & Heat', ch: 'Chapters 1–12' },
-    { v: '2', name: 'Semester 2', sub: 'Electricity & Magnetism', ch: 'Chapters 12–18' },
-    { v: '3', name: 'Semester 3', sub: 'Oscillations, Waves & Modern Physics', ch: 'Chapters 19–25' }
+    { v: '2', name: 'Semester 2', sub: 'Electricity & Magnetism', ch: 'Chapters 13–19' },
+    { v: '3', name: 'Semester 3', sub: 'Oscillations, Waves & Modern Physics', ch: 'Chapters 20–26' }
   ];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const ICON = {

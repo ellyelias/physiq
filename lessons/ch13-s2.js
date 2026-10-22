@@ -1,452 +1,472 @@
-/* Semester 2 Chapter 13 Capacitors: full notes by Cikgu Suhaili (from the Unit 13 Capacitor and Dielectrics slides).
-   App chapter 13 = STPM 2026 syllabus chapter 14. */
+/* Semester 2 Chapter 12 Electrostatics: full notes by Cikgu Suhaili (from Unit_3_-_Electrostatics.pptx).
+   App chapter 12 = STPM 2026 syllabus chapter 13. Relative permittivity (13.1 c, d) and Gauss's law (13.3)
+   are not in the slides and were written from the syllabus. */
 (function () {
   'use strict';
-  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4 } = window.PhysiQLessons.H;
+  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, rw } = window.PhysiQLessons.H;
 
-  // ---------- circuit drawing helpers (SVG) ----------
-  const ln = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${C.ink}" stroke-width="1.8" stroke-linecap="round"/>`;
-  const pl = (x1, y1, x2, y2, col, w) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
-  const lab = (x, y, s, o = {}) => s ? T(x, y, s, Object.assign({ fs: 11 }, o)) : '';
-  const hcap = (x1, x2, y, s, o = {}) => { const c = (x1 + x2) / 2; return ln(x1, y, c - 4, y) + ln(c + 4, y, x2, y) + pl(c - 4, y - 12, c - 4, y + 12, C.v, 3) + pl(c + 4, y - 12, c + 4, y + 12, C.v, 3) + lab(c, o.below ? y + 26 : y - 17, s, o); };
-  const vcap = (x, y1, y2, s, o = {}) => { const c = (y1 + y2) / 2; return ln(x, y1, x, c - 4) + ln(x, c + 4, x, y2) + pl(x - 12, c - 4, x + 12, c - 4, C.v, 3) + pl(x - 12, c + 4, x + 12, c + 4, C.v, 3) + lab(o.left ? x - 17 : x + 17, c + 4, s, Object.assign({ a: o.left ? 'end' : 'start' }, o)); };
-  // battery: long thin plate is +; pos = 'l' / 'r' (horizontal) or 't' / 'b' (vertical) says where + is
-  const hbat = (x1, x2, y, s, pos = 'l') => { const c = (x1 + x2) / 2, a = pos === 'l' ? -3 : 3; return ln(x1, y, c - 3, y) + ln(c + 3, y, x2, y) + pl(c + a, y - 13, c + a, y + 13, C.ink, 1.8) + pl(c - a, y - 7, c - a, y + 7, C.ink, 4) + lab(c, y - 18, s); };
-  const vbat = (x, y1, y2, s, pos = 't', o = {}) => { const c = (y1 + y2) / 2, a = pos === 't' ? -3 : 3; return ln(x, y1, x, c - 3) + ln(x, c + 3, x, y2) + pl(x - 13, c + a, x + 13, c + a, C.ink, 1.8) + pl(x - 7, c - a, x + 7, c - a, C.ink, 4) + lab(o.right ? x + 18 : x - 18, c + 4, s, { a: o.right ? 'start' : 'end' }); };
-  const hres = (x1, x2, y, s) => { const c = (x1 + x2) / 2; return ln(x1, y, c - 16, y) + ln(c + 16, y, x2, y) + `<rect x="${c - 16}" y="${y - 6}" width="32" height="12" fill="#fff" stroke="${C.ink}" stroke-width="1.8"/>` + lab(c, y - 12, s); };
-  const vres = (x, y1, y2, s, o = {}) => { const c = (y1 + y2) / 2; return ln(x, y1, x, c - 16) + ln(x, c + 16, x, y2) + `<rect x="${x - 6}" y="${c - 16}" width="12" height="32" fill="#fff" stroke="${C.ink}" stroke-width="1.8"/>` + lab(o.left ? x - 12 : x + 12, c + 4, s, { a: o.left ? 'end' : 'start' }); };
-  const hsw = (x1, x2, y, s, closed) => { const c = (x1 + x2) / 2; return ln(x1, y, c - 12, y) + ln(c + 12, y, x2, y) + `<circle cx="${c - 12}" cy="${y}" r="2.6" fill="#fff" stroke="${C.ink}" stroke-width="1.5"/><circle cx="${c + 12}" cy="${y}" r="2.6" fill="#fff" stroke="${C.ink}" stroke-width="1.5"/>` + ln(c - 12, y, c + 10, closed ? y : y - 11) + lab(c, y + 18, s); };
-  const nd = (x, y) => `<circle cx="${x}" cy="${y}" r="2.8" fill="${C.ink}"/>`;
-  const term = (x, y, s, o = {}) => `<circle cx="${x}" cy="${y}" r="3" fill="#fff" stroke="${C.ink}" stroke-width="1.6"/>` + lab(x + (o.dx || 0), y + (o.dy || -8), s, { fs: 12, it: 1, b: 1 });
+  // ---------- shared physics for the figures and the simulations ----------
+  // charges: [{x, y, q}] in drawing units; field and potential up to a constant
+  const fieldAt = (Q, x, y) => { let ex = 0, ey = 0; for (const c of Q) { const dx = x - c.x, dy = y - c.y, r2 = dx * dx + dy * dy, r = Math.sqrt(r2) || 1e-6, k = c.q / (r2 * r); ex += k * dx; ey += k * dy; } return [ex, ey]; };
+  const potAt = (Q, x, y) => Q.reduce((s, c) => s + c.q / (Math.hypot(x - c.x, y - c.y) || 1e-6), 0);
+  // field lines: start around the positive charges (or around the negative ones when there is no positive charge)
+  function traceLines(Q, box, perUnit, step, r0) {
+    const out = [], pos = Q.filter(c => c.q > 0), src = pos.length ? pos : Q, dir = pos.length ? 1 : -1;
+    for (const c of src) {
+      const n = Math.max(1, Math.round(Math.abs(c.q) * perUnit));
+      for (let i = 0; i < n; i++) {
+        const a = 2 * Math.PI * (i + 0.5) / n + (c.rot || 0);
+        let x = c.x + r0 * Math.cos(a), y = c.y + r0 * Math.sin(a); const pts = [[x, y]];
+        for (let s = 0; s < 2500; s++) {
+          const [ex, ey] = fieldAt(Q, x, y), m = Math.hypot(ex, ey); if (!m) break;
+          x += dir * step * ex / m; y += dir * step * ey / m; pts.push([x, y]);
+          if (x < box[0] || x > box[2] || y < box[1] || y > box[3]) break;
+          if (Q.some(o => o !== c && Math.hypot(x - o.x, y - o.y) < r0 * 0.9)) break;
+        }
+        out.push({ pts, dir });
+      }
+    }
+    return out;
+  }
+  // equipotential contours by marching squares: returns [[x1,y1,x2,y2], ...] for each level
+  function contours(f, box, levels, res) {
+    const [x0, y0, x1, y1] = box, nx = Math.ceil((x1 - x0) / res), ny = Math.ceil((y1 - y0) / res), V = [];
+    for (let j = 0; j <= ny; j++) { V[j] = []; for (let i = 0; i <= nx; i++) V[j][i] = f(x0 + i * res, y0 + j * res); }
+    return levels.map(lv => {
+      const seg = [];
+      for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+        const a = V[j][i], b = V[j][i + 1], c = V[j + 1][i + 1], d = V[j + 1][i], X = x0 + i * res, Y = y0 + j * res, pts = [];
+        const cut = (p, q, xa, ya, xb, yb) => { if ((p - lv) * (q - lv) < 0 && isFinite(p) && isFinite(q)) { const t = (lv - p) / (q - p); pts.push([xa + t * (xb - xa), ya + t * (yb - ya)]); } };
+        cut(a, b, X, Y, X + res, Y); cut(b, c, X + res, Y, X + res, Y + res); cut(d, c, X, Y + res, X + res, Y + res); cut(a, d, X, Y, X, Y + res);
+        if (pts.length >= 2) seg.push([pts[0][0], pts[0][1], pts[1][0], pts[1][1]]);
+        if (pts.length === 4) seg.push([pts[2][0], pts[2][1], pts[3][0], pts[3][1]]);
+      }
+      return seg;
+    });
+  }
 
   // ---------- figures ----------
+  const chg = (x, y, s, lab, o = {}) => `<circle cx="${x}" cy="${y}" r="${o.r || 11}" fill="${s > 0 ? '#F9D9C8' : '#D9E7F7'}" stroke="${s > 0 ? C.r : '#2C6BB3'}" stroke-width="1.8"/>` +
+    T(x, y + 5, s > 0 ? '+' : '−', { fs: 15, b: 1, c: s > 0 ? C.r : '#2C6BB3' }) + (lab ? T(x + (o.dx || 0), y + (o.dy != null ? o.dy : -17), lab, { fs: o.fs || 12, it: o.it, b: o.lb }) : '');
+  const pathOf = pts => pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const arrowOn = (pts, dir, col, frac = 0.45) => {
+    const i = Math.max(1, Math.min(pts.length - 2, Math.round(pts.length * frac))), [x, y] = pts[i], [xp, yp] = pts[i - 1];
+    let ux = x - xp, uy = y - yp; const m = Math.hypot(ux, uy) || 1; ux = ux / m * dir; uy = uy / m * dir;
+    const h = 6, w = 3.6; return `<path d="M${(x + ux * h).toFixed(1)},${(y + uy * h).toFixed(1)} L${(x - uy * w).toFixed(1)},${(y + ux * w).toFixed(1)} L${(x + uy * w).toFixed(1)},${(y - ux * w).toFixed(1)}Z" fill="${col}"/>`;
+  };
+  const fieldFig = (Q, W, H, o = {}) => {
+    const box = [-6, -6, W + 6, H + 6], lines = traceLines(Q, box, o.per || 7, 2, 12);
+    let body = `<rect x="0" y="0" width="${W}" height="${H}" fill="#FBFCF6" rx="8"/>`;
+    if (o.eq) contours((x, y) => potAt(Q, x, y), [0, 0, W, H], o.eq, 3).forEach(seg => { body += `<path d="${seg.map(s => `M${s[0].toFixed(1)},${s[1].toFixed(1)}L${s[2].toFixed(1)},${s[3].toFixed(1)}`).join('')}" stroke="${C.g}" stroke-width="1.4" stroke-dasharray="4 3" fill="none"/>`; });
+    lines.forEach(l => { const pts = l.pts.filter(p => p[0] > -2 && p[0] < W + 2 && p[1] > -2 && p[1] < H + 2); if (pts.length < 3) return; body += `<path d="${pathOf(pts)}" stroke="${C.v}" stroke-width="1.5" fill="none"/>` + arrowOn(pts, l.dir, C.v, o.af || 0.4); });
+    Q.forEach(c => { body += chg(c.x, c.y, c.q, c.lab, { dy: c.ly != null ? c.ly : 28, lb: 1 }); });
+    if (o.extra) body += o.extra;
+    return svg(W, H, body, o.max || W);
+  };
   const F = {};
-  F.plates = () => { let b = `<rect x="70" y="20" width="10" height="120" fill="#F9D9C8" stroke="${C.r}"/><rect x="170" y="20" width="10" height="120" fill="#D9E7F7" stroke="#2C6BB3"/>`; for (let y = 30; y <= 130; y += 14) b += T(62, y + 4, '+', { fs: 12, b: 1, c: C.r }) + T(188, y + 4, '−', { fs: 12, b: 1, c: '#2C6BB3' }) + L(82, y, 168, y, 'v', '', { w: 1 }) + `<path d="M${122},${y - 3} L${128},${y} L${122},${y + 3}Z" fill="${C.v}"/>`;
-    b += L(80, 152, 170, 152, 's', 'b', { w: 1 }) + T(125, 168, 'd', { it: 1 }) + T(75, 14, '+Q', { fs: 12, b: 1, c: C.r }) + T(175, 14, '−Q', { fs: 12, b: 1, c: '#2C6BB3' }) + T(215, 60, 'area A', { fs: 12, it: 1, a: 'start' }) + T(215, 80, 'of each plate', { fs: 11, a: 'start', c: C.sub }) + T(125, 90, 'E', { fs: 13, it: 1, b: 1, c: C.v });
-    return svg(300, 176, b, 300); };
-  F.symbol = () => svg(300, 60, hcap(20, 100, 30, 'capacitor') + `<path d="M180,18 L180,42" stroke="${C.v}" stroke-width="3"/><path d="M194,18 Q186,30 194,42" stroke="${C.v}" stroke-width="3" fill="none"/>` + ln(160, 30, 180, 30) + ln(190, 30, 220, 30) + T(178, 14, '+', { fs: 12, b: 1, c: C.r }) + T(190, 56, 'electrolytic (polarised)', { fs: 11 }), 300);
-  F.series = () => svg(320, 130, term(20, 40, '') + hcap(20, 100, 40, 'C₁') + hcap(100, 180, 40, 'C₂') + hcap(180, 260, 40, 'C₃') + term(260, 40, '') + ln(260, 40, 290, 40) + ln(290, 40, 290, 100) + ln(20, 40, 0, 40) + ln(0, 40, 0, 100) + hbat(0, 290, 100, 'V') +
-    T(60, 66, '+Q −Q', { fs: 10, c: C.r }) + T(140, 66, '+Q −Q', { fs: 10, c: C.r }) + T(220, 66, '+Q −Q', { fs: 10, c: C.r }) + T(60, 80, 'V₁', { fs: 11, it: 1 }) + T(140, 80, 'V₂', { fs: 11, it: 1 }) + T(220, 80, 'V₃', { fs: 11, it: 1 }), 320);
-  F.parallel = () => svg(320, 190, ln(40, 36, 40, 150) + ln(200, 36, 200, 150) + hcap(40, 200, 36, 'C₁   Q₁ = C₁V') + hcap(40, 200, 86, 'C₂   Q₂ = C₂V') + hcap(40, 200, 136, 'C₃   Q₃ = C₃V') + ln(40, 136, 40, 150) + ln(40, 150, 10, 150) + ln(200, 150, 230, 150) + ln(10, 150, 10, 175) + ln(230, 150, 230, 175) + hbat(10, 230, 175, '') + nd(40, 86) + nd(200, 86) + T(250, 179, 'V', { fs: 12, it: 1, a: 'start' }), 320);
-  F.e3 = () => svg(300, 110, vbat(60, 20, 90, '50 V', 't') + ln(60, 20, 240, 20) + ln(60, 90, 240, 90) + vcap(150, 20, 90, 'C₁ = 1 μF') + vcap(240, 20, 90, 'C₂ = 2 μF') + nd(150, 20) + nd(150, 90), 300);
-  F.e4 = () => svg(260, 120, ln(30, 32, 30, 100) + hcap(30, 130, 32, 'C₁ = 1 μF') + hcap(130, 230, 32, 'C₂ = 2 μF') + ln(230, 32, 230, 100) + hbat(30, 230, 100, '50 V'), 260);
-  F.e5 = () => svg(300, 150, ln(20, 50, 20, 130) + hcap(20, 110, 50, 'C₁ = 6.0 μF') + ln(110, 50, 140, 50) + ln(140, 28, 140, 72) + hcap(140, 240, 28, 'C₂ = 4.0 μF') + hcap(140, 240, 72, 'C₃ = 8.0 μF', { below: 1 }) + ln(240, 28, 240, 72) + ln(240, 50, 270, 50) + ln(270, 50, 270, 130) + hbat(20, 270, 130, '12 V') + nd(140, 50) + nd(240, 50), 300);
-  F.e6 = () => { let b = term(150, 14, 'a', { dx: 12, dy: 4 }) + ln(150, 14, 150, 34) + ln(60, 34, 240, 34) + ln(60, 170, 240, 170) + nd(150, 34) + nd(150, 170);
-    b += vcap(60, 34, 102, 'C₁', { left: 1 }) + vcap(60, 102, 170, 'C₂', { left: 1 }) + vcap(240, 34, 102, 'C₁') + vcap(240, 102, 170, 'C₂') + vcap(150, 34, 170, 'C₃');
-    b += ln(150, 170, 150, 190) + ln(100, 190, 200, 190) + nd(150, 190) + vcap(100, 190, 240, 'C₂', { left: 1 }) + vcap(200, 190, 240, 'C₂') + ln(100, 240, 200, 240) + nd(150, 240) + ln(150, 240, 150, 262) + term(150, 262, 'b', { dx: 12, dy: 4 });
-    return svg(300, 274, b, 300); };
-  F.e7 = () => svg(320, 170, hcap(40, 140, 30, '1 μF') + hcap(140, 240, 30, '1 μF') + ln(240, 30, 290, 30) + hcap(40, 140, 140, '1 μF', { below: 1 }) + hcap(140, 240, 140, '1 μF', { below: 1 }) + ln(240, 140, 290, 140) + vcap(40, 30, 140, '1 μF', { left: 1 }) + vcap(240, 30, 140, '1 μF') + nd(240, 30) + nd(240, 140) + term(290, 30, 'X', { dy: -8 }) + term(290, 140, 'Y', { dy: 20 }), 320);
-  F.x1 = () => svg(300, 166, term(20, 60, 'a', { dy: -8 }) + ln(20, 60, 60, 60) + ln(60, 35, 60, 85) + ln(160, 35, 160, 85) + hcap(60, 160, 35, 'C₁') + hcap(60, 160, 85, 'C₂', { below: 1 }) + nd(60, 60) + nd(160, 60) + ln(160, 60, 220, 60) + ln(220, 60, 220, 140) + nd(220, 100) + T(232, 104, 'd', { fs: 12, it: 1, b: 1, a: 'start' }) + hcap(20, 220, 140, 'C₃', { below: 1 }) + term(20, 140, 'b', { dy: 20 }), 300);
-  F.x2 = () => svg(320, 150, term(14, 75, 'a', { dy: -8 }) + ln(14, 75, 50, 75) + ln(50, 30, 50, 120) + nd(50, 75) + hcap(50, 120, 30, '15.0 μF') + hcap(120, 190, 30, '3.00 μF') + hcap(50, 190, 120, '6.00 μF', { below: 1 }) + ln(190, 30, 190, 120) + nd(190, 75) + hcap(190, 290, 75, '20.0 μF') + term(290, 75, 'b', { dy: -8 }), 320);
-  F.x3 = () => svg(260, 150, ln(30, 30, 30, 130) + ln(220, 30, 220, 130) + hcap(30, 125, 30, '3.00 μF') + hcap(125, 220, 30, '4.00 μF') + hcap(30, 220, 80, '2.00 μF') + nd(30, 80) + nd(220, 80) + hbat(30, 220, 130, '26.0 V'), 260);
-  F.charge = (dis) => { const b = vbat(40, 30, 130, dis ? '' : 'V₀', 't') + ln(40, 30, 40, 30) + hres(40, 200, 30, 'R') + ln(200, 30, 200, 60) + ln(200, 100, 200, 130) + pl(184, 74, 216, 74, C.r, 3) + pl(184, 86, 216, 86, '#2C6BB3', 3) + T(228, 74, 'A', { fs: 12, b: 1, a: 'start' }) + T(228, 92, 'B', { fs: 12, b: 1, a: 'start' }) + ln(200, 60, 200, 74) + ln(200, 86, 200, 100) + T(172, 80, 'C', { fs: 12, it: 1, a: 'end' }) +
-      T(200, 70, '+ + + +', { fs: 9, c: C.r }) + T(200, 98, '− − − −', { fs: 9, c: '#2C6BB3' }) + hsw(40, 200, 130, 'switch S', true);
-    return svg(270, 160, dis ? b.replace(vbat(40, 30, 130, '', 't'), ln(40, 30, 40, 130)) + L(150, 12, 110, 12, 'o', 'e', { w: 1.6 }) + T(130, 8, 'e⁻', { fs: 10, c: C.o }) : b + L(90, 12, 130, 12, 'o', 'e', { w: 1.6 }) + T(110, 8, 'e⁻', { fs: 10, c: C.o }) + L(100, 148, 70, 148, 'o', 'e', { w: 1.6 }) + T(85, 158, 'e⁻', { fs: 10, c: C.o }), 270); };
-  F.e10 = () => svg(320, 150, vbat(40, 30, 120, 'V', 't') + ln(40, 30, 280, 30) + vcap(150, 30, 120, 'C₁') + vcap(280, 30, 120, 'C₂') + hsw(40, 150, 120, 'S₁') + hsw(150, 280, 120, 'S₂') + nd(150, 30) + nd(150, 120), 320);
-  F.e11 = () => svg(320, 160, vbat(40, 30, 130, 'V₀', 't') + ln(40, 30, 96, 30) + `<circle cx="100" cy="30" r="2.8" fill="#fff" stroke="${C.ink}" stroke-width="1.5"/>` + T(100, 18, 'a', { fs: 12, it: 1, b: 1 }) + `<circle cx="112" cy="62" r="2.8" fill="#fff" stroke="${C.ink}" stroke-width="1.5"/>` + T(124, 66, 'b', { fs: 12, it: 1, b: 1, a: 'start' }) + ln(112, 65, 112, 130) + `<circle cx="140" cy="30" r="2.8" fill="${C.ink}"/>` + ln(140, 30, 103, 30) + T(140, 18, 'S', { fs: 12, b: 1 }) + hres(140, 260, 30, 'R') + ln(260, 30, 260, 60) + vcap(260, 60, 100, 'C') + ln(260, 100, 260, 130) + ln(40, 130, 260, 130) + nd(112, 130), 320);
-  F.graphs = (dis) => { const W = 150, H = 100, g = (f, lb, mk, y0) => { let d = ''; for (let i = 0; i <= 60; i++) { const t = i / 60 * 4; d += (i ? ' L' : 'M') + (30 + t / 4 * W).toFixed(1) + ',' + (y0 - f(t) * H).toFixed(1); } return d; };
-    const tau = 30 + W / 4, cq = dis ? (t => Math.exp(-t)) : (t => 1 - Math.exp(-t));
-    const left = svg(200, 150, axes(30, 125, W + 10, H + 10, 't', dis ? 'Q, V' : 'Q, V', { noO: 1 }) + P(g(cq, '', '', 125), 'v', { w: 2.4 }) + L(30, 125 - (dis ? 0.37 : 0.63) * H, tau, 125 - (dis ? 0.37 : 0.63) * H, 's', '', { w: 1, d: '3 3' }) + L(tau, 125, tau, 125 - (dis ? 0.37 : 0.63) * H, 's', '', { w: 1, d: '3 3' }) + T(tau, 140, 'τ', { fs: 12, it: 1 }) + T(26, 125 - (dis ? 0.37 : 0.63) * H + 4, dis ? '0.37Q₀' : '0.63Q₀', { fs: 10, a: 'end' }) + T(26, 125 - H + 4, 'Q₀', { fs: 10, a: 'end' }) + (dis ? '' : L(30, 125 - H, 30 + W, 125 - H, 's', '', { w: 1, d: '2 4' })), 200);
-    const right = svg(200, 150, axes(30, 125, W + 10, H + 10, 't', 'I', { noO: 1 }) + P(g(t => Math.exp(-t), '', '', 125), 'o', { w: 2.4 }) + L(30, 125 - 0.37 * H, tau, 125 - 0.37 * H, 's', '', { w: 1, d: '3 3' }) + L(tau, 125, tau, 125 - 0.37 * H, 's', '', { w: 1, d: '3 3' }) + T(tau, 140, 'τ', { fs: 12, it: 1 }) + T(26, 125 - 0.37 * H + 4, '0.37I₀', { fs: 10, a: 'end' }) + T(26, 125 - H + 4, 'I₀', { fs: 10, a: 'end' }), 200);
-    return two(left, right); };
-  F.VQ = () => svg(220, 150, axes(30, 125, 170, 110, 'Q', 'V', { noO: 1 }) + `<path d="M30,125 L170,35 L170,125 Z" fill="${C.fill}"/>` + L(30, 125, 170, 35, 'v', '', { w: 2.4 }) + L(170, 35, 170, 125, 's', '', { w: 1, d: '3 3' }) + T(170, 140, 'Q', { fs: 11, it: 1 }) + T(24, 39, 'V', { fs: 11, it: 1, a: 'end' }) + T(130, 105, 'U = ½QV', { fs: 12, it: 1 }), 220);
-  F.diel = () => { const pane = (x0, withD) => { let b = `<rect x="${x0}" y="20" width="8" height="110" fill="#F9D9C8" stroke="${C.r}"/><rect x="${x0 + 112}" y="20" width="8" height="110" fill="#D9E7F7" stroke="#2C6BB3"/>`; for (let y = 28; y <= 122; y += 12) b += T(x0 - 6, y + 4, '+', { fs: 10, b: 1, c: C.r }) + T(x0 + 128, y + 4, '−', { fs: 10, b: 1, c: '#2C6BB3' });
-      if (withD) { b += `<rect x="${x0 + 22}" y="22" width="76" height="106" fill="#EEF3D8" stroke="${C.g}"/>`; for (let y = 34; y <= 118; y += 21) for (let x = x0 + 32; x <= x0 + 80; x += 24) b += `<ellipse cx="${x + 6}" cy="${y}" rx="9" ry="5" fill="#fff" stroke="${C.sub}"/>` + T(x + 1, y + 3.5, '−', { fs: 8, b: 1, c: '#2C6BB3' }) + T(x + 11, y + 3.5, '+', { fs: 8, b: 1, c: C.r }); for (let y = 30; y <= 122; y += 14) b += T(x0 + 27, y + 3, '−', { fs: 9, b: 1, c: '#2C6BB3' }) + T(x0 + 93, y + 3, '+', { fs: 9, b: 1, c: C.r }); }
-      [36, 60, 84, 108].forEach((y, i) => { if (!withD || i % 2 === 0) b += L(x0 + 8, y, x0 + 112, y, 'v', 'e', { w: 1.4 }); else b += L(x0 + 8, y, x0 + 22, y, 'v', 'e', { w: 1.4 }) + L(x0 + 98, y, x0 + 112, y, 'v', 'e', { w: 1.4 }); });
-      return b + T(x0 + 60, 146, withD ? '(b) with a dielectric' : '(a) air (vacuum)', { fs: 11 }); };
-    return svg(330, 152, pane(20, false) + pane(190, true), 330); };
+  F.pair = () => svg(430, 150, chg(60, 40, 1, 'q₁', { it: 1 }) + chg(190, 40, -1, 'q₂', { it: 1 }) + L(72, 40, 112, 40, 'r', 'e', { w: 2.4 }) + L(178, 40, 138, 40, 'r', 'e', { w: 2.4 }) + T(98, 30, 'F₁₂', { fs: 12, b: 1, c: C.r }) + T(152, 30, 'F₂₁', { fs: 12, b: 1, c: C.r }) + L(60, 64, 190, 64, 's', 'b', { w: 1 }) + T(125, 78, 'r', { it: 1, fs: 13 }) + T(125, 100, 'unlike charges attract', { fs: 12, c: C.sub }) +
+    chg(280, 40, 1, 'q₁', { it: 1 }) + chg(370, 40, 1, 'q₂', { it: 1 }) + L(268, 40, 232, 40, 'r', 'e', { w: 2.4 }) + L(382, 40, 418, 40, 'r', 'e', { w: 2.4 }) + T(246, 30, 'F₁₂', { fs: 12, b: 1, c: C.r }) + T(404, 30, 'F₂₁', { fs: 12, b: 1, c: C.r }) + L(280, 64, 370, 64, 's', 'b', { w: 1 }) + T(325, 78, 'r', { it: 1, fs: 13 }) + T(325, 100, 'like charges repel', { fs: 12, c: C.sub }) +
+    T(215, 126, 'F₁₂ = force on q₁ due to q₂;  F₂₁ = force on q₂ due to q₁', { fs: 11.5, c: C.ink }) + T(215, 144, 'F₁₂ = −F₂₁ (Newton’s third law)', { fs: 11.5, c: C.ink }), 430);
+  F.Fr = () => two(svg(200, 150, axes(30, 125, 150, 105, 'r', 'F', { noO: 1 }) + P((() => { let d = ''; for (let i = 0; i <= 60; i++) { const r = 0.35 + i / 60 * 2.6; d += (i ? ' L' : 'M') + (30 + (r / 3) * 150).toFixed(1) + ',' + (125 - Math.min(100, 11 / (r * r))).toFixed(1); } return d; })(), 'v', { w: 2.4 }) + T(125, 60, 'F ∝ 1/r²', { fs: 12, it: 1 }), 200),
+    svg(200, 150, axes(30, 125, 150, 105, '1/r²', 'F', { noO: 1 }) + L(30, 125, 165, 35, 'o', '', { w: 2.4 }) + L(120, 65, 150, 65, 's', '', { w: 1, d: '3 3' }) + L(150, 65, 150, 45, 's', '', { w: 1, d: '3 3' }) + T(108, 100, 'gradient = kq₁q₂', { fs: 11, it: 1 }), 200));
+  // example 12.1.3: q1 at origin, q2 15 cm along +x, q3 10 cm up-left at 32° to the vertical
+  F.tri = (forces) => { const s = 9, x1 = 150, y1 = 150, x2 = x1 + 15 * s, a = 32 * Math.PI / 180, x3 = x1 - 10 * s * Math.sin(a), y3 = y1 - 10 * s * Math.cos(a);
+    let b = L(x1, 50, x1, 240, 's', '', { w: 1, d: '3 4' }) + L(x1, y1, x2, y1, 'k', '', { w: 1.4 }) + L(x1, y1, x3, y3, 'k', '', { w: 1.4 }) + T((x1 + x2) / 2 + 10, y1 - 8, 'r₁₂ = 15 cm', { fs: 11 }) + T((x1 + x3) / 2 - 8, (y1 + y3) / 2 + 4, 'r₁₃ = 10 cm', { fs: 11, a: 'end' }) + `<path d="M${x1},${y1 - 26} A26,26 0 0 0 ${(x1 - 26 * Math.sin(a)).toFixed(1)},${(y1 - 26 * Math.cos(a)).toFixed(1)}" stroke="${C.sub}" fill="none"/>` + T(x1 - 8, y1 - 32, '32°', { fs: 11 });
+    if (forces) b += L(x1, y1, x1 + 60, y1, 'r', 'e', { w: 2.6 }) + T(x1 + 64, y1 - 6, 'F₁₂', { fs: 12, b: 1, c: C.r, a: 'start' }) + L(x1, y1, x1 + 72 * Math.sin(a), y1 + 72 * Math.cos(a), 'v', 'e', { w: 2.6 }) + T(x1 + 72 * Math.sin(a) + 6, y1 + 72 * Math.cos(a) + 6, 'F₁₃', { fs: 12, b: 1, c: C.v, a: 'start' }) + T(x1 + 30, y1 + 20, '58°', { fs: 11, c: C.sub });
+    return svg(330, 250, b + chg(x1, y1, -1, 'q₁ = −1.2 μC', { dy: 4, dx: -54, fs: 11 }) + chg(x2, y1, 1, 'q₂ = +3.7 μC', { dy: 28, fs: 11 }) + chg(x3, y3, -1, 'q₃ = −2.3 μC', { dy: -18, fs: 11 }), 330); };
+  F.line3 = (labs, gaps) => { let x = 40, b = ''; const xs = [x]; gaps.forEach(g => { x += g[0]; xs.push(x); }); gaps.forEach((g, i) => { b += L(xs[i], 52, xs[i + 1], 52, 's', 'b', { w: 1 }) + T((xs[i] + xs[i + 1]) / 2, 66, g[1], { fs: 11 }); });
+    labs.forEach((l, i) => { b += chg(xs[i], 28, l[0], l[1], { fs: 11, dy: -16 }); }); return svg(x + 40, 76, b, x + 40); };
+  F.ptA = (s, lab) => svg(240, 70, chg(40, 34, s, lab, { fs: 11, dy: -16 }) + dot(180, 34, 3.5, C.ink) + T(190, 30, 'A', { fs: 13, b: 1, a: 'start' }) + L(40, 56, 180, 56, 's', 'b', { w: 1 }) + T(110, 68, '2.0 cm', { fs: 11 }), 240);
+  F.twoA = (s1, s2) => svg(300, 84, chg(40, 34, s1, `q₁ = ${s1 > 0 ? '+' : '−'}1.0 μC`, { fs: 11, dy: -16 }) + chg(260, 34, s2, 'q₂ = −4.0 μC', { fs: 11, dy: -16 }) + dot(128, 34, 3.5, C.ink) + T(128, 22, 'A', { fs: 13, b: 1 }) + L(40, 60, 128, 60, 's', 'b', { w: 1 }) + T(84, 74, '2.0 cm', { fs: 11 }) + L(128, 60, 260, 60, 's', 'b', { w: 1 }) + T(194, 74, '3.0 cm', { fs: 11 }), 300);
+  F.sq8 = (vec) => { const x0 = 70, y0 = 40, a = 150; let b = L(x0, y0, x0 + a, y0, 's', '', { w: 1, d: '3 3' }) + L(x0, y0, x0, y0 + a, 's', '', { w: 1, d: '3 3' }) + L(x0 + a, y0, x0 + a, y0 + a, 's', '', { w: 1, d: '3 3' }) + L(x0, y0 + a, x0 + a, y0 + a, 's', '', { w: 1, d: '3 3' }) + L(x0, y0, x0 + a, y0 + a, 's', '', { w: 1, d: '2 4' }) + T(x0 + a / 2, y0 - 8, '30.0 cm', { fs: 11 }) + T(x0 - 6, y0 + a / 2, '30.0 cm', { fs: 11, a: 'end' }) + T(x0 + a / 2 + 18, y0 + a / 2 - 6, '42.4 cm', { fs: 11 });
+    if (vec) { const xa = x0 + a, ya = y0 + a; b += L(xa, ya, xa + 50, ya + 50, 'r', 'e', { w: 2.4 }) + T(xa + 56, ya + 52, 'E₁', { fs: 12, b: 1, c: C.r, a: 'start' }) + L(xa, ya, xa, ya - 62, 'v', 'e', { w: 2.4 }) + T(xa + 6, ya - 56, 'E₂', { fs: 12, b: 1, c: C.v, a: 'start' }) + L(xa, ya, xa - 50, ya, 'g', 'e', { w: 2.4 }) + T(xa - 52, ya + 16, 'E₃', { fs: 12, b: 1, c: C.g }); }
+    return svg(320, 270, b + chg(x0, y0, 1, 'q₁ = +8.00 μC', { fs: 11, dy: -16, dx: -10 }) + chg(x0 + a, y0, -1, 'q₂ = −5.00 μC', { fs: 11, dy: -16, dx: 20 }) + chg(x0, y0 + a, -1, 'q₃ = −4.00 μC', { fs: 11, dy: 26 }) + dot(x0 + a, y0 + a, 4, C.ink) + T(x0 + a + 10, y0 + a + 18, 'A', { fs: 13, b: 1 }), 320); };
+  F.hrw1 = () => { const px = 150, py = 110, d = 50, u = Math.SQRT1_2; return svg(300, 210, L(px - d * u, py - d * u, px + d * u, py + d * u, 's', '', { w: 1 }) + L(px, py, px + 2 * d * u, py - 2 * d * u, 's', '', { w: 1 }) + dot(px, py, 3.5, C.ink) + T(px - 12, py + 16, 'P', { fs: 13, b: 1 }) +
+    T(px - d * u / 2 - 10, py - d * u / 2 + 2, 'd', { fs: 12, it: 1 }) + T(px + d * u / 2 + 10, py + d * u / 2 + 2, 'd', { fs: 12, it: 1 }) + T(px + d * u / 2 - 10, py - d * u / 2 - 6, 'd', { fs: 12, it: 1 }) + T(px + 1.5 * d * u - 10, py - 1.5 * d * u - 6, 'd', { fs: 12, it: 1 }) +
+    chg(px - d * u, py - d * u, 1, '+5.0q', { fs: 11, dy: -16 }) + chg(px + d * u, py + d * u, 1, '+5.0q', { fs: 11, dy: 26 }) + chg(px + d * u, py - d * u, 1, '+3.0q', { fs: 11, dx: 30, dy: 4 }) + chg(px + 2 * d * u, py - 2 * d * u, -1, '−12q', { fs: 11, dx: 30, dy: 4 }), 300); };
+  F.hrw2 = () => svg(240, 200, L(50, 40, 190, 40, 's', '', { w: 1 }) + L(50, 40, 50, 180, 's', '', { w: 1 }) + L(190, 40, 190, 180, 's', '', { w: 1 }) + L(50, 180, 190, 180, 's', '', { w: 1 }) + T(120, 34, 'a', { it: 1 }) + T(40, 114, 'a', { it: 1 }) + dot(120, 110, 3, C.ink) + chg(50, 40, 1, '+q', { fs: 12, dy: -15, it: 1 }) + chg(190, 40, -1, '−2q', { fs: 12, dy: -15, it: 1 }) + chg(50, 180, -1, '−q', { fs: 12, dy: 28, it: 1 }) + chg(190, 180, 1, '+2q', { fs: 12, dy: 28, it: 1 }), 240);
+  F.ex3 = () => svg(280, 150, L(50, 30, 210, 30, 's', '', { w: 1 }) + L(50, 30, 50, 120, 's', '', { w: 1 }) + T(130, 22, '4 m', { fs: 12 }) + T(40, 80, '3 m', { fs: 12, a: 'end' }) + chg(50, 30, 1, 'q₁ = 5 μC', { fs: 11, dy: -14, dx: -6 }) + chg(210, 30, 1, 'q₂ = 2 μC', { fs: 11, dy: -14 }) + chg(50, 120, -1, 'q₃ = −3 μC', { fs: 11, dy: 26 }), 280);
+  F.rect = () => svg(340, 140, `<rect x="50" y="30" width="200" height="60" fill="none" stroke="${C.sub}" stroke-dasharray="3 3"/>` + T(150, 22, 'l = 60.0 cm', { fs: 11, it: 1 }) + T(262, 64, 'w = 15.0 cm', { fs: 11, it: 1, a: 'start' }) + chg(50, 30, 1, '') + chg(250, 30, 1, '') + chg(50, 90, 1, 'this charge', { fs: 11, dy: 30 }) + chg(250, 90, 1, ''), 340);
+  // charge moving through parallel plates
+  F.plates = () => { const x0 = 70, x1 = 290, yt = 40, yb = 140, ym = 90; let fl = ''; for (let x = x0 + 12; x < x1; x += 22) fl += L(x, yb - 2, x, yt + 4, 'o', 'e', { w: 1 }); let path = 'M30,' + ym; const k = 40 / ((x1 - x0) * (x1 - x0)); for (let x = x0; x <= x1; x += 5) path += ` L${x},${(ym - k * (x - x0) * (x - x0)).toFixed(1)}`; path += ` L${x1 + 80},${(ym - 40 - 2 * k * (x1 - x0) * 80).toFixed(1)}`;
+    return svg(400, 200, `<rect x="${x0}" y="${yt - 10}" width="${x1 - x0}" height="10" fill="#D9E7F7"/><rect x="${x0}" y="${yb}" width="${x1 - x0}" height="10" fill="#F9D9C8"/>` + T(x0 - 8, yt - 2, '−', { fs: 16, b: 1, a: 'end', c: '#2C6BB3' }) + T(x0 - 8, yb + 9, '+', { fs: 16, b: 1, a: 'end', c: C.r }) + fl + T(x1 - 6, yb - 30, 'E', { fs: 13, it: 1, b: 1, c: C.o }) +
+      P(path, 'v', { w: 2.4, d: '6 4' }) + chg(30, ym, -1, 'electron', { r: 8, fs: 11, dy: -14 }) + L(40, ym, 64, ym, 'k', 'e', { w: 2 }) + T(52, ym + 18, 'v₀', { fs: 12, it: 1 }) + L(x0, 182, x1, 182, 's', 'b', { w: 1 }) + T((x0 + x1) / 2, 196, 'x (length of plates)', { fs: 11, it: 1 }) +
+      L(x1, ym - 40, x1 + 50, ym - 40, 'k', 'e', { w: 2 }) + L(x1, ym - 40, x1, ym - 40 - 22, 'k', 'e', { w: 2 }) + L(x1, ym - 40, x1 + 50, ym - 62, 'r', 'e', { w: 2.4 }) + T(x1 + 54, ym - 36, 'vₓ = v₀', { fs: 11, a: 'start' }) + T(x1 - 4, ym - 64, 'v_y', { fs: 11, a: 'end' }) + T(x1 + 56, ym - 62, 'v', { fs: 12, b: 1, c: C.r, a: 'start' }) + T(x1 + 22, ym - 44, 'θ', { fs: 11 }) +
+      L(x1 + 6, ym, x1 + 6, ym - 40, 's', 'b', { w: 1 }) + T(x1 + 12, ym - 14, 'y', { fs: 12, it: 1, a: 'start' }) + L(x0, ym, x1 + 10, ym, 's', '', { w: 1, d: '2 3' }), 400); };
+  F.plateLines = () => { let b = `<rect x="40" y="20" width="12" height="140" fill="#F9D9C8" stroke="${C.r}"/><rect x="228" y="20" width="12" height="140" fill="#D9E7F7" stroke="#2C6BB3"/>`; for (let y = 32; y <= 148; y += 13) b += T(46, y + 4, '+', { fs: 11, b: 1, c: C.r }) + T(234, y + 4, '−', { fs: 11, b: 1, c: '#2C6BB3' });
+    [44, 60, 76, 92, 108, 124, 140].forEach(y => { b += L(52, y, 228, y, 'v', '', { w: 1.5 }) + `<path d="M${142},${y - 3.5} L${149},${y} L${142},${y + 3.5}Z" fill="${C.v}"/>`; });
+    b += P('M52,28 C100,24 180,24 228,28', 'v', { w: 1.3 }) + P('M52,24 C100,6 180,6 228,24', 'v', { w: 1.3 }) + P('M52,152 C100,156 180,156 228,152', 'v', { w: 1.3 }) + P('M52,156 C100,174 180,174 228,156', 'v', { w: 1.3 });
+    return svg(280, 182, b + T(140, 178, 'uniform between the plates; fringing at the edges', { fs: 10.5, c: C.sub }), 280); };
+  F.sheet = () => { let b = `<rect x="134" y="16" width="12" height="140" fill="#F9D9C8" stroke="${C.r}"/>`; for (let y = 28; y <= 148; y += 13) b += T(140, y + 4, '+', { fs: 11, b: 1, c: C.r }); [32, 52, 72, 92, 112, 132].forEach(y => { b += L(146, y, 250, y, 'v', 'e', { w: 1.5 }) + L(134, y, 30, y, 'v', 'e', { w: 1.5 }); });
+    return svg(280, 170, b + T(140, 168, 'field lines perpendicular to the surface, on both sides', { fs: 10.5, c: C.sub }), 280); };
+  F.flux = () => svg(330, 170, `<path d="M70,130 L150,150 L230,110 L150,90 Z" fill="#EEEAFD" stroke="${C.v}" stroke-width="1.6"/>` + L(150, 120, 150, 40, 'k', 'e', { w: 2 }) + T(156, 44, 'A (normal to the surface)', { fs: 11, a: 'start' }) + L(150, 120, 225, 52, 'r', 'e', { w: 2.4 }) + T(232, 52, 'E', { fs: 13, it: 1, b: 1, c: C.r, a: 'start' }) + `<path d="M150,84 A36,36 0 0 1 175,94" stroke="${C.sub}" fill="none"/>` + T(166, 80, 'θ', { fs: 12, it: 1 }) + [0, 1, 2, 3].map(i => L(60 + i * 30, 160, 135 + i * 30, 92, 'r', 'e', { w: 1, d: '3 3' })).join(''), 330);
+  F.gauss = () => two(svg(200, 180, `<circle cx="100" cy="90" r="62" fill="#EEEAFD" fill-opacity=".5" stroke="${C.v}" stroke-dasharray="5 4" stroke-width="1.6"/>` + [0, 1, 2, 3, 4, 5, 6, 7].map(i => { const a = i * Math.PI / 4; return L(100 + 14 * Math.cos(a), 90 + 14 * Math.sin(a), 100 + 86 * Math.cos(a), 90 + 86 * Math.sin(a), 'r', 'e', { w: 1.5 }); }).join('') + chg(100, 90, 1, '') + L(100, 90, 100 + 62 * Math.cos(-0.9), 90 + 62 * Math.sin(-0.9), 'k', '', { w: 1 }) + T(128, 66, 'r', { it: 1 }) + T(100, 176, 'Gaussian sphere of radius r', { fs: 10.5, c: C.sub }), 200),
+    svg(200, 180, `<circle cx="100" cy="88" r="36" fill="#F9D9C8" stroke="${C.r}" stroke-width="2"/>` + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => { const a = i * Math.PI / 5; return T(100 + 30 * Math.cos(a), 92 + 30 * Math.sin(a), '+', { fs: 10, b: 1, c: C.r }); }).join('') + `<circle cx="100" cy="88" r="66" fill="none" stroke="${C.v}" stroke-dasharray="5 4" stroke-width="1.6"/><circle cx="100" cy="88" r="20" fill="none" stroke="${C.g}" stroke-dasharray="3 3" stroke-width="1.4"/>` + T(100, 92, 'E = 0', { fs: 10, c: C.g, b: 1 }) + T(100, 172, 'conducting sphere: charge on the surface', { fs: 10.5, c: C.sub }), 200));
+  F.pill = () => svg(320, 180, `<rect x="140" y="14" width="22" height="150" fill="#F9D9C8" stroke="${C.r}"/>` + [24, 44, 64, 84, 104, 124, 144].map(y => T(151, y + 4, '+', { fs: 10, b: 1, c: C.r })).join('') + `<ellipse cx="162" cy="89" rx="8" ry="26" fill="#EEEAFD" stroke="${C.v}"/><path d="M162,63 L232,63 M162,115 L232,115" stroke="${C.v}"/><ellipse cx="232" cy="89" rx="8" ry="26" fill="#EEEAFD" stroke="${C.v}"/>` + L(240, 89, 300, 89, 'r', 'e', { w: 2.4 }) + T(296, 80, 'E', { fs: 13, it: 1, b: 1, c: C.r }) + T(232, 130, 'end of area A', { fs: 10.5, c: C.v }) + T(110, 89, 'E = 0 inside', { fs: 10.5, c: C.g, a: 'end' }) + T(80, 104, 'the conductor', { fs: 10.5, c: C.g, a: 'end' }) + T(200, 172, 'Gaussian cylinder (pillbox)', { fs: 10.5, c: C.sub }), 320);
+  F.sphereEV = () => { const R = 50, x0 = 30, y0 = 125; const E = r => r < R ? 0 : 95 * (R * R) / (r * r), V = r => r < R ? 95 : 95 * R / r; let pe = '', pv = ''; for (let r = 0; r <= 150; r += 2) { pe += (r ? ' L' : 'M') + (x0 + r) + ',' + (y0 - E(r)).toFixed(1); pv += (r ? ' L' : 'M') + (x0 + r) + ',' + (y0 - V(r)).toFixed(1); }
+    return two(svg(200, 150, axes(x0, y0, 160, 110, 'r', 'E', { noO: 1 }) + `<path d="M${x0},${y0} L${x0 + R},${y0}" stroke="${C.v}" stroke-width="2.6"/>` + P('M' + (x0 + R) + ',' + (y0 - 95) + pe.slice(pe.indexOf('L' + (x0 + R + 2))), 'v', { w: 2.4 }) + L(x0 + R, y0, x0 + R, y0 - 95, 's', '', { w: 1, d: '3 3' }) + T(x0 + R, y0 + 14, 'R', { it: 1, fs: 12 }) + T(x0 + R + 6, y0 - 96, 'Q/4πε₀R²', { fs: 10.5, a: 'start' }), 200),
+      svg(200, 150, axes(x0, y0, 160, 110, 'r', 'V', { noO: 1 }) + P(pv, 'o', { w: 2.4 }) + L(x0 + R, y0, x0 + R, y0 - 95, 's', '', { w: 1, d: '3 3' }) + T(x0 + R, y0 + 14, 'R', { it: 1, fs: 12 }) + T(x0 + 4, y0 - 100, 'Q/4πε₀R', { fs: 10.5, a: 'start' }), 200)); };
+  F.Vr = () => { const x0 = 30, y0 = 75; let pp = '', pn = ''; for (let i = 0; i <= 60; i++) { const r = 0.25 + i / 60 * 2.75, v = Math.min(62, 18 / r); pp += (i ? ' L' : 'M') + (x0 + r * 52).toFixed(1) + ',' + (y0 - v).toFixed(1); pn += (i ? ' L' : 'M') + (x0 + r * 52).toFixed(1) + ',' + (y0 + v).toFixed(1); }
+    return two(svg(200, 150, L(x0, y0, x0 + 160, y0, 'k', 'e', { w: 1.6 }) + L(x0, 140, x0, 8, 'k', 'e', { w: 1.6 }) + T(x0 + 160, y0 + 16, 'r', { it: 1 }) + T(x0, 6, 'V', { it: 1 }) + P(pp, 'r', { w: 2.4 }) + T(120, 44, '+Q: V = kQ/r', { fs: 11, c: C.r }), 200),
+      svg(200, 150, L(x0, y0, x0 + 160, y0, 'k', 'e', { w: 1.6 }) + L(x0, 140, x0, 8, 'k', 'e', { w: 1.6 }) + T(x0 + 160, y0 - 6, 'r', { it: 1 }) + T(x0, 6, 'V', { it: 1 }) + P(pn, 'v', { w: 2.4 }) + T(120, 112, '−Q: V = −kQ/r', { fs: 11, c: C.v }), 200)); };
+  F.eqUni = () => { let b = `<rect x="30" y="20" width="12" height="130" fill="#F9D9C8" stroke="${C.r}"/><rect x="238" y="20" width="12" height="130" fill="#D9E7F7" stroke="#2C6BB3"/>`; [40, 62, 84, 106, 128].forEach(y => { b += L(42, y, 238, y, 'v', '', { w: 1.4 }) + `<path d="M${136},${y - 3.5} L${143},${y} L${136},${y + 3.5}Z" fill="${C.v}"/>`; }); [82, 122, 162, 202].forEach(x => { b += L(x, 22, x, 148, 'g', '', { w: 1.6, d: '5 4' }); });
+    return svg(280, 172, b + T(82, 166, 'V₁', { fs: 11, c: C.g }) + T(122, 166, 'V₂', { fs: 11, c: C.g }) + T(162, 166, 'V₃', { fs: 11, c: C.g }) + T(202, 166, 'V₄', { fs: 11, c: C.g }) + T(140, 14, 'V₁ > V₂ > V₃ > V₄', { fs: 11, c: C.g }), 280); };
+  F.v316 = () => { const X = x => 150 + x * 8, Y = v => 80 - v * 5.5; const ax = (yl) => L(20, 80, 290, 80, 'k', 'e', { w: 1.4 }) + L(150, 140, 150, 12, 'k', 'e', { w: 1.4 }) + T(290, 94, 'x / m', { fs: 11, it: 1, a: 'end' }) + T(156, 14, yl, { fs: 11, a: 'start' }) + [-15, -10, -5, 5, 10, 15].map(x => L(X(x), 77, X(x), 83, 'k', '', { w: 1 }) + T(X(x), 96, String(x).replace('-', '−'), { fs: 10, c: C.sub })).join('');
+    return svg(300, 150, ax('V / V') + [10, 5, -5, -10].map(v => L(147, Y(v), 153, Y(v), 'k', '', { w: 1 }) + T(144, Y(v) + 4, String(v).replace('-', '−'), { fs: 10, c: C.sub, a: 'end' })).join('') + P(`M${X(-15)},${Y(0)} L${X(-5)},${Y(10)} L${X(5)},${Y(-10)} L${X(10)},${Y(-10)} L${X(15)},${Y(0)}`, 'v', { w: 2.4 }), 300); };
+  F.e316 = () => { const X = x => 150 + x * 8, Y = v => 80 - v * 22; return svg(300, 150, L(20, 80, 290, 80, 'k', 'e', { w: 1.4 }) + L(150, 140, 150, 12, 'k', 'e', { w: 1.4 }) + T(290, 94, 'x / m', { fs: 11, it: 1, a: 'end' }) + T(156, 14, 'E / V m⁻¹', { fs: 11, a: 'start' }) + [-15, -10, -5, 5, 10, 15].map(x => L(X(x), 77, X(x), 83, 'k', '', { w: 1 }) + T(X(x), 96, String(x).replace('-', '−'), { fs: 10, c: C.sub })).join('') + [2, 1, -1, -2].map(v => L(147, Y(v), 153, Y(v), 'k', '', { w: 1 }) + T(144, Y(v) + 4, String(v).replace('-', '−'), { fs: 10, c: C.sub, a: 'end' })).join('') +
+    L(X(-15), Y(-1), X(-5), Y(-1), 'r', '', { w: 2.8 }) + L(X(-5), Y(2), X(5), Y(2), 'r', '', { w: 2.8 }) + L(X(5), Y(0), X(10), Y(0), 'r', '', { w: 2.8 }) + L(X(10), Y(-2), X(15), Y(-2), 'r', '', { w: 2.8 }) + [-5, 5, 10].map(x => L(X(x), 30, X(x), 130, 's', '', { w: 0.8, d: '3 3' })).join(''), 300); };
+  F.ex311 = (neg) => svg(240, 140, L(50, 30, 170, 30, 's', '', { w: 1, d: '3 3' }) + L(50, 30, 50, 120, 's', '', { w: 1 }) + L(50, 120, 170, 30, 's', '', { w: 1 }) + T(40, 80, '3 cm', { fs: 11, a: 'end' }) + T(122, 82, '5 cm', { fs: 11, a: 'start' }) + chg(50, 30, 1, 'Q₁ = +2 μC', { fs: 11, dy: -15 }) + chg(170, 30, neg ? -1 : 1, `Q₂ = ${neg ? '−' : '+'}2 μC`, { fs: 11, dy: -15 }) + dot(50, 120, 4, C.ink) + T(40, 128, 'A', { fs: 13, b: 1, a: 'end' }), 240);
+  F.ex313 = () => svg(220, 180, `<rect x="50" y="30" width="120" height="120" fill="none" stroke="${C.sub}" stroke-dasharray="3 3"/>` + L(50, 30, 170, 150, 's', '', { w: 0.8, d: '2 4' }) + L(170, 30, 50, 150, 's', '', { w: 0.8, d: '2 4' }) + dot(110, 90, 3.5, C.ink) + T(110, 108, 'O', { fs: 12, b: 1 }) + T(186, 94, '10 cm', { fs: 11, a: 'start' }) + T(110, 168, '10 cm', { fs: 11 }) + chg(50, 30, 1, '+0.01 μC', { fs: 11, dy: -15 }) + chg(170, 30, 1, '+0.02 μC', { fs: 11, dy: -15 }) + chg(50, 150, 1, '+0.01 μC', { fs: 11, dy: 26 }) + chg(170, 150, -1, '−0.02 μC', { fs: 11, dy: 26 }), 240);
+  F.ex315 = () => svg(300, 150, L(50, 120, 250, 120, 's', '', { w: 1 }) + L(50, 120, 178, 24, 's', '', { w: 1 }) + L(250, 120, 178, 24, 's', '', { w: 1 }) + T(98, 64, '0.080 m', { fs: 11, a: 'end' }) + T(222, 64, '0.060 m', { fs: 11, a: 'start' }) + T(100, 138, '0.050 m', { fs: 11 }) + T(200, 138, '0.050 m', { fs: 11 }) + dot(150, 120, 4, C.ink) + T(150, 108, 'A', { fs: 13, b: 1 }) + dot(178, 24, 4, C.ink) + T(178, 14, 'B', { fs: 13, b: 1 }) + chg(50, 120, 1, 'q₁', { it: 1, dy: 4, dx: -22 }) + chg(250, 120, -1, 'q₂', { it: 1, dy: 4, dx: 22 }), 300);
+  F.ex318 = () => svg(240, 170, L(170, 30, 170, 140, 's', '', { w: 1 }) + L(170, 30, 78, 85, 's', '', { w: 1 }) + L(170, 140, 78, 85, 's', '', { w: 1 }) + T(178, 90, 'r₁₂ = 4.0 cm', { fs: 11, a: 'start' }) + T(118, 48, 'r₂₃ = 5.0 cm', { fs: 11, a: 'end' }) + T(118, 132, 'r₁₃ = 5.0 cm', { fs: 11, a: 'end' }) + chg(170, 30, 1, 'q₂ = +10 μC', { fs: 11, dy: -15 }) + chg(170, 140, -1, 'q₁ = −10 μC', { fs: 11, dy: 27 }) + chg(78, 85, 1, 'q₃ = +10 μC', { fs: 11, dy: 27 }), 260);
+  F.lineQ = () => { // four standard field patterns
+    const s = (Q, W, H, o) => fieldFig(Q, W, H, o);
+    return { single: two(s([{ x: 110, y: 90, q: 1, lab: '' }], 220, 180, { per: 12 }), s([{ x: 110, y: 90, q: -1, lab: '' }], 220, 180, { per: 12 })),
+      dipole: s([{ x: 120, y: 110, q: 1 }, { x: 240, y: 110, q: -1 }], 360, 220, { per: 14 }),
+      like: s([{ x: 120, y: 110, q: 1 }, { x: 240, y: 110, q: 1 }], 360, 220, { per: 12, extra: dot(180, 110, 4, C.o) + T(180, 132, 'X', { fs: 12, b: 1, c: C.o }) }),
+      unequal: s([{ x: 230, y: 110, q: 2, lab: '+2q' }, { x: 120, y: 110, q: -1, lab: '−q' }], 360, 220, { per: 8 }) };
+  };
+  F.eqpts = () => { const Q1 = [{ x: 110, y: 100, q: 1 }]; return fieldFig(Q1, 220, 200, { per: 10, eq: [1 / 30, 1 / 50, 1 / 75] }); };
+  F.eqdip = () => fieldFig([{ x: 120, y: 110, q: 1 }, { x: 240, y: 110, q: -1 }], 360, 220, { per: 12, eq: [0.05, 0.025, 0.012, 0, -0.012, -0.025, -0.05] });
 
+  const LQ = F.lineQ();
+  const k9 = '9.0 × 10<sup>9</sup>';
   const S = `
-${sec('13-1', '13.1 Capacitance', `
-${ul([`A <b>capacitor</b> is a device that stores electric charge (and electrical energy).`, `It is made of two conducting plates separated by a small gap of air or a thin insulator called a <b>dielectric</b> (mica, ceramic, paper, plastic, oil).`])}
-${fig(F.symbol(), 'Figure 13.1: circuit symbols for a capacitor.')}
-${def('Capacitance, <i>C</i>', `the ${red('ratio of the charge on either plate to the potential difference between the plates')}.`)}
-${key(`<i>C</i> = ${fr('<i>Q</i>', '<i>V</i>')}`, '<i>Q</i> = charge on one plate (the other has −<i>Q</i>); <i>V</i> = p.d. across the plates. Unit: farad (F) = C V<sup>−1</sup>')}
-${ul([`1 F is the capacitance when a charge of 1 C on each plate gives a p.d. of 1 V.`, `The farad is a very large unit: 1 μF = 10<sup>−6</sup> F, 1 nF = 10<sup>−9</sup> F, 1 pF = 10<sup>−12</sup> F.`, `For a given capacitor <i>C</i> is constant, so <i>Q</i> ∝ <i>V</i>.`, `The net charge on a capacitor is zero: it holds +<i>Q</i> on one plate and −<i>Q</i> on the other. "The charge on a capacitor" means <i>Q</i>.`])}
+<p>Electrostatics is the study of <b>electric charges at rest</b>, the forces between them and the electric fields around them.</p>
+
+${sec('12-1', '13.1 Coulomb’s law', `
+${def('Coulomb’s law', `The electric force between two point charges is ${red('directly proportional to the product of their charges')} and ${red('inversely proportional to the square of the distance')} between them.`)}
+${key(`<i>F</i> = ${fr('<i>Qq</i>', '4πε<sub>0</sub><i>r</i><sup>2</sup>')} = ${fr('<i>kQq</i>', '<i>r</i><sup>2</sup>')}`, `<i>k</i> = ${fr('1', '4πε<sub>0</sub>')} = 9.0 × 10<sup>9</sup> N m<sup>2</sup> C<sup>−2</sup> (Coulomb’s constant); &nbsp; ε<sub>0</sub> = 8.85 × 10<sup>−12</sup> C<sup>2</sup> N<sup>−1</sup> m<sup>−2</sup> (permittivity of free space)`)}
+${fig(F.pair(), 'Figure 13.1: the forces between two point charges are equal in size and opposite in direction.')}
+${ul([`Like charges repel; unlike charges attract.`, `The two forces form an action–reaction pair: F<sub>12</sub> = F<sub>21</sub> = <i>kq</i><sub>1</sub><i>q</i><sub>2</sub>/<i>r</i><sup>2</sup>, even if the charges are different in size.`, `Doubling <i>r</i> makes the force four times smaller (inverse-square law).`])}
+${fig(F.Fr(), 'Figure 13.2: <i>F</i> against <i>r</i> (a curve) and <i>F</i> against 1/<i>r</i><sup>2</sup> (a straight line through the origin).')}
+${tip(`Use only the <b>size</b> of each charge in Coulomb’s law. Decide the <b>direction</b> separately from "like repel, unlike attract", then draw the force on the diagram.`)}
+${h4('Relative permittivity')}
+<p>When the charges are in a medium (not a vacuum), the force is smaller. Replace ε<sub>0</sub> by the permittivity of the medium, ε.</p>
+${def('Relative permittivity, ε<sub>r</sub>', `the ${red('ratio of the permittivity of a medium to the permittivity of free space')}. It has no unit.`)}
+${key(`ε<sub>r</sub> = ${fr('ε', 'ε<sub>0</sub>')} &nbsp;&nbsp;&nbsp; <i>F</i><sub>medium</sub> = ${fr('<i>Qq</i>', '4πε<sub>r</sub>ε<sub>0</sub><i>r</i><sup>2</sup>')} = ${fr('<i>F</i><sub>vacuum</sub>', 'ε<sub>r</sub>')}`, 'ε<sub>r</sub> of air ≈ 1.0006 (taken as 1); water ≈ 80; paper ≈ 3.7. The bigger ε<sub>r</sub>, the weaker the force between the charges.')}
+${h4('More than two charges')}
+<p>The resultant force on one charge is the <b>vector sum</b> of the forces from each of the other charges. Work out each force separately, then add them as vectors (along a line: add with signs; in two dimensions: resolve into <i>x</i> and <i>y</i> components).</p>
+${example('13.1.1', `Two point charges <i>q</i><sub>1</sub> = −20 nC and <i>q</i><sub>2</sub> = +90 nC are 4.0 cm apart. Find the magnitude and direction of (a) the electric force on <i>q</i><sub>1</sub> due to <i>q</i><sub>2</sub>, (b) the electric force on <i>q</i><sub>2</sub> due to <i>q</i><sub>1</sub>. (<i>k</i> = ${k9} N m<sup>2</sup> C<sup>−2</sup>)`,
+  steps([`(a) <i>F</i><sub>12</sub> = ${fr('<i>kq</i><sub>1</sub><i>q</i><sub>2</sub>', '<i>r</i><sup>2</sup>')} = ${fr(`(${k9})(2.0 × 10<sup>−8</sup>)(9.0 × 10<sup>−8</sup>)`, '(4.0 × 10<sup>−2</sup>)<sup>2</sup>')} = <b>1.0 × 10<sup>−2</sup> N</b>, towards <i>q</i><sub>2</sub> (attraction)`, `(b) <i>F</i><sub>21</sub> = <b>1.0 × 10<sup>−2</sup> N</b>, towards <i>q</i><sub>1</sub>: equal in size and opposite in direction (Newton’s third law)`]), F.line3([[-1, 'q₁ = −20 nC'], [1, 'q₂ = +90 nC']], [[170, '4.0 cm']]))}
+${example('13.1.2', `Three point charges lie on the <i>x</i>-axis: <i>q</i><sub>1</sub> = +2 μC, <i>q</i><sub>2</sub> = +4 μC (3.0 cm to the right of <i>q</i><sub>1</sub>) and <i>q</i><sub>3</sub> = −6 μC (5.0 cm to the right of <i>q</i><sub>2</sub>). Find the net electric force on <i>q</i><sub>2</sub>.`,
+  steps([`<i>F</i><sub>21</sub> = ${fr(`(${k9})(4 × 10<sup>−6</sup>)(2 × 10<sup>−6</sup>)`, '(3.0 × 10<sup>−2</sup>)<sup>2</sup>')} = 80 N, to the right (<i>q</i><sub>1</sub> repels <i>q</i><sub>2</sub>)`, `<i>F</i><sub>23</sub> = ${fr(`(${k9})(4 × 10<sup>−6</sup>)(6 × 10<sup>−6</sup>)`, '(5.0 × 10<sup>−2</sup>)<sup>2</sup>')} = 86.4 N, to the right (<i>q</i><sub>3</sub> attracts <i>q</i><sub>2</sub>)`, `Both forces point the same way: <i>F</i><sub>2</sub> = 80 + 86.4 = <b>166 N, to the right</b> (towards <i>q</i><sub>3</sub>)`]), F.line3([[1, 'q₁ = +2 μC'], [1, 'q₂ = +4 μC'], [-1, 'q₃ = −6 μC']], [[110, '3.0 cm'], [180, '5.0 cm']]))}
+${example('13.1.3', `Three point charges are placed as shown. <i>q</i><sub>1</sub> = −1.2 μC, <i>q</i><sub>2</sub> = +3.7 μC, <i>q</i><sub>3</sub> = −2.3 μC, <i>r</i><sub>12</sub> = 15 cm, <i>r</i><sub>13</sub> = 10 cm and the line <i>q</i><sub>1</sub><i>q</i><sub>3</sub> makes 32° with the vertical. Find the magnitude and direction of the resultant force on <i>q</i><sub>1</sub>.`,
+  steps([`<i>F</i><sub>12</sub> = ${fr(`(${k9})(1.2 × 10<sup>−6</sup>)(3.7 × 10<sup>−6</sup>)`, '(0.15)<sup>2</sup>')} = 1.78 N, along +<i>x</i> (attracted towards <i>q</i><sub>2</sub>)`, `<i>F</i><sub>13</sub> = ${fr(`(${k9})(1.2 × 10<sup>−6</sup>)(2.3 × 10<sup>−6</sup>)`, '(0.10)<sup>2</sup>')} = 2.48 N, away from <i>q</i><sub>3</sub> (repulsion): down and to the right at 58° below the horizontal`, `Σ<i>F</i><sub>x</sub> = 1.78 + 2.48 cos 58° = 1.78 + 1.31 = 3.09 N`, `Σ<i>F</i><sub>y</sub> = −2.48 sin 58° = −2.10 N`, `<i>F</i><sub>1</sub> = ${sq('3.09<sup>2</sup> + 2.10<sup>2</sup>')} = <b>3.74 N</b>; &nbsp; θ = tan<sup>−1</sup>(2.10/3.09) = <b>34.2° below the +<i>x</i> direction</b>`, fig(F.tri(true))]), fig(F.tri(false)))}
+${example('13.1.4', `Two charges +3.0 μC and −2.0 μC are 5.0 cm apart in oil of relative permittivity 2.5. Find the force between them.`,
+  steps([`<i>F</i> = ${fr('<i>Qq</i>', '4πε<sub>r</sub>ε<sub>0</sub><i>r</i><sup>2</sup>')} = ${fr(`(${k9})(3.0 × 10<sup>−6</sup>)(2.0 × 10<sup>−6</sup>)`, '2.5 × (0.050)<sup>2</sup>')} = <b>8.6 N</b>, attractive`, `In air the force would be 21.6 N; the oil reduces it by a factor of ε<sub>r</sub> = 2.5.`]))}
+${exercises('Exercise: Coulomb’s law', [
+  { q: `Two point charges of −1.0 × 10<sup>−6</sup> C and +2.0 × 10<sup>−6</sup> C are 0.30 m apart. What is the electrostatic force on each charge?`, a: `0.20 N, each directed towards the other` },
+  { q: `Calculate the net electrostatic force on (i) <i>q</i><sub>1</sub>, (ii) <i>q</i><sub>2</sub>, (iii) <i>q</i><sub>3</sub>.`, f: fig(F.line3([[1, 'q₁ = +5 μC'], [1, 'q₂ = +2 μC'], [-1, 'q₃ = −3 μC']], [[150, '4.0 cm'], [80, '2.0 cm']])), a: `(i) 18.75 N to the left &nbsp; (ii) 191.25 N to the right &nbsp; (iii) 172.5 N to the left` },
+  { q: `Calculate the net electrostatic force on <i>q</i><sub>2</sub>.`, f: fig(F.ex3()), a: `4.11 × 10<sup>−3</sup> N, 18.4° below the +<i>x</i> direction` },
+  { q: `<i>q</i><sub>1</sub> = +2.5 μC is at (0, +0.30 m), <i>q</i><sub>2</sub> = +2.5 μC is at (0, −0.30 m) and <i>q</i><sub>3</sub> = +3 μC is at (+0.40 m, 0). What is the electrostatic force on <i>q</i><sub>3</sub>?`, a: `0.43 N in the +<i>x</i> direction (each force is 0.27 N at 0.50 m; the <i>y</i> components cancel)` },
+  { q: `Four identical point charges (<i>q</i> = +10.0 μC) are at the corners of a rectangle, <i>l</i> = 60.0 cm and <i>w</i> = 15.0 cm. Find the magnitude and direction of the resultant force on the charge at the lower left corner.`, f: fig(F.rect()), a: `40.9 N at 263° (measured anticlockwise from the +<i>x</i> direction): almost straight down` }])}
 `)}
 
-${sec('13-2', '13.2 Parallel plate capacitors', `
-${h4('How a parallel plate capacitor is charged')}
-${ul([`When the capacitor is connected to a battery, electrons flow from the negative terminal of the battery to one plate, which becomes negatively charged (−<i>Q</i>).`, `At the same time, electrons are pulled off the other plate towards the positive terminal, leaving it positively charged (+<i>Q</i>). No charge crosses the gap.`, `As charge builds up, the p.d. across the plates rises. The flow of electrons stops when the p.d. across the capacitor equals the e.m.f. of the battery.`])}
-${fig(F.plates(), 'Figure 13.2: a charged parallel plate capacitor. The field between the plates is uniform.')}
-${h4('Deriving C = ε₀A/d')}
-${steps([`Gauss’s law gives the field between the plates: <i>E</i> = ${fr('σ', 'ε<sub>0</sub>')} = ${fr('<i>Q</i>', 'ε<sub>0</sub><i>A</i>')}`, `The field is uniform, so the p.d. is <i>V</i> = <i>Ed</i> = ${fr('<i>Qd</i>', 'ε<sub>0</sub><i>A</i>')}`, `<i>C</i> = ${fr('<i>Q</i>', '<i>V</i>')} = ${fr('<i>Q</i>', '<i>Qd</i>/ε<sub>0</sub><i>A</i>')} &nbsp; ⇒ &nbsp; <i>C</i><sub>0</sub> = ${fr('ε<sub>0</sub><i>A</i>', '<i>d</i>')}`])}
-${key(`<i>C</i><sub>0</sub> = ${fr('ε<sub>0</sub><i>A</i>', '<i>d</i>')}`, '<i>A</i> = area of overlap of the plates; <i>d</i> = separation; ε<sub>0</sub> = 8.85 × 10<sup>−12</sup> F m<sup>−1</sup>. The capacitance is proportional to <i>A</i> and inversely proportional to <i>d</i>.')}
-${sim('capplate', 'Parallel plate capacitor', 'Change the area, the separation and the dielectric. Compare a capacitor that stays connected to the battery (V fixed) with one that is disconnected first (Q fixed).')}
-${example('13.2.1', `(a) Find the capacitance of a capacitor whose plates are 20 cm × 3.0 cm, separated by a 1.0 mm air gap. (b) What is the charge on each plate when it is connected to a 12 V battery? (c) What is the electric field between the plates?`,
-  steps([`(a) <i>C</i> = ${fr('ε<sub>0</sub><i>A</i>', '<i>d</i>')} = ${fr('(8.85 × 10<sup>−12</sup>)(0.20 × 0.030)', '1.0 × 10<sup>−3</sup>')} = <b>5.3 × 10<sup>−11</sup> F</b> (53 pF)`, `(b) <i>Q</i> = <i>CV</i> = (5.3 × 10<sup>−11</sup>)(12) = <b>6.4 × 10<sup>−10</sup> C</b>`, `(c) <i>E</i> = ${fr('<i>V</i>', '<i>d</i>')} = ${fr('12', '1.0 × 10<sup>−3</sup>')} = <b>1.2 × 10<sup>4</sup> V m<sup>−1</sup></b>`]))}
-${example('13.2.2', `An electric field of 2.80 × 10<sup>5</sup> V m<sup>−1</sup> is needed between two parallel plates, each of area 21.0 cm<sup>2</sup> and 0.250 cm apart in air. Find the charge on each plate.`,
-  steps([`<i>Q</i> = <i>CV</i> = ${fr('ε<sub>0</sub><i>A</i>', '<i>d</i>')}(<i>Ed</i>) = ε<sub>0</sub><i>AE</i>`, `<i>Q</i> = (8.85 × 10<sup>−12</sup>)(21.0 × 10<sup>−4</sup>)(2.80 × 10<sup>5</sup>) = <b>5.20 × 10<sup>−9</sup> C</b> (the separation is not needed)`]))}
-${exercises('Exercise: parallel plate capacitors', [
-  { q: `The plates of a parallel plate capacitor in vacuum are 8.0 mm apart and each has an area of 4.0 cm<sup>2</sup>. The p.d. across the plates is 2.0 kV. Find (a) the capacitance, (b) the charge on each plate, (c) the electric field between the plates.`, a: `(a) 4.4 × 10<sup>−13</sup> F (0.44 pF) &nbsp; (b) 8.9 × 10<sup>−10</sup> C &nbsp; (c) 2.5 × 10<sup>5</sup> V m<sup>−1</sup>` },
-  { q: `The separation of the plates of an isolated charged capacitor is doubled. What happens to (a) <i>C</i>, (b) <i>Q</i>, (c) <i>V</i>?`, a: `(a) <i>C</i> halves &nbsp; (b) <i>Q</i> is unchanged (isolated) &nbsp; (c) <i>V</i> = <i>Q</i>/<i>C</i> doubles` }])}
+${sec('12-2', '13.2 Electric field', `
+${def('Electric field', `a ${red('region around a charge where another charge experiences an electric force')}.`)}
+<p>An electric field is shown with <b>electric field lines</b> (lines of force). The direction of the field at a point is the tangent to the line at that point: the direction of the force on a <b>positive</b> test charge.</p>
+${h4('Field patterns')}
+${fig(LQ.single, 'Figure 13.3: an isolated point charge. Positive: the lines point radially outwards. Negative: the lines point radially inwards.')}
+${fig(LQ.dipole, 'Figure 13.4: an electric dipole (+<i>q</i> and −<i>q</i>). The lines curve from the positive charge to the negative charge.')}
+${fig(LQ.like, 'Figure 13.5: two equal positive charges. X is the <b>neutral point</b>: the resultant field (and force on a charge) there is zero.')}
+${fig(LQ.unequal, 'Figure 13.6: +2<i>q</i> and −<i>q</i>. Twice as many lines leave +2<i>q</i> as enter −<i>q</i>; the rest go off to infinity.')}
+${two(fig(F.sheet(), 'Figure 13.7: a uniformly charged surface (plate).'), fig(F.plateLines(), 'Figure 13.8: two oppositely charged parallel plates.'))}
+${ul([`Field lines start on positive charges and end on negative charges. The number of lines is proportional to the size of the charge.`, `The closer the lines, the stronger the field.`, `Field lines <b>never cross</b>: the field cannot have two directions at one point.`, `At a charged conducting surface, the lines are <b>perpendicular</b> to the surface.`, `Between two parallel plates the lines are parallel and equally spaced: the field is <b>uniform</b>. The fringing at the edges is ignored when the separation is small compared with the size of the plates.`])}
+${sim('efield', 'Electric field lines and the field at a point', 'Choose a set of charges and change the second charge. Tap anywhere to place a test point and read the field strength and potential there. Turn on the equipotentials to see that they always cross the field lines at right angles.')}
+${h4('Electric field strength')}
+${def('Electric field strength, <i>E</i>', `the ${red('electric force per unit positive charge')} acting on a small test charge placed at that point.`)}
+${key(`<i>E</i> = ${fr('<i>F</i>', '<i>q</i>')} &nbsp;&nbsp;&nbsp;&nbsp; for a point charge: &nbsp;<i>E</i> = ${fr('<i>Q</i>', '4πε<sub>0</sub><i>r</i><sup>2</sup>')} = ${fr('<i>kQ</i>', '<i>r</i><sup>2</sup>')}`, 'vector; unit N C<sup>−1</sup> (= V m<sup>−1</sup>). Points away from a positive charge and towards a negative charge.')}
+${note(`Derivation for a point charge: a test charge <i>q</i> at distance <i>r</i> from <i>Q</i> feels <i>F</i> = <i>kQq</i>/<i>r</i><sup>2</sup>, so <i>E</i> = <i>F</i>/<i>q</i> = <i>kQ</i>/<i>r</i><sup>2</sup>. It does not depend on the test charge.`)}
+${tip(`For several charges, find <i>E</i> from each charge using only its size, mark its direction on the diagram (away from +, towards −), then add the fields as <b>vectors</b>. The force on a charge <i>q</i> placed there is <i>F</i> = <i>qE</i> (opposite to <i>E</i> if <i>q</i> is negative).`)}
+${example('13.2.1', `An electric field of magnitude 0.370 N C<sup>−1</sup> exerts a force of 6.20 × 10<sup>−4</sup> N on a test charge. What is the size of the test charge?`,
+  steps([`<i>q</i> = ${fr('<i>F</i>', '<i>E</i>')} = ${fr('6.20 × 10<sup>−4</sup>', '0.370')} = <b>1.68 × 10<sup>−3</sup> C</b> (1.68 mC)`]))}
+${example('13.2.2', `Find the electric field strength at point A, 2.0 cm from a point charge of (a) +5.0 μC, (b) −5.0 μC.`,
+  steps([`<i>E</i> = ${fr('<i>kq</i>', '<i>r</i><sup>2</sup>')} = ${fr(`(${k9})(5.0 × 10<sup>−6</sup>)`, '(2.0 × 10<sup>−2</sup>)<sup>2</sup>')} = <b>1.1 × 10<sup>8</sup> N C<sup>−1</sup></b>`, `(a) directed <b>away from</b> the charge; (b) the same size, directed <b>towards</b> the charge`]), two(fig(F.ptA(1, '+5.0 μC')), fig(F.ptA(-1, '−5.0 μC'))))}
+${example('13.2.3', `Point A is 2.0 cm from <i>q</i><sub>1</sub> = +1.0 μC and 3.0 cm from <i>q</i><sub>2</sub> = −4.0 μC, on the line between them. Find (a) the electric field at A, (b) the force on a charge <i>q</i><sub>0</sub> = +4.0 μC placed at A.`,
+  steps([`<i>E</i><sub>1</sub> = ${fr(`(${k9})(1.0 × 10<sup>−6</sup>)`, '(0.020)<sup>2</sup>')} = 2.25 × 10<sup>7</sup> N C<sup>−1</sup>, to the right (away from +<i>q</i><sub>1</sub>)`, `<i>E</i><sub>2</sub> = ${fr(`(${k9})(4.0 × 10<sup>−6</sup>)`, '(0.030)<sup>2</sup>')} = 4.0 × 10<sup>7</sup> N C<sup>−1</sup>, to the right (towards −<i>q</i><sub>2</sub>)`, `(a) <i>E</i> = 2.25 × 10<sup>7</sup> + 4.0 × 10<sup>7</sup> = <b>6.3 × 10<sup>7</sup> N C<sup>−1</sup>, to the right</b>`, `(b) <i>F</i> = <i>q</i><sub>0</sub><i>E</i> = (4.0 × 10<sup>−6</sup>)(6.25 × 10<sup>7</sup>) = <b>250 N, to the right</b>`]), fig(F.twoA(1, -1)))}
+${example('13.2.4', `Repeat Example 13.2.3 with <i>q</i><sub>1</sub> = −1.0 μC.`,
+  steps([`<i>E</i><sub>1</sub> = 2.25 × 10<sup>7</sup> N C<sup>−1</sup>, now to the <b>left</b> (towards −<i>q</i><sub>1</sub>); <i>E</i><sub>2</sub> = 4.0 × 10<sup>7</sup> N C<sup>−1</sup>, to the right`, `(a) <i>E</i> = 4.0 × 10<sup>7</sup> − 2.25 × 10<sup>7</sup> = <b>1.75 × 10<sup>7</sup> N C<sup>−1</sup>, to the right</b>`, `(b) <i>F</i> = (4.0 × 10<sup>−6</sup>)(1.75 × 10<sup>7</sup>) = <b>70 N, to the right</b>`]), fig(F.twoA(-1, -1)))}
+${example('13.2.5', `Three charges are at three corners of a square of side 30.0 cm. Find the electric field at the fourth corner A, and the force on a +6.00 μC charge placed at A.`,
+  steps([`<i>E</i><sub>1</sub> = ${fr(`(${k9})(8.00 × 10<sup>−6</sup>)`, '(0.424)<sup>2</sup>')} = 4.00 × 10<sup>5</sup> N C<sup>−1</sup>, away from <i>q</i><sub>1</sub> (down-right, 45°)`, `<i>E</i><sub>2</sub> = ${fr(`(${k9})(5.00 × 10<sup>−6</sup>)`, '(0.300)<sup>2</sup>')} = 5.00 × 10<sup>5</sup> N C<sup>−1</sup>, up (towards <i>q</i><sub>2</sub>)`, `<i>E</i><sub>3</sub> = ${fr(`(${k9})(4.00 × 10<sup>−6</sup>)`, '(0.300)<sup>2</sup>')} = 4.00 × 10<sup>5</sup> N C<sup>−1</sup>, left (towards <i>q</i><sub>3</sub>)`, `Σ<i>E</i><sub>x</sub> = 4.00 × 10<sup>5</sup> cos 45° − 4.00 × 10<sup>5</sup> = −1.17 × 10<sup>5</sup> N C<sup>−1</sup>`, `Σ<i>E</i><sub>y</sub> = 5.00 × 10<sup>5</sup> − 4.00 × 10<sup>5</sup> sin 45° = +2.17 × 10<sup>5</sup> N C<sup>−1</sup>`, `<i>E</i> = ${sq('(1.17 × 10<sup>5</sup>)<sup>2</sup> + (2.17 × 10<sup>5</sup>)<sup>2</sup>')} = <b>2.47 × 10<sup>5</sup> N C<sup>−1</sup></b>, at tan<sup>−1</sup>(2.17/1.17) = <b>61.7° above the −<i>x</i> direction</b> (up and to the left)`, `<i>F</i> = <i>qE</i> = (6.00 × 10<sup>−6</sup>)(2.47 × 10<sup>5</sup>) = <b>1.48 N</b>, in the same direction as <i>E</i>`, fig(F.sq8(true))]), fig(F.sq8(false)))}
+${exercises('Exercise: electric field', [
+  { q: `Find the magnitude of the electric field at P due to the four point charges shown, if <i>q</i> = 1 nC and <i>d</i> = 1 cm. (ε<sub>0</sub> = 8.85 × 10<sup>−12</sup> C<sup>2</sup> N<sup>−1</sup> m<sup>−2</sup>)`, f: fig(F.hrw1()), a: `Zero. The two +5.0<i>q</i> fields cancel. On the other line, +3.0<i>q</i> at <i>d</i> gives 3<i>kq</i>/<i>d</i><sup>2</sup> away from it and −12<i>q</i> at 2<i>d</i> gives 12<i>kq</i>/4<i>d</i><sup>2</sup> = 3<i>kq</i>/<i>d</i><sup>2</sup> towards it: they cancel too.` },
+  { q: `Find the magnitude and direction of the electric field at the centre of the square if <i>q</i> = 1.0 × 10<sup>−8</sup> C and <i>a</i> = 5.0 cm.`, f: fig(F.hrw2()), a: `1.02 × 10<sup>5</sup> N C<sup>−1</sup>, upwards` }])}
+${h4('Motion of a charge in a uniform electric field')}
+<p>In a uniform field the only force on the charge is <i>F</i> = <i>qE</i> (its weight is negligible). The force is constant, so the acceleration is constant:</p>
+${key(`<i>a</i> = ${fr('<i>qE</i>', '<i>m</i>')} &nbsp;&nbsp;&nbsp; <i>E</i> = ${fr('<i>V</i>', '<i>d</i>')} between parallel plates`, 'a positive charge accelerates along <i>E</i>; a negative charge (electron) accelerates opposite to <i>E</i>')}
+${two(`<p><b>Moving along the field lines</b></p>${ul([`The charge speeds up (or slows down) in a straight line, like a body falling under gravity.`, `Work done by the field = <i>qV</i> = gain in kinetic energy: ${fr('1', '2')}<i>mv</i><sup>2</sup> = <i>qV</i> (from rest)`])}`, `<p><b>Entering at right angles to the field</b></p>${ul([`Horizontal: no force, so <i>v</i><sub>x</sub> = <i>v</i><sub>0</sub> stays constant.`, `Vertical: constant acceleration <i>a</i> = <i>qE</i>/<i>m</i>.`, `The path between the plates is a <b>parabola</b> (like a projectile). After leaving the plates it moves in a straight line.`])}`)}
+${fig(F.plates(), 'Figure 13.9: an electron enters the field between parallel plates at right angles to the field.')}
+${steps([`time between the plates: <i>t</i> = ${fr('<i>x</i>', '<i>v</i><sub>0</sub>')}`, `vertical velocity on leaving: <i>v</i><sub>y</sub> = <i>at</i> = ${fr('<i>qEx</i>', '<i>mv</i><sub>0</sub>')}`, `vertical displacement: <i>y</i> = ${fr('1', '2')}<i>at</i><sup>2</sup> = ${fr('<i>qEx</i><sup>2</sup>', '2<i>mv</i><sub>0</sub><sup>2</sup>')} &nbsp;(<i>y</i> ∝ <i>x</i><sup>2</sup>: a parabola)`, `speed and direction on leaving: <i>v</i> = ${sq('<i>v</i><sub>x</sub><sup>2</sup> + <i>v</i><sub>y</sub><sup>2</sup>')}, &nbsp; θ = tan<sup>−1</sup>${fr('<i>v</i><sub>y</sub>', '<i>v</i><sub>x</sub>')}`])}
+${sim('deflect', 'A charge between parallel plates', 'Choose the particle, then change the voltage across the plates and the entry speed. See when the particle leaves the plates and when it hits one of them.')}
+${example('13.2.6', `An electron travelling at 1.5 × 10<sup>7</sup> ${'m&#8239;s<sup>−1</sup>'} enters midway between two parallel plates 60 mm long and 20 mm apart. The field between the plates is 4.0 × 10<sup>3</sup> V m<sup>−1</sup>, with the upper plate positive. (a) Sketch the path of the electron between and after the plates. (b) Find the acceleration of the electron. (c) Find the components of its velocity as it leaves the plates. (d) Find the angle of deflection. (<i>e</i> = 1.60 × 10<sup>−19</sup> C, <i>m</i><sub>e</sub> = 9.11 × 10<sup>−31</sup> kg)`,
+  steps([`(a) a parabola curving towards the positive plate between the plates, then a straight line after it leaves`, `(b) <i>a</i> = ${fr('<i>eE</i>', '<i>m</i>')} = ${fr('(1.60 × 10<sup>−19</sup>)(4.0 × 10<sup>3</sup>)', '9.11 × 10<sup>−31</sup>')} = <b>7.03 × 10<sup>14</sup> m s<sup>−2</sup></b>, towards the positive plate (opposite to <i>E</i>)`, `(c) <i>t</i> = 0.060/1.5 × 10<sup>7</sup> = 4.0 × 10<sup>−9</sup> s; &nbsp; <i>v</i><sub>x</sub> = <b>1.5 × 10<sup>7</sup> m s<sup>−1</sup></b>; &nbsp; <i>v</i><sub>y</sub> = <i>at</i> = (7.03 × 10<sup>14</sup>)(4.0 × 10<sup>−9</sup>) = <b>2.8 × 10<sup>6</sup> m s<sup>−1</sup></b>`, `Check: <i>y</i> = ½<i>at</i><sup>2</sup> = 5.6 mm, less than 10 mm, so it does leave the plates.`, `(d) θ = tan<sup>−1</sup>${fr('2.8 × 10<sup>6</sup>', '1.5 × 10<sup>7</sup>')} = <b>10.6°</b>`]))}
+${example('13.2.7', `An electron starts from rest at the negative plate and is accelerated across a potential difference of 500 V. Find its speed when it reaches the positive plate.`,
+  steps([`½<i>mv</i><sup>2</sup> = <i>eV</i> ⇒ <i>v</i> = ${sq(fr('2<i>eV</i>', '<i>m</i>'))} = ${sq(fr('2(1.60 × 10<sup>−19</sup>)(500)', '9.11 × 10<sup>−31</sup>'))} = <b>1.33 × 10<sup>7</sup> m s<sup>−1</sup></b>`]))}
 `)}
 
-${sec('13-3', '13.3 Dielectrics', `
-${ul([`A <b>dielectric</b> is an insulator: it has no free electrons.`, `When a dielectric fills the space between the plates, the capacitance increases by a factor ε<sub>r</sub>, the <b>dielectric constant</b> (relative permittivity) of the material.`])}
-${def('Dielectric constant, ε<sub>r</sub>', `the ${red('ratio of the capacitance of a capacitor with the dielectric between the plates to its capacitance with a vacuum between the plates')}.`)}
-${key(`ε<sub>r</sub> = ${fr('<i>C</i>', '<i>C</i><sub>0</sub>')} &nbsp;&nbsp;&nbsp; <i>C</i> = ${fr('ε<i>A</i>', '<i>d</i>')} = ${fr('ε<sub>r</sub>ε<sub>0</sub><i>A</i>', '<i>d</i>')}`, 'ε = ε<sub>r</sub>ε<sub>0</sub> is the permittivity of the dielectric; ε<sub>r</sub> has no unit and is always greater than 1')}
-${h4('Why a dielectric increases the capacitance')}
-${fig(F.diel(), 'Figure 13.3: the molecules of the dielectric are polarised; induced surface charges appear on its faces.')}
-${steps([`The electric field between the plates <b>polarises</b> the molecules of the dielectric. In a <b>polar</b> dielectric (e.g. water) the permanent dipoles line up with the field; in a <b>non-polar</b> dielectric the field pulls the centres of positive and negative charge slightly apart, making induced dipoles.`, `The negative ends face the positive plate and the positive ends face the negative plate, so <b>induced surface charges</b> appear: negative on the face next to the + plate, positive on the face next to the − plate.`, `These surface charges produce a field opposite to the field of the plates, so the resultant field in the dielectric is smaller: <i>E</i> = <i>E</i><sub>0</sub>/ε<sub>r</sub>.`, `For the same charge <i>Q</i>, the p.d. <i>V</i> = <i>Ed</i> is smaller, so <i>C</i> = <i>Q</i>/<i>V</i> is larger.`])}
-${key(`ε<sub>r</sub> = ${fr('<i>C</i>', '<i>C</i><sub>0</sub>')} = ${fr('<i>V</i><sub>0</sub>', '<i>V</i>')} = ${fr('<i>E</i><sub>0</sub>', '<i>E</i>')} &nbsp; (same charge <i>Q</i>)`, '')}
-${table(['Quantity', 'Isolated capacitor (Q fixed), dielectric inserted', 'Capacitor kept connected to the battery (V fixed)'], [
-  ['Capacitance', '<i>C</i> = ε<sub>r</sub><i>C</i><sub>0</sub> (increases)', '<i>C</i> = ε<sub>r</sub><i>C</i><sub>0</sub> (increases)'],
-  ['Charge', 'unchanged', '<i>Q</i> = ε<sub>r</sub><i>Q</i><sub>0</sub> (the battery supplies more)'],
-  ['p.d.', '<i>V</i> = <i>V</i><sub>0</sub>/ε<sub>r</sub> (decreases)', 'unchanged'],
-  ['Field', '<i>E</i> = <i>E</i><sub>0</sub>/ε<sub>r</sub> (decreases)', 'unchanged (<i>E</i> = <i>V</i>/<i>d</i>)'],
-  ['Energy stored', '<i>U</i> = <i>Q</i><sup>2</sup>/2<i>C</i>: decreases', '<i>U</i> = ½<i>CV</i><sup>2</sup>: increases']])}
-${table(['Material', 'Dielectric constant ε<sub>r</sub>', 'Dielectric strength / 10<sup>6</sup> V m<sup>−1</sup>'], [['Air', '1.0006', '3'], ['Teflon', '2.1', '60'], ['Silicone oil', '2.5', '15'], ['Mylar', '3.2', '7'], ['Paper', '3.7', '16'], ['Water', '80', '—']])}
-${note(`The <b>dielectric strength</b> is the largest electric field a material can stand before it breaks down and conducts. A dielectric also lets the plates be very close together without touching.`)}
-${example('13.3.1', `A parallel plate capacitor has plates of area 2.0 × 10<sup>−2</sup> m<sup>2</sup>, 1.0 cm apart in air. It is charged to 3000 V and the battery is disconnected. A dielectric sheet is then slid in to fill the gap, and the p.d. falls to 1000 V. Find (a) the capacitance in air, (b) the charge on each plate, (c) the capacitance with the dielectric, (d) the dielectric constant, (e) the permittivity of the dielectric, (f) the field before, (g) the field after the dielectric is inserted.`,
-  steps([`(a) <i>C</i><sub>0</sub> = ${fr('(8.85 × 10<sup>−12</sup>)(2.0 × 10<sup>−2</sup>)', '0.010')} = <b>1.77 × 10<sup>−11</sup> F</b>`, `(b) <i>Q</i><sub>0</sub> = <i>C</i><sub>0</sub><i>V</i><sub>0</sub> = (1.77 × 10<sup>−11</sup>)(3000) = <b>5.31 × 10<sup>−8</sup> C</b>`, `(c) the charge stays the same: <i>C</i> = <i>Q</i><sub>0</sub>/<i>V</i> = 5.31 × 10<sup>−8</sup>/1000 = <b>5.31 × 10<sup>−11</sup> F</b>`, `(d) ε<sub>r</sub> = <i>C</i>/<i>C</i><sub>0</sub> = <b>3.0</b>`, `(e) ε = ε<sub>r</sub>ε<sub>0</sub> = <b>2.66 × 10<sup>−11</sup> F m<sup>−1</sup></b>`, `(f) <i>E</i><sub>0</sub> = <i>V</i><sub>0</sub>/<i>d</i> = 3000/0.010 = <b>3.0 × 10<sup>5</sup> V m<sup>−1</sup></b>`, `(g) <i>E</i> = <i>E</i><sub>0</sub>/ε<sub>r</sub> = <b>1.0 × 10<sup>5</sup> V m<sup>−1</sup></b>`]))}
-${tip(`First ask: is the capacitor still connected to the battery? If yes, <i>V</i> stays the same. If it was disconnected first, <i>Q</i> stays the same. Everything else follows from <i>C</i> = <i>Q</i>/<i>V</i>.`)}
-${h4('A natural capacitor: the thundercloud and the ground')}
-<p>The base of a thundercloud and the ground below it behave like the two plates of a huge parallel plate capacitor, with the <b>air between them as the dielectric</b>.</p>
-${steps([`Inside the cloud, collisions between ice crystals and soft hail separate charge. The base of the cloud usually becomes <b>negative</b>.`, `This negative charge repels electrons in the ground below, so the ground surface becomes <b>positive</b> (charging by induction): the two "plates" carry +<i>Q</i> and −<i>Q</i>.`, `As more charge builds up, the electric field in the air between them grows: <i>E</i> = <i>V</i>/<i>d</i> = <i>Q</i>/(ε<sub>0</sub><i>A</i>).`, `When <i>E</i> reaches the <b>dielectric strength of air</b> (about 3 × 10<sup>6</sup> V m<sup>−1</sup>), the air is ionised and becomes a conductor. The dielectric breaks down and the capacitor discharges through it: this is <b>lightning</b>.`, `The huge current heats the air channel to about 30 000 K. The air expands suddenly, and we hear this as <b>thunder</b>. We see the flash almost at once (light travels at 3 × 10<sup>8</sup> m s<sup>−1</sup>) but hear the thunder later (sound travels at about 340 m s<sup>−1</sup>): distance ≈ 340 × delay, roughly 1 km for every 3 s.`])}
-${sim('lightning', 'Thundercloud and ground: a natural capacitor', 'Let the storm charge the cloud. Watch the charges on the cloud base and the ground, and the field in the air between them. When the field reaches the dielectric strength of air, the air breaks down and the capacitor discharges as lightning. Try a higher cloud: does it flash at a different charge? Turn on the thunder sound and count the seconds between the flash and the thunder. Use slow motion to see the stepped leader come down before the bright return stroke.')}
-${example('13.3.2', `The base of a thundercloud is 1.0 km above flat ground and has an area of 1.0 km<sup>2</sup>. Treat the cloud and the ground as a parallel plate capacitor with air between them (dielectric strength 3.0 × 10<sup>6</sup> V m<sup>−1</sup>). Find (a) the capacitance, (b) the largest charge the cloud can hold before the air breaks down, (c) the p.d. between the cloud and the ground at that moment, (d) the energy released if the whole charge is discharged.`,
-  steps([`(a) <i>C</i> = ${fr('ε<sub>0</sub><i>A</i>', '<i>d</i>')} = ${fr('(8.85 × 10<sup>−12</sup>)(1.0 × 10<sup>6</sup>)', '1.0 × 10<sup>3</sup>')} = <b>8.9 × 10<sup>−9</sup> F</b> (8.9 nF)`, `(b) <i>E</i> = ${fr('<i>Q</i>', 'ε<sub>0</sub><i>A</i>')} ⇒ <i>Q</i> = ε<sub>0</sub><i>AE</i> = (8.85 × 10<sup>−12</sup>)(1.0 × 10<sup>6</sup>)(3.0 × 10<sup>6</sup>) = <b>27 C</b>`, `(c) <i>V</i> = <i>Ed</i> = (3.0 × 10<sup>6</sup>)(1.0 × 10<sup>3</sup>) = <b>3.0 × 10<sup>9</sup> V</b>`, `(d) <i>U</i> = ½<i>QV</i> = ½(26.6)(3.0 × 10<sup>9</sup>) = <b>4.0 × 10<sup>10</sup> J</b>`]))}
-${note(`This is an idealised model. In a real storm the flash starts at a lower average field, because the field is much stronger near sharp points, raindrops and ice, and the charge is spread through the cloud. Still, the answers are the right size: a real flash carries tens of coulombs.`)}
+${sec('12-3', '13.3 Gauss’s law', `
+${def('Electric flux, Φ', `through a surface of area <i>A</i> in a uniform field <i>E</i>: ${red('the scalar product of E and the area vector A')}. It measures how many field lines pass through the surface.`)}
+${key(`Φ = <b><i>E</i></b> · <b><i>A</i></b> = <i>EA</i> cos θ`, 'θ = angle between <i>E</i> and the <b>normal</b> to the surface; unit N m<sup>2</sup> C<sup>−1</sup> (= V m); scalar')}
+${fig(F.flux(), 'Figure 13.10: the area vector <i>A</i> is normal to the surface.')}
+${ul([`θ = 0 (field perpendicular to the surface): Φ = <i>EA</i>, the maximum.`, `θ = 90° (field parallel to the surface): Φ = 0, no lines pass through.`, `For a <b>closed</b> surface the normal points outwards: flux leaving is positive, flux entering is negative.`])}
+${def('Gauss’s law', `The ${red('total electric flux through a closed surface is equal to the net charge enclosed by the surface divided by ε<sub>0</sub>')}.`)}
+${key(`Φ = ∮ <b><i>E</i></b> · d<b><i>A</i></b> = ${fr('<i>Q</i><sub>enclosed</sub>', 'ε<sub>0</sub>')}`, 'the closed surface is called a Gaussian surface; its shape and size do not matter, only the charge inside')}
+${ul([`A charge <b>outside</b> the closed surface gives zero net flux: every line that enters also leaves.`, `If the net charge inside is zero, the net flux is zero (but the field on the surface need not be zero).`])}
+${sim('gauss', 'Gauss’s law', 'Change the size of the Gaussian sphere and move the second charge in and out. The flux depends only on the charge inside. Then look at a charged conducting sphere: E and V inside and outside.')}
+${example('13.3.1', `A uniform field of 2.0 × 10<sup>3</sup> N C<sup>−1</sup> passes through a flat square of side 10 cm. Find the flux through the square when its normal makes (a) 0°, (b) 60°, (c) 90° with the field.`,
+  steps([`<i>A</i> = (0.10)<sup>2</sup> = 0.010 m<sup>2</sup>`, `(a) Φ = (2.0 × 10<sup>3</sup>)(0.010) cos 0° = <b>20 N m<sup>2</sup> C<sup>−1</sup></b>`, `(b) Φ = 20 cos 60° = <b>10 N m<sup>2</sup> C<sup>−1</sup></b>`, `(c) Φ = 20 cos 90° = <b>0</b>`]))}
+${example('13.3.2', `A point charge of +5.0 nC is at the centre of a cube. Find (a) the total flux through the cube, (b) the flux through one face. (c) What is the flux through the cube if the charge is moved outside it?`,
+  steps([`(a) Φ = ${fr('<i>Q</i>', 'ε<sub>0</sub>')} = ${fr('5.0 × 10<sup>−9</sup>', '8.85 × 10<sup>−12</sup>')} = <b>565 N m<sup>2</sup> C<sup>−1</sup></b>`, `(b) by symmetry the six faces share it equally: 565/6 = <b>94.2 N m<sup>2</sup> C<sup>−1</sup></b>`, `(c) <b>zero</b>: no charge is enclosed`]))}
+${h4('Using Gauss’s law to find E')}
+<p>Choose a Gaussian surface on which <i>E</i> has the same size everywhere and is perpendicular to the surface. Then ∮<b><i>E</i></b>·d<b><i>A</i></b> = <i>E</i> × (area).</p>
+${fig(F.gauss(), 'Figure 13.11: Gaussian spheres around a point charge and around a charged conducting sphere.')}
+<p><b>(a) Isolated point charge <i>Q</i>.</b> Take a sphere of radius <i>r</i> centred on the charge. <i>E</i> is radial and the same size at every point on it:</p>
+${eq(`<i>E</i>(4π<i>r</i><sup>2</sup>) = ${fr('<i>Q</i>', 'ε<sub>0</sub>')} &nbsp; ⇒ &nbsp; <i>E</i> = ${fr('<i>Q</i>', '4πε<sub>0</sub><i>r</i><sup>2</sup>')}`)}
+<p>This is Coulomb’s law again.</p>
+<p><b>(b) Isolated charged conducting sphere</b> (radius <i>R</i>, charge <i>Q</i>). The charge spreads over the <b>outer surface</b>.</p>
+${ul([`Outside (<i>r</i> ≥ <i>R</i>): a Gaussian sphere of radius <i>r</i> encloses <i>Q</i>, so <i>E</i> = ${fr('<i>Q</i>', '4πε<sub>0</sub><i>r</i><sup>2</sup>')}: the sphere acts like a point charge at its centre.`, `Inside (<i>r</i> &lt; <i>R</i>): a Gaussian sphere inside encloses no charge, so <i>E</i> = 0.`, `The potential is the same everywhere inside, equal to the surface value <i>Q</i>/4πε<sub>0</sub><i>R</i>.`])}
+${fig(F.sphereEV(), 'Figure 13.12: <i>E</i> and <i>V</i> against <i>r</i> for a charged conducting sphere.')}
+<p><b>(c) Uniformly charged conducting plate.</b> The surface charge density is σ = <i>Q</i>/<i>A</i>. Take a small cylinder (pillbox) with one end inside the conductor and the other end, of area <i>A</i>, just outside. Inside the conductor <i>E</i> = 0, and no flux passes through the curved side (<i>E</i> is perpendicular to the surface), so only the outer end counts:</p>
+${fig(F.pill(), 'Figure 13.13: a Gaussian pillbox at the surface of a charged conducting plate.')}
+${eq(`<i>EA</i> = ${fr('σ<i>A</i>', 'ε<sub>0</sub>')} &nbsp; ⇒ &nbsp; <i>E</i> = ${fr('σ', 'ε<sub>0</sub>')}`)}
+${note(`The same result, <i>E</i> = σ/ε<sub>0</sub>, gives the uniform field between two parallel plates with charges +<i>Q</i> and −<i>Q</i>. It does not depend on the distance from the plate.`)}
+${tip(`Why is a car a safe place in a thunderstorm? The metal body is a conductor: the charge stays on its outer surface, and Gauss’s law gives <i>E</i> = 0 inside.`)}
+${example('13.3.3', `A conducting sphere of radius 10 cm carries a charge of +2.0 μC. Find the electric field and the potential at (a) 5.0 cm, (b) 10 cm, (c) 20 cm from its centre.`,
+  steps([`(a) inside: <b><i>E</i> = 0</b>; <i>V</i> = <i>V</i><sub>surface</sub> = ${fr(`(${k9})(2.0 × 10<sup>−6</sup>)`, '0.10')} = <b>1.8 × 10<sup>5</sup> V</b>`, `(b) <i>E</i> = ${fr(`(${k9})(2.0 × 10<sup>−6</sup>)`, '(0.10)<sup>2</sup>')} = <b>1.8 × 10<sup>6</sup> N C<sup>−1</sup></b>; <i>V</i> = <b>1.8 × 10<sup>5</sup> V</b>`, `(c) <i>E</i> = ${fr(`(${k9})(2.0 × 10<sup>−6</sup>)`, '(0.20)<sup>2</sup>')} = <b>4.5 × 10<sup>5</sup> N C<sup>−1</sup></b>; <i>V</i> = ${fr(`(${k9})(2.0 × 10<sup>−6</sup>)`, '0.20')} = <b>9.0 × 10<sup>4</sup> V</b>`]))}
+${example('13.3.4', `A charge of 4.0 nC is spread evenly over one face of a conducting plate of area 0.020 m<sup>2</sup>. Find the electric field just outside the plate.`,
+  steps([`σ = <i>Q</i>/<i>A</i> = 4.0 × 10<sup>−9</sup>/0.020 = 2.0 × 10<sup>−7</sup> C m<sup>−2</sup>`, `<i>E</i> = σ/ε<sub>0</sub> = 2.0 × 10<sup>−7</sup>/8.85 × 10<sup>−12</sup> = <b>2.3 × 10<sup>4</sup> N C<sup>−1</sup></b>, perpendicular to the plate`]))}
 `)}
 
-${sec('13-4', '13.4 Capacitors in series and in parallel', `
-${h4('Series')}
-${fig(F.series(), 'Figure 13.4: three capacitors in series.')}
-${steps([`Electrons from the battery charge the end plate −<i>Q</i>. This repels electrons from the facing plate, which becomes +<i>Q</i>, and so on along the chain: <b>every capacitor carries the same charge <i>Q</i></b>.`, `The p.d.s add up: <i>V</i> = <i>V</i><sub>1</sub> + <i>V</i><sub>2</sub> + <i>V</i><sub>3</sub> = ${fr('<i>Q</i>', '<i>C</i><sub>1</sub>')} + ${fr('<i>Q</i>', '<i>C</i><sub>2</sub>')} + ${fr('<i>Q</i>', '<i>C</i><sub>3</sub>')}`, `Divide by <i>Q</i>, with <i>C</i><sub>eq</sub> = <i>Q</i>/<i>V</i>: ${fr('1', '<i>C</i><sub>eq</sub>')} = ${fr('1', '<i>C</i><sub>1</sub>')} + ${fr('1', '<i>C</i><sub>2</sub>')} + ${fr('1', '<i>C</i><sub>3</sub>')}`])}
-${h4('Parallel')}
-${fig(F.parallel(), 'Figure 13.5: three capacitors in parallel.')}
-${steps([`Each capacitor is connected across the same two points: <b>every capacitor has the same p.d. <i>V</i></b>.`, `The charges add up: <i>Q</i> = <i>Q</i><sub>1</sub> + <i>Q</i><sub>2</sub> + <i>Q</i><sub>3</sub> = <i>C</i><sub>1</sub><i>V</i> + <i>C</i><sub>2</sub><i>V</i> + <i>C</i><sub>3</sub><i>V</i>`, `Divide by <i>V</i>: <i>C</i><sub>eq</sub> = <i>C</i><sub>1</sub> + <i>C</i><sub>2</sub> + <i>C</i><sub>3</sub>`])}
-${two(key(`${fr('1', '<i>C</i><sub>eq</sub>')} = ${fr('1', '<i>C</i><sub>1</sub>')} + ${fr('1', '<i>C</i><sub>2</sub>')} + … `, 'series: same <i>Q</i>; <i>C</i><sub>eq</sub> is smaller than the smallest'), key(`<i>C</i><sub>eq</sub> = <i>C</i><sub>1</sub> + <i>C</i><sub>2</sub> + …`, 'parallel: same <i>V</i>; <i>C</i><sub>eq</sub> is larger than the largest'))}
-${tip(`Two in series: <i>C</i><sub>eq</sub> = ${fr('<i>C</i><sub>1</sub><i>C</i><sub>2</sub>', '<i>C</i><sub>1</sub> + <i>C</i><sub>2</sub>')} ("product over sum"). Capacitors combine the opposite way to resistors.`)}
-${sim('capcomb', 'Capacitors in series and parallel', 'Pick an arrangement and change the capacitances and the supply voltage. Check which quantity is shared (Q in series, V in parallel) and how the charge and p.d. split.')}
-${example('13.4.1', `A 1 μF and a 2 μF capacitor are connected in parallel to a 50 V supply. Find (a) the charge on each capacitor, (b) the equivalent capacitance.`,
-  steps([`(a) <i>Q</i><sub>1</sub> = <i>C</i><sub>1</sub><i>V</i> = (1 μF)(50) = <b>50 μC</b>; &nbsp; <i>Q</i><sub>2</sub> = (2 μF)(50) = <b>100 μC</b>`, `(b) <i>C</i><sub>eq</sub> = 1 + 2 = <b>3 μF</b>`]), fig(F.e3()))}
-${example('13.4.2', `The same capacitors are connected in series to the 50 V supply. Find (a) the equivalent capacitance, (b) the charge on each capacitor, (c) the p.d. across each.`,
-  steps([`(a) ${fr('1', '<i>C</i><sub>eq</sub>')} = ${fr('1', '1')} + ${fr('1', '2')} ⇒ <i>C</i><sub>eq</sub> = <b>0.667 μF</b>`, `(b) <i>Q</i> = <i>C</i><sub>eq</sub><i>V</i> = (0.667 μF)(50) = <b>33.3 μC</b> on each capacitor`, `(c) <i>V</i><sub>1</sub> = <i>Q</i>/<i>C</i><sub>1</sub> = 33.3/1 = <b>33.3 V</b>; &nbsp; <i>V</i><sub>2</sub> = 33.3/2 = <b>16.7 V</b> (check: 33.3 + 16.7 = 50 V)`]), fig(F.e4()))}
-${example('13.4.3', `Find (a) the equivalent capacitance, (b) the charge on each capacitor, (c) the p.d. across each capacitor.`,
-  steps([`(a) <i>C</i><sub>23</sub> = 4.0 + 8.0 = 12.0 μF; &nbsp; ${fr('1', '<i>C</i><sub>eq</sub>')} = ${fr('1', '6.0')} + ${fr('1', '12.0')} ⇒ <i>C</i><sub>eq</sub> = <b>4.0 μF</b>`, `(b) <i>Q</i><sub>1</sub> = <i>Q</i><sub>total</sub> = (4.0 μF)(12) = <b>48 μC</b>`, `(c) <i>V</i><sub>1</sub> = 48/6.0 = <b>8.0 V</b>; &nbsp; <i>V</i><sub>2</sub> = <i>V</i><sub>3</sub> = 12 − 8.0 = <b>4.0 V</b>`, `(b) <i>Q</i><sub>2</sub> = (4.0 μF)(4.0) = <b>16 μC</b>; &nbsp; <i>Q</i><sub>3</sub> = (8.0 μF)(4.0) = <b>32 μC</b> (check: 16 + 32 = 48 μC)`]), fig(F.e5()))}
-${example('13.4.4', `Find the equivalent capacitance between a and b. <i>C</i><sub>1</sub> = 5.00 μF, <i>C</i><sub>2</sub> = 10.0 μF, <i>C</i><sub>3</sub> = 2.00 μF.`,
-  steps([`Each side branch: <i>C</i><sub>1</sub> and <i>C</i><sub>2</sub> in series: <i>C</i><sub>12</sub> = ${fr('(5.00)(10.0)', '15.0')} = 3.33 μF`, `Upper group in parallel: <i>C</i><sub>a</sub> = 3.33 + 2.00 + 3.33 = 8.67 μF`, `Lower pair in parallel: <i>C</i><sub>22</sub> = 10.0 + 10.0 = 20.0 μF`, `In series: ${fr('1', '<i>C</i><sub>eq</sub>')} = ${fr('1', '8.67')} + ${fr('1', '20.0')} ⇒ <i>C</i><sub>eq</sub> = <b>6.05 μF</b>`]), fig(F.e6()))}
-${example('13.4.5', `All the capacitors are identical, each 1 μF. Find the equivalent capacitance between X and Y.`,
-  steps([`The three capacitors on the left (top-left, left side, bottom-left) are in series: <i>C</i><sub>a</sub> = 1/3 = 0.33 μF`, `<i>C</i><sub>a</sub> is in series with the top-right and bottom-right capacitors: ${fr('1', '<i>C</i><sub>b</sub>')} = 1 + 1 + 3 ⇒ <i>C</i><sub>b</sub> = 0.20 μF`, `<i>C</i><sub>b</sub> is in parallel with the capacitor across XY: <i>C</i><sub>eq</sub> = 0.20 + 1 = <b>1.20 μF</b>`]), fig(F.e7()))}
-${exercises('Exercise: combinations', [
-  { q: `<i>C</i><sub>1</sub> = 2.00 μF, <i>C</i><sub>2</sub> = 4.00 μF and <i>C</i><sub>3</sub> = 9.00 μF; <i>V</i><sub>ab</sub> = 61.5 V. Find (a) the charge on each capacitor, (b) the p.d. across each, (c) the p.d. between a and d.`, f: fig(F.x1()), a: `(a) <i>Q</i><sub>1</sub> = 73.8 μC, <i>Q</i><sub>2</sub> = 148 μC, <i>Q</i><sub>3</sub> = 221 μC &nbsp; (b) <i>V</i><sub>1</sub> = <i>V</i><sub>2</sub> = 36.9 V, <i>V</i><sub>3</sub> = 24.6 V &nbsp; (c) <i>V</i><sub>ad</sub> = 36.9 V` },
-  { q: `Find (a) the equivalent capacitance between a and b, (b) the charge on each capacitor if <i>V</i><sub>ab</sub> = 15.0 V.`, f: fig(F.x2()), a: `(a) 5.96 μF &nbsp; (b) 89.5 μC on 20 μF, 63.2 μC on 6 μF, 26.3 μC on both 15 μF and 3 μF` },
-  { q: `A 3.00 μF and a 4.00 μF capacitor in series are connected in parallel with a 2.00 μF capacitor, across 26.0 V. Find (a) the equivalent capacitance, (b) the p.d. across each capacitor.`, f: fig(F.x3()), a: `(a) 3.71 μF &nbsp; (b) 2.00 μF: 26.0 V; 3.00 μF: 14.9 V; 4.00 μF: 11.1 V` }])}
+${sec('12-4', '13.4 Electric potential', `
+${def('Electric potential, <i>V</i>', `at a point: the ${red('work done to bring a unit positive charge from infinity to that point')}. The potential at infinity is zero.`)}
+${key(`<i>V</i> = ${fr('<i>Q</i>', '4πε<sub>0</sub><i>r</i>')} = ${fr('<i>kQ</i>', '<i>r</i>')}`, 'scalar; unit volt, V (= J C<sup>−1</sup>). Put in the sign of <i>Q</i>: positive near a positive charge, negative near a negative charge.')}
+${h4('Derivation')}
+<p>Bring a test charge <i>q</i><sub>0</sub> from infinity to a point at distance <i>r</i> from a positive charge <i>Q</i>, slowly (no acceleration). The external force must balance the electric force, <i>F</i><sub>ext</sub> = <i>kQq</i><sub>0</sub>/<i>x</i><sup>2</sup>, pointing towards <i>Q</i>:</p>
+${eq(`<i>W</i> = −∫<sub>∞</sub><sup><i>r</i></sup> ${fr('<i>kQq</i><sub>0</sub>', '<i>x</i><sup>2</sup>')} d<i>x</i> = <i>kQq</i><sub>0</sub>[${fr('1', '<i>x</i>')}]<sub>∞</sub><sup><i>r</i></sup> = ${fr('<i>kQq</i><sub>0</sub>', '<i>r</i>')} &nbsp; ⇒ &nbsp; <i>V</i> = ${fr('<i>W</i>', '<i>q</i><sub>0</sub>')} = ${fr('<i>kQ</i>', '<i>r</i>')}`)}
+${ul([`For a positive <i>Q</i>, <i>W</i> is positive: work is done <b>by the external force</b> against the repulsion.`, `For a negative <i>Q</i>, <i>W</i> = −<i>kQq</i><sub>0</sub>/<i>r</i> is negative: the work is done <b>by the electric force</b> (the test charge is attracted).`])}
+${fig(F.Vr(), 'Figure 13.14: the potential against distance for a positive and a negative point charge.')}
+${h4('Potential due to several charges')}
+<p>Potential is a scalar: add the potentials from each charge <b>with their signs</b>. <i>V</i> = <i>k</i>(<i>Q</i><sub>1</sub>/<i>r</i><sub>1</sub> + <i>Q</i><sub>2</sub>/<i>r</i><sub>2</sub> + …)</p>
+${example('13.4.1', `Find the electric potential at a point A, 10 m from a point charge of +5.0 μC, and explain what the answer means.`,
+  steps([`<i>V</i> = ${fr('<i>kq</i>', '<i>r</i>')} = ${fr(`(${k9})(5.0 × 10<sup>−6</sup>)`, '10')} = <b>4.5 × 10<sup>3</sup> V</b>`, `Meaning: 4.5 × 10<sup>3</sup> J of work is done to bring each coulomb of positive charge from infinity to A.`]))}
+${example('13.4.2', `Find the potential at A in each arrangement.`,
+  steps([`(a) <i>V</i><sub>A</sub> = <i>k</i>(${fr('<i>Q</i><sub>1</sub>', '<i>r</i><sub>1</sub>')} + ${fr('<i>Q</i><sub>2</sub>', '<i>r</i><sub>2</sub>')}) = (${k9})(${fr('2 × 10<sup>−6</sup>', '0.03')} + ${fr('2 × 10<sup>−6</sup>', '0.05')}) = <b>9.6 × 10<sup>5</sup> V</b>`, `(b) <i>V</i><sub>A</sub> = (${k9})(${fr('2 × 10<sup>−6</sup>', '0.03')} − ${fr('2 × 10<sup>−6</sup>', '0.05')}) = <b>2.4 × 10<sup>5</sup> V</b> (put in the minus sign of <i>Q</i><sub>2</sub>)`]), two(fig(F.ex311(false), '(a)'), fig(F.ex311(true), '(b)')))}
+${example('13.4.3', `Four charges are at the corners of a square of side 10 cm. Find the potential at the centre O.`,
+  steps([`Each charge is ${fr('10', '√2')} = 7.07 cm from O.`, `<i>V</i><sub>O</sub> = ${fr('<i>k</i>', '<i>r</i>')}(Σ<i>q</i>) = ${fr(k9, '0.0707')}(0.01 + 0.02 + 0.01 − 0.02) × 10<sup>−6</sup> = <b>2.55 × 10<sup>3</sup> V</b>`]), fig(F.ex313()))}
+${h4('Potential difference and work done')}
+${def('Potential difference between A and B', `the work done per unit positive charge in moving a charge from B to A (against the field, with no acceleration).`)}
+${key(`<i>V</i><sub>AB</sub> = <i>V</i><sub>A</sub> − <i>V</i><sub>B</sub> = ${fr('<i>W</i><sub>B→A</sub>', '<i>q</i>')} &nbsp;&nbsp;&nbsp; <i>W</i><sub>A→B</sub> = <i>q</i>(<i>V</i><sub>B</sub> − <i>V</i><sub>A</sub>)`, '<i>W</i> is the work done by an <b>external force</b>. The work done by the <b>electric field</b> is the negative of this.')}
+${ul([`If <i>q</i> and (<i>V</i><sub>B</sub> − <i>V</i><sub>A</sub>) have the same sign, the external force does positive work (the charge is pushed against the field).`, `If they have opposite signs, the work done by the external force is negative: the field does the work.`])}
+${example('13.4.4', `(a) Find the potential at (i) 10 cm, (ii) 50 cm from a point charge of +2 μC. (b) Find the work done to move a charge of +0.05 μC from 50 cm to 10 cm from the point charge. Is the work done by an external force or by the electric field?`,
+  steps([`(a)(i) <i>V</i> = (${k9})(2 × 10<sup>−6</sup>)/0.10 = <b>1.8 × 10<sup>5</sup> V</b> &nbsp; (ii) <i>V</i> = (${k9})(2 × 10<sup>−6</sup>)/0.50 = <b>3.6 × 10<sup>4</sup> V</b>`, `(b) <i>W</i> = <i>q</i>(<i>V</i><sub>10</sub> − <i>V</i><sub>50</sub>) = (0.05 × 10<sup>−6</sup>)(1.8 × 10<sup>5</sup> − 3.6 × 10<sup>4</sup>) = <b>7.2 × 10<sup>−3</sup> J</b>`, `<i>W</i> is positive: the work is done <b>by an external force against the electric field</b> (a positive charge is pushed towards a positive charge). The field itself does −7.2 × 10<sup>−3</sup> J.`]))}
+${example('13.4.5', `<i>q</i><sub>1</sub> = +2.40 nC and <i>q</i><sub>2</sub> = −6.50 nC are 0.100 m apart. A is midway between them; B is 0.080 m from <i>q</i><sub>1</sub> and 0.060 m from <i>q</i><sub>2</sub>. Find (a) <i>V</i><sub>A</sub>, (b) <i>V</i><sub>B</sub>, (c) the work done by the electric field on a charge of +2.5 nC that moves from B to A.`,
+  steps([`(a) <i>V</i><sub>A</sub> = (${k9})(${fr('2.40 × 10<sup>−9</sup>', '0.050')} − ${fr('6.50 × 10<sup>−9</sup>', '0.050')}) = 432 − 1170 = <b>−738 V</b>`, `(b) <i>V</i><sub>B</sub> = (${k9})(${fr('2.40 × 10<sup>−9</sup>', '0.080')} − ${fr('6.50 × 10<sup>−9</sup>', '0.060')}) = 270 − 975 = <b>−705 V</b>`, `(c) work done by the field = <i>q</i>(<i>V</i><sub>B</sub> − <i>V</i><sub>A</sub>) = (2.5 × 10<sup>−9</sup>)(−705 + 738) = <b>+8.3 × 10<sup>−8</sup> J</b>`, `(The positive charge moves to a lower potential, so the field does positive work. An external force would do −8.3 × 10<sup>−8</sup> J.)`]), fig(F.ex315()))}
+${h4('Equipotential surfaces')}
+${def('Equipotential surface', `a ${red('surface on which every point has the same potential')}.`)}
+${ul([`<b>No work</b> is done in moving a charge along an equipotential surface (Δ<i>V</i> = 0).`, `Equipotential surfaces are always <b>perpendicular to the field lines</b>.`, `Where the equipotentials are closer together, the field is stronger.`])}
+${two(fig(F.eqpts(), 'Figure 13.15: point charge: concentric spheres (circles in 2D).'), fig(F.eqUni(), 'Figure 13.16: uniform field: equally spaced parallel planes.'))}
+${fig(F.eqdip(), 'Figure 13.17: electric dipole. Dashed green lines are equipotentials; the middle one (V = 0) is a straight line.')}
+${h4('Relation between E and V')}
+${key(`<i>E</i> = −${fr('d<i>V</i>', 'd<i>r</i>')} &nbsp;&nbsp;&nbsp; uniform field: &nbsp;<i>E</i> = ${fr('<i>V</i>', '<i>d</i>')}`, 'the field strength is the negative of the potential gradient; <i>E</i> points from high potential to low potential')}
+${ul([`The steeper the <i>V</i>–<i>r</i> graph, the stronger the field.`, `Between parallel plates with p.d. <i>V</i> and separation <i>d</i>, <i>V</i> falls steadily from one plate to the other, so <i>E</i> = <i>V</i>/<i>d</i> is uniform.`])}
+${example('13.4.6', `The graph shows how the potential <i>V</i> varies with distance <i>x</i> along the <i>x</i>-axis. Sketch the graph of the electric field <i>E</i> against <i>x</i>.`,
+  steps([`Use <i>E</i> = −d<i>V</i>/d<i>x</i> for each straight section:`, `−15 m to −5 m: gradient = 10/10 = +1 ⇒ <i>E</i> = <b>−1 V m<sup>−1</sup></b>`, `−5 m to 5 m: gradient = −20/10 = −2 ⇒ <i>E</i> = <b>+2 V m<sup>−1</sup></b>`, `5 m to 10 m: gradient = 0 ⇒ <i>E</i> = <b>0</b>`, `10 m to 15 m: gradient = 10/5 = +2 ⇒ <i>E</i> = <b>−2 V m<sup>−1</sup></b>`, fig(F.e316())]), fig(F.v316()))}
+${h4('Electric potential energy')}
+${def('Electric potential energy, <i>U</i>', `of a charge at a point: the ${red('work done to bring the charge from infinity to that point')}.`)}
+${key(`<i>U</i> = <i>qV</i> = ${fr('<i>Qq</i>', '4πε<sub>0</sub><i>r</i>')} &nbsp;&nbsp;&nbsp; Δ<i>U</i> = <i>q</i>Δ<i>V</i>`, 'scalar; unit joule. Put in the signs of both charges: <i>U</i> &gt; 0 for like charges (repel), <i>U</i> &lt; 0 for unlike charges (attract).')}
+<p>For a system of charges, add the potential energy of every pair:</p>
+${eq(`<i>U</i> = <i>k</i>(${fr('<i>q</i><sub>1</sub><i>q</i><sub>2</sub>', '<i>r</i><sub>12</sub>')} + ${fr('<i>q</i><sub>1</sub><i>q</i><sub>3</sub>', '<i>r</i><sub>13</sub>')} + ${fr('<i>q</i><sub>2</sub><i>q</i><sub>3</sub>', '<i>r</i><sub>23</sub>')})`)}
+${example('13.4.7', `(a) Find the electric potential energy of a +0.05 μC charge at (i) 10 cm, (ii) 50 cm from a +2 μC point charge. (b) Find the change in potential energy between (i) and (ii).`,
+  steps([`(a)(i) <i>U</i> = <i>qV</i> = (0.05 × 10<sup>−6</sup>)(1.8 × 10<sup>5</sup>) = <b>9.0 × 10<sup>−3</sup> J</b> &nbsp; (ii) <i>U</i> = (0.05 × 10<sup>−6</sup>)(3.6 × 10<sup>4</sup>) = <b>1.8 × 10<sup>−3</sup> J</b>`, `(b) Δ<i>U</i> = 9.0 × 10<sup>−3</sup> − 1.8 × 10<sup>−3</sup> = <b>7.2 × 10<sup>−3</sup> J</b>: the same as the work done in Example 13.4.4`]))}
+${example('13.4.8', `Find the potential energy of the system of charges shown.`,
+  steps([`<i>U</i> = (${k9})[${fr('(−10)(10)', '0.040')} + ${fr('(−10)(10)', '0.050')} + ${fr('(10)(10)', '0.050')}] × 10<sup>−12</sup>`, `= (9.0 × 10<sup>−3</sup>)(−2500 − 2000 + 2000) = <b>−22.5 J</b>`, `Negative: work would have to be done to pull the charges apart to infinity.`]), fig(F.ex318()))}
+${exercises('Exercise: electric potential', [
+  { q: `Two parallel plates 5.0 mm apart have a potential difference of 100 V. Find the electric field between them and the force on an electron there.`, a: `<i>E</i> = 100/5.0 × 10<sup>−3</sup> = 2.0 × 10<sup>4</sup> V m<sup>−1</sup>; <i>F</i> = <i>eE</i> = 3.2 × 10<sup>−15</sup> N, towards the positive plate` },
+  { q: `How much work must an external force do to bring two protons from infinity to 1.0 × 10<sup>−14</sup> m apart?`, a: `<i>W</i> = <i>ke</i><sup>2</sup>/<i>r</i> = (9.0 × 10<sup>9</sup>)(1.60 × 10<sup>−19</sup>)<sup>2</sup>/1.0 × 10<sup>−14</sup> = 2.3 × 10<sup>−14</sup> J` },
+  { q: `Explain why no work is done when a charge moves along an equipotential surface, and why the field lines must cross the equipotentials at right angles.`, a: `<i>W</i> = <i>q</i>Δ<i>V</i> and Δ<i>V</i> = 0 along the surface. If <i>E</i> had a component along the surface, a force would act along it and work would be done, so <i>E</i> must be perpendicular to the surface.` }])}
 `)}
 
-${sec('13-5', '13.5 Energy stored in a charged capacitor', `
-${ul([`Work must be done to charge a capacitor: once some charge is on the plates, adding more charge of the same sign needs work against the repulsion. This work is stored as electric potential energy in the field between the plates.`, `On a <i>V</i>–<i>Q</i> graph (a straight line, since <i>V</i> = <i>Q</i>/<i>C</i>), the energy stored is the <b>area under the graph</b>.`])}
-${fig(F.VQ(), 'Figure 13.6: the energy stored is the area of the triangle under the V–Q graph.')}
-${key(`<i>U</i> = ${fr('1', '2')}<i>QV</i> = ${fr('1', '2')}${fr('<i>Q</i><sup>2</sup>', '<i>C</i>')} = ${fr('1', '2')}<i>CV</i><sup>2</sup>`, 'unit: joule. Derivations are not required by the syllabus.')}
-${note(`For understanding: moving a small charge d<i>q</i> through the p.d. <i>V</i> = <i>q</i>/<i>C</i> needs d<i>W</i> = <i>V</i> d<i>q</i>, so <i>W</i> = ∫<sub>0</sub><sup><i>Q</i></sup> (<i>q</i>/<i>C</i>) d<i>q</i> = <i>Q</i><sup>2</sup>/2<i>C</i>.`)}
-${tip(`A battery that charges a capacitor supplies energy <i>QV</i>, but the capacitor stores only ½<i>QV</i>. The other half is changed into heat in the resistance of the circuit (and some electromagnetic radiation), whatever the value of the resistance.`)}
-${example('13.5.1', `A camera flash unit stores energy in a 150 μF capacitor at 200 V. How much energy is stored?`,
-  steps([`<i>U</i> = ½<i>CV</i><sup>2</sup> = ½(150 × 10<sup>−6</sup>)(200)<sup>2</sup> = <b>3.0 J</b>`]))}
-${example('13.5.2', `A 2 μF capacitor is charged to 200 V by a battery. Find (a) the charge delivered by the battery, (b) the energy supplied by the battery, (c) the energy stored in the capacitor.`,
-  steps([`(a) <i>Q</i> = <i>CV</i> = (2 × 10<sup>−6</sup>)(200) = <b>4.0 × 10<sup>−4</sup> C</b>`, `(b) <i>E</i> = <i>QV</i> = (4.0 × 10<sup>−4</sup>)(200) = <b>0.080 J</b>`, `(c) <i>U</i> = ½<i>QV</i> = <b>0.040 J</b>: half of the energy supplied`]))}
-${example('13.5.3', `<i>C</i><sub>1</sub> = 6.00 μF is charged by closing S<sub>1</sub> (<i>V</i> = 20.0 V). S<sub>1</sub> is then opened and S<sub>2</sub> closed, connecting <i>C</i><sub>1</sub> to the uncharged <i>C</i><sub>2</sub> = 3.00 μF. Find (a) the initial charge on <i>C</i><sub>1</sub>, (b) the final p.d., (c) the final charge on each capacitor, (d) the energy lost.`,
-  steps([`(a) <i>Q</i><sub>1</sub> = <i>C</i><sub>1</sub><i>V</i> = (6.00 μF)(20.0) = <b>120 μC</b>`, `(b) After S<sub>2</sub> is closed the capacitors are in parallel and share the charge until their p.d.s are equal. Charge is conserved: <i>V</i>′ = ${fr('<i>Q</i><sub>total</sub>', '<i>C</i><sub>1</sub> + <i>C</i><sub>2</sub>')} = ${fr('120', '9.00')} = <b>13.3 V</b>`, `(c) <i>Q</i><sub>1</sub>′ = (6.00)(13.33) = <b>80.0 μC</b>; &nbsp; <i>Q</i><sub>2</sub>′ = (3.00)(13.33) = <b>40.0 μC</b>`, `(d) before: ½(120 × 10<sup>−6</sup>)(20.0) = 1.20 × 10<sup>−3</sup> J; after: ½(120 × 10<sup>−6</sup>)(13.33) = 0.80 × 10<sup>−3</sup> J; lost = <b>4.0 × 10<sup>−4</sup> J</b> (as heat in the connecting wires)`]), fig(F.e10()))}
-${h4('Store slowly, release quickly: camera flash and defibrillator')}
-<p>A capacitor can be charged slowly by a small battery and then discharged in a fraction of a millisecond. The <b>same energy</b> released in a much <b>shorter time</b> gives a huge <b>power</b>. This is how a camera flash and a heart defibrillator work.</p>
-${ul([`<b>Charging</b> goes through a large resistance (the charging circuit), so the time constant <i>RC</i> is about a second or more: you wait for the "ready" light.`, `<b>Discharging</b> goes through a small resistance (the flash tube, or the patient's chest, about 50 Ω), so the time constant is about a millisecond.`, `Energy stored: <i>U</i> = ½<i>CV</i><sup>2</sup>. Power ≈ energy ÷ time, so releasing it in about a millisecond gives tens of kilowatts.`])}
-${sim('flash', 'Camera flash and defibrillator', 'Choose the device and press Charge: watch the capacitor charge slowly (seconds). Then press Fire: the energy comes out in about a millisecond. A defibrillator shock stops the chaotic heartbeat so that a normal rhythm can restart.')}
-${example('13.5.4', `A defibrillator has a 32 μF capacitor charged to 3.5 kV. It discharges through the patient's chest, of resistance 50 Ω. Find (a) the energy stored, (b) the time constant of the discharge, (c) the initial current, (d) the average power if the energy is delivered in 3.0 ms.`,
-  steps([`(a) <i>U</i> = ½<i>CV</i><sup>2</sup> = ½(32 × 10<sup>−6</sup>)(3500)<sup>2</sup> = <b>196 J</b>`, `(b) τ = <i>RC</i> = (50)(32 × 10<sup>−6</sup>) = <b>1.6 × 10<sup>−3</sup> s</b>`, `(c) <i>I</i><sub>0</sub> = ${fr('<i>V</i><sub>0</sub>', '<i>R</i>')} = ${fr('3500', '50')} = <b>70 A</b>`, `(d) <i>P</i> ≈ ${fr('196', '3.0 × 10<sup>−3</sup>')} = <b>6.5 × 10<sup>4</sup> W</b> (65 kW): far more than its battery could give directly`]))}
-${exercises('Exercise: energy', [
-  { q: `<i>C</i><sub>1</sub> = 3.00 μF and <i>C</i><sub>2</sub> = 6.00 μF are connected in series to a 4.00 V battery. Find (a) the equivalent capacitance, (b) the charge on each capacitor, (c) the p.d. across each, (d) the energy stored in each, (e) the area of each plate of <i>C</i><sub>1</sub> if its plates are 0.010 mm apart in vacuum.`, a: `(a) 2.00 μF &nbsp; (b) 8.00 μC &nbsp; (c) <i>V</i><sub>1</sub> = 2.67 V, <i>V</i><sub>2</sub> = 1.33 V &nbsp; (d) <i>U</i><sub>1</sub> = 1.07 × 10<sup>−5</sup> J, <i>U</i><sub>2</sub> = 5.33 × 10<sup>−6</sup> J &nbsp; (e) 3.39 m<sup>2</sup>` }])}
-`)}
+${sec('12-5', 'Summary', table(['Quantity', 'Point charge <i>Q</i>', 'Scalar or vector', 'Unit'], [
+  ['Force on <i>q</i>', '<i>F</i> = <i>kQq</i>/<i>r</i><sup>2</sup>', 'vector', 'N'],
+  ['Field strength', '<i>E</i> = <i>kQ</i>/<i>r</i><sup>2</sup> = <i>F</i>/<i>q</i>', 'vector', 'N C<sup>−1</sup> or V m<sup>−1</sup>'],
+  ['Potential', '<i>V</i> = <i>kQ</i>/<i>r</i>', 'scalar', 'V (J C<sup>−1</sup>)'],
+  ['Potential energy of <i>q</i>', '<i>U</i> = <i>qV</i> = <i>kQq</i>/<i>r</i>', 'scalar', 'J'],
+  ['Flux through a closed surface', 'Φ = <i>Q</i><sub>enclosed</sub>/ε<sub>0</sub>', 'scalar', 'N m<sup>2</sup> C<sup>−1</sup>'],
+  ['Link', '<i>E</i> = −d<i>V</i>/d<i>r</i>; uniform field <i>E</i> = <i>V</i>/<i>d</i>', '', '']]))}
 
-${sec('13-6', '13.6 Charging and discharging through a resistor', `
-${h4('Charging')}
-${fig(F.charge(false), 'Figure 13.7: charging a capacitor through a resistor.')}
-${ul([`When S is closed, electrons flow from the negative terminal of the battery, through R, onto plate B. Electrons leave plate A for the positive terminal, so A becomes positive.`, `At the start the capacitor is uncharged, so the whole e.m.f. is across R: the current is largest, <i>I</i><sub>0</sub> = <i>V</i><sub>0</sub>/<i>R</i>.`, `As charge builds up, the p.d. across C rises, so the p.d. across R (and the current) falls.`, `Charging stops when the p.d. across C equals <i>V</i><sub>0</sub>: then <i>I</i> = 0 and the charge is maximum, <i>Q</i><sub>0</sub> = <i>CV</i><sub>0</sub>.`])}
-${h4('Derivation (charging)')}
-${steps([`Kirchhoff’s loop rule at any time: <i>V</i><sub>0</sub> = <i>IR</i> + ${fr('<i>Q</i>', '<i>C</i>')}, with <i>I</i> = ${fr('d<i>Q</i>', 'd<i>t</i>')}`, `Rearrange: ${fr('d<i>Q</i>', 'd<i>t</i>')} = ${fr('<i>CV</i><sub>0</sub> − <i>Q</i>', '<i>RC</i>')} = ${fr('<i>Q</i><sub>0</sub> − <i>Q</i>', '<i>RC</i>')} &nbsp; ⇒ &nbsp; ∫<sub>0</sub><sup><i>Q</i></sup> ${fr('d<i>Q</i>', '<i>Q</i><sub>0</sub> − <i>Q</i>')} = ∫<sub>0</sub><sup><i>t</i></sup> ${fr('d<i>t</i>', '<i>RC</i>')}`, `−ln ${fr('<i>Q</i><sub>0</sub> − <i>Q</i>', '<i>Q</i><sub>0</sub>')} = ${fr('<i>t</i>', '<i>RC</i>')} &nbsp; ⇒ &nbsp; <i>Q</i> = <i>Q</i><sub>0</sub>(1 − <i>e</i><sup>−<i>t</i>/<i>RC</i></sup>)`, `Divide by <i>C</i>: <i>V</i> = <i>V</i><sub>0</sub>(1 − <i>e</i><sup>−<i>t</i>/<i>RC</i></sup>). Differentiate: <i>I</i> = ${fr('d<i>Q</i>', 'd<i>t</i>')} = ${fr('<i>Q</i><sub>0</sub>', '<i>RC</i>')}<i>e</i><sup>−<i>t</i>/<i>RC</i></sup> = <i>I</i><sub>0</sub><i>e</i><sup>−<i>t</i>/<i>RC</i></sup>`])}
-${key(`<i>Q</i> = <i>Q</i><sub>0</sub>(1 − <i>e</i><sup>−<i>t</i>/<i>RC</i></sup>) &nbsp;&nbsp; <i>V</i> = <i>V</i><sub>0</sub>(1 − <i>e</i><sup>−<i>t</i>/<i>RC</i></sup>) &nbsp;&nbsp; <i>I</i> = <i>I</i><sub>0</sub><i>e</i><sup>−<i>t</i>/<i>RC</i></sup>`, 'charging: <i>Q</i><sub>0</sub> = <i>CV</i><sub>0</sub>, <i>I</i><sub>0</sub> = <i>V</i><sub>0</sub>/<i>R</i>')}
-${fig(F.graphs(false), 'Figure 13.8: charging. Q and V rise to their maximum; the current falls exponentially.')}
-${h4('Discharging')}
-${fig(F.charge(true), 'Figure 13.9: discharging a charged capacitor through a resistor.')}
-${ul([`When S is closed, electrons flow from plate B through R to plate A and neutralise its positive charge.`, `At the start the p.d. is <i>V</i><sub>0</sub>, so the current is largest, <i>I</i><sub>0</sub> = <i>V</i><sub>0</sub>/<i>R</i>.`, `As the charge falls, the p.d. falls, so the current falls. Discharging ends when <i>Q</i> = 0, <i>V</i> = 0 and <i>I</i> = 0.`, `The current flows in the opposite direction to the charging current.`])}
-${h4('Derivation (discharging)')}
-${steps([`Loop rule with no battery: 0 = <i>IR</i> + ${fr('<i>Q</i>', '<i>C</i>')}, with <i>I</i> = ${fr('d<i>Q</i>', 'd<i>t</i>')} (the charge decreases)`, `${fr('d<i>Q</i>', '<i>Q</i>')} = −${fr('d<i>t</i>', '<i>RC</i>')} &nbsp; ⇒ &nbsp; ln ${fr('<i>Q</i>', '<i>Q</i><sub>0</sub>')} = −${fr('<i>t</i>', '<i>RC</i>')} &nbsp; ⇒ &nbsp; <i>Q</i> = <i>Q</i><sub>0</sub><i>e</i><sup>−<i>t</i>/<i>RC</i></sup>`, `<i>V</i> = <i>Q</i>/<i>C</i> = <i>V</i><sub>0</sub><i>e</i><sup>−<i>t</i>/<i>RC</i></sup>; &nbsp; <i>I</i> = ${fr('d<i>Q</i>', 'd<i>t</i>')} = −<i>I</i><sub>0</sub><i>e</i><sup>−<i>t</i>/<i>RC</i></sup> (minus: opposite direction; use the size in calculations)`])}
-${key(`<i>Q</i> = <i>Q</i><sub>0</sub><i>e</i><sup>−<i>t</i>/<i>RC</i></sup> &nbsp;&nbsp; <i>V</i> = <i>V</i><sub>0</sub><i>e</i><sup>−<i>t</i>/<i>RC</i></sup> &nbsp;&nbsp; <i>I</i> = <i>I</i><sub>0</sub><i>e</i><sup>−<i>t</i>/<i>RC</i></sup>`, 'discharging')}
-${fig(F.graphs(true), 'Figure 13.10: discharging. Q, V and I all fall exponentially.')}
-${h4('Time constant')}
-${def('Time constant, τ', `of an <i>RC</i> circuit: the ${red('time for the charge (or current) to fall to 1/e (37%) of its initial value')} during discharging. During charging, it is the time for the charge to rise to (1 − 1/e), 63% of its final value.`)}
-${key(`τ = <i>RC</i>`, 'unit: second (Ω × F = s). A large τ means slow charging and discharging.')}
-${ul([`At <i>t</i> = τ: <i>e</i><sup>−1</sup> = 0.37, so discharging gives <i>Q</i> = 0.37<i>Q</i><sub>0</sub>; charging gives <i>Q</i> = 0.63<i>Q</i><sub>0</sub> and <i>I</i> = 0.37<i>I</i><sub>0</sub>.`, `After about 5τ the capacitor is practically fully charged (99.3%) or fully discharged.`, `Half-life: the time for <i>Q</i> to halve is <i>t</i><sub>½</sub> = <i>RC</i> ln 2 = 0.693<i>RC</i>.`])}
-${sim('rc', 'Charging and discharging through a resistor', 'Choose charging or discharging, then change R and C. Watch how the time constant τ = RC sets how fast the curves rise and fall. The dashed line marks t = τ.')}
-${tip(`To find a time, take natural logs: e.g. discharging, ${fr('<i>Q</i>', '<i>Q</i><sub>0</sub>')} = <i>e</i><sup>−<i>t</i>/<i>RC</i></sup> ⇒ <i>t</i> = −<i>RC</i> ln ${fr('<i>Q</i>', '<i>Q</i><sub>0</sub>')} = <i>RC</i> ln ${fr('<i>Q</i><sub>0</sub>', '<i>Q</i>')}.`)}
-${example('13.6.1', `A capacitor is fully charged by a 20.0 V battery, then at <i>t</i> = 0 the switch is moved from a to b. <i>C</i> = 1.02 μF and the current falls to half its initial value in 40 μs. Find (a) <i>R</i>, (b) the time constant, (c) the charge at <i>t</i> = 0, (d) the charge at <i>t</i> = 60 μs.`,
-  steps([`(a) 0.50 = <i>e</i><sup>−40 × 10<sup>−6</sup>/<i>RC</i></sup> ⇒ <i>RC</i> = ${fr('40 × 10<sup>−6</sup>', 'ln 2')} = 5.77 × 10<sup>−5</sup> s ⇒ <i>R</i> = ${fr('5.77 × 10<sup>−5</sup>', '1.02 × 10<sup>−6</sup>')} = <b>57 Ω</b>`, `(b) τ = <i>RC</i> = <b>5.8 × 10<sup>−5</sup> s</b>`, `(c) <i>Q</i><sub>0</sub> = <i>CV</i><sub>0</sub> = (1.02 × 10<sup>−6</sup>)(20.0) = <b>2.04 × 10<sup>−5</sup> C</b>`, `(d) <i>Q</i> = (2.04 × 10<sup>−5</sup>)<i>e</i><sup>−60/57.7</sup> = <b>7.2 × 10<sup>−6</sup> C</b>`]), fig(F.e11()))}
-${example('13.6.2', `A 470 μF capacitor is charged through a 100 kΩ resistor from a 9.0 V supply. Find (a) the time constant, (b) the initial current, (c) the p.d. across the capacitor after 30 s, (d) the time for the capacitor to reach 90% of its final charge.`,
-  steps([`(a) τ = <i>RC</i> = (100 × 10<sup>3</sup>)(470 × 10<sup>−6</sup>) = <b>47 s</b>`, `(b) <i>I</i><sub>0</sub> = <i>V</i><sub>0</sub>/<i>R</i> = 9.0/100 × 10<sup>3</sup> = <b>9.0 × 10<sup>−5</sup> A</b>`, `(c) <i>V</i> = 9.0(1 − <i>e</i><sup>−30/47</sup>) = 9.0(1 − 0.528) = <b>4.2 V</b>`, `(d) 0.90 = 1 − <i>e</i><sup>−<i>t</i>/47</sup> ⇒ <i>t</i> = 47 ln 10 = <b>108 s</b> (2.3τ)`]))}
-${exercises('Exercise: RC circuits', [
-  { q: `A 1000 μF capacitor charged to 12 V is discharged through a 10 kΩ resistor. Find (a) the time constant, (b) the initial current, (c) the p.d. after 5.0 s, (d) the time for the charge to halve.`, a: `(a) 10 s &nbsp; (b) 1.2 mA &nbsp; (c) 12<i>e</i><sup>−0.5</sup> = 7.3 V &nbsp; (d) 10 ln 2 = 6.9 s` },
-  { q: `Sketch, on the same axes, the current–time graphs for charging the same capacitor through (a) a resistor <i>R</i>, (b) a resistor 2<i>R</i>, from the same supply.`, a: `(a) starts at <i>I</i><sub>0</sub> = <i>V</i><sub>0</sub>/<i>R</i> and falls with τ = <i>RC</i>. (b) starts at half the value, <i>I</i><sub>0</sub>/2, and falls more slowly (τ = 2<i>RC</i>). The areas under both graphs are equal (the same final charge <i>Q</i><sub>0</sub> = <i>CV</i><sub>0</sub>).` }])}
-`)}
+${sec('12-rw', 'Real-World Physics: the Burj Khalifa lightning conductor', rw({
+  id: 'ls-12-rw-lightning',
+  meta: 'Dubai · Richard Hammond’s BIG',
+  title: 'Does the Burj Khalifa collect lightning for electricity?',
+  lead: `<p>Being the tallest structure for miles, the Burj Khalifa is struck by lightning during thunderstorms. In <i>Richard Hammond’s BIG</i>, Richard climbs to its lightning conductor at the very top.</p><p><b>A common misconception:</b> the tower does <b>not</b> collect lightning to use as electricity. The lightning protection system safely carries the charge to earth. The tower’s steel frame also acts as a <b>Faraday cage</b>, so the current flows around the outside and the people inside are safe. No one has yet found a practical way to store the energy of lightning.</p>`,
+  video: { id: 'E0RdTXJaqJs', title: 'How The Burj Khalifa Is Dubai’s Lightning Rod', channel: 'Richard Hammond’s BIG' },
+  watch: 'notice the shape of the conductor at the top, and where the charge goes after a strike.',
+  video2: { id: 've6XGKZxYxA', title: 'Richard Hammond inside a car struck by lightning (Top Gear)', channel: 'BBC Studios' },
+  watch2: 'Richard sits inside a car while it is hit by an artificial lightning strike. Watch where the discharge travels, and think about which part of the car protects him.',
+  physics: ul([`On a charged conductor, charge collects most densely at <b>sharp points</b>. The electric field there is very strong and can ionise the air, giving lightning an easy path to the conductor.`, `The conductor gives a <b>low-resistance path</b> to earth, so charge flows safely into the ground instead of through the building.`, `Inside a closed conductor the electric field is zero, and charge stays on the outer surface (Gauss’s law). This is why a steel-framed building protects the people inside.`, `A strike carries about 1 × 10<sup>9</sup> J, but it lasts only tens of microseconds and its time and place cannot be predicted, so it cannot practically be stored.`]),
+  qs: [
+    { q: `Why does a lightning conductor have a sharp, pointed tip?`, opts: ['Sharp points have a lower electric potential than flat surfaces.', 'Charge density is greatest at sharp points, so the electric field is strongest there and the air is easily ionised.', 'Sharp points have a smaller resistance than the rest of the conductor.', 'Sharp points repel lightning away from the building.'], ans: 1,
+      why: `<p>On a conductor, the surface charge density is highest where the curvature is greatest. The strong field at the tip ionises the air and provides a conducting path for the discharge.</p>` },
+    { q: `Why are people inside a steel-framed building safe when lightning strikes it?`, opts: ['The electric field inside a closed conductor is zero, and the charge stays on its outer surface.', 'Steel is an electrical insulator.', 'The lightning energy is stored in the steel frame.', 'The electric potential inside the building is always zero.'], ans: 0,
+      why: `<p>By Gauss’s law, there is no net charge and no electric field inside a closed conducting shell, so the current flows along the outside of the frame to earth (a Faraday cage).</p>` },
+    { q: `In the Top Gear clip, Richard Hammond is unharmed when lightning strikes the car he is sitting in. What is the main reason?`, opts: ['The rubber tyres insulate the car from the ground.', 'The metal body of the car conducts the charge around the outside to earth, so there is no electric field inside.', 'The glass windows absorb the energy of the lightning.', 'The car is moving, so the lightning cannot reach the inside.'], ans: 1,
+      why: `<p>The car acts as a Faraday cage. The charge flows over the outer metal body and jumps to earth, and the field inside the closed conductor is zero. It is <b>not</b> the tyres: a discharge that has crossed hundreds of metres of air easily crosses a few centimetres of rubber. (A soft-top car or a motorcycle gives no such protection.)</p>` },
+    { q: `A lightning strike carries 1.0 × 10<sup>9</sup> J. A home uses 30 kWh of electrical energy per day. For how long could one strike supply the home, if all the energy could be stored?`, opts: ['0.3 days', '9.3 days', '33 days', '9.3 years'], ans: 1,
+      why: steps([`Energy per day = 30 kWh = 30 × 1000 × 3600 = 1.08 × 10<sup>8</sup> J`, `Time = ${fr('1.0 × 10<sup>9</sup>', '1.08 × 10<sup>8</sup>')} = <b>9.3 days</b>`]) + `<p>Even if it could be stored, one strike would run one home for only about a week, not a skyscraper.</p>` },
+    { q: `A lightning strike has an average current of 30 kA for 50 μs. How much charge flows to earth?`, opts: ['1.5 C', '600 C', '1.5 × 10<sup>−3</sup> C', '6.0 × 10<sup>8</sup> C'], ans: 0,
+      why: steps([`<i>Q</i> = <i>It</i>`, `= (30 × 10<sup>3</sup>)(50 × 10<sup>−6</sup>)`, `= <b>1.5 C</b>`]) + `<p>With 1.0 × 10<sup>9</sup> J, the potential difference is <i>V</i> = <i>W</i>/<i>Q</i> = 1.0 × 10<sup>9</sup>/1.5 ≈ 7 × 10<sup>8</sup> V: hundreds of millions of volts.</p>` }
+  ],
+  src: `Sources: <i>Richard Hammond’s BIG</i>, Episode 7 “Tallest Building On Earth” (Discovery, 2020); <i>Top Gear</i> (BBC Studios); The National (UAE); UNSW Sydney. Preview the clip before class. <a href="https://www.youtube.com/watch?v=E0RdTXJaqJs" target="_blank" rel="noopener">youtube.com/watch?v=E0RdTXJaqJs</a>`
+}))}
 `;
   window.PhysiQLessons.register('LESSON-S2-13', { html: () => S });
 
   // ===================== simulations =====================
+  const K = 8.99e9;
   const EX = v => { if (!v) return '0'; const s = v.toExponential(2), m = s.match(/^(-?)([\d.]+)e([+-])(\d+)$/), sup = d => d.split('').map(c => '⁰¹²³⁴⁵⁶⁷⁸⁹'[c]).join(''); return (m[1] ? '−' : '') + (m[4] === '0' ? m[2] : m[2] + ' × 10' + (m[3] === '-' ? '⁻' : '') + sup(m[4])); };
-  const E0 = 8.85e-12;
-  // ---------- 1. parallel plate capacitor ----------
-  window.PhysiQSims.add('capplate', function (root) {
-    const { COL, fmt, el, slider, button, canvas, text, readouts } = window.PhysiQSims.U;
-    const S = { A: 200, d: 4, er: 1, mode: 'bat', V0: 12, Q: null };
+  // ---------- 1. field lines, equipotentials and the field at a point ----------
+  window.PhysiQSims.add('efield', function (root) {
+    const { COL, fmt, el, slider, button, toggle, canvas, text, arrow, readouts } = window.PhysiQSims.U;
+    const S = { set: 'dipole', q2: -1, sep: 0.16, lines: true, eqp: false, probe: null };
     const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
-    const modes = [['bat', 'stays connected to 12 V'], ['iso', 'charged, then disconnected']];
-    const chips = modes.map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.mode ? ' on' : ''), () => { S.mode = k; chips.forEach(x => x.classList.toggle('on', x === b)); S.Q = cap() * S.V0; draw(); }); return b; });
+    const sets = [['single', 'one charge'], ['dipole', 'two charges'], ['plates', 'parallel plates']];
+    const chips = sets.map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.set ? ' on' : ''), () => { S.set = k; chips.forEach(x => x.classList.toggle('on', x === b)); S.probe = null; ui(); draw(); }); return b; });
     const ctl = el('div', 'sm-row'); root.appendChild(ctl);
-    const cap = () => S.er * E0 * S.A * 1e-4 / (S.d * 1e-3);
-    slider(ctl, 'area of each plate <i>A</i>', 50, 400, 10, S.A, 'cm²', v => { if (S.mode === 'bat') S.A = v; else S.A = v; draw(); });
-    slider(ctl, 'separation <i>d</i>', 1, 10, 0.5, S.d, 'mm', v => { S.d = v; draw(); });
-    slider(ctl, 'dielectric constant ε<sub>r</sub>', 1, 8, 0.5, S.er, '', v => { S.er = v; draw(); });
+    slider(ctl, 'charge <i>q</i><sub>1</sub> (μC)', -2, 2, 1, 1, 'μC', v => { S.q1 = v; draw(); });
+    S.q1 = 1;
+    const sq2 = slider(ctl, 'charge <i>q</i><sub>2</sub> (μC)', -2, 2, 1, S.q2, 'μC', v => { S.q2 = v; draw(); });
+    const ssep = slider(ctl, 'separation', 0.08, 0.24, 0.01, S.sep, 'm', v => { S.sep = v; draw(); });
+    const tg = el('div', 'sm-row'); root.appendChild(tg);
+    toggle(tg, 'Field lines', S.lines, v => { S.lines = v; draw(); });
+    toggle(tg, 'Equipotentials', S.eqp, v => { S.eqp = v; draw(); });
     const cv = canvas(root); const ro = readouts(root);
-    S.Q = cap() * S.V0;
-    function draw() {
-      const ctx = cv.ctx, { w, h } = cv.size(0.5, 230, 330); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const C1 = cap(), Q = S.mode === 'bat' ? C1 * S.V0 : S.Q, V = Q / C1, E = V / (S.d * 1e-3), U = 0.5 * Q * V;
-      const ph = Math.min(h - 90, 40 + Math.sqrt(S.A) * 10), cy = 30 + ph / 2, gap = 20 + S.d * 16, cx = w * 0.36, xl = cx - gap / 2, xr = cx + gap / 2;
-      if (S.er > 1) { ctx.fillStyle = 'rgba(110,140,34,' + Math.min(0.45, 0.08 + S.er * 0.05) + ')'; ctx.fillRect(xl + 2, cy - ph / 2 + 2, gap - 4, ph - 4); text(ctx, 'dielectric', xr + 30, cy, { a: 'center', fs: 11, c: COL.gr, b: 1 }); }
-      ctx.fillStyle = '#F9D9C8'; ctx.fillRect(xl - 8, cy - ph / 2, 8, ph); ctx.fillStyle = '#D9E7F7'; ctx.fillRect(xr, cy - ph / 2, 8, ph);
-      const n = Math.max(2, Math.min(18, Math.round(Q / 0.5e-10)));
-      for (let i = 0; i < n; i++) { const y = cy - ph / 2 + ph * (i + 0.5) / n; text(ctx, '+', xl - 16, y + 4, { a: 'center', b: 1, fs: 11, c: COL.r }); text(ctx, '−', xr + 16, y + 4, { a: 'center', b: 1, fs: 11, c: '#2C6BB3' }); }
-      const nl = Math.max(1, Math.min(14, Math.round(E / 400))); ctx.strokeStyle = COL.v; ctx.lineWidth = 1.2;
-      for (let i = 0; i < nl; i++) { const y = cy - ph / 2 + ph * (i + 0.5) / nl; ctx.beginPath(); ctx.moveTo(xl + 1, y); ctx.lineTo(xr - 1, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx + 4, y); ctx.lineTo(cx - 2, y - 3); ctx.lineTo(cx - 2, y + 3); ctx.fillStyle = COL.v; ctx.fill(); }
-      if (S.mode === 'bat') { ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(xl - 4, cy + ph / 2); ctx.lineTo(xl - 4, h - 14); ctx.lineTo(xr + 4, h - 14); ctx.lineTo(xr + 4, cy + ph / 2); ctx.stroke(); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(cx - 6, h - 26, 12, 24); ctx.fillStyle = COL.ink; ctx.fillRect(cx - 5, h - 26, 2, 24); ctx.fillRect(cx + 2, h - 21, 4, 14); text(ctx, '12 V', cx + 12, h - 22, { fs: 11, b: 1 }); }
-      else text(ctx, 'isolated: the charge cannot change', cx, h - 10, { a: 'center', fs: 11, c: COL.sub });
-      text(ctx, 'd = ' + fmt(S.d, 1) + ' mm', cx, cy - ph / 2 - 8, { a: 'center', fs: 11, c: COL.sub });
-      const gx = w * 0.66; text(ctx, S.mode === 'bat' ? 'V fixed' : 'Q fixed', gx, 24, { b: 1, fs: 13, c: COL.o });
-      ro([['capacitance C', EX(C1) + ' F', 'hl'], ['charge Q', EX(Q) + ' C', S.mode === 'bat' ? 'hl' : ''], ['p.d. V', fmt(V, 2) + ' V', S.mode === 'iso' ? 'hl' : ''], ['field E = V/d', EX(E) + ' V m⁻¹'], ['energy U = ½QV', EX(U) + ' J']]);
+    function ui() { [sq2, ssep].forEach(s => { const w = s === sq2 ? ctl.children[1] : ctl.children[2]; w.style.display = S.set === 'dipole' ? '' : 'none'; }); ctl.children[0].style.display = S.set === 'plates' ? 'none' : ''; }
+    let geo = null;
+    function charges(w, h) {
+      const m = 0.40 / w; // metres per pixel: the canvas is 40 cm wide
+      if (S.set === 'single') return { m, Q: [{ x: w / 2, y: h / 2, q: S.q1 }] };
+      if (S.set === 'dipole') { const d = S.sep / m; return { m, Q: [{ x: w / 2 - d / 2, y: h / 2, q: S.q1 }, { x: w / 2 + d / 2, y: h / 2, q: S.q2 }].filter(c => c.q !== 0) }; }
+      const Q = [], n = 24, top = h * 0.12, bot = h * 0.88; for (let i = 0; i < n; i++) { const y = top + (bot - top) * (i + 0.5) / n; Q.push({ x: w * 0.3, y, q: 0.25 }); Q.push({ x: w * 0.7, y, q: -0.25 }); } return { m, Q, plates: true };
     }
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.62, 260, 440); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#FBFCF6'; ctx.fillRect(0, 0, w, h);
+      const G = charges(w, h); geo = G; const Q = G.Q;
+      if (S.eqp && Q.length) {
+        const f = (x, y) => potAt(Q, x, y), vmax = Q.reduce((s, c) => Math.max(s, Math.abs(c.q)), 0) / 14;
+        const lv = G.plates ? [-0.6, -0.3, 0, 0.3, 0.6].map(t => t * 3) : [-1, -0.6, -0.35, -0.2, -0.1, 0, 0.1, 0.2, 0.35, 0.6, 1].map(t => t * vmax);
+        const segs = contours(f, [0, 0, w, h], lv, 5); ctx.strokeStyle = COL.gr; ctx.lineWidth = 1.3; ctx.setLineDash([5, 4]); ctx.beginPath(); segs.forEach(sg => sg.forEach(s => { ctx.moveTo(s[0], s[1]); ctx.lineTo(s[2], s[3]); })); ctx.stroke(); ctx.setLineDash([]);
+      }
+      if (S.lines && Q.length) {
+        const lines = G.plates ? (() => { const out = []; const ys = []; for (let i = 0; i < 9; i++) ys.push(h * 0.16 + (h * 0.68) * i / 8); ys.forEach(y0 => { let x = w * 0.3 + 4, y = y0; const pts = [[x, y]]; for (let s = 0; s < 800; s++) { const [ex, ey] = fieldAt(Q, x, y), mm = Math.hypot(ex, ey); x += 2 * ex / mm; y += 2 * ey / mm; pts.push([x, y]); if (x > w * 0.7 - 3 || x < 0 || y < 0 || y > h) break; } out.push({ pts, dir: 1 }); }); return out; })() : traceLines(Q, [-10, -10, w + 10, h + 10], 12 / Math.max(...Q.map(c => Math.abs(c.q))), 2.5, 10);
+        ctx.strokeStyle = COL.v; ctx.lineWidth = 1.4;
+        lines.forEach(l => { ctx.beginPath(); l.pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); const i = Math.round(l.pts.length * 0.35); if (l.pts.length > 8) { const [x, y] = l.pts[i], [xp, yp] = l.pts[i - 2]; let ux = (x - xp) * l.dir, uy = (y - yp) * l.dir; const mm = Math.hypot(ux, uy) || 1; ux /= mm; uy /= mm; ctx.fillStyle = COL.v; ctx.beginPath(); ctx.moveTo(x + ux * 6, y + uy * 6); ctx.lineTo(x - uy * 3.5, y + ux * 3.5); ctx.lineTo(x + uy * 3.5, y - ux * 3.5); ctx.fill(); } });
+      }
+      if (G.plates) { ctx.fillStyle = '#F9D9C8'; ctx.fillRect(w * 0.3 - 8, h * 0.1, 8, h * 0.8); ctx.fillStyle = '#D9E7F7'; ctx.fillRect(w * 0.7, h * 0.1, 8, h * 0.8); text(ctx, '+', w * 0.3 - 18, h / 2, { b: 1, fs: 18, c: COL.r, a: 'center' }); text(ctx, '−', w * 0.7 + 18, h / 2, { b: 1, fs: 18, c: '#2C6BB3', a: 'center' }); }
+      else Q.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, 12, 0, 7); ctx.fillStyle = c.q > 0 ? '#F9D9C8' : '#D9E7F7'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = c.q > 0 ? COL.r : '#2C6BB3'; ctx.stroke(); text(ctx, (c.q > 0 ? '+' : '−') + Math.abs(c.q), c.x, c.y + 5, { a: 'center', b: 1, fs: 12, c: c.q > 0 ? COL.r : '#2C6BB3' }); });
+      // probe: real units (each unit of q = 1 μC; plates: E from V/d with V = 100 V)
+      if (S.probe) {
+        const [px, py] = [S.probe[0] * w, S.probe[1] * h];
+        let Ex, Ey, V;
+        if (G.plates) { const inside = px > w * 0.3 && px < w * 0.7 && py > h * 0.1 && py < h * 0.9, d = 0.4 * w * G.m; Ex = inside ? 100 / d : 0; Ey = 0; V = inside ? 50 - 100 * (px - w / 2) / (0.4 * w) : null; }
+        else { Ex = 0; Ey = 0; V = 0; Q.forEach(c => { const dx = (px - c.x) * G.m, dy = (py - c.y) * G.m, r = Math.hypot(dx, dy) || 1e-6, qq = c.q * 1e-6; Ex += K * qq * dx / (r * r * r); Ey += K * qq * dy / (r * r * r); V += K * qq / r; }); }
+        const Em = Math.hypot(Ex, Ey);
+        if (Em > 0) { const len = G.plates ? 40 : Math.min(70, 14 + 10 * Math.log10(1 + Em / 1e4)); arrow(ctx, px, py, px + Ex / Em * len, py + Ey / Em * len, COL.o, 2.6, 9); }
+        ctx.beginPath(); ctx.arc(px, py, 4.5, 0, 7); ctx.fillStyle = COL.ink; ctx.fill();
+        const dist = G.plates ? null : Q.map(c => Math.hypot(px - c.x, py - c.y) * G.m);
+        ro([['field strength E', Em ? EX(Em) + ' N C⁻¹' : '0', 'hl'], ['potential V', V == null ? 'outside the plates' : EX(V) + ' V', 'hl'], ['direction of E', Em ? Math.round((Math.atan2(-Ey, Ex) * 180 / Math.PI + 360) % 360) + '° from +x' : '—']].concat(dist ? dist.map((d, i) => ['distance to q' + (i + 1), fmt(d * 100, 1) + ' cm']) : [['plates', 'V = 100 V across 16 cm']]));
+      } else ro([['tap the picture', 'to place a test point'], ['scale', 'picture width = 40 cm'], ['charges', S.set === 'plates' ? '+ plate and − plate' : Q.map((c, i) => 'q' + (i + 1) + ' = ' + (c.q > 0 ? '+' : '−') + Math.abs(c.q) + ' μC').join(', ')]]);
+      if (S.set === 'dipole' && S.q1 * S.q2 > 0 && Q.length === 2) { const r = Math.sqrt(Math.abs(S.q1) / Math.abs(S.q2)), d = Q[1].x - Q[0].x, xn = Q[0].x + d * r / (1 + r); ctx.beginPath(); ctx.arc(xn, h / 2, 5, 0, 7); ctx.fillStyle = COL.o; ctx.fill(); text(ctx, 'neutral point', xn, h / 2 + 22, { a: 'center', fs: 11, b: 1, c: COL.o }); }
+    }
+    cv.c.addEventListener('click', e => { const r = cv.c.getBoundingClientRect(); S.probe = [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; draw(); });
+    ui();
     new ResizeObserver(() => draw()).observe(root);
     draw();
   });
 
-  // ---------- 2. capacitors in series and parallel ----------
-  window.PhysiQSims.add('capcomb', function (root) {
-    const { COL, fmt, el, slider, button, canvas, text, readouts } = window.PhysiQSims.U;
-    const S = { k: 'ser', c: [2, 4, 6], V: 12 };
+  // ---------- 2. charged particle between parallel plates ----------
+  window.PhysiQSims.add('deflect', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, arrow, loop, readouts } = window.PhysiQSims.U;
+    const P = { e: { q: -1.6e-19, m: 9.11e-31, n: 'electron', v: [0.5, 3, 1.5], u: 1e7 }, p: { q: 1.6e-19, m: 1.67e-27, n: 'proton', v: [0.5, 5, 1], u: 1e6 }, a: { q: 3.2e-19, m: 6.64e-27, n: 'alpha particle', v: [0.5, 5, 1], u: 1e6 } };
+    const S = { k: 'e', V: 100, v0: 1.5, Lp: 0.06, d: 0.02, t: 0, run: true };
     const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
-    const ks = [['ser', 'series'], ['par', 'parallel'], ['mix', 'C₁ in series with (C₂ ∥ C₃)']];
-    const chips = ks.map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.k ? ' on' : ''), () => { S.k = k; chips.forEach(x => x.classList.toggle('on', x === b)); draw(); }); return b; });
+    const chips = Object.keys(P).map(k => { const b = button(pre, P[k].n, 'sm-chip' + (k === S.k ? ' on' : ''), () => { S.k = k; chips.forEach(x => x.classList.toggle('on', x === b)); mk(); S.t = 0; }); return b; });
     const ctl = el('div', 'sm-row'); root.appendChild(ctl);
-    [0, 1, 2].forEach(i => slider(ctl, 'C<sub>' + (i + 1) + '</sub>', 1, 10, 1, S.c[i], 'μF', v => { S.c[i] = v; draw(); }));
-    slider(ctl, 'supply <i>V</i>', 2, 24, 1, S.V, 'V', v => { S.V = v; draw(); });
+    slider(ctl, 'p.d. across the plates <i>V</i>', 0, 600, 10, S.V, 'V', v => { S.V = v; S.t = 0; });
+    let vs = null; const vbox = el('div'); ctl.appendChild(vbox);
+    function mk() { vbox.innerHTML = ''; const p = P[S.k]; S.v0 = p.v[2]; vs = slider(vbox, 'entry speed <i>v</i><sub>0</sub> (× ' + '10<sup>' + Math.round(Math.log10(p.u)) + '</sup>' + ' m s<sup>−1</sup>)', p.v[0], p.v[1], 0.1, S.v0, '', v => { S.v0 = v; S.t = 0; }); }
+    mk();
     const cv = canvas(root); const ro = readouts(root);
-    function solve() { const [a, b, c] = S.c, V = S.V; let Ceq, q = [], v = [];
-      if (S.k === 'ser') { Ceq = 1 / (1 / a + 1 / b + 1 / c); const Q = Ceq * V; q = [Q, Q, Q]; v = [Q / a, Q / b, Q / c]; }
-      else if (S.k === 'par') { Ceq = a + b + c; v = [V, V, V]; q = [a * V, b * V, c * V]; }
-      else { const p = b + c; Ceq = a * p / (a + p); const Q = Ceq * V; const v1 = Q / a, v2 = V - v1; q = [Q, b * v2, c * v2]; v = [v1, v2, v2]; }
-      return { Ceq, q, v }; }
-    function capV(ctx, x, y1, y2, i, R) { const c = (y1 + y2) / 2; ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x, c - 4); ctx.moveTo(x, c + 4); ctx.lineTo(x, y2); ctx.stroke(); ctx.strokeStyle = COL.v; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x - 14, c - 4); ctx.lineTo(x + 14, c - 4); ctx.moveTo(x - 14, c + 4); ctx.lineTo(x + 14, c + 4); ctx.stroke();
-      text(ctx, 'C' + '₁₂₃'[i] + ' = ' + S.c[i] + ' μF', x + 20, c - 8, { fs: 12, b: 1 }); text(ctx, 'Q = ' + fmt(R.q[i], 1) + ' μC', x + 20, c + 8, { fs: 11, c: COL.r }); text(ctx, 'V = ' + fmt(R.v[i], 2) + ' V', x + 20, c + 22, { fs: 11, c: COL.o }); }
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    button(bar, '↺ Fire again', 'sm-main', () => { S.t = 0; });
+    function calc() { const p = P[S.k], E = S.V / S.d, a = p.q * E / p.m, v0 = S.v0 * p.u; // upper plate positive: field points down; a positive charge accelerates down (a<0 upward)
+      const ay = -a; // upward-positive acceleration: E points downward (upper plate +)
+      const tp = S.Lp / v0, yExit = 0.5 * ay * tp * tp, hit = Math.abs(yExit) > S.d / 2; let tHit = null; if (hit) tHit = Math.sqrt(S.d / Math.abs(ay)); return { p, E, ay, v0, tp, yExit, hit, tHit, vy: ay * (hit ? tHit : tp) }; }
     function draw() {
-      const ctx = cv.ctx, { w, h } = cv.size(0.55, 260, 360); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const R = solve(), top = 26, bot = h - 30, xb = 30;
-      ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.8;
-      // battery on the left (vertical)
-      const by = (top + bot) / 2; ctx.beginPath(); ctx.moveTo(xb, top); ctx.lineTo(xb, by - 4); ctx.moveTo(xb, by + 4); ctx.lineTo(xb, bot); ctx.stroke(); ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(xb - 13, by - 4); ctx.lineTo(xb + 13, by - 4); ctx.stroke(); ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(xb - 7, by + 4); ctx.lineTo(xb + 7, by + 4); ctx.stroke(); text(ctx, S.V + ' V', xb + 16, by + 4, { fs: 12, b: 1 });
-      ctx.lineWidth = 1.8;
-      if (S.k === 'ser') { const xs = w * 0.55, seg = (bot - top) / 3; ctx.beginPath(); ctx.moveTo(xb, top); ctx.lineTo(xs, top); ctx.moveTo(xb, bot); ctx.lineTo(xs, bot); ctx.stroke(); for (let i = 0; i < 3; i++) capV(ctx, xs, top + i * seg, top + (i + 1) * seg, i, R); }
-      else { const gap = (w - 100) / 3, xs = [86, 86 + gap, 86 + 2 * gap];
-        if (S.k === 'par') { ctx.beginPath(); ctx.moveTo(xb, top); ctx.lineTo(xs[2], top); ctx.moveTo(xb, bot); ctx.lineTo(xs[2], bot); ctx.stroke(); xs.forEach((x, i) => capV(ctx, x, top, bot, i, R)); }
-        else { const ym = (top + bot) / 2 - 6; ctx.beginPath(); ctx.moveTo(xb, top); ctx.lineTo(xs[0], top); ctx.moveTo(xs[0], ym); ctx.lineTo(xs[0], ym + 12); ctx.lineTo(xs[2], ym + 12); ctx.moveTo(xb, bot); ctx.lineTo(xs[2], bot); ctx.stroke(); capV(ctx, xs[0], top, ym, 0, R); capV(ctx, xs[1], ym + 12, bot, 1, R); capV(ctx, xs[2], ym + 12, bot, 2, R); } }
-      const U = 0.5 * R.Ceq * S.V * S.V;
-      ro([['equivalent capacitance', fmt(R.Ceq, 2) + ' μF', 'hl'], ['total charge from the supply', fmt(R.Ceq * S.V, 1) + ' μC'], ['energy stored', fmt(U, 1) + ' μJ'], ['shared quantity', S.k === 'ser' ? 'same Q on each' : S.k === 'par' ? 'same V on each' : 'C₂, C₃ share V; Q₁ = Q₂ + Q₃']]);
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 230, 360); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const R = calc(), x0 = 40, sx = (w - 70) / (S.Lp * 2.1), ym = h / 2, sy = (h * 0.32) / (S.d / 2), X = x => x0 + x * sx, Y = y => ym - y * sy;
+      // plates
+      ctx.fillStyle = '#F9D9C8'; ctx.fillRect(X(0), Y(S.d / 2) - 8, S.Lp * sx, 8); ctx.fillStyle = '#D9E7F7'; ctx.fillRect(X(0), Y(-S.d / 2), S.Lp * sx, 8);
+      text(ctx, '+  ' + S.V + ' V', X(0), Y(S.d / 2) - 14, { fs: 12, b: 1, c: COL.r }); text(ctx, '−  0 V', X(0), Y(-S.d / 2) + 24, { fs: 12, b: 1, c: '#2C6BB3' });
+      if (S.V > 0) for (let x = 0.006; x < S.Lp; x += 0.012) arrow(ctx, X(x), Y(S.d / 2) + 4, X(x), Y(-S.d / 2) - 4, 'rgba(242,102,27,.45)', 1.2, 6);
+      text(ctx, 'E', X(S.Lp) - 14, Y(0) + 4, { it: 1, b: 1, c: COL.o });
+      // path
+      const T1 = R.hit ? R.tHit : R.tp + (S.Lp * 1.05) / R.v0, steps = 200; ctx.strokeStyle = 'rgba(106,99,236,.35)'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath();
+      const pos = t => { if (t <= R.tp || R.hit) return [R.v0 * t, 0.5 * R.ay * t * t]; return [R.v0 * t, R.yExit + R.ay * R.tp * (t - R.tp)]; };
+      for (let i = 0; i <= steps; i++) { const [x, y] = pos(T1 * i / steps); i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y)); } ctx.stroke(); ctx.setLineDash([]);
+      const tt = Math.min(S.t * T1 / 2.2, T1), [px, py] = pos(tt); ctx.beginPath(); ctx.arc(X(px), Y(py), 7, 0, 7); ctx.fillStyle = R.p.q < 0 ? '#D9E7F7' : '#F9D9C8'; ctx.fill(); ctx.strokeStyle = R.p.q < 0 ? '#2C6BB3' : COL.r; ctx.lineWidth = 1.6; ctx.stroke(); text(ctx, R.p.q < 0 ? '−' : '+', X(px), Y(py) + 4, { a: 'center', b: 1, fs: 11, c: R.p.q < 0 ? '#2C6BB3' : COL.r });
+      if (R.hit && tt >= T1) text(ctx, 'hits the ' + (R.ay > 0 ? 'upper' : 'lower') + ' plate', X(px), Y(py) + (R.ay > 0 ? 26 : -16), { a: 'center', b: 1, fs: 12, c: COL.r });
+      text(ctx, 'plates: 6.0 cm long, 2.0 cm apart', w - 10, h - 8, { a: 'right', fs: 10, c: COL.sub });
+      const ex = EX;
+      ro([['field E = V/d', ex(R.E || 0) + ' V m⁻¹'], ['acceleration qE/m', ex(Math.abs(R.ay) || 0) + ' m s⁻²', 'hl'], ['time between plates', R.hit ? 'does not get through' : ex(R.tp) + ' s'], ['vertical deflection y', R.hit ? '≥ 1.0 cm (hits)' : fmt(Math.abs(R.yExit) * 1000, 2) + ' mm', 'hl'], ['v_y on leaving', R.hit ? '—' : ex(Math.abs(R.vy)) + ' m s⁻¹'], ['angle of deflection θ', R.hit ? '—' : fmt(Math.atan(Math.abs(R.vy) / R.v0) * 180 / Math.PI, 1) + '°', 'hl']]);
     }
+    loop(cv, dt => { if (S.run) S.t += dt; draw(); });
     new ResizeObserver(() => draw()).observe(root);
     draw();
   });
 
-  // ---------- 3. RC charging and discharging ----------
-  window.PhysiQSims.add('rc', function (root) {
-    const { COL, fmt, el, slider, button, canvas, text, loop, readouts } = window.PhysiQSims.U;
-    const S = { mode: 'c', R: 100, Cu: 50, V0: 12, t: 0, run: true };
+  // ---------- 3. Gauss's law ----------
+  window.PhysiQSims.add('gauss', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts } = window.PhysiQSims.U;
+    const S = { mode: 'flux', R: 0.5, q1: 2, q2: -1, x2: 0.75, Rs: 0.3, Qs: 2, r: 0.6 };
     const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
-    const ms = [['c', 'charging'], ['d', 'discharging']];
-    const chips = ms.map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.mode ? ' on' : ''), () => { S.mode = k; chips.forEach(x => x.classList.toggle('on', x === b)); S.t = 0; }); return b; });
+    const modes = [['flux', 'Gaussian surface'], ['sphere', 'charged conducting sphere']];
+    const chips = modes.map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.mode ? ' on' : ''), () => { S.mode = k; chips.forEach(x => x.classList.toggle('on', x === b)); mk(); draw(); }); return b; });
     const ctl = el('div', 'sm-row'); root.appendChild(ctl);
-    slider(ctl, 'resistance <i>R</i>', 10, 500, 10, S.R, 'kΩ', v => { S.R = v; S.t = 0; });
-    slider(ctl, 'capacitance <i>C</i>', 10, 200, 10, S.Cu, 'μF', v => { S.Cu = v; S.t = 0; });
+    function mk() { ctl.innerHTML = '';
+      if (S.mode === 'flux') { slider(ctl, 'radius of the Gaussian sphere', 0.2, 0.95, 0.01, S.R, '', v => { S.R = v; draw(); }); slider(ctl, 'charge q₁ (nC), at the centre', -3, 3, 1, S.q1, 'nC', v => { S.q1 = v; draw(); }); slider(ctl, 'charge q₂ (nC)', -3, 3, 1, S.q2, 'nC', v => { S.q2 = v; draw(); }); slider(ctl, 'position of q₂', 0.2, 0.95, 0.01, S.x2, '', v => { S.x2 = v; draw(); }); }
+      else { slider(ctl, 'charge on the sphere Q (μC)', 1, 4, 0.5, S.Qs, 'μC', v => { S.Qs = v; draw(); }); slider(ctl, 'distance from the centre r', 0, 1, 0.01, S.r, '', v => { S.r = v; draw(); }); }
+    }
+    mk();
     const cv = canvas(root); const ro = readouts(root);
-    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
-    const pb = button(bar, '❚❚ Pause', 'sm-main', () => { S.run = !S.run; pb.textContent = S.run ? '❚❚ Pause' : '▶ Play'; });
-    button(bar, '↺ Restart', '', () => { S.t = 0; S.run = true; pb.textContent = '❚❚ Pause'; });
-    const TMAX = 30; // seconds shown on the graphs
     function draw() {
-      const ctx = cv.ctx, { w, h } = cv.size(0.62, 280, 420); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const tau = S.R * 1e3 * S.Cu * 1e-6, I0 = S.V0 / (S.R * 1e3), Q0 = S.Cu * 1e-6 * S.V0, ch = S.mode === 'c';
-      const fQ = t => ch ? 1 - Math.exp(-t / tau) : Math.exp(-t / tau), fI = t => Math.exp(-t / tau);
-      const narrow = w < 520, gw = narrow ? w - 70 : (w - 110) / 2, gh = narrow ? (h - 90) / 2 : h - 70;
-      const boxes = narrow ? [{ x: 50, y: 22, w: gw, h: gh }, { x: 50, y: 22 + gh + 46, w: gw, h: gh }] : [{ x: 50, y: 24, w: gw, h: gh }, { x: 90 + gw, y: 24, w: gw, h: gh }];
-      const g = (b, f, col, lab, unit, top) => { ctx.fillStyle = '#fff'; ctx.fillRect(b.x, b.y, b.w, b.h); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(b.x, b.y + b.h); ctx.lineTo(b.x + b.w, b.y + b.h); ctx.stroke();
-        text(ctx, lab, b.x, b.y - 7, { b: 1, fs: 12, c: col }); text(ctx, 't / s', b.x + b.w, b.y + b.h + 26, { a: 'right', fs: 11, c: COL.sub, it: 1 }); text(ctx, top, b.x - 4, b.y + 4, { a: 'right', fs: 10, c: COL.sub });
-        for (let s = 0; s <= TMAX; s += 10) text(ctx, String(s), b.x + b.w * s / TMAX, b.y + b.h + 13, { a: 'center', fs: 10, c: COL.sub });
-        const xt = b.x + b.w * Math.min(tau, TMAX) / TMAX; ctx.setLineDash([4, 4]); ctx.strokeStyle = COL.sub; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xt, b.y); ctx.lineTo(xt, b.y + b.h); ctx.stroke(); ctx.setLineDash([]); if (tau <= TMAX) text(ctx, 'τ', xt + 4, b.y + 12, { fs: 12, it: 1, b: 1 });
-        ctx.strokeStyle = col; ctx.globalAlpha = 0.3; ctx.lineWidth = 2; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const t = TMAX * i / 200, X = b.x + b.w * i / 200, Y = b.y + b.h * (1 - f(t)); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); } ctx.stroke(); ctx.globalAlpha = 1;
-        const tn = Math.min(S.t, TMAX); ctx.lineWidth = 2.6; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const t = tn * i / 200, X = b.x + b.w * t / TMAX, Y = b.y + b.h * (1 - f(t)); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); } ctx.stroke(); ctx.beginPath(); ctx.arc(b.x + b.w * tn / TMAX, b.y + b.h * (1 - f(tn)), 4.5, 0, 7); ctx.fillStyle = col; ctx.fill(); };
-      g(boxes[0], fQ, COL.v, 'charge Q (and p.d. V)', '', fmt(Q0 * 1e3, 1) + ' mC');
-      g(boxes[1], fI, COL.o, 'current I' + (ch ? '' : ' (size)'), '', fmt(I0 * 1e3, 2) + ' mA');
-      const tn = Math.min(S.t, TMAX);
-      ro([['time constant τ = RC', fmt(tau, 1) + ' s', 'hl'], ['t', fmt(tn, 1) + ' s  (= ' + fmt(tn / tau, 2) + 'τ)'], ['charge Q', fmt(Q0 * fQ(tn) * 1e3, 2) + ' mC  (' + Math.round(fQ(tn) * 100) + '% of Q₀)', 'hl'], ['p.d. across C', fmt(S.V0 * fQ(tn), 2) + ' V'], ['current I', fmt(I0 * fI(tn) * 1e3, 3) + ' mA  (' + Math.round(fI(tn) * 100) + '% of I₀)'], ['supply', ch ? '12 V battery' : 'none (C starts at 12 V)']]);
-    }
-    loop(cv, dt => { if (S.run && S.t < TMAX) S.t += dt * 3; draw(); });
-    new ResizeObserver(() => draw()).observe(root);
-    draw();
-  });
-  // ---------- thundercloud and ground: a natural capacitor ----------
-  window.PhysiQSims.add('lightning', function (root) {
-    const { COL, fmt, el, slider, button, toggle, canvas, text, readouts, loop } = window.PhysiQSims.U;
-    const e0 = 8.85e-12, A = 1.0e6, Ebd = 3.0e6;
-    // thunder, made by the browser (no sound file): a crack followed by a low rumble, heard d/340 s after the flash
-    let ac = null, sound = false, heardAt = 0;
-    function thunder(delay, dist) {
-      if (!ac) return;
-      const t0 = ac.currentTime + delay, dur = 4.5, sr = ac.sampleRate, n = Math.floor(sr * dur), buf = ac.createBuffer(1, n, sr), d = buf.getChannelData(0);
-      let last = 0; for (let i = 0; i < n; i++) { const w = Math.random() * 2 - 1; last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; }   // brown noise
-      const src = ac.createBufferSource(); src.buffer = buf;
-      const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(dist < 1.2 ? 1800 : 900, t0); lp.frequency.exponentialRampToValueAtTime(110, t0 + 2.5);
-      const g = ac.createGain(), peak = Math.min(1, 1.3 / dist);
-      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + (dist < 1.2 ? 0.02 : 0.25));
-      let t = t0 + 0.3; for (let k = 0; k < 6; k++) { g.gain.linearRampToValueAtTime(peak * (0.35 + Math.random() * 0.45) * (1 - k / 7), t); t += 0.35 + Math.random() * 0.3; }
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-      src.connect(lp); lp.connect(g); g.connect(ac.destination); src.start(t0); src.stop(t0 + dur);
-    }
-    const S = { d: 1.0, Q: 0, run: true, rate: 4, flash: 0, lead: 0, slow: false, bolt: null, count: 0, lastQ: 0 };
-    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
-    slider(ctl, 'height of the cloud base <i>d</i>', 0.5, 2.0, 0.1, S.d, 'km', v => { S.d = v; });
-    slider(ctl, 'how fast the storm charges the cloud', 1, 10, 1, S.rate, '', v => { S.rate = v; });
-    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
-    const pb = button(bar, 'Pause the storm', '', () => { S.run = !S.run; pb.textContent = S.run ? 'Pause the storm' : 'Let the storm charge the cloud'; });
-    button(bar, 'Start again', '', () => { S.Q = 0; S.flash = 0; S.lead = 0; S.bolt = null; S.count = 0; });
-    toggle(bar, '🐢 Slow motion', false, v => { S.slow = v; });
-    toggle(bar, '🔊 Thunder sound', false, v => { sound = v; if (v && !ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ac = null; } } if (ac && ac.state === 'suspended') ac.resume(); });
-    const cv = canvas(root); const ro = readouts(root);
-    const Qmax = e0 * A * Ebd;   // charge at breakdown (does not depend on d)
-    function makeBolt(x0, y0, y1) {
-      const pts = [[x0, y0]]; let x = x0, y = y0; const n = 14, br = [];
-      for (let i = 1; i <= n; i++) { y = y0 + (y1 - y0) * i / n; x += (Math.random() - 0.5) * 34; pts.push([x, y]);
-        if (Math.random() < 0.3 && i < n - 2) { const b = [[x, y]]; let bx = x, by = y; for (let k = 0; k < 4; k++) { bx += (Math.random() - 0.3) * 26 * (Math.random() < 0.5 ? -1 : 1); by += (y1 - y0) / n * 0.9; b.push([bx, by]); } br.push(b); } }
-      return { pts, br };
-    }
-    function frame(dt) {
-      if (dt < 0) dt = 0;
-      const sf = S.slow ? 0.1 : 1, dtf = dt * sf;   // slow motion: the lightning itself runs ten times slower
-      const busy = S.flash > 0 || S.lead > 0;
-      const ctx = cv.ctx, { w, h } = cv.size(0.62, 300, 420); ctx.clearRect(0, 0, w, h);
-      // charge build-up (tens of coulombs over a few seconds, scaled)
-      if (S.run && !busy) S.Q = Math.min(Qmax, S.Q + Qmax * 0.035 * S.rate * dt);
-      const E = S.Q / (e0 * A), dm = S.d * 1000, Cap = e0 * A / dm, V = E * dm, U = 0.5 * S.Q * V;
-      if (!busy && S.Q >= Qmax * 0.999) { S.lead = 1e-4; S.lastQ = S.Q; }
-      // sky
-      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#2B3445'); g.addColorStop(1, '#5D6B7D'); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      const groundY = h - 46, top = 22, cloudBase = top + 50 + (1 - (S.d - 0.5) / 1.5) * (groundY - top - 140);
-      // ground
-      ctx.fillStyle = '#4C6B2F'; ctx.fillRect(0, groundY, w, h - groundY); ctx.fillStyle = '#3B5424';
-      for (let x = 20; x < w; x += 70) { ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x + 8, groundY - 26); ctx.lineTo(x + 16, groundY); ctx.fill(); }
-      ctx.fillStyle = '#C9B79C'; ctx.fillRect(w * 0.72, groundY - 22, 34, 22); ctx.fillStyle = '#8E3B2E'; ctx.beginPath(); ctx.moveTo(w * 0.72 - 4, groundY - 22); ctx.lineTo(w * 0.72 + 17, groundY - 38); ctx.lineTo(w * 0.72 + 38, groundY - 22); ctx.fill();
-      // cloud
-      ctx.fillStyle = '#9AA3B2'; const cx0 = w * 0.12, cx1 = w * 0.88;
-      ctx.beginPath(); ctx.moveTo(cx0, cloudBase);
-      for (let x = cx0; x <= cx1 - 40; x += 40) { ctx.arc(x + 20, cloudBase - 24 - 10 * Math.sin(x * 0.07), 34, Math.PI, 0); }
-      ctx.lineTo(cx1, cloudBase); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#7C8596'; ctx.fillRect(cx0, cloudBase - 12, cx1 - cx0, 12);
-      // charges: number shown grows with Q
-      const nq = Math.round(14 * S.Q / Qmax);
-      for (let i = 0; i < nq; i++) { const x = cx0 + 14 + i * (cx1 - cx0 - 28) / 13; text(ctx, '−', x, cloudBase + 4, { a: 'center', b: 1, fs: 18, c: '#9CD0FF' }); text(ctx, '+', x, groundY + 18, { a: 'center', b: 1, fs: 16, c: '#FFC2A8' }); }
-      // field lines (from + ground up to − cloud), brightness grows with E
-      const fr = E / Ebd;
-      if (fr > 0.02 && !S.flash) { ctx.strokeStyle = `rgba(255,236,120,${0.15 + 0.7 * fr})`; ctx.lineWidth = 1.4 + 1.2 * fr;
-        for (let x = cx0 + 30; x < cx1 - 10; x += (cx1 - cx0 - 40) / 7) { ctx.beginPath(); ctx.moveTo(x, groundY - 4); ctx.lineTo(x, cloudBase + 12); ctx.stroke(); ctx.beginPath(); const my = (groundY + cloudBase) / 2; ctx.moveTo(x - 5, my + 4); ctx.lineTo(x, my - 6); ctx.lineTo(x + 5, my + 4); ctx.stroke(); } }
-      { const my = (groundY + cloudBase) / 2 + 22; ctx.fillStyle = 'rgba(29,43,31,.75)'; ctx.fillRect(6, my - 13, 104, 18); ctx.fillRect(w - 76, my - 13, 70, 18);
-        text(ctx, 'air (dielectric)', 10, my, { fs: 11, c: '#DDE3EA', b: 1 }); text(ctx, 'd = ' + fmt(S.d, 1) + ' km', w - 10, my, { a: 'right', fs: 11, c: '#DDE3EA' }); }
-      // lightning
-      // stepped leader: the ionised channel works its way down from the cloud
-      const drawPath = pts => { ctx.beginPath(); pts.forEach(([x, y], k) => k ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); };
-      if (S.lead > 0) {
-        if (!S.bolt) S.bolt = makeBolt(w * (0.35 + Math.random() * 0.3), cloudBase, groundY);
-        S.lead = Math.min(1, S.lead + dtf / 0.35);
-        const n = S.bolt.pts.length - 1, upto = Math.max(1, Math.floor(S.lead * n));
-        ctx.strokeStyle = 'rgba(220,210,255,.9)'; ctx.lineWidth = 1.6; ctx.shadowColor = '#CFC6F7'; ctx.shadowBlur = 8; drawPath(S.bolt.pts.slice(0, upto + 1));
-        S.bolt.br.forEach(b => { const k0 = S.bolt.pts.findIndex(q => q[0] === b[0][0] && q[1] === b[0][1]); if (k0 >= 0 && k0 < upto) drawPath(b.slice(0, Math.min(b.length, upto - k0 + 1))); }); ctx.shadowBlur = 0;
-        text(ctx, 'stepped leader: the air starts to break down', w / 2, (groundY + cloudBase) / 2 - 34, { a: 'center', b: 1, fs: w < 480 ? 12 : 13, c: '#E4DDFF' });
-        if (S.lead >= 1) { S.lead = 0; S.flash = 1.0; S.count++; const delay = S.d * 1000 / 340 / sf; heardAt = performance.now() + delay * 1000; if (sound) thunder(delay, S.d); }
-      }
-      // return stroke: the capacitor discharges through the ionised air
-      if (S.flash > 0) {
-        const a = Math.min(1, S.flash * 1.6);
-        ctx.fillStyle = `rgba(255,255,255,${0.55 * a * (Math.random() < 0.7 ? 1 : 0.4)})`; ctx.fillRect(0, 0, w, h);
-        ctx.strokeStyle = `rgba(255,250,200,${a})`; ctx.lineWidth = 4; ctx.shadowColor = '#FFF6B0'; ctx.shadowBlur = 18; drawPath(S.bolt.pts); ctx.lineWidth = 1.8; S.bolt.br.forEach(b => drawPath(b)); ctx.shadowBlur = 0;
-        S.flash -= dtf * 1.2; S.Q = Math.max(0, S.Q - S.lastQ * dtf * 4);
-        text(ctx, S.slow ? 'return stroke: charge flows to the ground' : 'air breaks down: lightning!', w / 2, (groundY + cloudBase) / 2 - 34, { a: 'center', b: 1, fs: w < 480 ? 13 : 15, c: '#FFF3A0' });
-        if (S.flash <= 0) { S.flash = 0; S.bolt = null; S.Q = 0; }
-      }
-      // field meter
-      const mx = 12, my0 = top - 6, mw = Math.min(180, w * 0.4);
-      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(mx, my0, mw, 10); ctx.fillStyle = fr > 0.85 ? '#FF8A5C' : '#D5DC3B'; ctx.fillRect(mx, my0, mw * Math.min(1, fr), 10);
-      text(ctx, 'E / dielectric strength of air', mx, my0 + 24, { fs: 10.5, c: '#DDE3EA' });
-      ro([['charge on the cloud Q', fmt(S.Q, 1) + ' C', 'hl'], ['field E = Q/(ε₀A)', fmt(E / 1e6, 2) + ' × 10⁶ V m⁻¹', 'hl'], ['capacitance C = ε₀A/d', fmt(Cap * 1e9, 1) + ' nF'], ['p.d. V = Q/C', fmt(V / 1e9, 2) + ' × 10⁹ V'], ['energy stored ½QV', fmt(U / 1e9, 1) + ' × 10⁹ J'], ['flashes', String(S.count)], ['thunder heard after d/340', fmt(S.d * 1000 / 340, 1) + ' s' + (heardAt > performance.now() ? ' (wait for it…)' : '')]]);
-    }
-    loop(cv, frame);
-  });
-  // ---------- camera flash and defibrillator: charge slowly, discharge quickly ----------
-  window.PhysiQSims.add('flash', function (root) {
-    const { COL, fmt, el, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
-    const DEV = { cam: { name: 'camera flash', C: 150e-6, V: 300, Rc: 10e3, Rd: 2 }, def: { name: 'defibrillator', C: 32e-6, V: 3500, Rc: 100e3, Rd: 50 } };
-    const S = { k: 'def', phase: 'idle', Vc: 0, t: 0, hist: [], fire: 0, after: 0, ecg: 0 };
-    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
-    const chips = [['def', 'Defibrillator'], ['cam', 'Camera flash']].map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.k ? ' on' : ''), () => { S.k = k; S.phase = 'idle'; S.Vc = 0; S.t = 0; S.hist = []; S.fire = 0; S.after = 0; chips.forEach(x => x.classList.toggle('on', x === b)); }); return b; });
-    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
-    button(bar, '⚡ Charge', '', () => { if (S.phase !== 'firing') { S.phase = 'charging'; S.t = 0; S.hist = []; S.Vc = 0; S.after = 0; } });
-    button(bar, '💥 Fire', '', () => { if (S.Vc > 1 && S.phase !== 'firing') { S.phase = 'firing'; S.fire = 0; S.V0 = S.Vc; } });
-    const cv = canvas(root); const ro = readouts(root);
-    function heart(ctx, x, y, r, col) { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x, y + r * 0.9); ctx.bezierCurveTo(x - r * 1.4, y - r * 0.1, x - r * 0.7, y - r * 1.1, x, y - r * 0.4); ctx.bezierCurveTo(x + r * 0.7, y - r * 1.1, x + r * 1.4, y - r * 0.1, x, y + r * 0.9); ctx.fill(); }
-    function frame(dt) {
-      if (dt < 0) dt = 0;
-      const D = DEV[S.k], tc = D.Rc * D.C, td = D.Rd * D.C;
-      if (S.phase === 'charging') { S.t += dt; S.Vc = D.V * (1 - Math.exp(-S.t / tc)); S.hist.push([S.t, S.Vc]); if (S.Vc > 0.99 * D.V) S.phase = 'ready'; }
-      if (S.phase === 'firing') { S.fire += dt / 1.2; S.Vc = S.V0 * Math.exp(-S.fire * 5); if (S.fire >= 1) { S.phase = 'idle'; S.Vc = 0; S.after = 1; S.hist = []; } }
-      if (S.after > 0) S.after += dt;
-      S.ecg += dt;
-      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(1.0, 360, 460) : cv.size(0.5, 270, 340); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      // device picture
-      const px = narrow ? w / 2 : w * 0.2, py = narrow ? 80 : h * 0.4;
-      const flashA = S.phase === 'firing' ? Math.max(0, 1 - S.fire * 2.2) : 0;
-      if (S.k === 'cam') {
-        ctx.fillStyle = '#2E3440'; ctx.fillRect(px - 60, py - 30, 120, 70); ctx.fillStyle = '#4C566A'; ctx.beginPath(); ctx.arc(px, py + 6, 24, 0, 7); ctx.fill(); ctx.fillStyle = '#88C0D0'; ctx.beginPath(); ctx.arc(px, py + 6, 14, 0, 7); ctx.fill();
-        ctx.fillStyle = `rgba(255,255,230,${0.35 + 0.65 * flashA})`; ctx.fillRect(px + 22, py - 44, 34, 14); ctx.strokeStyle = COL.ink; ctx.strokeRect(px + 22, py - 44, 34, 14);
-        if (flashA > 0) { const g = ctx.createRadialGradient(px + 39, py - 37, 4, px + 39, py - 37, 160); g.addColorStop(0, `rgba(255,255,220,${0.9 * flashA})`); g.addColorStop(1, 'rgba(255,255,220,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); }
-        text(ctx, S.phase === 'ready' ? 'ready light ON' : S.phase === 'charging' ? 'charging…' : '', px, py + 58, { a: 'center', fs: 11, b: 1, c: S.phase === 'ready' ? COL.gr : COL.sub });
+      const ctx = cv.ctx, { w, h } = cv.size(0.6, 260, 420); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#FBFCF6'; ctx.fillRect(0, 0, w, h);
+      if (S.mode === 'flux') {
+        const cx = w * 0.42, cy = h / 2, sc = Math.min(w * 0.4, h * 0.46), Q = [{ x: cx, y: cy, q: S.q1 }, { x: cx + S.x2 * sc * 1.25, y: cy, q: S.q2 }].filter(c => c.q !== 0);
+        if (Q.length) { const lines = traceLines(Q, [-10, -10, w + 10, h + 10], 6, 2.5, 10); ctx.strokeStyle = 'rgba(106,99,236,.75)'; ctx.lineWidth = 1.3; lines.forEach(l => { ctx.beginPath(); l.pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); }); }
+        ctx.beginPath(); ctx.arc(cx, cy, S.R * sc, 0, 7); ctx.fillStyle = 'rgba(213,220,59,.18)'; ctx.fill(); ctx.setLineDash([6, 4]); ctx.strokeStyle = COL.gr; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
+        Q.forEach((c, i) => { ctx.beginPath(); ctx.arc(c.x, c.y, 11, 0, 7); ctx.fillStyle = c.q > 0 ? '#F9D9C8' : '#D9E7F7'; ctx.fill(); ctx.strokeStyle = c.q > 0 ? COL.r : '#2C6BB3'; ctx.lineWidth = 2; ctx.stroke(); text(ctx, 'q' + (c.x === cx ? '₁' : '₂'), c.x, c.y + 4, { a: 'center', fs: 11, b: 1, c: c.q > 0 ? COL.r : '#2C6BB3' }); });
+        const in2 = S.x2 * 1.25 < S.R, qin = S.q1 + (in2 ? S.q2 : 0), phi = qin * 1e-9 / 8.85e-12;
+        text(ctx, 'Gaussian surface', cx, cy - S.R * sc - 8, { a: 'center', fs: 11, b: 1, c: COL.gr });
+        ro([['charge enclosed', (qin > 0 ? '+' : qin < 0 ? '−' : '') + Math.abs(qin) + ' nC', 'hl'], ['flux Φ = Q/ε₀', (phi < 0 ? '−' : '') + fmt(Math.abs(phi), 0) + ' N m² C⁻¹', 'hl'], ['q₂ is', S.q2 === 0 ? 'zero' : in2 ? 'inside: it counts' : 'outside: its lines go in and out, net flux 0'], ['size of the surface', 'does not change Φ']]);
       } else {
-        // heart with an ECG strip
-        const beating = S.after > 0.6;
-        heart(ctx, px, py - 8, 26 + (beating ? 3 * Math.max(0, Math.sin(S.ecg * 7)) : 1.5 * Math.random()), flashA > 0 ? '#FFD36B' : '#D9534F');
-        const ex = px - 70, ew = 140, ey = py + 46; ctx.fillStyle = '#10261A'; ctx.fillRect(ex, ey - 18, ew, 36); ctx.strokeStyle = '#4CE07A'; ctx.lineWidth = 1.6; ctx.beginPath();
-        for (let i = 0; i <= 140; i++) { const tt = S.ecg * 1.5 + i / 50; let y;
-          if (beating) { const ph = (tt % 1); y = ph < 0.05 ? -14 * Math.sin(ph / 0.05 * Math.PI) : ph < 0.1 ? 6 * Math.sin((ph - 0.05) / 0.05 * Math.PI) : ph > 0.3 && ph < 0.42 ? -4 * Math.sin((ph - 0.3) / 0.12 * Math.PI) : 0; }
-          else y = 7 * Math.sin(tt * 23) * Math.sin(tt * 3.7) + 3 * Math.sin(tt * 41);
-          i ? ctx.lineTo(ex + i, ey + y) : ctx.moveTo(ex + i, ey + y); }
-        ctx.stroke();
-        text(ctx, beating ? 'normal rhythm restarted' : 'chaotic rhythm (fibrillation)', px, ey + 32, { a: 'center', fs: 11, b: 1, c: beating ? COL.gr : COL.r });
-        if (flashA > 0) { ctx.fillStyle = `rgba(255,240,150,${0.5 * flashA})`; ctx.fillRect(0, 0, w, h); }
+        const cx = w * 0.25, cy = h * 0.5, Rpx = Math.min(w * 0.13, h * 0.3), Rm = 0.10, rm = S.r * 0.4, kq = K * S.Qs * 1e-6;
+        ctx.beginPath(); ctx.arc(cx, cy, Rpx, 0, 7); ctx.fillStyle = '#F9D9C8'; ctx.fill(); ctx.strokeStyle = COL.r; ctx.lineWidth = 2; ctx.stroke();
+        for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; text(ctx, '+', cx + (Rpx - 8) * Math.cos(a), cy + (Rpx - 8) * Math.sin(a) + 4, { a: 'center', b: 1, fs: 11, c: COL.r }); }
+        const rp = cx + rm / Rm * Rpx; if (rp < w * 0.48) { ctx.beginPath(); ctx.arc(rp, cy, 4, 0, 7); ctx.fillStyle = COL.ink; ctx.fill(); }
+        text(ctx, 'R = 10 cm', cx, cy + Rpx + 18, { a: 'center', fs: 11, c: COL.sub }); text(ctx, 'E = 0 inside', cx, cy + 4, { a: 'center', fs: 11, b: 1, c: COL.gr });
+        // graphs
+        const gx = w * 0.55, gw = w * 0.4, gh = h * 0.34, E = r => r < Rm ? 0 : kq / (r * r), V = r => r < Rm ? kq / Rm : kq / r, rmax = 0.4, Emax = kq / (Rm * Rm) * 1.1, Vmax = kq / Rm * 1.15;
+        const plot = (y0, f, fmax, col, lab) => { ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, y0); ctx.lineTo(gx + gw, y0); ctx.moveTo(gx, y0); ctx.lineTo(gx, y0 - gh); ctx.stroke(); text(ctx, lab, gx + 4, y0 - gh + 4, { b: 1, fs: 12, c: col }); text(ctx, 'r', gx + gw, y0 + 14, { it: 1, fs: 11, a: 'right' });
+          ctx.strokeStyle = col; ctx.lineWidth = 2.4; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const r = rmax * i / 200, v = f(r); const X = gx + gw * r / rmax, Yv = y0 - gh * Math.min(1, v / fmax); i ? ctx.lineTo(X, Yv) : ctx.moveTo(X, Yv); } ctx.stroke();
+          const Xr = gx + gw * rm / rmax; ctx.setLineDash([3, 3]); ctx.strokeStyle = COL.sub; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(Xr, y0); ctx.lineTo(Xr, y0 - gh); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(Xr, y0 - gh * Math.min(1, f(rm) / fmax), 4, 0, 7); ctx.fillStyle = col; ctx.fill();
+          const XR = gx + gw * Rm / rmax; text(ctx, 'R', XR, y0 + 14, { a: 'center', fs: 11, it: 1 }); };
+        plot(h * 0.45, E, Emax, COL.v, 'E'); plot(h * 0.92, V, Vmax, COL.o, 'V');
+        const ex = EX;
+        ro([['distance r', fmt(rm * 100, 1) + ' cm' + (rm < Rm ? ' (inside)' : '')], ['E', rm < Rm ? '0' : ex(E(rm)) + ' N C⁻¹', 'hl'], ['V', ex(V(rm)) + ' V', 'hl'], ['outside', 'acts like a point charge at the centre']]);
       }
-      // graphs: capacitor voltage while charging (seconds), current while discharging (milliseconds)
-      const gx = narrow ? 44 : w * 0.42, gw = w - gx - 16, gy = narrow ? 170 : 24, gh = narrow ? (h - 170 - 50) / 2 : (h - 70) / 2;
-      const panel = (y0, title) => { ctx.fillStyle = '#fff'; ctx.fillRect(gx, y0, gw, gh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(gx, y0); ctx.lineTo(gx, y0 + gh); ctx.lineTo(gx + gw, y0 + gh); ctx.stroke(); text(ctx, title, gx + 6, y0 + 13, { fs: 11, b: 1 }); };
-      panel(gy, 'charging: V across C (time in seconds)');
-      const T1 = 5 * tc; ctx.strokeStyle = COL.v; ctx.lineWidth = 2.2; ctx.beginPath(); S.hist.forEach(([t, V], i) => { const X = gx + gw * Math.min(1, t / T1), Y = gy + gh - V / D.V * (gh - 18); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
-      text(ctx, '5RC = ' + fmt(T1, 1) + ' s', gx + gw - 4, gy + gh - 4, { a: 'right', fs: 10, c: COL.sub });
-      const g2 = gy + gh + 30; panel(g2, 'firing: current (time in milliseconds)');
-      if (S.phase === 'firing' || S.after > 0) { const f = S.phase === 'firing' ? S.fire : 1; ctx.strokeStyle = COL.o; ctx.lineWidth = 2.2; ctx.beginPath(); for (let i = 0; i <= 100 * f; i++) { const u = i / 100, X = gx + gw * u, Y = g2 + 16 + (gh - 18) * (1 - Math.exp(-u * 5)); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); } ctx.stroke(); }
-      text(ctx, '5RC = ' + fmt(5 * td * 1000, 1) + ' ms', gx + gw - 4, g2 + gh - 4, { a: 'right', fs: 10, c: COL.sub });
-      const U = 0.5 * D.C * D.V * D.V;
-      ro([['capacitor', fmt(D.C * 1e6, 0) + ' μF charged to ' + (D.V >= 1000 ? fmt(D.V / 1000, 1) + ' kV' : fmt(D.V, 0) + ' V'), 'hl'], ['energy stored ½CV²', fmt(U, U < 20 ? 2 : 0) + ' J', 'hl'], ['charging time constant RC', fmt(tc, 1) + ' s'], ['discharge time constant RC', fmt(td * 1000, 2) + ' ms'], ['peak current V/R', fmt(D.V / D.Rd, 0) + ' A'], ['power ≈ U ÷ 2RC', fmt(U / (2 * td) / 1000, 0) + ' kW']]);
     }
-    loop(cv, frame);
+    new ResizeObserver(() => draw()).observe(root);
+    draw();
   });
 })();

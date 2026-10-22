@@ -18,7 +18,7 @@ const grab = (start, end) => { const a = html.indexOf(start), b = html.indexOf(e
 const mathify = new Function(grab('  function mathify(html){', '  function renderNotesContent(){') + '\nreturn mathify;')();
 const DV = new Function(grab('  const DV = (() => {', '\n  })();') + '\n  })();\nreturn DV;')();
 const derivPrep = new Function(grab('  function derivPrep(t){', '\n  function derivPage(') + '\nreturn derivPrep;')();
-const derivAppChapter = (sem, ch) => sem === 1 ? String(ch) : 'S' + sem + '-' + (Number(ch) - 1);
+const derivAppChapter = (sem, ch) => sem === 1 ? String(ch) : 'S' + sem + '-' + Number(ch);
 const M = t => mathify(derivPrep(t));
 const COLORS = ['#2563EB', '#15803D', '#DB2777', '#7C3AED', '#0F766E', '#EA580C', '#DC2626', '#B45309'];
 
@@ -90,7 +90,7 @@ ${cards}</body></html>`;
     for (const [num, name, items] of DV.SEM[sem] || []) {
       const id = derivAppChapter(sem, num);
       const f = path.join(TMP, id + '.html');
-      fs.writeFileSync(f, sheet(sem, sem === 1 ? num : Number(num) - 1, name, items)); // app chapter numbers (Sem 2 and 3 are one lower than the syllabus)
+      fs.writeFileSync(f, sheet(sem, num, name, items)); // app chapter numbers now match the STPM 2026 syllabus
       await page.goto('file://' + f);
       await page.evaluate(() => document.fonts.ready);
       const out = path.join(OUT, `PhysiQ_Derivations_${id}.pdf`);

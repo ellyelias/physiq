@@ -577,13 +577,13 @@ module.exports = K => ({
     tips: ['Draw the temperature profile through a composite wall.', 'The layer with the smaller $k$ has the steeper gradient.', 'Use ratios for $P \\propto T^4$: doubling $T$ gives 16 times the power.', 'Quote $k$ with unit W m⁻¹ K⁻¹.'],
   },
 
-  'S2-12': {
+  'S2-13': {
     hubTitle: 'Electro-<br>statics',
     idea: '**Key idea:** charges exert forces through electric fields; potential is the work done per unit charge.',
     hubAt: 1,
     boxes: [
       { t: "Coulomb's law", c: 'blue', col: 'L', body: [
-        ['svg', K.fig('S2-12.1', 0, 320)],
+        ['svg', K.fig('S2-13.1', 0, 320)],
         ['f', r`F = \dfrac{Q_1Q_2}{4\pi\varepsilon_0 r^2}`],
         ['b', ['$\\dfrac{1}{4\\pi\\varepsilon_0} = 8.99\\times10^9$ N m² C⁻²', 'Like charges repel, unlike attract', 'In a medium: divide by $\\varepsilon_r$', 'Several charges: add forces as **vectors**']],
       ] },
@@ -602,12 +602,12 @@ module.exports = K => ({
         ['b', ['Work done per unit positive charge from **infinity**', 'Scalar: add potentials algebraically', 'Work by external force: $W = q\\Delta V$']],
       ] },
       { t: 'Field and potential', c: 'orange', col: 'M', body: [
-        ['svg', K.fig('S2-12.4', 0, 330)],
+        ['svg', K.fig('S2-13.4', 0, 330)],
         ['f', r`E = -\dfrac{dV}{dr}`],
         ['b', ['$E$ points towards **lower** potential', 'Equipotentials ⟂ field lines; no work along them', 'Close equipotentials = strong field']],
       ] },
       { t: 'Charges in a uniform field', c: 'teal', col: 'R', body: [
-        ['svg', K.fig('S2-12.2', 0, 300)],
+        ['svg', K.fig('S2-13.2', 0, 300)],
         ['fs', [r`a = \dfrac{qE}{m}`, r`\tfrac12mv^2 = qV`]],
         ['b', ['Enters ⟂ to the field: **parabolic** path', 'Oil drop at rest: $\\dfrac{qV}{d} = mg$']],
       ] },
@@ -629,13 +629,13 @@ module.exports = K => ({
     tips: ['Draw each field vector before adding.', 'Use energy, $\\tfrac12mv^2 = qV$, for speeds.', 'State the Gaussian surface you choose.', 'Give direction of $E$ as well as magnitude.'],
   },
 
-  'S2-13': {
+  'S2-14': {
     hubTitle: 'Capacitors',
     idea: '**Key idea:** a capacitor stores charge and energy in the electric field between its plates.',
     hubAt: 1,
     boxes: [
       { t: 'Capacitance', c: 'blue', col: 'L', body: [
-        ['svg', K.fig('S2-13.1', 0, 300)],
+        ['svg', K.fig('S2-14.1', 0, 300)],
         ['f', r`C = \dfrac QV`],
         ['b', ['Unit farad: 1 F = 1 C V⁻¹ (µF, nF, pF)', 'Gradient of $Q$–$V$ graph $= C$', 'Isolated sphere: $C = 4\\pi\\varepsilon_0R$']],
       ] },
@@ -645,11 +645,11 @@ module.exports = K => ({
         ['b', ['**Battery connected:** $V$ constant', '**Isolated:** $Q$ constant']],
       ] },
       { t: 'Dielectrics', c: 'pink', col: 'R', body: [
-        ['svg', K.fig('S2-13.3', 0, 300)],
+        ['svg', K.fig('S2-14.3', 0, 300)],
         ['tbl', [['Insert dielectric', 'Battery on', 'Isolated'], ['$C$', '× $\\varepsilon_r$', '× $\\varepsilon_r$'], ['$Q$', '× $\\varepsilon_r$', 'same'], ['$V$, $E$', 'same', '÷ $\\varepsilon_r$'], ['$U$', '× $\\varepsilon_r$', '÷ $\\varepsilon_r$']]],
       ] },
       { t: 'Series & parallel', c: 'purple', col: 'L', body: [
-        ['svg', K.fig('S2-13.4', 0, 320)],
+        ['svg', K.fig('S2-14.4', 0, 320)],
         ['fs', [r`C_{\parallel} = C_1 + C_2`, r`\dfrac1{C_s} = \dfrac1{C_1} + \dfrac1{C_2}`]],
         ['b', ['Series: **same $Q$**; smaller $C$ takes larger $V$', 'Parallel: **same $V$**; charges add']],
       ] },
@@ -658,7 +658,7 @@ module.exports = K => ({
         ['b', ['$U$ = area under the $V$–$Q$ graph', 'Energy density $u = \\tfrac12\\varepsilon_0E^2$', 'Battery gives $QV$: half stored, half lost as heat', 'Sharing charge: $Q$ conserved, energy lost']],
       ] },
       { t: 'Charging & discharging', c: 'teal', col: 'R', body: [
-        ['svg', K.fig('S2-13.6', 0, 320)],
+        ['svg', K.fig('S2-14.6', 0, 320)],
         ['fs', [r`Q = Q_0e^{-t/RC}`, r`Q = Q_0\left(1 - e^{-t/RC}\right)`]],
         ['b', ['$\\tau = RC$: 37% left (discharge), 63% reached (charge)', '$t_{1/2} = RC\\ln2$', 'Current decays as $I_0e^{-t/RC}$ in **both** cases']],
       ] },
@@ -676,23 +676,23 @@ module.exports = K => ({
     tips: ['Decide first: battery connected or isolated?', 'For series, find the common $Q$ first.', 'Use $\\ln$ to find $t$ from an exponential.', 'Quote $\\tau$ before sketching charge–time graphs.'],
   },
 
-  'S2-14': {
+  'S2-15': {
     hubTitle: 'Electric<br>Current',
     idea: '**Key idea:** current is the drift of charge carriers; resistance depends on the material and its shape.',
     hubAt: 1,
     boxes: [
       { t: 'Electric current', c: 'blue', col: 'L', body: [
-        ['svg', K.fig('S2-14.1', 0, 300)],
+        ['svg', K.fig('S2-15.1', 0, 300)],
         ['fs', [r`I = \dfrac{dQ}{dt}`, 'Q = Ne']],
         ['b', ['Conventional current: direction of + charge flow', 'Electrons drift the opposite way', '1 A = 1 C s⁻¹']],
       ] },
       { t: 'Drift velocity', c: 'green', col: 'M', body: [
-        ['svg', K.fig('S2-14.2', 0, 300)],
+        ['svg', K.fig('S2-15.2', 0, 300)],
         ['f', r`I = nAev_d`],
         ['b', ['$v_d \\sim 10^{-4}$ m s⁻¹; random speed $\\sim 10^5$–$10^6$ m s⁻¹', 'Lamp lights at once: the **field** travels at nearly $c$', 'Narrower wire: larger $v_d$']],
       ] },
       { t: 'Current density', c: 'pink', col: 'R', body: [
-        ['svg', K.fig('S2-14.3', 0, 300)],
+        ['svg', K.fig('S2-15.3', 0, 300)],
         ['fs', [r`J = \dfrac IA = nev_d`, r`J = \sigma E`]],
         ['p', 'Vector, A m⁻²; $J = \\sigma E$ is the microscopic Ohm\'s law.'],
       ] },
@@ -701,7 +701,7 @@ module.exports = K => ({
         ['b', ['$\\rho$ (Ω m) and $\\sigma$ are properties of the **material**', 'Stretched to $k$ × length (same volume): $R$ × $k^2$']],
       ] },
       { t: 'Effect of temperature', c: 'orange', col: 'M', body: [
-        ['svg', K.fig('S2-14.4', 0, 320)],
+        ['svg', K.fig('S2-15.4', 0, 320)],
         ['b', ['**Metal:** ions vibrate more, more collisions, so $\\rho$ rises', '**Semiconductor:** more carriers released, so $\\rho$ falls', '**Superconductor:** $\\rho = 0$ below the critical temperature']],
       ] },
       { t: 'Microscopic view', c: 'teal', col: 'R', body: [
@@ -724,13 +724,13 @@ module.exports = K => ({
     tips: ['Write $I = nAev_d$ and rearrange before substituting.', 'Use ratios for wires of the same material.', 'Explain temperature effects with collisions and carriers.', 'Units: $n$ in m⁻³, $A$ in m².'],
   },
 
-  'S2-15': {
+  'S2-16': {
     hubTitle: 'Direct Current<br>Circuits',
     idea: '**Key idea:** charge is conserved at junctions and energy around loops.',
     hubAt: 1,
     boxes: [
       { t: 'E.m.f. & internal resistance', c: 'blue', col: 'L', body: [
-        ['svg', K.fig('S2-15.1', 0, 300)],
+        ['svg', K.fig('S2-16.1', 0, 300)],
         ['fs', [r`E = V + Ir`, r`E = I(R + r)`]],
         ['p', '**E.m.f.:** energy converted to electrical energy per unit charge. $V$–$I$ graph: intercept $E$, gradient $-r$.'],
       ] },
@@ -740,7 +740,7 @@ module.exports = K => ({
         ['p', 'Maximum power in $R$ when $R = r$ (efficiency 50%).'],
       ] },
       { t: "Kirchhoff's laws", c: 'pink', col: 'R', body: [
-        ['svg', K.fig('S2-15.2', 0, 300)],
+        ['svg', K.fig('S2-16.2', 0, 300)],
         ['fs', [r`\textstyle\sum I_{\text{in}} = \sum I_{\text{out}}`, r`\textstyle\sum E = \sum IR`]],
         ['b', ['1st law: conservation of **charge**', '2nd law: conservation of **energy**', 'Negative answer: current flows the other way']],
       ] },
@@ -749,12 +749,12 @@ module.exports = K => ({
         ['b', ['Series: same $I$; parallel: same $V$', 'Voltmeter across $R$: $\\dfrac{RR_V}{R + R_V}$ (reads low)', 'Cells in series: add $E$ and $r$']],
       ] },
       { t: 'Potential divider', c: 'orange', col: 'M', body: [
-        ['svg', K.fig('S2-15.3', 0, 280)],
+        ['svg', K.fig('S2-16.3', 0, 280)],
         ['f', r`V_{\text{out}} = V_{\text{in}}\dfrac{R_2}{R_1 + R_2}`],
         ['b', ['Load across $R_2$: output falls', 'Thermistor (NTC): $R$ ↓ as $T$ ↑; LDR: $R$ ↓ as light ↑']],
       ] },
       { t: 'Potentiometer & bridge', c: 'teal', col: 'R', body: [
-        ['svg', K.fig('S2-15.4', 0, 300)],
+        ['svg', K.fig('S2-16.4', 0, 300)],
         ['fs', [r`\dfrac{E_1}{E_2} = \dfrac{l_1}{l_2}`, r`\dfrac PQ = \dfrac RS`]],
         ['p', 'At balance no current in the galvanometer, so the potentiometer reads the true e.m.f.'],
       ] },
@@ -772,39 +772,39 @@ module.exports = K => ({
     tips: ['Redraw the circuit simply before calculating.', 'State "at balance no current flows through G".', 'Use ratios of lengths for potentiometers.', 'Check power: $EI = I^2R + I^2r$.'],
   },
 
-  'S2-16': {
+  'S2-17': {
     hubTitle: 'Magnetic<br>Fields',
     idea: '**Key idea:** moving charges and currents create magnetic fields and feel forces in them.',
     hubAt: 1,
     boxes: [
       { t: 'Magnetic field', c: 'blue', col: 'L', body: [
-        ['svg', K.fig('S2-16.1', 0, 300)],
+        ['svg', K.fig('S2-17.1', 0, 300)],
         ['f', r`B = \dfrac{F}{IL\sin\theta}`],
         ['b', ['1 T = 1 N A⁻¹ m⁻¹', 'Lines: closed loops, N → S outside a magnet', 'Right-hand grip rule for wires and coils']],
       ] },
       { t: 'Force on a moving charge', c: 'green', col: 'M', body: [
-        ['svg', K.fig('S2-16.2', 0, 280)],
+        ['svg', K.fig('S2-17.2', 0, 280)],
         ['f', r`F = qvB\sin\theta`],
         ['fs', [r`r = \dfrac{mv}{qB}`, r`T = \dfrac{2\pi m}{qB}`]],
         ['p', 'Force ⟂ $v$: does no work, speed constant. $T$ independent of $v$.'],
       ] },
       { t: 'Force on a conductor', c: 'pink', col: 'R', body: [
-        ['svg', K.fig('S2-16.3', 0, 300)],
+        ['svg', K.fig('S2-17.3', 0, 300)],
         ['fs', [r`F = BIL\sin\theta`, r`\tau = NBIA\sin\phi`]],
         ['p', "**Fleming's left-hand rule:** first finger = field, second finger = current, thumb = force."],
       ] },
       { t: 'Fields due to currents', c: 'purple', col: 'L', body: [
-        ['svg', K.fig('S2-16.4', 0, 320)],
+        ['svg', K.fig('S2-17.4', 0, 320)],
         ['tbl', [['Source', '$B$'], ['Long straight wire', '$\\dfrac{\\mu_0I}{2\\pi r}$'], ['Centre of coil', '$\\dfrac{\\mu_0NI}{2r}$'], ['Long solenoid', '$\\mu_0nI$']]],
         ['p', '$\\mu_0 = 4\\pi\\times10^{-7}$ H m⁻¹; $n$ = turns per metre.'],
       ] },
       { t: 'Parallel wires', c: 'orange', col: 'M', body: [
-        ['svg', K.fig('S2-16.5', 0, 300)],
+        ['svg', K.fig('S2-17.5', 0, 300)],
         ['f', r`\dfrac FL = \dfrac{\mu_0I_1I_2}{2\pi d}`],
         ['b', ['Same direction: **attract**; opposite: repel', 'Equal and opposite forces (3rd law)', 'Defines the ampere: $2\\times10^{-7}$ N m⁻¹ at 1 m']],
       ] },
       { t: 'e/m & velocity selector', c: 'teal', col: 'R', body: [
-        ['svg', K.fig('S2-16.6', 0, 300)],
+        ['svg', K.fig('S2-17.6', 0, 300)],
         ['fs', [r`v = \dfrac EB`, r`\dfrac em = \dfrac{2V}{B^2r^2}`]],
         ['p', 'Crossed fields: undeflected when $qE = qvB$. $e/m = 1.76\\times10^{11}$ C kg⁻¹.'],
       ] },
@@ -823,18 +823,18 @@ module.exports = K => ({
     tips: ['Draw $B$, $I$ (or $v$) and $F$ as a 3-D sketch.', 'Write "magnetic force provides centripetal force".', 'Add fields from two wires as vectors.', 'Check units: T, A, m.'],
   },
 
-  'S2-17': {
+  'S2-18': {
     hubTitle: 'Electro-<br>magnetic<br>Induction',
     idea: '**Key idea:** a changing flux linkage induces an e.m.f. that opposes the change.',
     hubAt: 1,
     boxes: [
       { t: 'Magnetic flux', c: 'blue', col: 'L', body: [
-        ['svg', K.fig('S2-17.1', 0, 300)],
+        ['svg', K.fig('S2-18.1', 0, 300)],
         ['fs', [r`\Phi = BA\cos\theta`, r`\text{linkage} = N\Phi`]],
         ['p', '$\\theta$ between $B$ and the **normal**. 1 Wb = 1 T m².'],
       ] },
       { t: "Faraday's & Lenz's laws", c: 'green', col: 'M', body: [
-        ['svg', K.fig('S2-17.2', 0, 300)],
+        ['svg', K.fig('S2-18.2', 0, 300)],
         ['f', r`\varepsilon = -N\dfrac{d\Phi}{dt}`],
         ['b', ['Faraday: $\\varepsilon$ ∝ rate of change of flux linkage', 'Lenz: induced current **opposes** the change (energy conservation)']],
       ] },
@@ -844,17 +844,17 @@ module.exports = K => ({
         ['p', 'Rotating coil (a.c. generator): peak $\\varepsilon_0 = NBA\\omega$ when the plane is **parallel** to $B$.'],
       ] },
       { t: 'Self-induction', c: 'purple', col: 'L', body: [
-        ['svg', K.fig('S2-17.3', 0, 300)],
+        ['svg', K.fig('S2-18.3', 0, 300)],
         ['fs', [r`\varepsilon = -L\dfrac{dI}{dt}`, r`L = \dfrac{N\Phi}{I} = \dfrac{\mu_0N^2A}{l}`]],
         ['p', 'Back e.m.f. slows the growth of current; spark when switched off.'],
       ] },
       { t: 'Energy in an inductor', c: 'orange', col: 'M', body: [
-        ['svg', K.fig('S2-17.4', 0, 300)],
+        ['svg', K.fig('S2-18.4', 0, 300)],
         ['fs', [r`U = \tfrac12LI^2`, r`u = \dfrac{B^2}{2\mu_0}`]],
         ['p', 'Stored in the **magnetic field**; returned when the current falls.'],
       ] },
       { t: 'Mutual induction', c: 'teal', col: 'R', body: [
-        ['svg', K.fig('S2-17.5', 0, 300)],
+        ['svg', K.fig('S2-18.5', 0, 300)],
         ['fs', [r`\varepsilon_2 = -M\dfrac{dI_1}{dt}`, r`\dfrac{V_s}{V_p} = \dfrac{N_s}{N_p} = \dfrac{I_p}{I_s}`]],
         ['p', 'Transformer works on a.c. only; ideal: $V_pI_p = V_sI_s$.'],
       ] },
@@ -872,7 +872,7 @@ module.exports = K => ({
     tips: ['Find $\\Delta(N\\Phi)$ first, then divide by $\\Delta t$.', 'Explain direction with Lenz\'s law in words.', 'Use $\\varepsilon = BLv$ only when $B$, $L$, $v$ are perpendicular.', 'Energy: work against the opposing force = electrical energy.'],
   },
 
-  'S2-18': {
+  'S2-19': {
     hubTitle: 'Alternating<br>Current',
     hubIcon: K.svg(160, 44, K.curve(10, 150, x => 22 - 15 * Math.sin((x - 10) / 140 * 4 * Math.PI), '#EA580C', 3), 160),
     idea: '**Key idea:** the current and voltage vary sinusoidally and reverse direction every half cycle.',
@@ -944,13 +944,13 @@ module.exports = K => ({
     tips: ['Convert peak values to r.m.s. before finding power.', 'Find $X_L$ or $X_C$ first, then $Z$, then $I$.', 'Draw the phasor (impedance) triangle: $R$ across, $X$ up, $Z$ hypotenuse.', 'State the phase relation in words: "current leads/lags voltage by …".'],
   },
 
-  'S3-19': {
+  'S3-20': {
     hubTitle: 'Oscillations',
     idea: '**Key idea:** in SHM the acceleration is proportional to the displacement and directed towards equilibrium.',
     hubAt: 1,
     boxes: [
       { t: 'Simple harmonic motion', c: 'blue', col: 'L', body: [
-        ['svg', K.fig('S3-19.1', 0, 340)],
+        ['svg', K.fig('S3-20.1', 0, 340)],
         ['fs', [r`a = -\omega^2x`, r`F = -kx`]],
         ['b', ['$a$ ∝ $x$, always towards the equilibrium point', '$\\omega = 2\\pi f = \\dfrac{2\\pi}{T}$', '$a$–$x$ graph: straight line, gradient $-\\omega^2$']],
       ] },
@@ -961,7 +961,7 @@ module.exports = K => ({
         ['p', '$x = A\\cos\\omega t$ if timing starts at an extreme.'],
       ] },
       { t: 'Energy in SHM', c: 'pink', col: 'R', body: [
-        ['svg', K.fig('S3-19.3', 0, 320)],
+        ['svg', K.fig('S3-20.3', 0, 320)],
         ['f', r`E = \tfrac12 m\omega^2A^2 = \tfrac12 kA^2`],
         ['fs', [r`E_k = \tfrac12 m\omega^2(A^2 - x^2)`, r`E_p = \tfrac12 m\omega^2x^2`]],
         ['p', 'Total energy ∝ (amplitude)²; $E_k = E_p$ at $x = A/\\sqrt2$.'],
@@ -972,19 +972,19 @@ module.exports = K => ({
         ['p', 'Springs: parallel $k = k_1 + k_2$; series $\\dfrac1k = \\dfrac1{k_1} + \\dfrac1{k_2}$'],
       ] },
       { t: 'Damped oscillation', c: 'orange', col: 'M', body: [
-        ['svg', K.fig('S3-19.5', 0, 330)],
+        ['svg', K.fig('S3-20.5', 0, 330)],
         ['kv', [['Light', 'oscillates, amplitude decays exponentially'], ['Critical', 'back to equilibrium fastest, no oscillation'], ['Heavy', 'slow return, no oscillation']]],
         ['f', r`A = A_0e^{-bt}`],
       ] },
       { t: 'Forced oscillation & resonance', c: 'teal', col: 'R', body: [
-        ['svg', K.fig('S3-19.6', 0, 320)],
+        ['svg', K.fig('S3-20.6', 0, 320)],
         ['b', ['Forced: oscillates at the **driving** frequency', 'Resonance: $f_{\\text{driver}} = f_0$, maximum amplitude', 'More damping: lower, broader peak, shifted slightly to lower $f$']],
       ] },
     ],
     rows: [
       { cols: '1fr 1fr', boxes: [
         { t: 'Phase relationships', c: 'red', body: [
-          ['svg', K.fig('S3-19.2', 0, 380)],
+          ['svg', K.fig('S3-20.2', 0, 380)],
           ['p', '$v$ leads $x$ by $\\pi/2$; $a$ is in antiphase ($\\pi$) with $x$.'],
         ] },
         { t: 'Common Section A traps', c: 'amber', body: [
@@ -995,13 +995,13 @@ module.exports = K => ({
     tips: ['Prove SHM by showing $a = -(\\text{constant})x$.', 'Identify $\\omega$ as the coefficient of $t$.', 'Use energy for speed at a given $x$.', 'Sketch $x$, $v$, $a$ graphs one under another, $T/4$ apart.'],
   },
 
-  'S3-20': {
+  'S3-21': {
     hubTitle: 'Wave Motion',
     idea: '**Key idea:** a progressive wave carries energy without carrying matter; overlapping waves add.',
     hubAt: 1,
     boxes: [
       { t: 'Progressive waves', c: 'blue', col: 'L', body: [
-        ['svg', K.fig('S3-20.1', 0, 340)],
+        ['svg', K.fig('S3-21.1', 0, 340)],
         ['fs', [r`v = f\lambda`, r`y = A\sin(\omega t - kx)`]],
         ['b', ['$k = \\dfrac{2\\pi}{\\lambda}$, $v = \\dfrac{\\omega}{k}$', '$+kx$: travels in the $-x$ direction', 'Transverse: ⟂ to travel; longitudinal: ∥']],
       ] },
@@ -1010,12 +1010,12 @@ module.exports = K => ({
         ['p', 'In phase: $\\Delta x = n\\lambda$. Antiphase: $\\Delta x = (n + \\tfrac12)\\lambda$.'],
       ] },
       { t: 'Intensity', c: 'pink', col: 'R', body: [
-        ['svg', K.fig('S3-20.2', 0, 300)],
+        ['svg', K.fig('S3-21.2', 0, 300)],
         ['fs', [r`I = \dfrac{P}{4\pi r^2}`, r`I \propto A^2`]],
         ['p', 'Power per unit area, W m⁻². Point source: $I \\propto 1/r^2$ so $A \\propto 1/r$.'],
       ] },
       { t: 'Superposition', c: 'purple', col: 'L', body: [
-        ['svg', K.fig('S3-20.3', 0, 320)],
+        ['svg', K.fig('S3-21.3', 0, 320)],
         ['kv', [['Constructive', 'path difference $n\\lambda$'], ['Destructive', 'path difference $(n + \\tfrac12)\\lambda$']]],
         ['p', '**Coherent:** same frequency, constant phase difference.'],
       ] },
@@ -1025,7 +1025,7 @@ module.exports = K => ({
         ['f', r`v = \sqrt{\dfrac{T}{\mu}}`],
       ] },
       { t: 'Electromagnetic waves', c: 'teal', col: 'R', body: [
-        ['svg', K.fig('S3-20.5', 0, 320)],
+        ['svg', K.fig('S3-21.5', 0, 320)],
         ['fs', [r`c = \dfrac{1}{\sqrt{\mu_0\varepsilon_0}}`, r`E_0 = cB_0`]],
         ['p', '$E$ ⟂ $B$ ⟂ direction, in phase. Radio → microwave → IR → visible → UV → X-ray → γ (λ decreasing).'],
       ] },
@@ -1043,18 +1043,18 @@ module.exports = K => ({
     tips: ['From $y = A\\sin(\\omega t - kx)$ read $A$, $\\omega$ and $k$ first.', 'Draw the harmonics with N and A labelled.', 'Use ratios for the inverse square law.', 'State the sources are coherent before discussing interference.'],
   },
 
-  'S3-21': {
+  'S3-22': {
     hubTitle: 'Sound Waves',
     idea: '**Key idea:** sound is a longitudinal pressure wave; air columns and strings resonate at definite frequencies.',
     hubAt: 1,
     boxes: [
       { t: 'Propagation of sound', c: 'blue', col: 'L', body: [
-        ['svg', K.fig('S3-21.1', 0, 340)],
+        ['svg', K.fig('S3-22.1', 0, 340)],
         ['fs', [r`v = \sqrt{\dfrac{\gamma RT}{M}}`, r`v = \sqrt{\dfrac{E}{\rho}}`]],
         ['b', ['Longitudinal: compressions and rarefactions', 'Needs a medium; faster in solids', 'Gas: $v \\propto \\sqrt T$, independent of pressure']],
       ] },
       { t: 'Air columns', c: 'green', col: 'M', body: [
-        ['svg', K.fig('S3-21.2', 0, 340)],
+        ['svg', K.fig('S3-22.2', 0, 340)],
         ['tbl', [['Pipe', 'Ends', 'Harmonics', '$f_1$'], ['Open', 'A–A', 'all', '$v/2L$'], ['Closed', 'N–A', 'odd only', '$v/4L$']]],
       ] },
       { t: 'Intensity level', c: 'pink', col: 'R', body: [
@@ -1062,7 +1062,7 @@ module.exports = K => ({
         ['b', ['$I_0 = 1.0\\times10^{-12}$ W m⁻² (threshold of hearing)', '+10 dB = intensity ×10; +3 dB ≈ ×2', '$N$ identical sources: $\\beta + 10\\log_{10}N$', 'Add intensities, **not** decibels']],
       ] },
       { t: 'Beats', c: 'purple', col: 'L', body: [
-        ['svg', K.fig('S3-21.4', 0, 320)],
+        ['svg', K.fig('S3-22.4', 0, 320)],
         ['fs', [r`f_{\text{beat}} = |f_1 - f_2|`, r`f = \dfrac{f_1 + f_2}{2}`]],
         ['p', 'Loudness rises and falls as the waves move in and out of phase.'],
       ] },
@@ -1073,7 +1073,7 @@ module.exports = K => ({
       { t: 'Strings & end correction', c: 'teal', col: 'R', body: [
         ['f', r`f_n = \dfrac{n}{2L}\sqrt{\dfrac{T}{\mu}}`],
         ['b', ['Node at each fixed end; all harmonics', 'Closed pipe: $L + e = \\dfrac{\\lambda}{4}$', 'Antinode lies slightly **beyond** the open end']],
-        ['svg', K.fig('S3-21.3', 0, 280)],
+        ['svg', K.fig('S3-22.3', 0, 280)],
       ] },
     ],
     rows: [
@@ -1089,7 +1089,7 @@ module.exports = K => ({
     tips: ['Sketch the air column with N and A before using a formula.', 'Convert dB to intensity, add, then convert back.', 'Write $f\'$ formula with signs explained in words.', 'Use $v = 4f(L + e)$ for resonance-tube data.'],
   },
 
-  'S3-22': {
+  'S3-23': {
     hubTitle: 'Geometrical<br>Optics',
     idea: '**Key idea:** mirrors and lenses form images by reflection and refraction; use the real-is-positive convention.',
     hubAt: 1,
@@ -1098,11 +1098,11 @@ module.exports = K => ({
         ['b', ['Real object, real image: **positive**', 'Virtual image: $v$ **negative**', 'Concave mirror, convex lens: $f > 0$', 'Convex mirror, concave lens: $f < 0$', '$m = -\\dfrac vu$: negative = inverted, positive = upright']],
       ] },
       { t: 'Spherical mirrors', c: 'green', col: 'M', body: [
-        ['svg', K.fig('S3-22.1', 0, 340)],
+        ['svg', K.fig('S3-23.1', 0, 340)],
         ['fs', [r`\dfrac1u + \dfrac1v = \dfrac1f`, r`f = \dfrac R2`]],
       ] },
       { t: 'Refraction at a curved surface', c: 'pink', col: 'R', body: [
-        ['svg', K.fig('S3-22.2', 0, 300)],
+        ['svg', K.fig('S3-23.2', 0, 300)],
         ['f', r`\dfrac{n_1}{u} + \dfrac{n_2}{v} = \dfrac{n_2 - n_1}{R}`],
         ['b', ['$R > 0$ if the centre is on the **outgoing** side', 'Plane surface: apparent depth $= \\dfrac{\\text{real depth}}{n}$']],
       ] },
@@ -1111,7 +1111,7 @@ module.exports = K => ({
         ['p', 'Convex mirror / concave lens: always virtual, upright, diminished.'],
       ] },
       { t: 'Thin lenses', c: 'orange', col: 'M', body: [
-        ['svg', K.fig('S3-22.3', 0, 340)],
+        ['svg', K.fig('S3-23.3', 0, 340)],
         ['f', r`\dfrac1f = (n - 1)\left(\dfrac1{R_1} + \dfrac1{R_2}\right)`],
         ['fs', [r`\dfrac1u + \dfrac1v = \dfrac1f`, r`P = \dfrac1f`]],
         ['p', 'Biconvex: both $R$ positive. Power in dioptre (D), $f$ in metres.'],
@@ -1134,38 +1134,38 @@ module.exports = K => ({
   },
 
 
-  'S3-23': {
+  'S3-24': {
     hubTitle: 'Wave Optics',
     idea: '**Key idea:** light shows interference, diffraction and polarisation, so it is a transverse wave.',
     hubAt: 1,
     boxes: [
       { t: "Huygens's principle", c: 'blue', col: 'L', body: [
-        ['svg', K.fig('S3-23.1', 0, 320)],
+        ['svg', K.fig('S3-24.1', 0, 320)],
         ['p', 'Every point on a wavefront is a source of secondary wavelets; the new wavefront is their **envelope**.'],
         ['f', r`n = \dfrac{c}{v} = \dfrac{\lambda_0}{\lambda}`],
         ['p', 'On refraction $f$ is unchanged; $v$ and $\\lambda$ change.'],
       ] },
       { t: "Young's double slit", c: 'green', col: 'M', body: [
-        ['svg', K.fig('S3-23.2', 0, 320)],
+        ['svg', K.fig('S3-24.2', 0, 320)],
         ['fs', [r`x = \dfrac{\lambda D}{a}`, r`a\sin\theta = n\lambda`]],
         ['b', ['Bright: path difference $n\\lambda$; dark: $(n+\\tfrac12)\\lambda$', 'White light: white centre, coloured fringes (violet nearest)']],
       ] },
       { t: 'Thin films', c: 'pink', col: 'R', body: [
-        ['svg', K.fig('S3-23.4', 0, 300)],
+        ['svg', K.fig('S3-24.4', 0, 300)],
         ['b', ['π phase change on reflection at a **denser** medium', 'Film in air (one change): bright $2nt = (m + \\tfrac12)\\lambda$', 'Coating on glass (two changes): dark $2nt = (m + \\tfrac12)\\lambda$', 'Minimum coating: $t = \\dfrac{\\lambda}{4n}$', 'Air wedge: $x = \\dfrac{\\lambda}{2\\theta}$, dark at contact']],
       ] },
       { t: 'Single-slit diffraction', c: 'purple', col: 'L', body: [
-        ['svg', K.fig('S3-23.5', 0, 320)],
+        ['svg', K.fig('S3-24.5', 0, 320)],
         ['fs', [r`a\sin\theta = m\lambda`, r`w = \dfrac{2\lambda D}{a}`]],
         ['p', 'Minima ($m = 1, 2, …$). Central maximum twice as wide as the others.'],
       ] },
       { t: 'Diffraction grating', c: 'orange', col: 'M', body: [
-        ['svg', K.fig('S3-23.6', 0, 320)],
+        ['svg', K.fig('S3-24.6', 0, 320)],
         ['fs', [r`d\sin\theta = m\lambda`, r`d = \dfrac1N`]],
         ['b', ['Highest order: largest integer below $d/\\lambda$', 'More lines: sharper, brighter maxima', 'Total maxima $= 2m_{\\max} + 1$']],
       ] },
       { t: 'Polarisation', c: 'teal', col: 'R', body: [
-        ['svg', K.fig('S3-23.7', 0, 320)],
+        ['svg', K.fig('S3-24.7', 0, 320)],
         ['fs', [r`I = I_0\cos^2\theta`, r`\tan\theta_B = n`]],
         ['b', ['Unpolarised through a polariser: $I_0/2$', 'At $\\theta_B$: reflected and refracted rays at 90°', 'Only **transverse** waves can be polarised']],
       ] },
@@ -1173,7 +1173,7 @@ module.exports = K => ({
     rows: [
       { cols: '1.2fr 1fr', boxes: [
         { t: 'Optical fibres', c: 'red', body: [
-          ['row', [[['svg', K.fig('S3-23.8', 0, 300)]], [['fs', [r`\sin\theta_c = \dfrac{n_2}{n_1}`, r`\text{NA} = \sqrt{n_1^2 - n_2^2}`]]]]],
+          ['row', [[['svg', K.fig('S3-24.8', 0, 300)]], [['fs', [r`\sin\theta_c = \dfrac{n_2}{n_1}`, r`\text{NA} = \sqrt{n_1^2 - n_2^2}`]]]]],
           ['p', 'Total internal reflection: $n_{\\text{core}} > n_{\\text{cladding}}$, angle > $\\theta_c$. Modal dispersion spreads pulses; attenuation $= \\dfrac{10}{L}\\log\\dfrac{P_{\\text{in}}}{P_{\\text{out}}}$ dB per unit length.'],
         ] },
         { t: 'Common Section A traps', c: 'amber', body: [
@@ -1184,7 +1184,7 @@ module.exports = K => ({
     tips: ['State "coherent sources" and the path-difference condition.', 'For thin films, count the phase changes first.', 'Check $\\sin\\theta \\le 1$ for the highest grating order.', 'Fringe spacing ∝ λ: red fringes are wider than blue.'],
   },
 
-  'S3-24': {
+  'S3-25': {
     hubTitle: 'Quantum<br>Physics',
     idea: '**Key idea:** light comes in photons of energy $hf$, and moving particles behave as waves of wavelength $h/p$.',
     hubAt: 1,
@@ -1194,12 +1194,12 @@ module.exports = K => ({
         ['b', ['A quantum (packet) of electromagnetic energy', '1 eV $= 1.60\\times10^{-19}$ J', '$E$ (eV) ≈ 1240 ÷ λ (nm)']],
       ] },
       { t: 'Photoelectric effect', c: 'green', col: 'M', body: [
-        ['svg', K.fig('S3-24.1', 0, 320)],
+        ['svg', K.fig('S3-25.1', 0, 320)],
         ['fs', [r`hf = \phi + K_{\max}`, r`eV_s = K_{\max}`]],
         ['p', 'Graph of $K_{\\max}$ against $f$: gradient $h$, $f$-intercept $f_0 = \\phi/h$.'],
       ] },
       { t: 'Wave–particle duality', c: 'pink', col: 'R', body: [
-        ['svg', K.fig('S3-24.2', 0, 280)],
+        ['svg', K.fig('S3-25.2', 0, 280)],
         ['f', r`\lambda = \dfrac{h}{p} = \dfrac{h}{\sqrt{2mK}} = \dfrac{h}{\sqrt{2meV}}`],
         ['p', 'Electron diffraction rings show the wave nature of electrons.'],
       ] },
@@ -1207,12 +1207,12 @@ module.exports = K => ({
         ['num', ['There is a **threshold frequency** $f_0$.', '$K_{\\max}$ depends on frequency, **not** intensity.', 'Emission is **instantaneous**.', 'Intensity changes only the number of photoelectrons.']],
       ] },
       { t: 'Atomic structure', c: 'orange', col: 'M', body: [
-        ['svg', K.fig('S3-24.3', 0, 320)],
+        ['svg', K.fig('S3-25.3', 0, 320)],
         ['fs', [r`E_n = -\dfrac{13.6}{n^2}\ \text{eV}`, r`hf = E_i - E_f`]],
         ['p', 'Lyman → $n = 1$ (UV); Balmer → $n = 2$ (visible); Paschen → $n = 3$ (IR). Bohr: $mvr = \\dfrac{nh}{2\\pi}$.'],
       ] },
       { t: 'X-rays', c: 'teal', col: 'R', body: [
-        ['svg', K.fig('S3-24.4', 0, 300)],
+        ['svg', K.fig('S3-25.4', 0, 300)],
         ['fs', [r`\lambda_{\min} = \dfrac{hc}{eV}`, r`2d\sin\theta = n\lambda`]],
         ['b', ['Continuous spectrum: braking (bremsstrahlung)', 'Sharp lines: characteristic of the target', 'Bragg angle $\\theta$ is measured from the **planes**']],
       ] },
@@ -1230,7 +1230,7 @@ module.exports = K => ({
     tips: ['Convert every energy to joules (or every one to eV) before substituting.', 'Draw the transition arrow on the level diagram.', 'For $\\lambda_{\\min}$, all the electron KE becomes one photon.', 'Quote $h = 6.63\\times10^{-34}$ J s.'],
   },
 
-  'S3-25': {
+  'S3-26': {
     hubTitle: 'Nuclear<br>Physics',
     idea: '**Key idea:** the mass defect of a nucleus is its binding energy; unstable nuclei decay randomly.',
     hubAt: 1,
@@ -1245,7 +1245,7 @@ module.exports = K => ({
         ['p', 'Binding energy: energy needed to separate a nucleus into its nucleons.'],
       ] },
       { t: 'Binding energy per nucleon', c: 'pink', col: 'R', body: [
-        ['svg', K.fig('S3-25.1', 0, 340)],
+        ['svg', K.fig('S3-26.1', 0, 340)],
         ['b', ['Peak ≈ 8.8 MeV near ⁵⁶Fe: most stable', 'Light nuclei → **fusion**; heavy nuclei → **fission**']],
       ] },
       { t: 'Radioactive decay', c: 'purple', col: 'L', body: [
@@ -1253,13 +1253,13 @@ module.exports = K => ({
         ['b', ['**Spontaneous**: not affected by conditions', '**Random**: cannot predict which nucleus decays next']],
       ] },
       { t: 'Decay law', c: 'orange', col: 'M', body: [
-        ['svg', K.fig('S3-25.2', 0, 320)],
+        ['svg', K.fig('S3-26.2', 0, 320)],
         ['fs', [r`N = N_0e^{-\lambda t}`, r`A = \lambda N`]],
         ['fs', [r`t_{1/2} = \dfrac{\ln 2}{\lambda}`, r`N = N_0\left(\tfrac12\right)^{t/t_{1/2}}`]],
         ['p', '$\\ln A$ against $t$: straight line, gradient $-\\lambda$. Activity in Bq.'],
       ] },
       { t: 'Nuclear reactions', c: 'teal', col: 'R', body: [
-        ['svg', K.fig('S3-25.3', 0, 320)],
+        ['svg', K.fig('S3-26.3', 0, 320)],
         ['f', r`Q = \left(\textstyle\sum m_{\text{reactants}} - \sum m_{\text{products}}\right)c^2`],
         ['p', 'Conserved: $A$, $Z$ (charge), energy, momentum. $Q > 0$: energy released.'],
       ] },

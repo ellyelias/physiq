@@ -1,361 +1,400 @@
-/* Semester 3 Chapter 22 Geometrical Optics: full notes by Cikgu Suhaili (from STPM_2026_Geometrical_Optics_teachers_version.pptx).
-   App chapter 22 = STPM 2026 syllabus chapter 23. Sign convention: real-is-positive throughout. */
+/* Semester 3 Chapter 21 Sound Waves: full notes by Cikgu Suhaili (from stpm_2026_unit_22_sound_wave.pptx).
+   App chapter 21 = STPM 2026 syllabus chapter 22. */
 (function () {
   'use strict';
-  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq } = window.PhysiQLessons.H;
-  const inv = x => fr('1', x);
+  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq, ms } = window.PhysiQLessons.H;
 
-  // ======================================================================
-  // A small paraxial ray tracer shared by the static figures and the simulations.
-  // Light travels left to right. Elements: lens {x,f}, surface {x,r,n1,n2}, mirror {x,f} (last element only).
-  // ======================================================================
-  function imageOf(el, u) {
-    // returns {v, m} for a single element with object distance u (real-is-positive)
-    if (el.type === 'surface') { const rhs = (el.n2 - el.n1) / el.r - el.n1 / u; const v = Math.abs(rhs) < 1e-12 ? Infinity : el.n2 / rhs; return { v, m: -el.n1 * v / (el.n2 * u) }; }
-    const d = 1 / el.f - 1 / u, v = Math.abs(d) < 1e-12 ? Infinity : 1 / d; return { v, m: -v / u };
-  }
-  function trace(els, x0, y0, s0, xmin, xmax) {
-    let x = x0, y = y0, s = s0, dir = 1; const pts = [[x, y]];
-    for (const el of els) {
-      y = y + s * (el.x - x); x = el.x; pts.push([x, y]);
-      if (el.type === 'lens') s = s - y / el.f;
-      else if (el.type === 'surface') s = (el.n1 * s - (el.n2 - el.n1) * y / el.r) / el.n2;
-      else if (el.type === 'mirror') { s = s - y / el.f; dir = -1; }
-    }
-    const xe = dir > 0 ? xmax : xmin, ye = dir > 0 ? y + s * (xe - x) : y + s * (x - xe);
-    pts.push([xe, ye]);
-    return { pts, hit: [x, y], s, dir };
-  }
-  // principal rays from the object tip for a single element
-  function principal(el, x0, h) {
-    const u = el.x - x0, out = [0];
-    const add = den => { if (Math.abs(den) > 0.4) out.push(-h / den); };
-    if (el.type === 'lens') { out.push(-h / u); add(u - el.f); }
-    else if (el.type === 'mirror') { add(u - el.f); add(u - 2 * el.f); }
-    else { add(u + el.r); out.push(-h / u); if (Math.abs(el.r) < 1e8 && Math.abs(el.n2 - el.n1) > 1e-3) add(u - el.n1 * el.r / (el.n2 - el.n1)); }
-    return out;
-  }
-  // full solution: final image position (world x) and magnification
-  function solve(els, x0, h) {
-    let xo = x0, m = 1, stages = [];
-    for (const el of els) {
-      const u = el.x - xo, r = imageOf(el, u); m *= r.m;
-      const xi = el.type === 'mirror' ? el.x - r.v : el.x + r.v;
-      stages.push({ u, v: r.v, m: r.m, xi }); xo = xi;
-    }
-    const last = stages[stages.length - 1];
-    return { stages, xi: last.xi, v: last.v, m, hi: m * h, real: last.v > 0 && isFinite(last.v) };
-  }
-
-  // ---------- SVG ray diagram ----------
-  const ACOL = ['#C0392B', '#2F6FE0', '#3E8E1E'];
-  function elementSVG(el, X, Y, ext) {
-    const x = +X(el.x), top = +Y(ext), bot = +Y(-ext);
-    if (el.type === 'lens') {
-      if (el.f > 0) return `<path d="M${x},${top} Q${x + 9},${(top + bot) / 2} ${x},${bot} Q${x - 9},${(top + bot) / 2} ${x},${top} Z" fill="#DCEBF7" stroke="${C.ink}" stroke-width="1.3"/>`;
-      return `<path d="M${x - 7},${top} L${x + 7},${top} Q${x + 1},${(top + bot) / 2} ${x + 7},${bot} L${x - 7},${bot} Q${x - 1},${(top + bot) / 2} ${x - 7},${top} Z" fill="#DCEBF7" stroke="${C.ink}" stroke-width="1.3"/>`;
-    }
-    if (el.type === 'mirror') { const b = el.f > 0 ? -9 : 9; return `<path d="M${x + b},${top} Q${x - b},${(top + bot) / 2} ${x + b},${bot}" fill="none" stroke="${C.ink}" stroke-width="2.6"/>` + [0, 1, 2, 3, 4, 5, 6].map(i => { const yy = top + (bot - top) * (i + 0.5) / 7; return L(x + 4 + (el.f > 0 ? 0 : 6), yy, x + 10 + (el.f > 0 ? 0 : 6), yy - 6, 's', '', { w: 1 }); }).join(''); }
-    const b = el.r > 0 ? 10 : -10; return `<path d="M${x + b},${top} Q${x - b},${(top + bot) / 2} ${x + b},${bot} L${X(1e9) > 0 ? x + 200 : x + 200},${bot} L${x + 200},${top} Z" fill="#E6F1FA" stroke="none"/><path d="M${x + b},${top} Q${x - b},${(top + bot) / 2} ${x + b},${bot}" fill="none" stroke="${C.ink}" stroke-width="1.6"/>`;
-  }
-  const arrowSVG = (x1, y1, x2, y2, c, dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="2.6"${dash ? ' stroke-dasharray="4 3"' : ''}/>` + (() => { const s = y2 < y1 ? 1 : -1; return `<path d="M${x2},${y2} l-5,${7 * s} l10,0 z" fill="${c}"/>`; })();
-  function rayFig(o) {
-    // o: {els, x0, h, xmin, xmax, ymax, w, hgt, labels:[[x,text]], rays (optional list of slopes)}
-    const w = o.w || 360, H = o.hgt || 170, padL = 10, padR = 10, k = (w - padL - padR) / (o.xmax - o.xmin), cy = H / 2 + 4, ky = (H / 2 - 14) / o.ymax;
-    const X = x => (padL + (x - o.xmin) * k).toFixed(1), Y = y => (cy - y * ky).toFixed(1);
-    const sol = solve(o.els, o.x0, o.h);
-    let body = `<defs><clipPath id="§cp"><rect x="0" y="0" width="${w}" height="${H}"/></clipPath></defs>`;
-    body += L(X(o.xmin), Y(0), X(o.xmax), Y(0), 's', '', { w: 1 });
-    o.els.forEach(el => { body += elementSVG(el, X, Y, o.ymax * 0.85);
-      const fp = (xx, lab) => { if (xx > o.xmin && xx < o.xmax) body += `<circle cx="${X(xx)}" cy="${Y(0)}" r="2.6" fill="${C.ink}"/>` + T(X(xx), +Y(0) + 14, lab, { fs: 10.5, c: C.sub }); };
-      if (el.type === 'lens') { fp(el.x - el.f, 'F'); fp(el.x + el.f, 'F'); if (o.twoF) { fp(el.x - 2 * el.f, '2F'); fp(el.x + 2 * el.f, '2F'); } }
-      if (el.type === 'mirror') { fp(el.x - el.f, 'F'); fp(el.x - 2 * el.f, 'C'); }
-      if (el.type === 'surface') fp(el.x + el.r, 'C');
-    });
-    const slopes = o.rays || (o.els.length === 1 ? principal(o.els[0], o.x0, o.h) : [0, -o.h / (o.els[0].x - o.x0)]);
-    let rays = '';
-    slopes.forEach((s, i) => { const t = trace(o.els, o.x0, o.h, s, o.xmin, o.xmax); const c = ACOL[i % 3];
-      rays += `<polyline points="${t.pts.map(p => X(p[0]) + ',' + Y(p[1])).join(' ')}" fill="none" stroke="${c}" stroke-width="1.5"/>`;
-      if (!sol.real && isFinite(sol.xi)) { const [xh, yh] = t.hit, yi = t.dir > 0 ? yh + t.s * (sol.xi - xh) : yh + t.s * (xh - sol.xi); rays += `<line x1="${X(xh)}" y1="${Y(yh)}" x2="${X(sol.xi)}" y2="${Y(yi)}" stroke="${c}" stroke-width="1.2" stroke-dasharray="4 3"/>`; }
-    });
-    body += `<g clip-path="url(#§cp)">${rays}</g>`;
-    body += arrowSVG(X(o.x0), Y(0), X(o.x0), Y(o.h), C.ink) + T(+X(o.x0) - 2, +Y(o.h) - 6, 'O', { fs: 11, b: 1 });
-    if (isFinite(sol.xi) && Math.abs(sol.hi) < o.ymax * 1.6 && sol.xi > o.xmin && sol.xi < o.xmax) body += arrowSVG(X(sol.xi), Y(0), X(sol.xi), Y(sol.hi), C.o, !sol.real) + T(+X(sol.xi) + 2, sol.hi > 0 ? +Y(sol.hi) - 6 : +Y(sol.hi) + 14, 'I', { fs: 11, b: 1, c: C.o });
-    (o.labels || []).forEach(([x, y, s, opt]) => { body += T(x, y, s, Object.assign({ fs: 11, c: C.sub }, opt || {})); });
-    return svg(w, H, body, o.maxw || w + 20);
-  }
-
-  // ---------- other figures ----------
+  // ---------- figures ----------
+  const curve = (x0, y0, w, a, lam, ph = 0, n = 120) => { let d = ''; for (let i = 0; i <= n; i++) { const x = w * i / n; d += (i ? ' L' : 'M') + (x0 + x).toFixed(1) + ',' + (y0 - a * Math.sin(2 * Math.PI * x / lam + ph)).toFixed(1); } return d; };
   const F = {};
-  F.terms = () => { const one = (cv) => { const b = cv ? 1 : -1, x = 150; return `<path d="M${x - 14 * b},20 Q${x + 14 * b},90 ${x - 14 * b},160" fill="none" stroke="${C.ink}" stroke-width="2.6"/>` + L(10, 90, 210, 90, 's', '', { w: 1 }) +
-      (cv ? dot(30, 90, 3, C.ink) + T(30, 106, 'C', { fs: 12, b: 1 }) + dot(90, 90, 3, C.ink) + T(90, 106, 'F', { fs: 12, b: 1 }) + T(156, 106, 'P', { fs: 12, b: 1, a: 'start' }) + L(90, 130, 150, 130, 'k', 'b', { w: 1 }) + T(120, 144, 'f', { it: 1, fs: 12 }) + L(30, 160, 150, 160, 'k', 'b', { w: 1 }) + T(90, 174, 'r', { it: 1, fs: 12 }) + T(110, 14, 'concave mirror', { fs: 12, b: 1 })
-        : dot(210, 90, 3, C.ink) + T(210, 106, 'F', { fs: 12, b: 1 }) + T(144, 106, 'P', { fs: 12, b: 1, a: 'end' }) + L(150, 130, 210, 130, 'k', 'b', { w: 1 }) + T(180, 144, 'f', { it: 1, fs: 12 }) + T(110, 14, 'convex mirror', { fs: 12, b: 1 }) + T(212, 76, 'C →', { fs: 11, a: 'end', c: C.sub })) + T(166, 26, 'A', { fs: 11 }) + T(166, 164, 'B', { fs: 11 }); };
-    return two(svg(230, 182, one(true), 230), svg(230, 182, one(false), 230)); };
-  F.fr2 = () => svg(360, 190, `<path d="M300,20 Q330,100 300,180" fill="none" stroke="${C.ink}" stroke-width="2.6"/>` + L(20, 100, 340, 100, 's', '', { w: 1 }) + L(20, 52, 314, 52, 'r', 'e', { w: 1.8 }) + L(314, 52, 168, 100, 'r', 'e', { w: 1.8 }) + L(60, 100, 314, 52, 's', '', { d: '5 4', w: 1.2 }) +
-    dot(60, 100, 3, C.ink) + T(60, 118, 'C', { b: 1 }) + dot(168, 100, 3, C.ink) + T(168, 118, 'F', { b: 1 }) + T(326, 118, 'P', { b: 1 }) + T(318, 46, 'M', { b: 1, a: 'start' }) + T(20, 44, 'A', { b: 1 }) +
-    P('M90,100 A30,30 0 0,0 89,94', 'o', { w: 1.4 }) + T(98, 94, 'θ', { it: 1, c: C.o, fs: 12 }) + T(290, 64, 'θ', { it: 1, c: C.o, fs: 12 }) + T(270, 48, 'θ', { it: 1, c: C.o, fs: 12 }) + T(190, 160, 'CM = r (normal at M); triangle FCM is isosceles', { fs: 11, c: C.sub }) + T(190, 176, 'paraxial ray: FM ≈ FP ⇒ f = r/2', { fs: 11, c: C.r, b: 1 }), 380);
-  F.snell = () => svg(340, 200, `<rect x="20" y="100" width="300" height="90" fill="#E6F1FA"/>` + L(20, 100, 320, 100, 'k', '', { w: 1.4 }) + L(170, 14, 170, 190, 's', '', { d: '4 3', w: 1 }) + L(90, 24, 170, 100, 'r', 'e', { w: 2 }) + L(170, 100, 218, 186, 'r', 'e', { w: 2 }) + L(170, 100, 250, 24, 'v', 'e', { w: 1.4, d: '5 3' }) +
-    T(150, 52, 'θ₁', { it: 1 }) + T(184, 150, 'θ₂', { it: 1 }) + T(30, 92, 'medium 1, n₁', { a: 'start', fs: 12 }) + T(30, 182, 'medium 2, n₂ > n₁', { a: 'start', fs: 12 }) + T(250, 46, 'reflected', { fs: 11, c: C.v }) + T(226, 172, 'refracted', { fs: 11, c: C.r, a: 'start' }), 360);
-  F.surfGeom = () => svg(380, 190, `<path d="M190,30 Q170,100 190,170 L370,170 L370,30 Z" fill="#E6F1FA"/>` + `<path d="M190,30 Q170,100 190,170" fill="none" stroke="${C.ink}" stroke-width="1.8"/>` + L(10, 100, 370, 100, 's', '', { w: 1 }) +
-    L(40, 100, 182, 70, 'r', '', { w: 1.8 }) + L(182, 70, 320, 100, 'r', 'e', { w: 1.8 }) + L(182, 70, 250, 100, 's', '', { d: '4 3', w: 1 }) + dot(40, 100, 3, C.ink) + T(40, 118, 'O', { b: 1 }) + dot(320, 100, 3, C.o) + T(320, 118, 'I', { b: 1, c: C.o }) + dot(250, 100, 3, C.ink) + T(250, 118, 'C', { b: 1 }) + T(176, 118, 'V', { b: 1 }) +
-    L(40, 140, 176, 140, 'k', 'b', { w: 1 }) + T(108, 154, 'u', { it: 1 }) + L(176, 160, 320, 160, 'k', 'b', { w: 1 }) + T(248, 174, 'v', { it: 1 }) + L(176, 24, 250, 24, 'k', 'b', { w: 1 }) + T(213, 18, 'r', { it: 1 }) + T(80, 50, 'n₁', { it: 1, fs: 14 }) + T(300, 50, 'n₂', { it: 1, fs: 14 }), 400);
-  F.lenses = () => { const cx = (x, t) => `<path d="M${x},20 Q${x + 18},80 ${x},140 Q${x - 18},80 ${x},20 Z" fill="#DCEBF7" stroke="${C.ink}"/>` + T(x, 160, t, { fs: 11 }); const cc = (x, t) => `<path d="M${x - 14},20 L${x + 14},20 Q${x + 2},80 ${x + 14},140 L${x - 14},140 Q${x - 2},80 ${x - 14},20 Z" fill="#DCEBF7" stroke="${C.ink}"/>` + T(x, 160, t, { fs: 11 });
-    return svg(400, 176, cx(45, 'double convex') + `<path d="M130,20 Q150,80 130,140 Z" fill="#DCEBF7" stroke="${C.ink}"/>` + T(136, 160, 'plano-convex', { fs: 11 }) + cc(250, 'double concave') + `<path d="M330,20 L348,20 Q336,80 348,140 L330,140 Z" fill="#DCEBF7" stroke="${C.ink}"/>` + T(340, 160, 'plano-concave', { fs: 11 }) + T(90, 12, 'converging: thicker at the centre', { fs: 11, b: 1, c: C.g }) + T(295, 12, 'diverging: thinner at the centre', { fs: 11, b: 1, c: C.r }), 420); };
-  F.lensSign = () => svg(380, 150, `<path d="M190,20 Q230,75 190,130 Q150,75 190,20 Z" fill="#DCEBF7" stroke="${C.ink}" stroke-width="1.4"/>` + L(20, 75, 360, 75, 's', '', { w: 1 }) + dot(300, 75, 3, C.ink) + T(300, 92, 'C₁', { b: 1, fs: 12 }) + dot(80, 75, 3, C.ink) + T(80, 92, 'C₂', { b: 1, fs: 12 }) +
-    T(300, 112, 'centre on the outgoing side', { fs: 10.5, c: C.g }) + T(300, 126, 'r₁ positive', { fs: 11, b: 1, c: C.g }) + T(80, 112, 'centre on the incoming side', { fs: 10.5, c: C.r }) + T(80, 126, 'r₂ negative', { fs: 11, b: 1, c: C.r }) + L(30, 30, 110, 30, 'o', 'e', { w: 1.6 }) + T(70, 22, 'light', { fs: 11, c: C.o }) + T(170, 16, 'surface 1', { fs: 10, a: 'end' }) + T(212, 16, 'surface 2', { fs: 10, a: 'start' }), 400);
-
-  F.q14 = () => svg(440, 140, L(10, 70, 370, 70, 's', '', { w: 1 }) + L(60, 70, 60, 40, 'k', 'e', { w: 2 }) + T(60, 90, 'object', { fs: 11 }) +
-    `<path d="M150,20 Q172,70 150,120 Q128,70 150,20 Z" fill="#DCEBF7" stroke="${C.ink}" stroke-width="1.4"/>` + T(150, 136, 'bi-convex, f = 12.0 cm', { fs: 10.5 }) +
-    `<path d="M300,20 Q262,70 300,120 Q284,70 300,20 Z" fill="#DCEBF7" stroke="${C.ink}" stroke-width="1.4"/>` + T(300, 136, 'meniscus', { fs: 10.5 }) +
-    L(60, 106, 150, 106, 'k', 'b', { w: 1 }) + T(105, 102, '25.0 cm', { fs: 10.5 }) + L(150, 14, 300, 14, 'k', 'b', { w: 1 }) + T(225, 10, '50.0 cm', { fs: 10.5 }) + T(330, 44, 'r₁ = 15 cm (left face)', { fs: 10, a: 'start' }) + T(330, 58, 'r₂ = 20 cm (right face)', { fs: 10, a: 'start' }), 450);
-  // configurations for the ray-diagram figures
-  const mir = (f, u, h, extra) => rayFig(Object.assign({ els: [{ type: 'mirror', x: 0, f }], x0: -u, h, xmin: -70, xmax: 30, ymax: 10, w: 360, hgt: 160 }, extra || {}));
-  const lens = (f, u, h, extra) => rayFig(Object.assign({ els: [{ type: 'lens', x: 0, f }], x0: -u, h, xmin: -60, xmax: 60, ymax: 10, w: 360, hgt: 160, twoF: true }, extra || {}));
+  F.prop = () => {
+    const lam = 120, x0 = 40, W = 300; let dots = '';
+    for (let i = 0; i < 60; i++) { const xe = x0 + i * 5, d = 12 * Math.sin(2 * Math.PI * (xe - x0) / lam); [0, 1, 2].forEach(r => { dots += `<circle cx="${(xe + d).toFixed(1)}" cy="${26 + r * 10}" r="1.8" fill="${C.ink}"/>`; }); }
+    const lines = [0, 1, 2].map(j => { const xc = x0 + lam / 2 + j * lam, xr = x0 + j * lam; return L(xc, 8, xc, 300, 's', '', { d: '3 4', w: 0.8 }) + T(xc, 62, 'C', { fs: 11, b: 1, c: C.r }) + (j ? T(xr, 62, 'R', { fs: 11, b: 1, c: C.v }) : ''); }).join('');
+    return svg(380, 310, dots + lines + T(8, 40, '(a)', { a: 'start', fs: 12, b: 1 }) +
+      T(8, 120, '(b)', { a: 'start', fs: 12, b: 1 }) + axes(x0, 120, W + 10, 44, 'x', 'y', { noO: 1, yb: 165 }) + P(curve(x0, 120, W, 36, lam), 'v', { w: 2.4 }) + T(x0 - 4, 88, 'A', { a: 'end', fs: 11, it: 1 }) +
+      T(8, 240, '(c)', { a: 'start', fs: 12, b: 1 }) + axes(x0, 240, W + 10, 52, 'x', 'p', { noO: 1, yb: 296 }) + P(curve(x0, 240, W, 36, lam, Math.PI / 2), 'r', { w: 2.4 }) + T(x0 - 4, 208, 'p₀', { a: 'end', fs: 11, it: 1 }) +
+      T(x0 + W + 14, 306, 'excess pressure', { fs: 10, a: 'end', c: C.sub }), 400);
+  };
+  const strMode = (n, kind, w = 280) => {
+    // kind: 'str' (N..N), 'open' (A..A), 'closed' (N closed left .. A open right)
+    const x0 = 30, y0 = 34, a = 18; let d1 = '', d2 = '';
+    for (let i = 0; i <= 120; i++) { const u = i / 120, x = x0 + u * w; let f;
+      if (kind === 'str') f = Math.sin(n * Math.PI * u); else if (kind === 'open') f = Math.cos(n * Math.PI * u); else f = Math.sin(n * Math.PI * u / 2);
+      d1 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (y0 - a * f).toFixed(1); d2 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (y0 + a * f).toFixed(1); }
+    let body = P(d1, 'v', { w: 2 }) + P(d2, 'v', { w: 2, d: '4 3' });
+    if (kind === 'str') body = L(x0, 10, x0, 58, 'k', '', { w: 3 }) + L(x0 + w, 10, x0 + w, 58, 'k', '', { w: 3 }) + body;
+    else body = L(x0, 12, x0 + w, 12, 'k', '', { w: 1.6 }) + L(x0, 56, x0 + w, 56, 'k', '', { w: 1.6 }) + (kind === 'closed' ? L(x0, 12, x0, 56, 'k', '', { w: 3 }) : '') + body;
+    return body;
+  };
+  F.modes = (kind, ns, labs) => svg(410, 72 * ns.length, ns.map((n, i) => `<g transform="translate(0,${i * 72})">${strMode(n, kind, 230)}${T(276, 30, labs[i][0], { a: 'start', fs: 11, b: 1 })}${T(276, 46, labs[i][1], { a: 'start', fs: 11 })}${T(276, 62, labs[i][2], { a: 'start', fs: 11, c: C.v })}</g>`).join(''), 420);
+  F.endc = () => two(svg(220, 120, T(110, 14, 'closed pipe', { b: 1, fs: 12 }) + `<g transform="translate(-10,30)">${(() => { const x0 = 30, w = 150, y0 = 34, a = 18; let d1 = '', d2 = ''; for (let i = 0; i <= 80; i++) { const u = i / 80, x = x0 + u * (w + 22), f = Math.sin(Math.PI / 2 * u); d1 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (y0 - a * f).toFixed(1); d2 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (y0 + a * f).toFixed(1); } return L(x0, 12, x0 + w, 12, 'k', '', { w: 1.6 }) + L(x0, 56, x0 + w, 56, 'k', '', { w: 1.6 }) + L(x0, 12, x0, 56, 'k', '', { w: 3 }) + P(d1, 'v', { w: 2 }) + P(d2, 'v', { w: 2, d: '4 3' }) + L(x0, 72, x0 + w, 72, 'k', 'b', { w: 1 }) + T(x0 + w / 2, 86, 'l', { it: 1, fs: 12 }) + L(x0 + w, 72, x0 + w + 22, 72, 'r', '', { w: 1.6 }) + T(x0 + w + 11, 86, 'c', { it: 1, fs: 12, c: C.r }); })()}</g>`, 220),
+    svg(220, 120, T(110, 14, 'open pipe', { b: 1, fs: 12 }) + `<g transform="translate(0,30)">${(() => { const x0 = 32, w = 140, y0 = 34, a = 18; let d1 = '', d2 = ''; for (let i = 0; i <= 80; i++) { const u = i / 80, x = x0 - 18 + u * (w + 36), f = Math.cos(Math.PI * u); d1 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (y0 - a * f).toFixed(1); d2 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (y0 + a * f).toFixed(1); } return L(x0, 12, x0 + w, 12, 'k', '', { w: 1.6 }) + L(x0, 56, x0 + w, 56, 'k', '', { w: 1.6 }) + P(d1, 'v', { w: 2 }) + P(d2, 'v', { w: 2, d: '4 3' }) + L(x0, 72, x0 + w, 72, 'k', 'b', { w: 1 }) + T(x0 + w / 2, 86, 'l', { it: 1, fs: 12 }) + L(x0 - 18, 72, x0, 72, 'r', '', { w: 1.6 }) + L(x0 + w, 72, x0 + w + 18, 72, 'r', '', { w: 1.6 }) + T(x0 - 9, 86, 'c', { it: 1, fs: 12, c: C.r }) + T(x0 + w + 9, 86, 'c', { it: 1, fs: 12, c: C.r }); })()}</g>`, 220));
+  F.Ir = () => two(svg(200, 150, axes(30, 125, 150, 105, 'r', 'I', { noO: 1 }) + P((() => { let d = ''; for (let i = 0; i <= 60; i++) { const r = 0.35 + i / 60 * 2.6; d += (i ? ' L' : 'M') + (30 + (r / 3) * 150).toFixed(1) + ',' + (125 - Math.min(105, 12 / (r * r))).toFixed(1); } return d; })(), 'v', { w: 2.4 }) + T(120, 60, 'I ∝ 1/r²', { fs: 12, it: 1 }), 200),
+    svg(200, 150, axes(30, 125, 150, 105, 'A', 'I', { noO: 1 }) + P('M30,125 Q110,120 170,30', 'o', { w: 2.4 }) + T(80, 60, 'I ∝ A²', { fs: 12, it: 1 }), 200));
+  F.beats = () => { let a = '', b = '', s = '', e1 = '', e2 = ''; const f1 = 50, f2 = 60, W = 320, tm = 0.2;
+    for (let i = 0; i <= 600; i++) { const t = tm * i / 600, x = 30 + W * t / tm, y1 = Math.sin(2 * Math.PI * f1 * t), y2 = Math.sin(2 * Math.PI * f2 * t), en = Math.abs(2 * Math.cos(Math.PI * (f2 - f1) * t));
+      a += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (40 - 14 * y1).toFixed(1); b += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (80 - 14 * y2).toFixed(1); s += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (150 - 14 * (y1 + y2)).toFixed(1); e1 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (150 - 14 * en).toFixed(1); e2 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (150 + 14 * en).toFixed(1); }
+    return svg(380, 210, P(a, 'v', { w: 1.2 }) + P(b, 'o', { w: 1.2 }) + P(e1, 'r', { w: 1.2, d: '4 3' }) + P(e2, 'r', { w: 1.2, d: '4 3' }) + P(s, 'g', { w: 1.4 }) + T(6, 44, 'f₁', { a: 'start', it: 1, c: C.v, fs: 12 }) + T(6, 84, 'f₂', { a: 'start', it: 1, c: C.o, fs: 12 }) + T(6, 154, 'sum', { a: 'start', fs: 11, c: C.g, b: 1 }) +
+      T(30, 192, 'loud', { fs: 11, c: C.r }) + T(110, 192, 'soft', { fs: 11, c: C.sub }) + T(190, 192, 'loud', { fs: 11, c: C.r }) + L(30, 202, 190, 202, 'k', 'b', { w: 1 }) + T(270, 206, 'beat period = 1/(f₂ − f₁)', { fs: 11 }), 400); };
+  F.doppler = () => { let c = ''; for (let i = 0; i < 6; i++) { const age = 6 - i, r = age * 18, cx = 120 + i * 9; c += `<circle cx="${cx}" cy="90" r="${r}" fill="none" stroke="${C.v}" stroke-width="1.3"/>`; }
+    return svg(380, 190, c + dot(174, 90, 7, '#E7B54A') + L(182, 90, 214, 90, 'o', 'e', { w: 2 }) + T(196, 82, 'vₛ', { it: 1, c: C.o, fs: 12 }) + T(330, 60, 'ahead: waves', { fs: 11, a: 'middle' }) + T(330, 74, 'bunched, λ smaller,', { fs: 11 }) + T(330, 88, 'f′ higher', { fs: 11, b: 1, c: C.r }) +
+      T(40, 160, 'behind: λ larger, f′ lower', { fs: 11, a: 'start', b: 1, c: C.v }) + T(300, 180, 'source moving to the right', { fs: 11, c: C.sub }), 400); };
+  F.dopG = () => svg(320, 160, axes(40, 140, 260, 120, 't', 'f′', { noO: 1 }) + L(40, 80, 300, 80, 's', '', { d: '4 4', w: 1 }) + T(36, 84, 'fₛ', { a: 'end', it: 1, fs: 12 }) +
+    P('M50,48 L160,48 Q170,48 170,80 Q170,112 180,112 L290,112', 'r', { w: 2.6 }) + T(100, 40, 'approaching: f′ > fₛ', { fs: 11 }) + T(236, 104, 'receding: f′ < fₛ', { fs: 11 }) + T(170, 152, 'passes the observer', { fs: 11, c: C.sub }), 340);
+  F.wall = () => svg(380, 110, dot(40, 60, 7, C.ball) + T(40, 88, 'O', { b: 1 }) + T(40, 102, '(stationary)', { fs: 10, c: C.sub }) + dot(200, 60, 8, '#E7B54A') + T(200, 88, 'S', { b: 1 }) + T(200, 102, 'fₛ = 100 Hz', { fs: 10, c: C.sub }) + L(210, 60, 250, 60, 'o', 'e', { w: 2 }) + T(232, 50, '20 m s⁻¹', { fs: 11, c: C.o }) +
+    L(340, 20, 340, 100, 'k', '', { w: 4 }) + T(356, 64, 'T', { b: 1 }) + T(356, 80, 'wall', { fs: 10, c: C.sub }), 400);
 
   const S = `
-${sec('22-0', 'Geometrical optics: introduction', `
-<p><b>Geometrical optics</b> studies light on the assumption that it travels in straight lines called <b>rays</b>. A collection of rays is a <b>beam</b>. Two laws describe how light changes direction at a surface: the law of reflection and the law of refraction.</p>
-${table(['Real image', 'Virtual image'], [['formed by light rays that actually pass through it', 'the rays only appear to come from it; no light passes through it'], ['can be formed on a screen', 'cannot be formed on a screen'], ['drawn with solid lines', 'drawn with dashed lines']])}
-${def('Law of reflection', `${red('the angle of reflection equals the angle of incidence')}, and the incident ray, the reflected ray and the normal lie in the same plane. (Angles are measured from the normal, not from the surface.)`)}
-<p>A <b>plane mirror</b> forms an image that is virtual, upright, the same size (<i>m</i> = +1), as far behind the mirror as the object is in front (<i>v</i> = <i>u</i>), and laterally inverted. This is why “AMBULANCE” is written back to front on the front of an ambulance: it reads correctly in a driver’s mirror.</p>
+${sec('21-1', '22.1 Propagation of sound waves', `
+${ul([`A sound wave is a ${red('longitudinal wave')} that needs a medium (solid, liquid or gas) to travel.`, `The source of a sound wave is a vibrating object.`, `The sound wave travels as a series of ${red('compressions and rarefactions')} of the medium.`, `Sound travels slowest in gases, faster in liquids and fastest in solids. In a gas the speed depends on temperature: in air, <i>v</i> ≈ (331 + 0.606θ) ${ms}, θ in °C.`])}
+${table(['Material (20 °C)', 'Speed of sound / m s<sup>−1</sup>'], [['Air', '343'], ['Air (0 °C)', '331'], ['Helium', '1005'], ['Water', '1440'], ['Sea water', '1560'], ['Glass', '≈ 4500'], ['Iron and steel', '≈ 5000'], ['Aluminium', '≈ 5100']])}
+${h4('How a tuning fork produces sound')}
+${ul([`When the prongs move outwards, they push the air in front of them together. The pressure rises slightly: a <b>compression</b> (condensation).`, `When the prongs move inwards, the air spreads out. The pressure falls slightly below normal: a <b>rarefaction</b>.`, `As the fork keeps vibrating, compressions and rarefactions are produced one after another and spread away from it.`])}
+${fig(F.prop(), 'Figure 22.1: (a) the air layers at one instant (C = compression, R = rarefaction); (b) displacement y of the air particles against distance x; (c) excess pressure p against distance x.')}
+${h4('Displacement and pressure')}
+${two(`<p><b>Displacement</b> of the air particles</p>${eq(`<i>y</i> = <i>y</i><sub>0</sub> sin (ω<i>t</i> − <i>kx</i>)`)}`, `<p><b>Pressure variation</b> (excess pressure)</p>${eq(`<i>p</i> = <i>p</i><sub>0</sub> sin (ω<i>t</i> − <i>kx</i> + ${fr('π', '2')})`)}`)}
+${ul([`At a compression or a rarefaction, the particles have <b>zero displacement</b> (they pass through their equilibrium position at maximum speed). Here the pressure is <b>maximum</b> (compression, above <i>p</i><sub>atm</sub>) or <b>minimum</b> (rarefaction, below <i>p</i><sub>atm</sub>).`, `Where the displacement is maximum (<i>y</i> = ±<i>y</i><sub>0</sub>), the particles are momentarily at rest, their spacing is normal, and the excess pressure is zero.`, `So the pressure wave and the displacement wave are ${red('π/2 rad (a quarter cycle) out of phase')}: the pressure wave leads the displacement wave by π/2.`])}
+${key(`phase difference between <i>p</i> and <i>y</i>: Δφ = ${fr('π', '2')} rad`, '<i>p</i><sub>0</sub> = maximum excess pressure = <i>p</i><sub>max</sub> − <i>p</i><sub>atm</sub>')}
+${sim('soundwave', 'Sound wave: displacement and pressure', 'Watch the air layers. Each layer only vibrates back and forth about its own position. The compressions (dark) and rarefactions (light) move along. Compare the displacement graph with the pressure graph: they are a quarter cycle apart.')}
+${example('22.1.1', `A sound wave in air is represented by <i>y</i> = 4.0 × 10<sup>−8</sup> sin (1200π<i>t</i> − 3.5π<i>x</i>) m. Find (a) the amplitude, (b) the wavelength, (c) the frequency, (d) the speed of sound in air.`,
+  steps([`Compare with <i>y</i> = <i>y</i><sub>0</sub> sin (ω<i>t</i> − <i>kx</i>).`, `(a) <i>y</i><sub>0</sub> = <b>4.0 × 10<sup>−8</sup> m</b>`, `(b) <i>k</i> = 3.5π ⇒ λ = 2π/<i>k</i> = <b>0.571 m</b>`, `(c) ω = 1200π ⇒ <i>f</i> = ω/2π = <b>600 Hz</b>`, `(d) <i>v</i> = <i>f</i>λ = 600 × 0.571 = <b>343 ${ms}</b>`]))}
+${card('STPM 2022', `Describe the propagation of sound waves in air. [2]`, ul([`Sound is a series of compressions and rarefactions (pressure variations) that travel through the air.`, `Sound waves travel in air as longitudinal waves: the air particles vibrate parallel to the direction of propagation.`]))}
 `)}
 
-${sec('22-1', '22.1 Spherical mirrors', `
-<p>A spherical mirror is a reflecting surface that is part of a sphere. It is <b>concave</b> if the reflection is on the inner surface and <b>convex</b> if it is on the outer surface.</p>
-${fig(F.terms(), 'Figure 22.1: C = centre of curvature, P = pole (vertex), F = focal point, CP = principal axis, AB = aperture, f = focal length (FP), r = radius of curvature (CP).')}
-${two(def('Focal point of a concave mirror', `the point on the principal axis ${red('through which rays parallel and close to the principal axis pass after reflection')}.`), def('Focal point of a convex mirror', `the point on the principal axis ${red('from which rays parallel and close to the principal axis appear to diverge after reflection')}.`))}
-${note(`This is true only for <b>paraxial rays</b> (rays close to the principal axis). Wide rays are focused nearer the mirror (spherical aberration).`)}
-${h4('Relation between f and r')}
-${fig(F.fr2(), 'Figure 22.2: a paraxial ray AM, parallel to the axis, reflects through F.')}
-${steps([`CM is the normal at M, so the angle of incidence = angle of reflection = θ.`, `AM ∥ CP, so ∠MCF = θ (alternate angles). Triangle FCM has two equal angles, so it is isosceles: FC = FM.`, `For a paraxial ray, M is very close to P, so FM ≈ FP. Then FC = FP, i.e. F is the midpoint of CP.`])}
-${key(`<i>f</i> = ${fr('<i>r</i>', '2')}`)}
-${h4('Ray diagrams')}
-${ul([`<b>Ray 1</b>: a ray parallel to the principal axis is reflected through F (concave), or as if it came from F (convex).`, `<b>Ray 2</b>: a ray through F (or heading towards F, convex) is reflected parallel to the axis.`, `<b>Ray 3</b>: a ray through C (or heading towards C, convex) is reflected back along the same path.`, `Any two rays from the top of the object locate the top of the image.`])}
-${table(['Object position (concave mirror)', 'Image position', 'Nature'], [['at infinity', 'at F', 'real, inverted, diminished (a point)'], ['beyond C', 'between C and F', 'real, inverted, diminished'], ['at C', 'at C', 'real, inverted, same size'], ['between C and F', 'beyond C', 'real, inverted, magnified'], ['at F', 'at infinity', '—'], ['between F and P', 'behind the mirror', 'virtual, upright, magnified']])}
-${two(fig(mir(15, 45, 6), 'Concave mirror, object beyond C.'), fig(mir(15, 9, 3.5, { xmin: -40, xmax: 40 }), 'Concave mirror, object between F and P: virtual, upright, magnified.'))}
-${fig(mir(-15, 30, 6, { xmin: -45, xmax: 35 }), 'Convex mirror: the image is always virtual, upright and diminished, between P and F behind the mirror.')}
-${h4('The mirror equation')}
-<p>Using similar triangles in the ray diagram (object distance OP = <i>u</i>, image distance IP = <i>v</i>, CP = <i>r</i>):</p>
-${steps([`Ray to P: ${fr('<i>h</i>', '<i>u</i>')} = ${fr('<i>h</i>′', '<i>v</i>')} ⇒ ${fr('<i>h</i>′', '<i>h</i>')} = ${fr('<i>v</i>', '<i>u</i>')} &nbsp; … (1)`, `Ray through C: ${fr('<i>h</i>', '<i>u</i> − <i>r</i>')} = ${fr('<i>h</i>′', '<i>r</i> − <i>v</i>')} ⇒ ${fr('<i>h</i>′', '<i>h</i>')} = ${fr('<i>r</i> − <i>v</i>', '<i>u</i> − <i>r</i>')} &nbsp; … (2)`, `(1) = (2): <i>v</i>(<i>u</i> − <i>r</i>) = <i>u</i>(<i>r</i> − <i>v</i>) ⇒ 2<i>uv</i> = <i>r</i>(<i>u</i> + <i>v</i>) ⇒ ${fr('2', '<i>r</i>')} = ${inv('<i>u</i>')} + ${inv('<i>v</i>')}`])}
-${key(`${inv('<i>u</i>')} + ${inv('<i>v</i>')} = ${inv('<i>f</i>')} = ${fr('2', '<i>r</i>')} &nbsp;&nbsp;&nbsp; <i>m</i> = ${fr('<i>h</i>′', '<i>h</i>')} = −${fr('<i>v</i>', '<i>u</i>')}`, '<i>m</i> = linear magnification')}
-${table(['Quantity', 'Positive (+)', 'Negative (−)'], [['object distance <i>u</i>', 'real object', 'virtual object'], ['image distance <i>v</i>', 'real image (in front of the mirror)', 'virtual image (behind the mirror)'], ['focal length <i>f</i>, radius <i>r</i>', 'concave mirror', 'convex mirror'], ['magnification <i>m</i>', 'upright image', 'inverted image']])}
-${tip(`Write the sign of <i>f</i> first (concave +, convex −), solve for <i>v</i>, then describe the image from the signs: <i>v</i> > 0 real, <i>v</i> < 0 virtual; <i>m</i> > 0 upright, <i>m</i> < 0 inverted; |<i>m</i>| > 1 magnified.`)}
-${sim('mirror', 'Ray diagram for a spherical mirror', 'Choose a concave or convex mirror and drag the object along the axis. The three principal rays are drawn and the image appears where they meet. Watch the image change from real and inverted to virtual and upright as the object passes F.')}
-${example('22.1.1', `An object 6 cm high is 30 cm in front of a convex mirror of radius 40 cm. Find the position and height of its image.`,
-  steps([`Convex: <i>r</i> = −40 cm; ${fr('2', '<i>r</i>')} = ${inv('<i>u</i>')} + ${inv('<i>v</i>')} ⇒ ${fr('2', '−40')} = ${inv('30')} + ${inv('<i>v</i>')} ⇒ <i>v</i> = <b>−12 cm</b> (virtual, 12 cm behind the mirror)`, `<i>m</i> = −<i>v</i>/<i>u</i> = 12/30 = 0.40 ⇒ <i>h</i>′ = 0.40 × 6 = <b>2.4 cm</b> (upright)`]))}
-${example('22.1.2', `An object is 15 cm from (a) a concave mirror, (b) a convex mirror, each of radius of curvature 20 cm. Find the image position and magnification in each case.`,
-  steps([`(a) <i>f</i> = +10 cm: ${inv('<i>v</i>')} = ${inv('10')} − ${inv('15')} ⇒ <i>v</i> = <b>+30 cm</b> (real, 30 cm in front); <i>m</i> = −30/15 = <b>−2</b> (inverted, twice as high)`, `(b) <i>f</i> = −10 cm: ${inv('<i>v</i>')} = ${inv('−10')} − ${inv('15')} ⇒ <i>v</i> = <b>−6.0 cm</b> (virtual, 6.0 cm behind); <i>m</i> = 6/15 = <b>+0.40</b> (upright, two-fifths as high)`]))}
-${example('22.1.3', `What is the focal length of a convex mirror that forms an image one-sixth the size of an object 12 cm from the mirror?`,
-  steps([`Convex mirror: image virtual and upright, <i>m</i> = +1/6 ⇒ <i>v</i> = −<i>u</i>/6 = −2 cm`, `${inv('<i>f</i>')} = ${inv('12')} + ${inv('−2')} ⇒ <i>f</i> = <b>−2.4 cm</b>`]))}
-${example('22.1.4', `An object 20 cm from a concave mirror forms a real image three times its size. (a) Find the focal length. (b) Where must the object be placed to give a virtual image three times its size?`,
-  steps([`(a) real ⇒ inverted, <i>m</i> = −3 ⇒ <i>v</i> = 3<i>u</i> = 60 cm; ${inv('<i>f</i>')} = ${inv('20')} + ${inv('60')} ⇒ <i>f</i> = <b>+15 cm</b>`, `(b) virtual ⇒ upright, <i>m</i> = +3 ⇒ <i>v</i> = −3<i>u</i>; ${inv('<i>u</i>')} − ${fr('1', '3<i>u</i>')} = ${inv('15')} ⇒ <i>u</i> = <b>10 cm</b>`]))}
-${example('22.1.5', `An object 2.0 cm high is 30 cm from a concave mirror of radius of curvature 10 cm. Find the position and the characteristics of the image.`,
-  steps([`<i>f</i> = <i>r</i>/2 = +5 cm; ${inv('<i>v</i>')} = ${inv('5')} − ${inv('30')} ⇒ <i>v</i> = <b>+6.0 cm</b>`, `<i>m</i> = −6/30 = −0.20, <i>h</i>′ = −0.40 cm`, `The image is <b>real</b>, <b>inverted</b>, <b>diminished</b> (0.4 cm high), 6.0 cm in front of the mirror.`]), fig(mir(5, 30, 4, { xmin: -36, xmax: 10, ymax: 6 })))}
-${exercises('Exercises: spherical mirrors', [
-  { q: `A concave mirror has a focal length of 10 cm. Find the two positions where an object can be placed to give an image twice the height of the object.`, a: `15 cm (real, inverted image) and 5.0 cm (virtual, upright image)` },
-  { q: `A convex mirror of radius of curvature 40 cm forms an image half the height of the object. Find the object and image positions.`, a: `<i>u</i> = 20 cm; image 10 cm behind the mirror (<i>v</i> = −10 cm)` },
-  { q: `An object is 5.0 cm in front of a concave mirror of focal length 10.0 cm. Find the location of the image and its characteristics.`, a: `<i>v</i> = −10 cm (10 cm behind the mirror); <i>m</i> = +2: virtual, upright, twice the height` },
-  { q: `What kind of spherical mirror, and what radius, gives an upright image one-fifth as large as an object placed 15 cm in front of it?`, a: `<i>m</i> = +1/5 ⇒ <i>v</i> = −3.0 cm, <i>f</i> = −3.75 cm: a convex mirror of radius 7.5 cm (<i>r</i> = −7.5 cm)` },
-  { q: `A concave mirror forms an image, on a wall 3.0 m from the mirror, of a lamp filament 10 cm in front of the mirror. (a) What is the radius of curvature? (b) How high is the image if the filament is 5 mm high?`, a: `(a) <i>f</i> = 9.68 cm, <i>r</i> = 19.4 cm &nbsp; (b) <i>m</i> = −30, image 15 cm high (inverted)` },
-  { q: `What are the nature, size and location of the image of a 6 cm tall object 15 cm from a concave mirror of focal length 20 cm?`, a: `<i>v</i> = −60 cm (behind the mirror), <i>m</i> = +4: virtual, upright, 24 cm high` },
-  { q: `The magnification of a mirror is −0.333. Its image is formed on a card 540 mm from the mirror. Where is the object, and what is the focal length?`, a: `<i>u</i> = 1.62 m; <i>f</i> = +405 mm (concave)` }])}
+${sec('21-2', '22.2 Sources of sound', `
+<p>The source of any sound is a vibrating object, e.g. musical instruments (guitar, violin, flute, trumpet). The vibrations are standing waves on strings or in air columns.</p>
+${h4('Stationary waves on a stretched string')}
+${ul([`When a stretched string is plucked, a transverse progressive wave travels to the fixed ends and is reflected.`, `The incident and reflected waves (same frequency and amplitude) superpose to form a <b>stationary transverse wave</b>.`, `Both fixed ends are <b>nodes</b>. The vibrating string makes the air vibrate at the same frequency, producing sound.`])}
+${fig(F.modes('str', [1, 2, 3], [['n = 1: fundamental', 'l = λ/2', 'f₁ = v/2l'], ['n = 2: 1st overtone', 'l = λ', 'f₂ = 2f₁'], ['n = 3: 2nd overtone', 'l = 3λ/2', 'f₃ = 3f₁']]), 'Figure 22.2: the first three modes of vibration of a string fixed at both ends.')}
+${key(`<i>f<sub>n</sub></i> = ${fr('<i>nv</i>', '2<i>l</i>')} = <i>nf</i><sub>1</sub>, &nbsp; <i>n</i> = 1, 2, 3, … &nbsp;&nbsp; <i>v</i> = ${sq(fr('<i>T</i>', 'μ'))}`, '<i>n</i> = harmonic number (number of loops); <i>l</i> = length of string; <i>T</i> = tension; μ = mass per unit length (kg m<sup>−1</sup>); all harmonics are present')}
+${table(['Term', 'Meaning'], [['Fundamental frequency', 'the lowest natural frequency of a vibrating system'], ['Harmonics', 'frequencies that are whole-number multiples of the fundamental frequency'], ['Overtones', 'the frequencies above the fundamental that the system can produce: the first overtone is the next one after the fundamental']])}
+${example('22.2.1', `A string vibrates in five segments at a frequency of 460 Hz. (a) What is its fundamental frequency? (b) What frequency makes it vibrate in three segments?`,
+  steps([`(a) five segments: <i>n</i> = 5; <i>f</i><sub>5</sub> = 5<i>f</i><sub>1</sub> ⇒ <i>f</i><sub>1</sub> = 460/5 = <b>92 Hz</b>`, `(b) <i>f</i><sub>3</sub> = 3(92) = <b>276 Hz</b>`]))}
+${example('22.2.2', `A steel piano wire 0.400 m long has a mass of 3.00 g and is under a tension of 800 N. Find (a) the frequency of its fundamental mode, (b) the highest harmonic that could be heard by a person who can hear frequencies up to 10 000 Hz.`,
+  steps([`μ = <i>m</i>/<i>l</i> = 3.00 × 10<sup>−3</sup>/0.400 = 7.5 × 10<sup>−3</sup> kg m<sup>−1</sup>`, `(a) <i>f</i><sub>1</sub> = ${fr('1', '2<i>l</i>')}${sq(fr('<i>T</i>', 'μ'))} = ${fr('1', '2(0.400)')}${sq(fr('800', '7.5 × 10<sup>−3</sup>'))} = <b>408 Hz</b>`, `(b) <i>n</i> = 10 000/408 = 24.5, so the highest harmonic heard is the <b>24th</b>.`]))}
+${pq('STPM 2021 · Section A', `A string is fixed at both ends and plucked in the middle. The length, mass and tension of the string are 2.0 m, 8.0 g and 1.2 kN respectively. What is the fundamental frequency of the string?`, ['4.3 Hz', '68 Hz', '140 Hz', '270 Hz'], 2,
+  `<p>μ = 0.0080/2.0 = 4.0 × 10<sup>−3</sup> kg m<sup>−1</sup>; <i>v</i> = √(1200/4.0 × 10<sup>−3</sup>) = 548 ${ms}; <i>f</i><sub>1</sub> = <i>v</i>/2<i>L</i> = 548/4.0 = 137 Hz ≈ 140 Hz.</p>`)}
+${card('STPM 2022', `A string of length <i>L</i> is stretched between two fixed points with tension <i>T</i>. Sketch the shape of the string for the second overtone, and find the distance between two consecutive nodes in terms of the fundamental wavelength. [4]`,
+  steps([`Second overtone = third harmonic (<i>n</i> = 3): the string forms <b>3 loops</b>.`, `<i>L</i> = 3(λ<sub>3</sub>/2) ⇒ distance between nodes = λ<sub>3</sub>/2 = <i>L</i>/3`, `fundamental: λ<sub>1</sub> = 2<i>L</i> ⇒ <i>L</i> = λ<sub>1</sub>/2, so the distance = <b>λ<sub>1</sub>/6</b>`]))}
+${h4('Stationary waves in air columns')}
+${ul([`A sound wave sent into a pipe is reflected at the end. The incident and reflected waves superpose to form a <b>stationary longitudinal wave</b>.`, `<b>Resonance</b> occurs, and a loud sound is heard, when the frequency of the source equals a natural frequency of the air column.`, `A <b>closed end</b> is always a <b>displacement node</b> (the air cannot move). An <b>open end</b> is a <b>displacement antinode</b>.`])}
+${two(fig(F.modes('closed', [1, 3, 5], [['n = 1: fundamental', 'l = λ/4', 'f₁ = v/4l'], ['n = 3: 1st overtone', 'l = 3λ/4', 'f₃ = 3f₁'], ['n = 5: 2nd overtone', 'l = 5λ/4', 'f₅ = 5f₁']]), 'Figure 22.3: closed pipe (one end closed). Only odd harmonics.'),
+  fig(F.modes('open', [1, 2, 3], [['n = 1: fundamental', 'l = λ/2', 'f₁ = v/2l'], ['n = 2: 1st overtone', 'l = λ', 'f₂ = 2f₁'], ['n = 3: 2nd overtone', 'l = 3λ/2', 'f₃ = 3f₁']]), 'Figure 22.4: open pipe (both ends open). All harmonics.'))}
+${table(['', 'Closed pipe', 'Open pipe and string'], [['Fundamental', '<i>f</i><sub>1</sub> = <i>v</i>/4<i>l</i>', '<i>f</i><sub>1</sub> = <i>v</i>/2<i>l</i>'], ['General', '<i>f<sub>n</sub></i> = <i>nv</i>/4<i>l</i>, <i>n</i> = 1, 3, 5, … (odd harmonics only)', '<i>f<sub>n</sub></i> = <i>nv</i>/2<i>l</i>, <i>n</i> = 1, 2, 3, …'], ['1st overtone', '3<i>f</i><sub>1</sub>', '2<i>f</i><sub>1</sub>'], ['2nd overtone', '5<i>f</i><sub>1</sub>', '3<i>f</i><sub>1</sub>']])}
+${h4('End correction')}
+${def('End correction, <i>c</i>', `is ${red('the small distance between the open end of a pipe and the antinode just outside it')}. The air at the open end is free to move, so its vibration extends slightly beyond the end of the pipe.`)}
+${fig(F.endc(), 'Figure 22.5: the antinode forms a distance c beyond each open end.')}
+${table(['Closed pipe', 'Open pipe'], [['<i>l</i> + <i>c</i> = λ/4 &nbsp; ⇒ &nbsp; <i>f</i><sub>1</sub> = ' + fr('<i>v</i>', '4(<i>l</i> + <i>c</i>)'), '<i>l</i> + 2<i>c</i> = λ/2 &nbsp; ⇒ &nbsp; <i>f</i><sub>1</sub> = ' + fr('<i>v</i>', '2(<i>l</i> + 2<i>c</i>)')], ['<i>f<sub>n</sub></i> = ' + fr('<i>nv</i>', '4(<i>l</i> + <i>c</i>)') + ', <i>n</i> = 1, 3, 5, …', '<i>f<sub>n</sub></i> = ' + fr('<i>nv</i>', '2(<i>l</i> + 2<i>c</i>)') + ', <i>n</i> = 1, 2, 3, …']])}
+${tip(`To find the end correction experimentally, use a resonance tube: find the first two resonance lengths <i>l</i><sub>1</sub> and <i>l</i><sub>2</sub> for the same tuning fork. Then <i>l</i><sub>2</sub> − <i>l</i><sub>1</sub> = λ/2 (the end correction cancels), and <i>c</i> = λ/4 − <i>l</i><sub>1</sub>.`)}
+${sim('pipes', 'Harmonics in strings and pipes', 'Choose a string, an open pipe or a closed pipe, then step through the harmonics. Change the length and switch on the end correction. A closed pipe only has odd harmonics.')}
+${example('22.2.3', `A pipe is 45.0 cm long. Find the fundamental frequency and the first three overtones (a) if the pipe is open at both ends, (b) if it is closed at one end. (c) For each case, find the highest harmonic that can be heard by a person who hears 20 Hz to 20 000 Hz. (<i>v</i> = 344 ${ms})`,
+  steps([`(a) open: <i>f</i><sub>1</sub> = <i>v</i>/2<i>l</i> = 344/0.90 = <b>382 Hz</b>; overtones <i>f</i><sub>2</sub>, <i>f</i><sub>3</sub>, <i>f</i><sub>4</sub> = <b>764, 1147, 1529 Hz</b>`, `(b) closed: <i>f</i><sub>1</sub> = <i>v</i>/4<i>l</i> = 344/1.80 = <b>191 Hz</b>; overtones <i>f</i><sub>3</sub>, <i>f</i><sub>5</sub>, <i>f</i><sub>7</sub> = <b>573, 956, 1338 Hz</b>`, `(c) open: <i>n</i> = 20 000(0.90)/344 = 52.3 ⇒ <b>52nd harmonic</b>. Closed: <i>n</i> = 20 000(1.80)/344 = 104.7, but only odd harmonics exist ⇒ <b>103rd harmonic</b>.`]))}
+${example('22.2.4', `A pipe 90 cm long is open at both ends. How long must a pipe closed at one end be to have the same fundamental frequency?`,
+  steps([`${fr('<i>v</i>', '4<i>l</i><sub>c</sub>')} = ${fr('<i>v</i>', '2<i>l</i><sub>o</sub>')} ⇒ <i>l</i><sub>c</sub> = ${fr('<i>l</i><sub>o</sub>', '2')} = <b>45 cm</b>`]))}
+${example('22.2.5', `A tube of air 1.5 m long is closed at one end. It sustains a standing wave at its third harmonic. What is the distance between a node and the adjacent antinode? (<i>v</i> = 331 ${ms})`,
+  steps([`Third harmonic: <i>l</i> = 3λ/4 ⇒ λ = 4(1.5)/3 = 2.0 m`, `node to adjacent antinode = λ/4 = <b>0.5 m</b>`]))}
+${example('22.2.6', `A pipe closed at one end produces a fundamental note of 300 Hz. The end correction is 8.00 mm and the speed of sound is 330 ${ms}. Calculate the length of the pipe.`,
+  steps([`<i>f</i><sub>1</sub> = ${fr('<i>v</i>', '4(<i>l</i> + <i>c</i>)')} ⇒ <i>l</i> + <i>c</i> = ${fr('330', '4(300)')} = 0.275 m`, `<i>l</i> = 0.275 − 0.008 = <b>0.267 m</b>`]))}
+${h4('Real instruments: the guitar and the flute')}
+${ul([`<b>Guitar</b>: each string is fixed at the bridge and at the nut, so it vibrates with nodes at both ends: <i>f</i><sub>1</sub> = ${fr('1', '2<i>l</i>')}${sq(fr('<i>T</i>', 'μ'))}. Thicker strings (larger μ) give lower notes; turning the tuning peg changes the tension <i>T</i>.`, `Pressing a string against a <b>fret</b> shortens the vibrating length. The frets are placed so that each one raises the note by a semitone; the 12th fret is halfway along the string, so the note is one octave higher (double the frequency).`, `<b>Flute</b>: a pipe open at both ends (the mouth hole and the far end), so there is an antinode at each end: <i>f</i><sub>1</sub> = ${fr('<i>v</i>', '2<i>l</i>')}. Opening a finger hole makes the air column end there, so it is shorter and the note is higher.`, `Blowing harder makes the flute sound its second harmonic (overblowing): the same fingering gives a note one octave higher.`])}
+${sim('instruments', 'Guitar and flute', 'Choose the guitar or the flute. On the guitar, pick a string, change the tension and press a fret. On the flute, choose a note and overblow. Watch the vibrating length and the stationary wave, and switch on the sound to hear the note.')}
+${example('22.2.7', `The thinnest string of a guitar has a vibrating length of 0.648 m and a mass per unit length of 4.0 × 10<sup>−4</sup> kg m<sup>−1</sup>. It is tuned to a fundamental frequency of 330 Hz. Find (a) the speed of the transverse wave on the string, (b) the tension in the string, (c) the frequency when the string is pressed at the 12th fret, halfway along.`,
+  steps([`(a) Fundamental: <i>l</i> = λ/2 ⇒ λ = 1.296 m; <i>v</i> = <i>f</i>λ = (330)(1.296) = <b>428 ${ms}</b>`, `(b) <i>v</i> = ${sq(fr('<i>T</i>', 'μ'))} ⇒ <i>T</i> = <i>v</i><sup>2</sup>μ = (428)<sup>2</sup>(4.0 × 10<sup>−4</sup>) = <b>73 N</b>`, `(c) <i>f</i> ∝ ${fr('1', '<i>l</i>')}: half the length gives <b>660 Hz</b>, one octave higher`]))}
+${exercises('Exercises: strings and pipes', [
+  { q: `The distance between the first and the fourth antinodes of a stationary wave on a string is 15 cm. What is the speed of the wave if it vibrates at 50 Hz?`, a: `3 × λ/2 = 15 cm ⇒ λ = 0.10 m; <i>v</i> = 5 ${ms}` },
+  { q: `A string 2.0 m long is fixed at both ends. At 85.0 Hz a standing wave with five loops forms. Find (a) the wavelength, (b) the wave speed, (c) the fundamental frequency.`, a: `(a) 0.8 m &nbsp; (b) 68 ${ms} &nbsp; (c) 17 Hz` }])}
 `)}
 
-${sec('22-2', '22.2 Refraction at spherical surfaces', `
-${h4('Refraction at a plane surface (revision)')}
-${fig(F.snell(), 'Figure 22.3: light going into a denser medium bends towards the normal.')}
-${ul([`The incident ray, the refracted ray and the normal lie in the same plane.`, `<b>Snell’s law</b>: ${fr('sin θ<sub>1</sub>', 'sin θ<sub>2</sub>')} = ${fr('<i>v</i><sub>1</sub>', '<i>v</i><sub>2</sub>')} = constant.`, `<b>Refractive index</b>: <i>n</i> = ${fr('<i>c</i>', '<i>v</i>')} (speed in a vacuum / speed in the medium); <i>n</i> ≥ 1, no unit.`, `The frequency does not change across the boundary, but the speed and the wavelength do: <i>n</i><sub>1</sub>λ<sub>1</sub> = <i>n</i><sub>2</sub>λ<sub>2</sub>, and λ<sub><i>n</i></sub> = λ<sub>0</sub>/<i>n</i>.`])}
-${key(`<i>n</i><sub>1</sub> sin θ<sub>1</sub> = <i>n</i><sub>2</sub> sin θ<sub>2</sub>`)}
-${example('22.2.1', `Light of wavelength 500 nm in air strikes a slab of transparent material at 40.0° to the normal. The refracted beam makes 26.0° with the normal. Find the refractive index and the wavelength in the material.`,
-  steps([`<i>n</i><sub>2</sub> = ${fr('(1) sin 40.0°', 'sin 26.0°')} = <b>1.47</b>`, `λ<sub>2</sub> = ${fr('<i>n</i><sub>1</sub>λ<sub>1</sub>', '<i>n</i><sub>2</sub>')} = ${fr('500', '1.47')} = <b>340 nm</b>`]))}
-${example('22.2.2', `Light travelling in air strikes crown glass (<i>n</i> = 1.52) at 30.0° to the normal. Find the angle of refraction.`,
-  steps([`sin θ<sub>2</sub> = ${fr('sin 30.0°', '1.52')} = 0.329 ⇒ θ<sub>2</sub> = <b>19.2°</b>`]))}
-${example('22.2.3', `A layer of oil (<i>n</i> = 1.45) floats on water (<i>n</i> = 1.33). Light strikes the oil at 40.0° to the normal. Find the angle the ray makes with the normal in the water.`,
-  steps([`<i>n</i><sub>air</sub> sin 40.0° = <i>n</i><sub>oil</sub> sin θ<sub>oil</sub> = <i>n</i><sub>water</sub> sin θ<sub>water</sub> (parallel boundaries)`, `sin θ<sub>water</sub> = sin 40.0°/1.33 ⇒ θ<sub>water</sub> = <b>28.9°</b> (the oil does not affect the final angle)`]))}
-${h4('Refraction at a spherical surface')}
-${fig(F.surfGeom(), 'Figure 22.4: a point object O in medium n₁ forms an image I in medium n₂ by refraction at a spherical surface with centre C.')}
-${key(`${fr('<i>n</i><sub>1</sub>', '<i>u</i>')} + ${fr('<i>n</i><sub>2</sub>', '<i>v</i>')} = ${fr('<i>n</i><sub>2</sub> − <i>n</i><sub>1</sub>', '<i>r</i>')} &nbsp;&nbsp;&nbsp; <i>m</i> = ${fr('<i>h</i>′', '<i>h</i>')} = −${fr('<i>n</i><sub>1</sub><i>v</i>', '<i>n</i><sub>2</sub><i>u</i>')}`, '<i>n</i><sub>1</sub> = medium the light comes from; <i>n</i><sub>2</sub> = medium the light goes into. (The derivation is not required.)')}
-${table(['Quantity', 'Positive (+)', 'Negative (−)'], [['<i>u</i>', 'real object (in front of the surface)', 'virtual object (behind the surface)'], ['<i>v</i>', 'real image (behind the surface, in medium 2)', 'virtual image (in front of the surface, in medium 1)'], ['<i>r</i>', 'centre of curvature behind the surface (surface convex to the incoming light)', 'centre of curvature in front of the surface (surface concave to the incoming light)'], ['flat surface', '<i>r</i> → ∞, so the right-hand side is 0', '']])}
-${note(`Some books use |<i>n</i><sub>2</sub> − <i>n</i><sub>1</sub>|/<i>r</i> with <i>r</i> positive when the centre of curvature is in the denser medium. Both forms are accepted in STPM. State the convention you use and never mix the two rules.`)}
-${sim('surface', 'Refraction at a spherical surface', 'Change the refractive indices, the radius of the surface and the object distance. The ray towards the centre of curvature crosses the surface without bending; the parallel ray is refracted. Try a fish in water seen from the air (flat surface).')}
-${example('22.2.4', `A glass rod (<i>n</i> = 1.50) has one end ground to a hemispherical surface of radius 20 mm. A point object is on the axis, 80 mm to the left of the vertex, in air. Find (a) the image distance, (b) the magnification.`,
-  steps([`<i>n</i><sub>1</sub> = 1, <i>n</i><sub>2</sub> = 1.50, <i>r</i> = +20 mm (centre inside the glass), <i>u</i> = +80 mm`, `(a) ${fr('1', '80')} + ${fr('1.50', '<i>v</i>')} = ${fr('1.50 − 1', '20')} ⇒ <i>v</i> = <b>+120 mm</b> (real, inside the rod)`, `(b) <i>m</i> = −${fr('(1)(120)', '(1.50)(80)')} = <b>−1.0</b>: same size, inverted`]))}
-${example('22.2.5', `The rod in Example 22.2.4 is placed in water (<i>n</i> = 1.33). Find the image distance and the magnification.`,
-  steps([`${fr('1.33', '80')} + ${fr('1.50', '<i>v</i>')} = ${fr('1.50 − 1.33', '20')} = 0.0085 ⇒ <i>v</i> = <b>−185 mm</b> (virtual, 185 mm in front of the vertex, in the water)`, `<i>m</i> = −${fr('(1.33)(−185)', '(1.50)(80)')} = <b>+2.05</b>: upright, magnified`]))}
-${example('22.2.6', `A coin is embedded in a spherical plastic paperweight of radius 3.0 cm (<i>n</i> = 1.50). The coin is 2.0 cm from the surface nearest the viewer. Find the position of its image.`,
-  steps([`Light goes from plastic to air: <i>n</i><sub>1</sub> = 1.50, <i>n</i><sub>2</sub> = 1.00, <i>u</i> = 2.0 cm. The centre of curvature is on the coin’s side (in front of the surface), so <i>r</i> = −3.0 cm.`, `${fr('1.50', '2.0')} + ${fr('1.00', '<i>v</i>')} = ${fr('1.00 − 1.50', '−3.0')} = 0.1667 ⇒ <i>v</i> = <b>−1.7 cm</b>`, `Virtual image 1.7 cm inside the plastic: the coin looks nearer the surface than it is.`]))}
-${example('22.2.7', `A fish is 8.0 cm below the flat surface of water (<i>n</i> = 1.33). Find the apparent depth of the fish seen from directly above, and the magnification.`,
-  steps([`Flat surface: <i>r</i> → ∞, so ${fr('1.33', '8.0')} + ${fr('1.00', '<i>v</i>')} = 0 ⇒ <i>v</i> = <b>−6.0 cm</b> (virtual; apparent depth 6.0 cm)`, `<i>m</i> = −${fr('(1.33)(−6.0)', '(1.00)(8.0)')} = <b>+1.0</b>: upright, same size`, `In general, apparent depth = real depth/<i>n</i>.`]))}
-${card('STPM 2015 (repeat) · Paper 3', `An object 5.0 mm high is 35.0 cm from the vertex of the spherical surface of a glass rod (<i>n</i> = 1.5). The image forms inside the rod, 50.0 cm from the vertex. (i) State the characteristics of the image. (ii) Find the radius of curvature. (iii) Where must the object be placed to give a virtual image 10.0 cm from the vertex?`,
-  steps([`(i) <i>m</i> = −${fr('<i>n</i><sub>1</sub><i>v</i>', '<i>n</i><sub>2</sub><i>u</i>')} = −${fr('50.0', '1.5 × 35.0')} = −0.952: <b>real, inverted</b>, almost the same size (<i>h</i>′ ≈ 4.8 mm)`, `(ii) ${fr('1', '35.0')} + ${fr('1.5', '50.0')} = ${fr('0.5', '<i>r</i>')} ⇒ 0.05857 = 0.5/<i>r</i> ⇒ <i>r</i> = <b>+8.54 cm</b>`, `(iii) <i>v</i> = −10.0 cm: ${inv('<i>u</i>')} − ${fr('1.5', '10.0')} = ${fr('0.5', '8.54')} ⇒ ${inv('<i>u</i>')} = 0.2086 ⇒ <i>u</i> = <b>4.80 cm</b>`]))}
-${exercises('Exercise: refraction at spherical surfaces', [
-  { q: `A point object is 25.0 cm from the centre of a glass sphere of radius 5.0 cm (<i>n</i> = 1.50). Find the position of the image formed by (a) the first surface, (b) the second surface.`, a: `(a) <i>u</i><sub>1</sub> = 20.0 cm, <i>r</i> = +5.0 cm: ${fr('1', '20.0')} + ${fr('1.50', '<i>v</i><sub>1</sub>')} = ${fr('0.50', '5.0')} ⇒ <i>v</i><sub>1</sub> = +30.0 cm (20.0 cm beyond the sphere) &nbsp; (b) this is a virtual object for the back surface, <i>u</i><sub>2</sub> = 10.0 − 30.0 = −20.0 cm, <i>r</i> = −5.0 cm: ${fr('1.50', '−20.0')} + ${fr('1', '<i>v</i><sub>2</sub>')} = ${fr('1 − 1.50', '−5.0')} ⇒ <i>v</i><sub>2</sub> = <b>+5.71 cm</b>: a real image 5.71 cm from the back surface` }])}
+${sec('21-3', '22.3 Intensity level of sound', `
+${def('Intensity of sound', `is ${red('the rate of energy transported per unit area perpendicular to the direction of propagation')}: <i>I</i> = ${fr('<i>E</i>', '<i>tA</i>')} = ${fr('<i>P</i>', '<i>A</i>')}, unit W m<sup>−2</sup>.`)}
+<p>For a point source radiating uniformly, <i>A</i> = 4π<i>r</i><sup>2</sup>, so ${fr('<i>I</i><sub>2</sub>', '<i>I</i><sub>1</sub>')} = ${fr('<i>r</i><sub>1</sub><sup>2</sup>', '<i>r</i><sub>2</sub><sup>2</sup>')}. The intensity (and so the loudness) depends on the amplitude, <i>I</i> ∝ <i>A</i><sup>2</sup>, and on the distance, <i>I</i> ∝ 1/<i>r</i><sup>2</sup>.</p>
+${fig(F.Ir())}
+${example('22.3.1', `A loudspeaker radiates sound uniformly in all directions. At 3 m the intensity is 0.4 W m<sup>−2</sup>. Find the power of the loudspeaker and the intensity at 5 m.`,
+  steps([`<i>P</i> = <i>I</i>(4π<i>r</i><sup>2</sup>) = 0.4 × 4π(3)<sup>2</sup> = <b>45.2 W</b>`, `<i>I</i><sub>2</sub> = <i>I</i><sub>1</sub>(<i>r</i><sub>1</sub>/<i>r</i><sub>2</sub>)<sup>2</sup> = 0.4(3/5)<sup>2</sup> = <b>0.144 W m<sup>−2</sup></b>`]))}
+${h4('Intensity level')}
+${ul([`<b>Threshold of hearing</b>: the lowest intensity a normal ear can detect, <i>I</i><sub>0</sub> = 1.0 × 10<sup>−12</sup> W m<sup>−2</sup>.`, `<b>Threshold of pain</b>: about 1 W m<sup>−2</sup>.`, `Our sense of loudness follows the logarithm of the intensity, so a logarithmic scale is used.`])}
+${def('Intensity level of sound, β', `is ${red('a logarithmic measure of the intensity of a sound compared with the threshold of hearing')}.`)}
+${key(`β = 10 log<sub>10</sub> ${fr('<i>I</i>', '<i>I</i><sub>0</sub>')}`, 'unit: decibel (dB). <i>I</i><sub>0</sub> = 1.0 × 10<sup>−12</sup> W m<sup>−2</sup>. An increase of 10 dB means the intensity is 10 times greater; +3 dB means the intensity doubles.')}
+${table(['Sound', 'Intensity level / dB'], [['threshold of hearing', '0'], ['whisper', '20'], ['conversation, classroom', '60'], ['siren, rock concert', '100'], ['jet aeroplane, threshold of pain', '120']])}
+${example('22.3.2', `The intensity of a sound wave is 1 W m<sup>−2</sup>. Calculate its intensity level.`,
+  steps([`β = 10 log<sub>10</sub> (1/10<sup>−12</sup>) = 10 × 12 = <b>120 dB</b>`]))}
+${example('22.3.3', `The intensity level of one sound is 80 dB and of another is 20 dB. Find the ratio of their intensities.`,
+  steps([`<i>I</i><sub>1</sub>/<i>I</i><sub>0</sub> = 10<sup>8</sup>, <i>I</i><sub>2</sub>/<i>I</i><sub>0</sub> = 10<sup>2</sup> ⇒ <i>I</i><sub>1</sub>/<i>I</i><sub>2</sub> = <b>10<sup>6</sup></b>`, `Shortcut: β<sub>1</sub> − β<sub>2</sub> = 10 log (<i>I</i><sub>1</sub>/<i>I</i><sub>2</sub>) ⇒ 60 = 10 log (<i>I</i><sub>1</sub>/<i>I</i><sub>2</sub>)`]))}
+${pq('STPM 2022 · Section A', `The sound intensity level of 88.0 dB is detected 30.0 cm from a point source. What is the energy received at that point in one second? [<i>I</i><sub>0</sub> = 1.00 × 10<sup>−12</sup> W m<sup>−2</sup>]`, ['1.19 × 10<sup>−3</sup> J', '7.14 × 10<sup>−4</sup> J', '5.58 × 10<sup>−3</sup> J', '1.78 × 10<sup>−3</sup> J'], 1,
+  `<p><i>I</i> = 10<sup>8.8</sup> × 10<sup>−12</sup> = 6.31 × 10<sup>−4</sup> W m<sup>−2</sup>; <i>P</i> = <i>I</i> × 4π<i>r</i><sup>2</sup> = 6.31 × 10<sup>−4</sup> × 4π(0.300)<sup>2</sup> = 7.14 × 10<sup>−4</sup> W, i.e. 7.14 × 10<sup>−4</sup> J each second.</p>`)}
+${card('STPM 2021', `A bomb blasts 12 m from a soldier. The area of his eardrum is 25 mm<sup>2</sup> and the sound energy it receives every second is 1.0 × 10<sup>−6</sup> W. [<i>I</i><sub>0</sub> = 10<sup>−12</sup> W m<sup>−2</sup>] (a) Find the sound intensity level at the eardrum. [3] (b) Find the change in level if the soldier is 17 m from the blast. [3] (c) If the level increases by 3 dB, what happens to the intensity? [1]`,
+  steps([`(a) <i>I</i> = <i>P</i>/<i>A</i> = 1.0 × 10<sup>−6</sup>/25 × 10<sup>−6</sup> = 0.040 W m<sup>−2</sup>; β = 10 log (0.040/10<sup>−12</sup>) = <b>106 dB</b>`, `(b) <i>I</i><sub>2</sub> = 0.040(12/17)<sup>2</sup> = 0.0199 W m<sup>−2</sup>; β<sub>2</sub> = 103.0 dB ⇒ a <b>decrease of 3.0 dB</b>`, `(c) 3 = 10 log (<i>I</i><sub>2</sub>/<i>I</i><sub>1</sub>) ⇒ <i>I</i><sub>2</sub>/<i>I</i><sub>1</sub> = 10<sup>0.3</sup> ≈ 2: the intensity <b>doubles</b>.`]))}
 `)}
 
-${sec('22-3', '22.3 Thin lenses', `
-<p>A lens is a transparent object with two refracting surfaces whose principal axes coincide. A <b>thin lens</b> is one whose thickness is small compared with its focal length.</p>
-${fig(F.lenses(), 'Figure 22.5: converging (convex) lenses make parallel rays converge; diverging (concave) lenses make them diverge.')}
-${ul([`<b>Principal axis</b>: the line through the centre of the lens, perpendicular to both surfaces.`, `<b>Focal point F</b>: the point where parallel paraxial rays meet after a converging lens, or from which they appear to diverge after a diverging lens. A lens has a focal point on each side.`, `<b>Focal length <i>f</i></b>: the distance between the focal point and the centre of the lens.`])}
-${h4('Ray diagrams for lenses')}
-${ul([`<b>Ray 1</b>: a ray parallel to the axis passes through F on the other side (converging), or appears to come from F on the same side (diverging).`, `<b>Ray 2</b>: a ray through F (or heading towards F on the far side, diverging) leaves parallel to the axis.`, `<b>Ray 3</b>: a ray through the centre of the lens goes straight on.`])}
-${table(['Object position (converging lens)', 'Image', 'Everyday use'], [['beyond 2F', 'between F and 2F; real, inverted, diminished', 'camera, phone camera, the eye'], ['at 2F', 'at 2F; real, inverted, same size', 'photocopier at 1 : 1'], ['between F and 2F', 'beyond 2F; real, inverted, magnified', 'projector, enlarger'], ['at F', 'at infinity', 'spotlight, searchlight'], ['between F and the lens', 'on the same side; virtual, upright, magnified', 'magnifying glass']])}
-${two(fig(lens(15, 40, 6), 'Converging lens, object beyond 2F.'), fig(lens(15, 8, 3, { xmin: -40, xmax: 40 }), 'Converging lens, object inside F: magnifying glass.'))}
-${fig(lens(-15, 30, 6, { xmin: -45, xmax: 30, twoF: false }), 'Diverging lens: the image is always virtual, upright and diminished, between the lens and F (door viewer, spectacles for short sight).')}
-${h4('Thin lens formula and lensmaker’s equation')}
-<p>Apply ${fr('<i>n</i><sub>1</sub>', '<i>u</i>')} + ${fr('<i>n</i><sub>2</sub>', '<i>v</i>')} = ${fr('<i>n</i><sub>2</sub> − <i>n</i><sub>1</sub>', '<i>r</i>')} to each surface of a thin lens of refractive index <i>n</i><sub>l</sub> in a medium of index <i>n</i><sub>m</sub>.</p>
-${steps([`Surface 1 (medium → lens): ${fr('<i>n</i><sub>m</sub>', '<i>u</i>')} + ${fr('<i>n</i><sub>l</sub>', '<i>v</i><sub>1</sub>')} = ${fr('<i>n</i><sub>l</sub> − <i>n</i><sub>m</sub>', '<i>r</i><sub>1</sub>')} &nbsp; … (1)`, `The image of surface 1 is the object for surface 2. For a thin lens it is a distance <i>v</i><sub>1</sub> beyond surface 2, i.e. a virtual object: <i>u</i><sub>2</sub> = −<i>v</i><sub>1</sub>.`, `Surface 2 (lens → medium): ${fr('<i>n</i><sub>l</sub>', '−<i>v</i><sub>1</sub>')} + ${fr('<i>n</i><sub>m</sub>', '<i>v</i>')} = ${fr('<i>n</i><sub>m</sub> − <i>n</i><sub>l</sub>', '<i>r</i><sub>2</sub>')} &nbsp; … (2)`, `(1) + (2): <i>n</i><sub>m</sub>(${inv('<i>u</i>')} + ${inv('<i>v</i>')}) = (<i>n</i><sub>l</sub> − <i>n</i><sub>m</sub>)(${inv('<i>r</i><sub>1</sub>')} − ${inv('<i>r</i><sub>2</sub>')})`, `For an object at infinity, <i>v</i> = <i>f</i>. So the right-hand side divided by <i>n</i><sub>m</sub> is 1/<i>f</i>, giving both results:`])}
-${key(`${inv('<i>u</i>')} + ${inv('<i>v</i>')} = ${inv('<i>f</i>')} &nbsp;&nbsp;&nbsp; <i>m</i> = −${fr('<i>v</i>', '<i>u</i>')}`, 'thin lens formula')}
-${key(`${inv('<i>f</i>')} = (${fr('<i>n</i><sub>l</sub>', '<i>n</i><sub>m</sub>')} − 1)(${inv('<i>r</i><sub>1</sub>')} − ${inv('<i>r</i><sub>2</sub>')})`, 'lensmaker’s equation. In air, <i>n</i><sub>m</sub> = 1: 1/<i>f</i> = (<i>n</i> − 1)(1/<i>r</i><sub>1</sub> − 1/<i>r</i><sub>2</sub>)')}
-${fig(F.lensSign(), 'Figure 22.6: radius signs for a biconvex lens. r is positive when the centre of curvature is on the outgoing (back) side of that surface.')}
-${table(['Quantity', 'Positive (+)', 'Negative (−)'], [['<i>f</i>', 'converging lens', 'diverging lens'], ['<i>u</i>', 'real object (in front of the lens)', 'virtual object (behind the lens)'], ['<i>v</i>', 'real image (behind the lens)', 'virtual image (in front of the lens)'], ['<i>r</i>', 'centre of curvature on the outgoing side', 'centre of curvature on the incoming side'], ['<i>m</i>', 'upright image', 'inverted image']])}
-${note(`Biconvex: <i>r</i><sub>1</sub> = +, <i>r</i><sub>2</sub> = −. Biconcave: <i>r</i><sub>1</sub> = −, <i>r</i><sub>2</sub> = +. Flat face: <i>r</i> = ∞. Some books write (1/<i>r</i><sub>1</sub> + 1/<i>r</i><sub>2</sub>) with both radii as magnitudes for a biconvex lens; it is the same physics with a different convention. These notes use signed radii and the minus form throughout.`)}
-${sim('lens', 'Ray diagram for a thin lens', 'Choose a converging or diverging lens and move the object. The three principal rays find the image. Put the object at 2F, between F and 2F, and inside F, and compare with the table.')}
-${example('22.3.1', `An object is 10 cm from a converging lens of focal length 15 cm. Find the image position and its characteristics.`,
-  steps([`${inv('<i>v</i>')} = ${inv('15')} − ${inv('10')} ⇒ <i>v</i> = <b>−30 cm</b> (virtual, on the same side as the object)`, `<i>m</i> = −(−30)/10 = <b>+3.0</b>: upright, three times as large (a magnifying glass)`]))}
-${example('22.3.2', `Where must a small insect be placed if a diverging lens of focal length 25 cm is to form a virtual image 20 cm in front of the lens?`,
-  steps([`<i>f</i> = −25 cm, <i>v</i> = −20 cm: ${inv('<i>u</i>')} = ${inv('−25')} − ${inv('−20')} = ${inv('100')} ⇒ <i>u</i> = <b>100 cm</b>`]))}
-${example('22.3.3', `A diverging meniscus lens has a focal length of −16 cm. The lens is held 10 cm from an object. Find the image position and the magnification.`,
-  steps([`${inv('<i>v</i>')} = ${inv('−16')} − ${inv('10')} ⇒ <i>v</i> = <b>−6.15 cm</b>`, `<i>m</i> = 6.15/10 = <b>+0.615</b> (virtual, upright, diminished)`]))}
-${example('22.3.4', `An object 450 mm from a converging lens forms a real image 900 mm from the lens. Find the focal length.`,
-  steps([`${inv('<i>f</i>')} = ${inv('450')} + ${inv('900')} = ${fr('3', '900')} ⇒ <i>f</i> = 300 mm = <b>30 cm</b>`]))}
-${example('22.3.5', `An object 6 cm high is 4 cm from a diverging meniscus lens of focal length −24 cm. Find the nature, size and location of the image.`,
-  steps([`${inv('<i>v</i>')} = ${inv('−24')} − ${inv('4')} ⇒ <i>v</i> = <b>−3.43 cm</b>`, `<i>m</i> = 3.43/4 = 0.857 ⇒ <i>h</i>′ = 0.857 × 6 = <b>5.14 cm</b>; virtual and upright`]))}
-${exercises('Exercises: thin lens formula', [
-  { q: `An object 8 cm high is 30 cm from a converging lens of focal length 12 cm. Find the nature, size and location of the image.`, a: `<i>v</i> = +20 cm, <i>m</i> = −0.667: real, inverted, 5.33 cm high (<i>h</i>′ = −5.33 cm)` },
-  { q: `A 1.70 m tall person stands 2.50 m in front of a camera whose converging lens has a focal length of 0.0500 m. Find the characteristics of the image on the sensor.`, a: `<i>v</i> = 0.0510 m, <i>m</i> = −0.0204: real, inverted, diminished, 0.0347 m high` },
-  { q: `An object is 18 cm in front of a diverging lens of focal length −12 cm. How far in front of the lens should the object be placed so that the size of its image is halved?`, a: `At 18 cm, <i>m</i> = 0.40; for <i>m</i> = 0.20: <i>u</i> = 48 cm` },
-  { q: `How far from a 50.0 mm focal length lens must an object be placed for a real image magnified 3.00×? And for a virtual image magnified 3.00×?`, a: `66.7 mm (real); 33.3 mm (virtual)` },
-  { q: `A lens focuses an object 22.5 cm away as an image 33.0 cm on the other side. What type of lens is it, what is its focal length, and is the image real or virtual?`, a: `converging, <i>f</i> = 13.4 cm, real` },
-  { q: `(a) A 2.70 cm high insect is 2.20 m from a lens of focal length 135 mm. Where is the image, how high is it, and what type is it? (b) Repeat for <i>f</i> = −135 mm.`, a: `(a) 144 mm behind the lens, real, inverted, 1.77 mm &nbsp; (b) 127 mm in front of the lens, virtual, upright, 1.56 mm` }])}
-${h4('Using the lensmaker’s equation')}
-${example('22.3.6', `A meniscus lens (<i>n</i> = 1.52) in air has radii <i>r</i><sub>1</sub> = +22.4 cm and <i>r</i><sub>2</sub> = +46.2 cm. Find its focal length and state the type of lens.`,
-  steps([`${inv('<i>f</i>')} = (1.52 − 1)(${inv('22.4')} − ${inv('46.2')}) = 0.52 × 0.02300 ⇒ <i>f</i> = <b>+83.6 cm</b>`, `<i>f</i> is positive: a <b>converging</b> lens.`]))}
-${example('22.3.7', `Each face of a double convex lens has radius 20.0 cm; <i>n</i> = 1.50. Find the focal length (a) in air, (b) in carbon disulfide (<i>n</i> = 1.63).`,
-  steps([`<i>r</i><sub>1</sub> = +20.0 cm, <i>r</i><sub>2</sub> = −20.0 cm`, `(a) ${inv('<i>f</i>')} = (1.50 − 1)(${inv('20.0')} + ${inv('20.0')}) ⇒ <i>f</i> = <b>+20.0 cm</b>`, `(b) ${inv('<i>f</i>')} = (${fr('1.50', '1.63')} − 1)(0.100) = −0.00798 ⇒ <i>f</i> = <b>−125 cm</b>: in a denser liquid, the lens is <b>diverging</b>.`]))}
-${example('22.3.8', `A plano-convex lens of glass (<i>n</i> = 1.5) is to have a focal length of 40 cm. Find the radius of the curved surface.`,
-  steps([`Flat face first: <i>r</i><sub>1</sub> = ∞. ${inv('40')} = (1.5 − 1)(0 − ${inv('<i>r</i><sub>2</sub>')}) ⇒ <i>r</i><sub>2</sub> = −20 cm`, `radius of the curved surface = <b>20 cm</b>`]))}
-${card('STPM 2015 (repeat) · Paper 3', `A thin biconvex lens (<i>n</i> = 1.5, both radii 10.0 cm) is immersed in a liquid of refractive index 1.65. Find the focal length and state how the lens behaves.`,
-  steps([`${inv('<i>f</i>')} = (${fr('1.5', '1.65')} − 1)(${inv('10.0')} + ${inv('10.0')}) = (−0.0909)(0.200) ⇒ <i>f</i> = <b>−55 cm</b>`, `<i>f</i> is negative: in this liquid the lens <b>diverges</b> a parallel beam.`]))}
-${h4('Power of a lens')}
-${def('Power of a lens', `${red('the reciprocal of its focal length in metres')}. Unit: dioptre (D) = m<sup>−1</sup>. Converging lenses have positive power; diverging lenses have negative power.`)}
-${key(`<i>P</i> = ${inv('<i>f</i>')}`)}
-${h4('Two thin lenses in contact')}
-${steps([`Lens 1: ${inv('<i>u</i>')} + ${inv('<i>v</i><sub>1</sub>')} = ${inv('<i>f</i><sub>1</sub>')}. Its image is a virtual object for lens 2 (no gap): <i>u</i><sub>2</sub> = −<i>v</i><sub>1</sub>.`, `Lens 2: −${inv('<i>v</i><sub>1</sub>')} + ${inv('<i>v</i>')} = ${inv('<i>f</i><sub>2</sub>')}. Adding: ${inv('<i>u</i>')} + ${inv('<i>v</i>')} = ${inv('<i>f</i><sub>1</sub>')} + ${inv('<i>f</i><sub>2</sub>')}`])}
-${key(`${inv('<i>f</i>')} = ${inv('<i>f</i><sub>1</sub>')} + ${inv('<i>f</i><sub>2</sub>')} &nbsp;&nbsp;&nbsp; <i>P</i> = <i>P</i><sub>1</sub> + <i>P</i><sub>2</sub>`)}
-${exercises('Exercises: power and lenses in contact', [
-  { q: `A converging lens has a focal length of 12.5 cm. Calculate its power.`, a: `+8.0 D` },
-  { q: `A lens has a power of −4.0 D. State the type of lens and find its focal length.`, a: `diverging, <i>f</i> = −25 cm` },
-  { q: `A lens of power +6.0 D is in contact with a lens of power −2.0 D. Find the power and focal length of the combination.`, a: `+4.0 D, <i>f</i> = +25 cm` },
-  { q: `Two thin lenses of focal lengths +20.0 cm and +30.0 cm are in contact. Find the focal length and power of the combination.`, a: `<i>f</i> = +12.0 cm, <i>P</i> = +8.33 D` },
-  { q: `A double convex lens (<i>n</i> = 1.50) has <i>r</i><sub>1</sub> = +15.0 cm and <i>r</i><sub>2</sub> = −15.0 cm. Find its focal length and power in air.`, a: `<i>f</i> = +15.0 cm, <i>P</i> = +6.67 D` }])}
-${h4('Combination of two lenses (separated)')}
-${steps([`Find the image I<sub>1</sub> formed by the first lens alone.`, `Treat I<sub>1</sub> as the object for the second lens: <i>u</i><sub>2</sub> = <i>d</i> − <i>v</i><sub>1</sub>. If I<sub>1</sub> is in front of lens 2, <i>u</i><sub>2</sub> is positive (real object). If I<sub>1</sub> falls beyond lens 2, <i>u</i><sub>2</sub> is negative (virtual object).`, `Find the final image from lens 2. The overall magnification is <i>m</i> = <i>m</i><sub>1</sub> × <i>m</i><sub>2</sub>.`])}
-${sim('twolens', 'Two-lens system', 'Set the two focal lengths, the separation and the object distance. The intermediate image I₁ (faint) becomes the object for the second lens. Make I₁ fall beyond lens 2 to see a virtual object.')}
-${example('22.3.9', `Two converging lenses, <i>f</i><sub>1</sub> = 10.0 cm and <i>f</i><sub>2</sub> = 20.0 cm, are 20.0 cm apart. An object is 30.0 cm in front of the first. Find the position and magnification of the final image.`,
-  steps([`Lens 1: ${inv('<i>v</i><sub>1</sub>')} = ${inv('10.0')} − ${inv('30.0')} ⇒ <i>v</i><sub>1</sub> = 15.0 cm, <i>m</i><sub>1</sub> = −0.500`, `Lens 2: <i>u</i><sub>2</sub> = 20.0 − 15.0 = 5.0 cm; ${inv('<i>v</i><sub>2</sub>')} = ${inv('20.0')} − ${inv('5.0')} ⇒ <i>v</i><sub>2</sub> = <b>−6.67 cm</b> (virtual, 6.67 cm in front of lens 2)`, `<i>m</i><sub>2</sub> = −(−6.67)/5.0 = +1.33; <i>m</i> = (−0.500)(+1.33) = <b>−0.667</b> (inverted)`]))}
-${example('22.3.10', `Two converging lenses, <i>f</i><sub>1</sub> = 20.0 cm and <i>f</i><sub>2</sub> = 25.0 cm, are 80.0 cm apart. An object is 60.0 cm in front of the first. Find the position and magnification of the final image.`,
-  steps([`Lens 1: <i>v</i><sub>1</sub> = 30.0 cm, <i>m</i><sub>1</sub> = −0.500`, `Lens 2: <i>u</i><sub>2</sub> = 80.0 − 30.0 = 50.0 cm ⇒ <i>v</i><sub>2</sub> = <b>+50.0 cm</b> beyond lens 2 (real); <i>m</i><sub>2</sub> = −1.00`, `<i>m</i> = (−0.500)(−1.00) = <b>+0.500</b> (upright relative to the object)`]), fig(rayFig({ els: [{ type: 'lens', x: 0, f: 20 }, { type: 'lens', x: 80, f: 25 }], x0: -60, h: 6, xmin: -65, xmax: 135, ymax: 9, w: 380, hgt: 150 })))}
-${exercises('Exercises: two lenses', [
-  { q: `A converging lens has focal length 0.080 m. An object is 0.040 m to its left. A second identical lens is 0.120 m to the right of the first. Where is the final image, relative to the second lens?`, a: `<i>v</i><sub>1</sub> = −8.0 cm (virtual), <i>u</i><sub>2</sub> = 20.0 cm ⇒ <i>v</i><sub>2</sub> = +13.3 cm = 0.133 m to the right of lens 2; <i>m</i> = (+2.00)(−0.667) = −1.33` },
-  { q: `A coin is 20.0 cm to the left of a converging lens (<i>f</i> = 16.0 cm). A second identical lens is placed to the right so that the final image has the same size and orientation as the coin. Find the separation of the lenses.`, a: `<i>v</i><sub>1</sub> = 80.0 cm, <i>m</i><sub>1</sub> = −4.00; need <i>m</i><sub>2</sub> = −0.250 ⇒ <i>u</i><sub>2</sub> = 80.0 cm; separation = <b>160 cm</b>` },
-  { q: `Two converging lenses 60 cm apart have focal lengths 10 cm and 15.0 cm. An object 6.0 cm high is 20 cm in front of the first. Find the location and size of the final image. Is it real or virtual?`, a: `<i>v</i><sub>1</sub> = 20 cm, <i>u</i><sub>2</sub> = 40 cm ⇒ <i>v</i><sub>2</sub> = 24 cm beyond lens 2; <i>m</i> = (−1.00)(−0.600) = +0.600, <i>h</i>′ = 3.6 cm; real` }])}
-${h4('Combination of a lens and a spherical mirror')}
-${ul([`Light passes through the lens, reflects from the mirror, then passes through the lens <b>again</b>. So there are three stages (lens → mirror → lens), and the three magnifications multiply.`, `The image formed by the lens is the object for the mirror. If that image would fall behind the mirror, the mirror intercepts the rays before they meet: it is a <b>virtual object</b> and its object distance is negative.`])}
-${example('22.3.11', `A converging lens (<i>f</i> = 10.0 cm) and a concave mirror (<i>r</i> = 30.0 cm) are 50.0 cm apart on a common axis. An object is 30.0 cm in front of the lens. Find the position and magnification of the final image.`,
-  steps([`Lens: ${inv('<i>v</i><sub>1</sub>')} = ${inv('10.0')} − ${inv('30.0')} ⇒ <i>v</i><sub>1</sub> = 15.0 cm, <i>m</i><sub>1</sub> = −0.500`, `Mirror (<i>f</i> = +15.0 cm): <i>u</i><sub>2</sub> = 50.0 − 15.0 = 35.0 cm ⇒ <i>v</i><sub>2</sub> = 26.25 cm, <i>m</i><sub>2</sub> = −0.750`, `Lens again: <i>u</i><sub>3</sub> = 50.0 − 26.25 = 23.75 cm ⇒ <i>v</i><sub>3</sub> = <b>17.3 cm</b> from the lens (on the object side, real); <i>m</i><sub>3</sub> = −0.727`, `<i>m</i> = (−0.500)(−0.750)(−0.727) = <b>−0.273</b> (inverted, diminished)`]))}
-${exercises('Exercises: lens and mirror', [
-  { q: `A converging lens (<i>f</i> = 15.0 cm) is 40.0 cm from a convex mirror of radius 20.0 cm on a common axis. An object is 30.0 cm in front of the lens. Find the position and magnification of the final image.`, a: `<i>v</i><sub>1</sub> = 30.0 cm, <i>m</i><sub>1</sub> = −1.00; mirror <i>u</i><sub>2</sub> = 10.0 cm, <i>f</i> = −10.0 cm ⇒ <i>v</i><sub>2</sub> = −5.0 cm, <i>m</i><sub>2</sub> = +0.500; lens again <i>u</i><sub>3</sub> = 45.0 cm ⇒ <i>v</i><sub>3</sub> = 22.5 cm, <i>m</i><sub>3</sub> = −0.500; final image 22.5 cm from the lens, <i>m</i> = +0.25 (upright)` },
-  { q: `A converging lens (<i>f</i> = 10.0 cm) and a concave mirror (<i>f</i> = 20.0 cm) are 80.0 cm apart. An object is 15.0 cm in front of the lens. Find the position and magnification of the final image.`, a: `<i>v</i><sub>1</sub> = 30.0 cm (<i>m</i><sub>1</sub> = −2.00); <i>u</i><sub>2</sub> = 50.0 cm ⇒ <i>v</i><sub>2</sub> = 33.3 cm (<i>m</i><sub>2</sub> = −0.667); <i>u</i><sub>3</sub> = 46.7 cm ⇒ <i>v</i><sub>3</sub> = 12.7 cm (<i>m</i><sub>3</sub> = −0.272); final image 12.7 cm from the lens, <i>m</i> = −0.36 (inverted)` }])}
+${sec('21-4', '22.4 Beats', `
+${def('Beats', `are ${red('the periodic variation in amplitude (loudness) at a point, caused by the superposition of two sound waves of slightly different frequencies')}.`)}
+${fig(F.beats(), 'Figure 22.6: two waves of 50 Hz and 60 Hz and their sum. The loudness rises and falls 10 times per second.')}
+${ul([`Where the two waves are in phase, they interfere constructively: the amplitude is maximum and a loud sound is heard.`, `Where they are in antiphase, they interfere destructively: the amplitude is minimum and little or no sound is heard.`, `The number of times per second the loudness rises and falls is the <b>beat frequency</b>.`])}
+${h4('Derivation of the beat frequency')}
+${steps([`<i>y</i><sub>1</sub> = <i>A</i> sin 2π<i>f</i><sub>1</sub><i>t</i>, &nbsp; <i>y</i><sub>2</sub> = <i>A</i> sin 2π<i>f</i><sub>2</sub><i>t</i> &nbsp; (<i>f</i><sub>1</sub> > <i>f</i><sub>2</sub>)`, `<i>y</i> = <i>y</i><sub>1</sub> + <i>y</i><sub>2</sub>, with sin <i>P</i> + sin <i>Q</i> = 2 cos ${fr('<i>P</i> − <i>Q</i>', '2')} sin ${fr('<i>P</i> + <i>Q</i>', '2')}`, `<i>y</i> = [2<i>A</i> cos 2π(${fr('<i>f</i><sub>1</sub> − <i>f</i><sub>2</sub>', '2')})<i>t</i>] sin 2π(${fr('<i>f</i><sub>1</sub> + <i>f</i><sub>2</sub>', '2')})<i>t</i>`, `The sound heard has frequency (<i>f</i><sub>1</sub> + <i>f</i><sub>2</sub>)/2. Its amplitude 2<i>A</i> cos 2π(${fr('<i>f</i><sub>1</sub> − <i>f</i><sub>2</sub>', '2')})<i>t</i> varies slowly.`, `The loudness is maximum whenever the cosine is +1 <b>or</b> −1, i.e. twice in each cycle of the cosine. So the beat frequency is twice (<i>f</i><sub>1</sub> − <i>f</i><sub>2</sub>)/2.`])}
+${key(`<i>f</i><sub>beat</sub> = <i>f</i><sub>1</sub> − <i>f</i><sub>2</sub> = ${fr('<i>v</i>', 'λ<sub>1</sub>')} − ${fr('<i>v</i>', 'λ<sub>2</sub>')}`, 'beat period <i>T</i><sub>beat</sub> = 1/<i>f</i><sub>beat</sub>. For 50 Hz and 60 Hz: 10 beats per second, <i>T</i><sub>beat</sub> = 0.10 s.')}
+${tip(`Beats are used to tune instruments: the string is adjusted until the beats with a reference tuning fork slow down and disappear (<i>f</i><sub>beat</sub> = 0).`)}
+${sim('beats', 'Beats', 'Set two frequencies that are close together. The green curve is their sum: its amplitude rises and falls at the beat frequency. Press Listen to hear the beats (use earphones or a speaker).')}
+${example('22.4.1', `Two sound waves of wavelengths 3.00 m and 2.50 m superpose. Both travel at 330 ${ms}. How many beats are produced each second?`,
+  steps([`<i>f</i><sub>beat</sub> = ${fr('330', '2.50')} − ${fr('330', '3.00')} = 132 − 110 = <b>22 Hz</b>, i.e. 22 beats per second`]))}
+${pq('STPM 2022 · Section A', `A musician plucks the first two strings of a ukulele together and hears three beats per second. The first string is tuned to 350 Hz. The musician tightens the screw to stretch the second string, plucks the two strings again and hears two beats per second. What was the frequency of the second string before it was stretched?`, ['345 Hz', '347 Hz', '351 Hz', '353 Hz'], 1,
+  `<p>At first |350 − <i>f</i><sub>2</sub>| = 3, so <i>f</i><sub>2</sub> = 347 Hz or 353 Hz. Tightening increases the tension, so <i>f</i><sub>2</sub> increases. The beat frequency falls from 3 to 2, so <i>f</i><sub>2</sub> moved closer to 350 Hz: it was <b>347 Hz</b> (now 348 Hz).</p>`)}
 `)}
 
-${sec('22-4', 'STPM past-year questions', `
-${pq('STPM 2013 · Paper 3 · Q7', `A baby is in front of a concave mirror of radius of curvature <i>R</i>. An upright image twice the size of the baby is seen. What is the distance between the baby and the mirror?`, ['<i>R</i>/4', '<i>R</i>/2', '3<i>R</i>/4', '<i>R</i>'], 0, `<p>Upright ⇒ virtual, <i>m</i> = +2 ⇒ <i>v</i> = −2<i>u</i>. ${inv('<i>u</i>')} − ${fr('1', '2<i>u</i>')} = ${fr('2', '<i>R</i>')} ⇒ <i>u</i> = <i>R</i>/4.</p>`)}
-${pq('STPM 2013 · Paper 3 · Q8', `A diverging lens and a converging lens, each of focal length 10.0 cm, are 10.0 cm apart, with the diverging lens in front. The arrangement is focused on a distant object. The image formed is`, ['virtual, 5.0 cm behind the converging lens', 'virtual, 10.0 cm behind the diverging lens', 'real, 10.0 cm behind the converging lens', 'real, 20.0 cm behind the converging lens'], 3, `<p>Parallel rays give a virtual image at the focus of the diverging lens, 10.0 cm in front of it. So <i>u</i><sub>2</sub> = 20.0 cm for the converging lens: ${inv('20.0')} + ${inv('<i>v</i>')} = ${inv('10.0')} ⇒ <i>v</i> = +20.0 cm (real).</p>`)}
-${pq('STPM 2014 · Paper 3 · Q7', `A parallel beam is incident normally on a converging lens of focal length <i>f</i><sub>1</sub> in contact with a diverging lens of focal length <i>f</i><sub>2</sub>. The focal length of the combination is <i>f</i><sub>3</sub>. If the image distances of the converging lens and of the diverging lens are <i>v</i><sub>1</sub> and <i>v</i><sub>2</sub>, which pair (<i>v</i><sub>1</sub>, <i>v</i><sub>2</sub>) is correct?`, ['(<i>f</i><sub>1</sub>, <i>f</i><sub>2</sub>)', '(<i>f</i><sub>1</sub>, <i>f</i><sub>3</sub>)', '(<i>f</i><sub>2</sub>, <i>f</i><sub>1</sub>)', '(<i>f</i><sub>3</sub>, <i>f</i><sub>1</sub>)'], 1, `<p>The converging lens alone would focus the parallel beam at its own focus, so <i>v</i><sub>1</sub> = <i>f</i><sub>1</sub>. Together the lenses act as one lens of focal length <i>f</i><sub>3</sub>, so the light converges at <i>v</i><sub>2</sub> = <i>f</i><sub>3</sub>.</p>`)}
-${pq('STPM 2015 · Paper 3 · Q7', `An object is 5.0 cm in front of a concave mirror of radius of curvature 20.0 cm. Which statement about the image is true?`, ['It is enlarged, upright and 10 cm behind the mirror.', 'It is enlarged, inverted and 10 cm in front of the mirror.', 'It is diminished, upright and 6.7 cm behind the mirror.', 'It is diminished, inverted and 6.7 cm in front of the mirror.'], 0, `<p><i>f</i> = +10 cm: ${inv('5.0')} + ${inv('<i>v</i>')} = ${inv('10')} ⇒ <i>v</i> = −10 cm; <i>m</i> = +2 (virtual, upright, enlarged).</p>`)}
-${pq('STPM 2015 (repeat) · Paper 3 · Q7', `A converging lens forms an inverted image twice the size of the object when the object is 30 cm from the lens. What is the new object distance if the image is also twice the size of the object but upright?`, ['5.0 cm', '10.0 cm', '15.0 cm', '20.0 cm'], 1, `<p>Inverted, <i>m</i> = −2 at <i>u</i> = 30 cm ⇒ <i>v</i> = 60 cm, <i>f</i> = 20 cm. Upright ⇒ virtual, <i>v</i> = −2<i>u</i>: ${inv('<i>u</i>')} − ${fr('1', '2<i>u</i>')} = ${inv('20')} ⇒ <i>u</i> = 10.0 cm.</p>`)}
-${card('STPM 2014 · Paper 3 · Q19(a)', `A concave mirror has radius of curvature 40.0 cm. A nail 5.00 cm long stands upright on the principal axis, 45.0 cm in front of the mirror. (i) Calculate the image distance. (ii) Find the size of the image. (iii) State two characteristics of the image.`,
-  steps([`(i) <i>f</i> = +20.0 cm: ${inv('<i>v</i>')} = ${inv('20.0')} − ${inv('45.0')} ⇒ <i>v</i> = <b>+36.0 cm</b>`, `(ii) <i>m</i> = −36.0/45.0 = −0.800 ⇒ image height = <b>4.00 cm</b>`, `(iii) real (<i>v</i> positive) and inverted (<i>m</i> negative); also diminished`]), fig(mir(20, 45, 5, { xmin: -50, xmax: 12, ymax: 7 })))}
-${card('STPM 2014 · Paper 3 · Q19(b)', `An object is 25.0 cm in front of a biconvex lens of focal length 12.0 cm. A meniscus lens (radii 15.0 cm and 20.0 cm, <i>n</i> = 1.5) is 50.0 cm behind the biconvex lens. Determine (i) the focal length of the meniscus lens, (ii) the position of the final image, (iii) the magnification.`,
-  steps([`(i) From the figure, both faces of the meniscus bulge towards the incoming light, and the left face (radius 15.0 cm) is the more curved. Both centres of curvature are on the outgoing side, so <i>r</i><sub>1</sub> = +15.0 cm, <i>r</i><sub>2</sub> = +20.0 cm: ${inv('<i>f</i>')} = 0.5(${inv('15.0')} − ${inv('20.0')}) ⇒ <i>f</i> = <b>+120 cm</b> (converging: thicker at the centre)`, `(ii) Biconvex lens: ${inv('25.0')} + ${inv('<i>v</i><sub>1</sub>')} = ${inv('12.0')} ⇒ <i>v</i><sub>1</sub> = +23.08 cm. Meniscus: <i>u</i><sub>2</sub> = 50.0 − 23.08 = 26.92 cm ⇒ ${inv('<i>v</i><sub>2</sub>')} = ${inv('120')} − ${inv('26.92')} ⇒ <i>v</i><sub>2</sub> = <b>−34.7 cm</b>: a virtual image 34.7 cm in front of the meniscus lens`, `(iii) <i>m</i> = (−${fr('23.08', '25.0')})(−${fr('−34.71', '26.92')}) = <b>−1.19</b> (inverted, slightly enlarged)`]), fig(F.q14(), 'The arrangement in STPM 2014 Paper 3 Q19(b) (not to scale).'))}
-${card('STPM 2015 · Paper 3 · Q19', `(a) An object is 30.0 cm in front of a converging lens of focal length 7.55 cm. Find the image position, the magnification and the characteristics of the image. (b) A 10.0 cm object is 15.0 cm in front of a convex mirror of radius 40.0 cm. Find the image position and height. (c) A spider 2.00 cm across hangs 200 cm from a wall. A lens forms an image of the spider on the wall half its size. What lens is needed, and where?`,
-  steps([`(a) ${inv('<i>v</i>')} = ${inv('7.55')} − ${inv('30.0')} ⇒ <i>v</i> = <b>+10.1 cm</b>; <i>m</i> = −10.1/30.0 = <b>−0.336</b>: real, inverted, diminished`, `(b) <i>f</i> = −20.0 cm: ${inv('<i>v</i>')} = ${inv('−20.0')} − ${inv('15.0')} ⇒ <i>v</i> = <b>−8.57 cm</b> (behind the mirror); <i>h</i>′ = 10.0 × 8.57/15.0 = <b>5.71 cm</b>: virtual, upright, diminished`, `(c) The image is on a screen, so it is real: a <b>converging</b> lens. |<i>m</i>| = <i>v</i>/<i>u</i> = ½ ⇒ <i>u</i> = 2<i>v</i>, and <i>u</i> + <i>v</i> = 200 cm ⇒ <i>v</i> = 66.7 cm from the wall, <i>u</i> = 133 cm; ${inv('<i>f</i>')} = ${inv('133')} + ${inv('66.7')} ⇒ <i>f</i> = <b>44.4 cm</b>`]), fig(lens(7.55, 30, 4, { xmin: -34, xmax: 16, ymax: 5, twoF: false })))}
+${sec('21-5', '22.5 Doppler effect', `
+${def('Doppler effect', `is ${red('the change in the observed frequency of a wave because of the relative motion between the source and the observer')}.`)}
+${fig(F.doppler(), 'Figure 22.7: a moving source. The wavefronts are closer together in front of the source and further apart behind it.')}
+${ul([`Source at rest: every observer hears the source frequency <i>f</i><sub>s</sub>.`, `Source moving <b>towards</b> the observer: the wavelength reaching the observer is shorter, so the observed frequency is <b>higher</b> (<i>f</i>′ > <i>f</i><sub>s</sub>).`, `Source moving <b>away</b>: the wavelength is longer, so the observed frequency is <b>lower</b> (<i>f</i>′ < <i>f</i><sub>s</sub>).`])}
+${h4('Derivation')}
+${steps([`<b>Moving source</b> (speed <i>u</i><sub>s</sub>, towards the observer): in one period <i>T</i> = 1/<i>f</i>, the source moves <i>u</i><sub>s</sub><i>T</i> while the wave moves <i>vT</i>. The wavelength ahead is λ′ = (<i>v</i> − <i>u</i><sub>s</sub>)/<i>f</i>.`, `<i>f</i>′ = <i>v</i>/λ′ = ${fr('<i>v</i>', '<i>v</i> − <i>u</i><sub>s</sub>')}<i>f</i> &nbsp; (away: <i>v</i> + <i>u</i><sub>s</sub>)`, `<b>Moving observer</b> (speed <i>u</i><sub>o</sub>, towards the source): the waves pass the observer at relative speed <i>v</i> + <i>u</i><sub>o</sub>; the wavelength is unchanged, λ = <i>v</i>/<i>f</i>.`, `<i>f</i>′ = ${fr('<i>v</i> + <i>u</i><sub>o</sub>', 'λ')} = ${fr('<i>v</i> + <i>u</i><sub>o</sub>', '<i>v</i>')}<i>f</i> &nbsp; (away: <i>v</i> − <i>u</i><sub>o</sub>)`])}
+${key(`<i>f</i>′ = ${fr('<i>v</i> ± <i>u</i><sub>o</sub>', '<i>v</i> ∓ <i>u</i><sub>s</sub>')} <i>f</i>`, '<i>v</i> = speed of sound; <i>u</i><sub>o</sub>, <i>u</i><sub>s</sub> = speeds of observer and source along the line joining them. Upper signs: moving <b>towards</b> each other (<i>f</i>′ increases). Lower signs: moving <b>away</b> (<i>f</i>′ decreases).')}
+${tip(`Decide the sign from the physics, not from memory: “towards” must make <i>f</i>′ bigger (bigger numerator or smaller denominator); “away” must make <i>f</i>′ smaller.`)}
+${fig(F.dopG(), 'Figure 22.8: the frequency heard by a stationary observer as a source approaches, passes and moves away at constant speed.')}
+${ul([`While the source approaches, the observed frequency is constant and higher than <i>f</i><sub>s</sub>; it drops to <i>f</i><sub>s</sub> as the source passes; it is then constant and lower while the source moves away.`, `The <b>loudness</b> does change: as the source comes closer, <i>r</i> decreases and <i>I</i> ∝ 1/<i>r</i><sup>2</sup> increases. Do not confuse loudness (intensity) with pitch (frequency).`])}
+${sim('doppler', 'Doppler effect', 'Move the source, or the observer, and watch the wavefronts. Compare the frequency heard by the observer in front of the source with the one behind it.')}
+${example('22.5.1', `A factory whistle emits sound at 900 Hz. What frequency is heard by a person in a car travelling at 70 km h<sup>−1</sup> (a) away from the whistle, (b) towards it? (<i>v</i> = 340 ${ms})`,
+  steps([`<i>u</i><sub>o</sub> = 70 km h<sup>−1</sup> = 19.4 ${ms}`, `(a) <i>f</i>′ = ${fr('340 − 19.4', '340')}(900) = <b>849 Hz</b>`, `(b) <i>f</i>′ = ${fr('340 + 19.4', '340')}(900) = <b>951 Hz</b>`]))}
+${example('22.5.2', `An observer moves along the line joining two identical sources, each of frequency 500 Hz. The observer hears 4.0 beats per second. Find the speed of the observer. (<i>v</i> = 340 ${ms})`,
+  steps([`Moving towards one source: <i>f</i><sub>1</sub>′ = ${fr('<i>v</i> + <i>u</i><sub>o</sub>', '<i>v</i>')}<i>f</i> (higher). Moving away from the other: <i>f</i><sub>2</sub>′ = ${fr('<i>v</i> − <i>u</i><sub>o</sub>', '<i>v</i>')}<i>f</i> (lower).`, `<i>f</i><sub>beat</sub> = <i>f</i><sub>1</sub>′ − <i>f</i><sub>2</sub>′ = ${fr('2<i>fu</i><sub>o</sub>', '<i>v</i>')} ⇒ 4.0 = ${fr('2(500)<i>u</i><sub>o</sub>', '340')}`, `<i>u</i><sub>o</sub> = <b>1.36 ${ms}</b>`]))}
+${example('22.5.3', `Two identical sources S<sub>1</sub> and S<sub>2</sub>, each of frequency 500 Hz, move towards a stationary observer at 20 ${ms} and 23 ${ms}. Find the beat frequency heard. (<i>v</i> = 340 ${ms})`,
+  steps([`<i>f</i><sub>1</sub>′ = 500 × ${fr('340', '340 − 20')} = 531.25 Hz; &nbsp; <i>f</i><sub>2</sub>′ = 500 × ${fr('340', '340 − 23')} = 536.28 Hz`, `<i>f</i><sub>beat</sub> = 536.28 − 531.25 = <b>5.03 Hz</b>`]))}
+${card('STPM 2022', `An ambulance moves at 42 ${ms} and sounds its siren at 960 Hz. A bus in front of the ambulance stops at the roadside. [<i>v</i> = 330 ${ms}] (i) Find the frequency of the siren heard by the passengers in the bus. [2] (ii) The sound is reflected by the bus. Find the frequency and the wavelength of the reflected sound heard by the ambulance driver. [2] (iii) What change in frequency do the passengers hear after the ambulance overtakes the bus? [1]`,
+  steps([`(i) <i>f</i>′ = 960 × ${fr('330', '330 − 42')} = <b>1100 Hz</b>`, `(ii) The bus reflects 1100 Hz as a stationary source; the driver moves towards it: <i>f</i>″ = 1100 × ${fr('330 + 42', '330')} = <b>1240 Hz</b>. The reflected wave in the air has λ = <i>v</i>/<i>f</i>′ = 330/1100 = <b>0.300 m</b> (a moving observer changes the frequency heard, not the wavelength in the air).`, `(iii) The frequency heard <b>decreases</b> (the siren now moves away).`]))}
+${exercises('Exercise: Doppler effect and beats', [
+  { q: `O is a stationary observer. Source S moves away from O towards a wall T at 20 ${ms}; its frequency is 100 Hz. (<i>v</i> = 340 ${ms}) Find (a) the wavelength in front of and behind the source (ignore the wall), (b) the frequency O hears directly from S, (c) the frequency O hears after reflection from T, (d) the beat frequency O hears.`, f: fig(F.wall()),
+    a: `(a) in front: (340 − 20)/100 = 3.2 m; behind: (340 + 20)/100 = 3.6 m &nbsp; (b) 100 × 340/360 = 94 Hz &nbsp; (c) 100 × 340/320 = 106 Hz &nbsp; (d) 106 − 94 = 12 Hz` }])}
 `)}
 `;
   window.PhysiQLessons.register('LESSON-S3-22', { html: () => S });
 
-  // ===================== simulations (canvas versions of the same tracer) =====================
-  function optSim(root, mode) {
-    const { COL, fmt, el, slider, button, canvas, text, readouts } = window.PhysiQSims.U;
-    const S = mode === 'mirror' ? { f: 15, u: 40, h: 5, sgn: 1 } : mode === 'lens' ? { f: 15, u: 40, h: 5, sgn: 1 } : mode === 'surface' ? { n1: 1.0, n2: 1.5, r: 10, u: 40, h: 4 } : { f1: 10, f2: 15, d: 40, u: 25, h: 4 };
-    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+  // ===================== simulations =====================
+  const TAU = 2 * Math.PI;
+  // ---------- 1. sound wave: layers, displacement, pressure ----------
+  window.PhysiQSims.add('soundwave', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, loop, readouts } = window.PhysiQSims.U;
+    const S = { f: 0.5, t: 0, play: true };
     const ctl = el('div', 'sm-row'); root.appendChild(ctl);
-    const sl = {};
-    if (mode === 'mirror' || mode === 'lens') {
-      const names = mode === 'mirror' ? ['concave', 'convex'] : ['converging', 'diverging'];
-      const bs = names.map((n, i) => button(pre, n, 'sm-chip' + (i ? '' : ' on'), () => { S.sgn = i ? -1 : 1; bs.forEach((b, j) => b.classList.toggle('on', j === i)); draw(); }));
-      sl.u = slider(ctl, 'object distance <i>u</i>', 3, 70, 0.5, S.u, 'cm', v => { S.u = v; draw(); });
-      slider(ctl, 'focal length |<i>f</i>|', 5, 25, 0.5, S.f, 'cm', v => { S.f = v; draw(); });
-      slider(ctl, 'object height', 1, 8, 0.5, S.h, 'cm', v => { S.h = v; draw(); });
-      const jump = mode === 'mirror' ? [['beyond C', 2.6], ['at C', 2], ['between C and F', 1.5], ['inside F', 0.6]] : [['beyond 2F', 2.6], ['at 2F', 2], ['between F and 2F', 1.5], ['inside F', 0.6]];
-      jump.forEach(([n, k]) => button(pre, n, 'sm-chip', () => { S.u = k * S.f; sl.u.set(S.u); draw(); }));
-    } else if (mode === 'surface') {
-      [['air → glass, convex', 1, 1.5, 10], ['water → glass', 1.33, 1.5, 10], ['glass → air, concave side', 1.5, 1, -10], ['fish in water (flat)', 1.33, 1, 1e9]].forEach(([n, a, b, r]) => button(pre, n, 'sm-chip', () => { S.n1 = a; S.n2 = b; S.r = r; s1.set(a); s2.set(b); if (Math.abs(r) < 1e8) sr.set(r); draw(); }));
-      const s1 = slider(ctl, '<i>n</i>₁ (left)', 1, 2, 0.01, S.n1, '', v => { S.n1 = v; draw(); });
-      const s2 = slider(ctl, '<i>n</i>₂ (right)', 1, 2, 0.01, S.n2, '', v => { S.n2 = v; draw(); });
-      const sr = slider(ctl, 'radius <i>r</i>', -25, 25, 1, S.r, 'cm', v => { S.r = Math.abs(v) < 1 ? 1e9 : v; draw(); });
-      slider(ctl, 'object distance <i>u</i>', 5, 70, 0.5, S.u, 'cm', v => { S.u = v; draw(); });
-    } else {
-      slider(ctl, '<i>f</i>₁', -25, 25, 1, S.f1, 'cm', v => { S.f1 = Math.abs(v) < 2 ? (v < 0 ? -2 : 2) : v; draw(); });
-      slider(ctl, '<i>f</i>₂', -25, 25, 1, S.f2, 'cm', v => { S.f2 = Math.abs(v) < 2 ? (v < 0 ? -2 : 2) : v; draw(); });
-      slider(ctl, 'separation <i>d</i>', 0, 80, 1, S.d, 'cm', v => { S.d = v; draw(); });
-      slider(ctl, 'object distance <i>u</i>₁', 5, 60, 0.5, S.u, 'cm', v => { S.u = v; draw(); });
-    }
-    const cv = canvas(root); const ro = readouts(root);
-    const nat = (v, m) => !isFinite(v) ? 'image at infinity' : (v > 0 ? 'real' : 'virtual') + ', ' + (m < 0 ? 'inverted' : 'upright') + ', ' + (Math.abs(Math.abs(m) - 1) < 0.02 ? 'same size' : Math.abs(m) > 1 ? 'magnified' : 'diminished');
+    slider(ctl, 'frequency (slowed down)', 0.2, 1.2, 0.05, S.f, 'Hz', v => { S.f = v; });
+    const cv = canvas(root);
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    const pb = button(bar, '❚❚ Pause', 'sm-main', () => { S.play = !S.play; pb.textContent = S.play ? '❚❚ Pause' : '▶ Play'; });
     function draw() {
-      const ctx = cv.ctx, { w, h } = cv.size(0.5, 260, 400); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      let els, xmin, xmax, x0;
-      if (mode === 'mirror') { els = [{ type: 'mirror', x: 0, f: S.sgn * S.f }]; xmin = -75; xmax = 35; }
-      else if (mode === 'lens') { els = [{ type: 'lens', x: 0, f: S.sgn * S.f }]; xmin = -75; xmax = 75; }
-      else if (mode === 'surface') { els = [{ type: 'surface', x: 0, r: S.r, n1: S.n1, n2: S.n2 }]; xmin = -75; xmax = 90; }
-      else { els = [{ type: 'lens', x: 0, f: S.f1 }, { type: 'lens', x: S.d, f: S.f2 }]; xmin = -65; xmax = S.d + 70; }
-      x0 = -S.u;
-      const ymax = 14, k = (w - 20) / (xmax - xmin), cy = h / 2, ky = (h / 2 - 22) / ymax, X = x => 10 + (x - xmin) * k, Y = y => cy - y * ky;
-      const sol = solve(els, x0, S.h);
-      // media for surface
-      if (mode === 'surface') { ctx.fillStyle = 'rgba(127,178,229,' + Math.min(0.5, (S.n2 - 1) * 0.6 + 0.05) + ')'; ctx.beginPath(); const b = Math.abs(S.r) > 1e8 ? 0 : (S.r > 0 ? 1 : -1) * 14; ctx.moveTo(X(0) + b, 0); ctx.quadraticCurveTo(X(0) - b, h / 2, X(0) + b, h); ctx.lineTo(w, h); ctx.lineTo(w, 0); ctx.closePath(); ctx.fill();
-        if (S.n1 > 1.01) { ctx.fillStyle = 'rgba(127,178,229,' + Math.min(0.5, (S.n1 - 1) * 0.6 + 0.05) + ')'; ctx.beginPath(); ctx.moveTo(X(0) + b, 0); ctx.quadraticCurveTo(X(0) - b, h / 2, X(0) + b, h); ctx.lineTo(0, h); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill(); }
-        ctx.strokeStyle = COL.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X(0) + b, 4); ctx.quadraticCurveTo(X(0) - b, h / 2, X(0) + b, h - 4); ctx.stroke();
-        text(ctx, 'n₁ = ' + fmt(S.n1, 2), 12, 18, { b: 1, fs: 12 }); text(ctx, 'n₂ = ' + fmt(S.n2, 2), w - 12, 18, { a: 'right', b: 1, fs: 12 }); }
-      ctx.strokeStyle = COL.sub; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
-      const pt = (x, lab) => { if (x > xmin && x < xmax) { ctx.fillStyle = COL.ink; ctx.beginPath(); ctx.arc(X(x), cy, 3, 0, 7); ctx.fill(); text(ctx, lab, X(x), cy + 16, { a: 'center', fs: 11, c: COL.sub }); } };
-      els.forEach((e, i) => {
-        const x = X(e.x), t = Y(ymax * 0.9), bt = Y(-ymax * 0.9);
-        if (e.type === 'lens') { ctx.fillStyle = 'rgba(160,200,236,.6)'; ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.3; ctx.beginPath(); if (e.f > 0) { ctx.moveTo(x, t); ctx.quadraticCurveTo(x + 12, cy, x, bt); ctx.quadraticCurveTo(x - 12, cy, x, t); } else { ctx.moveTo(x - 8, t); ctx.lineTo(x + 8, t); ctx.quadraticCurveTo(x + 1, cy, x + 8, bt); ctx.lineTo(x - 8, bt); ctx.quadraticCurveTo(x - 1, cy, x - 8, t); } ctx.fill(); ctx.stroke(); pt(e.x - e.f, 'F' + (els.length > 1 ? i + 1 : '')); pt(e.x + e.f, 'F' + (els.length > 1 ? i + 1 : '')); if (els.length === 1) { pt(e.x - 2 * e.f, '2F'); pt(e.x + 2 * e.f, '2F'); } }
-        if (e.type === 'mirror') { const b = e.f > 0 ? -12 : 12; ctx.strokeStyle = COL.ink; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x + b, t); ctx.quadraticCurveTo(x - b, cy, x + b, bt); ctx.stroke(); ctx.lineWidth = 1; for (let j = 0; j < 9; j++) { const yy = t + (bt - t) * (j + 0.5) / 9; ctx.beginPath(); ctx.moveTo(x + 6 + (e.f > 0 ? 0 : 8), yy); ctx.lineTo(x + 13 + (e.f > 0 ? 0 : 8), yy - 6); ctx.stroke(); } pt(e.x - e.f, 'F'); pt(e.x - 2 * e.f, 'C'); }
-        if (e.type === 'surface' && Math.abs(e.r) < 1e8) pt(e.x + e.r, 'C');
-      });
-      // rays
-      const slopes = els.length === 1 ? principal(els[0], x0, S.h) : [0, -S.h / (els[0].x - x0)];
-      const cols = [COL.r, '#2F6FE0', COL.gr];
-      ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
-      slopes.forEach((s, i) => { const tr = trace(els, x0, S.h, s, xmin, xmax); ctx.strokeStyle = cols[i % 3]; ctx.lineWidth = 1.8; ctx.beginPath(); tr.pts.forEach((p, j) => j ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1]))); ctx.stroke();
-        if (!sol.real && isFinite(sol.xi)) { const [xh, yh] = tr.hit, yi = tr.dir > 0 ? yh + tr.s * (sol.xi - xh) : yh + tr.s * (xh - sol.xi); ctx.setLineDash([5, 4]); ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(X(xh), Y(yh)); ctx.lineTo(X(sol.xi), Y(yi)); ctx.stroke(); ctx.setLineDash([]); } });
-      const arrowC = (x, y, c, dash) => { ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 3; ctx.setLineDash(dash ? [5, 4] : []); ctx.beginPath(); ctx.moveTo(X(x), cy); ctx.lineTo(X(x), Y(y)); ctx.stroke(); ctx.setLineDash([]); const s = y > 0 ? 1 : -1; ctx.beginPath(); ctx.moveTo(X(x), Y(y)); ctx.lineTo(X(x) - 6, Y(y) + 9 * s); ctx.lineTo(X(x) + 6, Y(y) + 9 * s); ctx.closePath(); ctx.fill(); };
-      arrowC(x0, S.h, COL.ink, false); text(ctx, 'O', X(x0), Y(S.h) - 8, { a: 'center', b: 1, fs: 12 });
-      if (els.length > 1) { const s1 = sol.stages[0]; if (isFinite(s1.xi) && s1.xi > xmin && s1.xi < xmax) { ctx.globalAlpha = 0.45; arrowC(s1.xi, s1.m * S.h, COL.v, s1.v < 0 || s1.xi > els[1].x); ctx.globalAlpha = 1; text(ctx, 'I₁', X(s1.xi) + 6, Y(s1.m * S.h / 2), { fs: 11, c: COL.v, b: 1 }); } }
-      if (isFinite(sol.xi) && sol.xi > xmin && sol.xi < xmax) { arrowC(sol.xi, sol.hi, COL.o, !sol.real); text(ctx, els.length > 1 ? 'I₂' : 'I', X(sol.xi) + 7, Y(sol.hi) + (sol.hi > 0 ? -4 : 12), { b: 1, fs: 12, c: COL.o }); }
-      ctx.restore();
-      const st = sol.stages[sol.stages.length - 1];
-      const rows = [];
-      if (mode === 'twolens') { const s1 = sol.stages[0]; rows.push(['lens 1: v₁', isFinite(s1.v) ? fmt(s1.v, 1) + ' cm' : '∞'], ['lens 2: u₂ = d − v₁', isFinite(st.u) ? fmt(st.u, 1) + ' cm' + (st.u < 0 ? ' (virtual object)' : '') : '∞'], ['lens 2: v₂', isFinite(st.v) ? fmt(st.v, 1) + ' cm' : '∞', 'hl'], ['m = m₁ × m₂', isFinite(sol.m) ? fmt(sol.m, 2) : '—', 'hl']); }
-      else { if (mode === 'surface') rows.push(['n₁/u + n₂/v = (n₂ − n₁)/r', Math.abs(S.r) > 1e8 ? 'flat surface' : 'r = ' + fmt(S.r, 0) + ' cm']); else rows.push(['f', fmt(els[0].f, 1) + ' cm']); rows.push(['image distance v', isFinite(st.v) ? fmt(st.v, 1) + ' cm' : '∞', 'hl'], ['magnification m', isFinite(sol.m) ? fmt(sol.m, 2) : '—', 'hl']); }
-      rows.push(['image', nat(st.v, sol.m)]);
-      ro(rows);
+      const ctx = cv.ctx, { w, h } = cv.size(0.7, 340, 480); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const x0 = 30, W = w - 50, lam = W / 2.5, k = TAU / lam, om = TAU * S.f, A = Math.min(14, lam * 0.11), y = x => A * Math.sin(om * S.t - k * x);
+      // layers
+      const top = 20, hh = h * 0.22;
+      for (let i = 0; i <= 90; i++) { const xe = W * i / 90, X = x0 + xe + y(xe); const hl = i === 45; ctx.strokeStyle = hl ? COL.r : COL.v; ctx.lineWidth = hl ? 3 : 1.4; ctx.beginPath(); ctx.moveTo(X, top); ctx.lineTo(X, top + hh); ctx.stroke(); }
+      text(ctx, 'one air layer (red) only moves back and forth', x0, top + hh + 14, { fs: 11, c: COL.r });
+      // graphs
+      const g = (y0, f, c, lab, unit) => { const gh = h * 0.2; ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + W, y0); ctx.moveTo(x0, y0 - gh / 2 - 6); ctx.lineTo(x0, y0 + gh / 2 + 6); ctx.stroke();
+        ctx.strokeStyle = c; ctx.lineWidth = 2.4; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const xe = W * i / 200, v = f(xe); i ? ctx.lineTo(x0 + xe, y0 - v * gh / 2) : ctx.moveTo(x0 + xe, y0 - v * gh / 2); } ctx.stroke(); text(ctx, lab, x0 + 4, y0 - gh / 2 - 8, { b: 1, fs: 12, c }); text(ctx, unit, x0 + W, y0 + gh / 2 + 4, { a: 'right', fs: 10, c: COL.sub }); };
+      const gy1 = top + hh + 30 + h * 0.12, gy2 = gy1 + h * 0.3;
+      g(gy1, xe => Math.sin(om * S.t - k * xe), COL.v, 'displacement y', 'x →');
+      g(gy2, xe => Math.sin(om * S.t - k * xe + Math.PI / 2), COL.r, 'excess pressure p', 'x →');
+      // mark compressions (p max) with dashed lines
+      ctx.setLineDash([3, 4]); ctx.strokeStyle = COL.sub; ctx.lineWidth = 1;
+      for (let m = -3; m < 6; m++) { const xe = (om * S.t + Math.PI / 2 - Math.PI / 2 - TAU * m) / k; if (xe < 0 || xe > W) continue; ctx.beginPath(); ctx.moveTo(x0 + xe, top); ctx.lineTo(x0 + xe, gy2 + h * 0.1); ctx.stroke(); text(ctx, 'C', x0 + xe + 3, top - 4, { fs: 11, b: 1, c: COL.r }); }
+      ctx.setLineDash([]);
+    }
+    loop(cv, dt => { if (S.play) S.t += dt; draw(); });
+    new ResizeObserver(() => draw()).observe(root);
+    draw();
+  });
+
+  // ---------- 2. strings and pipes ----------
+  window.PhysiQSims.add('pipes', function (root) {
+    const { COL, fmt, el, slider, button, toggle, canvas, text, loop, readouts } = window.PhysiQSims.U;
+    const S = { kind: 'closed', n: 1, l: 0.5, v: 340, ec: false, t: 0 };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const kinds = [['str', 'string (both ends fixed)'], ['open', 'open pipe'], ['closed', 'closed pipe']].map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.kind ? ' on' : ''), () => { S.kind = k; kinds.forEach(x => x.classList.toggle('on', x === b)); S.n = 1; mk(); }); return b; });
+    const hb = el('div', 'sm-row sm-pre'); root.appendChild(hb);
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'length <i>l</i>', 0.2, 1.5, 0.01, S.l, 'm', v => { S.l = v; });
+    const etg = toggle(ctl, 'End correction (c = 0.6r, r = 2 cm)', S.ec, v => { S.ec = v; });
+    const cv = canvas(root); const ro = readouts(root);
+    function mk() { hb.innerHTML = ''; hb.appendChild(el('span', 'sm-sl-l', 'mode')); const ns = S.kind === 'closed' ? [1, 3, 5, 7] : [1, 2, 3, 4]; ns.forEach(n => { const b = button(hb, (n === 1 ? 'fundamental' : 'n = ' + n), 'sm-chip' + (n === S.n ? ' on' : ''), () => { S.n = n; mk(); }); }); }
+    mk();
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.42, 220, 320); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const c = S.ec && S.kind !== 'str' ? 0.012 : 0, x0 = 40, W = w - 80, my = h * 0.45, a = h * 0.22, sc = W / S.l * (S.l / 1.5) * 1.5 / 1.0;
+      const len = W * (0.45 + 0.55 * S.l / 1.5), px = x => x0 + x / S.l * len;
+      const leff = S.kind === 'str' ? S.l : S.kind === 'open' ? S.l + 2 * c : S.l + c, lam = S.kind === 'closed' ? 4 * leff / S.n : 2 * leff / S.n, f = S.v / lam;
+      if (S.kind === 'str') { ctx.fillStyle = COL.ink; ctx.fillRect(px(0) - 6, my - a - 6, 6, 2 * a + 12); ctx.fillRect(px(S.l), my - a - 6, 6, 2 * a + 12); }
+      else { ctx.strokeStyle = COL.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px(0), my - a - 6); ctx.lineTo(px(S.l), my - a - 6); ctx.moveTo(px(0), my + a + 6); ctx.lineTo(px(S.l), my + a + 6); ctx.stroke(); if (S.kind === 'closed') { ctx.fillStyle = COL.ink; ctx.fillRect(px(0) - 6, my - a - 8, 6, 2 * a + 16); } }
+      const shape = x => { // x along the tube from the closed/left end (in m), effective coordinates
+        if (S.kind === 'str') return Math.sin(S.n * Math.PI * x / S.l);
+        if (S.kind === 'open') return Math.cos(TAU * (x + c) / lam);
+        return Math.sin(TAU * x / lam);
+      };
+      const xs = S.kind === 'open' ? -c : 0, xe = S.kind === 'str' ? S.l : S.l + c, cs = Math.cos(TAU * 0.9 * S.t);
+      [[1, COL.v, []], [-1, COL.v, [5, 4]]].forEach(([s, col, d]) => { ctx.strokeStyle = 'rgba(106,99,236,.35)'; ctx.setLineDash(d); ctx.lineWidth = 1.4; ctx.beginPath(); for (let i = 0; i <= 160; i++) { const x = xs + (xe - xs) * i / 160; i ? ctx.lineTo(px(x), my - s * a * shape(x)) : ctx.moveTo(px(x), my - s * a * shape(x)); } ctx.stroke(); }); ctx.setLineDash([]);
+      ctx.strokeStyle = COL.v; ctx.lineWidth = 2.6; ctx.beginPath(); for (let i = 0; i <= 160; i++) { const x = xs + (xe - xs) * i / 160; i ? ctx.lineTo(px(x), my - a * shape(x) * cs) : ctx.moveTo(px(x), my - a * shape(x) * cs); } ctx.stroke();
+      // N and A labels
+      for (let m = 0; m <= 16; m++) { const x = S.kind === 'str' ? m * lam / 2 : S.kind === 'open' ? m * lam / 2 - c : (m * lam / 2); if (x > xe + 1e-6) break; if (x < xs - 1e-6) continue; text(ctx, S.kind === 'open' ? 'A' : 'N', px(x), my + a + 24, { a: 'center', b: 1, fs: 12, c: S.kind === 'open' ? COL.gr : COL.r }); }
+      for (let m = 0; m <= 16; m++) { const x = S.kind === 'str' ? lam / 4 + m * lam / 2 : S.kind === 'open' ? lam / 4 + m * lam / 2 - c : lam / 4 + m * lam / 2; if (x > xe + 1e-6) break; if (x < xs - 1e-6) continue; text(ctx, S.kind === 'open' ? 'N' : 'A', px(x), my + a + 24, { a: 'center', b: 1, fs: 12, c: S.kind === 'open' ? COL.r : COL.gr }); }
+      if (c) text(ctx, 'antinode a distance c outside each open end', w - 10, 16, { a: 'right', fs: 11, c: COL.o, b: 1 });
+      text(ctx, S.kind === 'str' ? 'transverse displacement' : 'displacement of the air (drawn sideways)', 10, h - 8, { fs: 10, c: COL.sub });
+      const ov = S.kind === 'closed' ? (S.n - 1) / 2 : S.n - 1;
+      ro([['harmonic', 'n = ' + S.n + (S.n === 1 ? ' (fundamental)' : ''), 'hl'], ['overtone', ov ? (ov === 1 ? '1st' : ov === 2 ? '2nd' : ov === 3 ? '3rd' : ov + 'th') + ' overtone' : '—'], ['λ', fmt(lam, 3) + ' m'], ['frequency (v = 340 m/s)', fmt(f, 0) + ' Hz', 'hl'], ['formula', S.kind === 'closed' ? 'f = nv/4(l + c)' : S.kind === 'open' ? 'f = nv/2(l + 2c)' : 'f = nv/2l']]);
+    }
+    loop(cv, dt => { S.t += dt; draw(); });
+    new ResizeObserver(() => draw()).observe(root);
+    draw();
+  });
+
+  // ---------- 3. beats ----------
+  window.PhysiQSims.add('beats', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts } = window.PhysiQSims.U;
+    const S = { f1: 440, f2: 444 };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'f₁', 400, 480, 1, S.f1, 'Hz', v => { S.f1 = v; draw(); });
+    slider(ctl, 'f₂', 400, 480, 1, S.f2, 'Hz', v => { S.f2 = v; draw(); });
+    const cv = canvas(root);
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    let ac = null, nodes = null;
+    const lb = button(bar, '♪ Listen (3 s)', 'sm-main', () => {
+      try {
+        if (nodes) return; ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const g = ac.createGain(); g.gain.value = 0.0; g.connect(ac.destination);
+        const o1 = ac.createOscillator(), o2 = ac.createOscillator(); o1.frequency.value = S.f1; o2.frequency.value = S.f2; o1.connect(g); o2.connect(g); const t0 = ac.currentTime;
+        g.gain.linearRampToValueAtTime(0.12, t0 + 0.05); g.gain.setValueAtTime(0.12, t0 + 2.9); g.gain.linearRampToValueAtTime(0, t0 + 3);
+        o1.start(); o2.start(); o1.stop(t0 + 3.05); o2.stop(t0 + 3.05); nodes = [o1, o2]; lb.textContent = '♪ Playing…'; o1.onended = () => { nodes = null; lb.textContent = '♪ Listen (3 s)'; };
+      } catch (e) { lb.textContent = 'Sound not available'; }
+    });
+    const ro = readouts(root);
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 260, 360); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const df = Math.abs(S.f1 - S.f2), tm = df > 0 ? Math.min(2 / df, 1) : 0.5, x0 = 40, W = w - 56, X = t => x0 + t / tm * W;
+      // show slowed-down picture: draw with scaled frequencies so oscillations are visible
+      const vis = 60 / ((S.f1 + S.f2) / 2) * (1 / tm) * 0.5, f1 = S.f1 * vis * tm, f2 = S.f2 * vis * tm;
+      const row = (y0, f, c, lab, amp) => { ctx.strokeStyle = c; ctx.lineWidth = 1.2; ctx.beginPath(); for (let i = 0; i <= 800; i++) { const u = i / 800, v = f(u); i ? ctx.lineTo(x0 + u * W, y0 - v * amp) : ctx.moveTo(x0 + u * W, y0 - v * amp); } ctx.stroke(); text(ctx, lab, 6, y0 + 4, { fs: 11, b: 1, c }); };
+      const a = h * 0.07, y1 = u => Math.sin(TAU * S.f1 * u * tm), y2 = u => Math.sin(TAU * S.f2 * u * tm);
+      row(h * 0.14, y1, COL.v, 'f₁', a); row(h * 0.32, y2, COL.o, 'f₂', a);
+      const ys = h * 0.66; ctx.strokeStyle = 'rgba(192,57,43,.7)'; ctx.setLineDash([4, 3]); [1, -1].forEach(s => { ctx.beginPath(); for (let i = 0; i <= 300; i++) { const u = i / 300, e = Math.abs(2 * Math.cos(Math.PI * df * u * tm)); i ? ctx.lineTo(x0 + u * W, ys - s * e * a * 1.6) : ctx.moveTo(x0 + u * W, ys - s * e * a * 1.6); } ctx.stroke(); }); ctx.setLineDash([]);
+      row(ys, u => y1(u) + y2(u), COL.gr, 'sum', a * 1.6);
+      ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, h - 26); ctx.lineTo(x0 + W, h - 26); ctx.stroke();
+      text(ctx, '0', x0, h - 12, { a: 'center', fs: 10, c: COL.sub }); text(ctx, fmt(tm, 2) + ' s', x0 + W, h - 12, { a: 'right', fs: 10, c: COL.sub }); text(ctx, df ? 'time (waves drawn slowed down)' : 'equal frequencies: no beats', x0 + W / 2, h - 12, { a: 'center', fs: 10, c: COL.sub });
+      ro([['beat frequency |f₁ − f₂|', df + ' Hz', 'hl'], ['beat period', df ? fmt(1 / df, 2) + ' s' : '—'], ['frequency heard (f₁ + f₂)/2', fmt((S.f1 + S.f2) / 2, 1) + ' Hz']]);
     }
     new ResizeObserver(() => draw()).observe(root);
     draw();
-  }
-  ['mirror', 'lens', 'surface', 'twolens'].forEach(m => window.PhysiQSims.add(m, root => optSim(root, m)));
+  });
+
+  // ---------- 4. Doppler effect ----------
+  window.PhysiQSims.add('doppler', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, loop, readouts } = window.PhysiQSims.U;
+    const v = 340, S = { us: 120, uo: 0, f: 400, t: 0, fronts: [], acc: 0, sx: 0, ox: 0, play: true };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'source speed uₛ (to the right)', 0, 300, 5, S.us, 'm/s', x => { S.us = x; reset(); });
+    slider(ctl, 'observer speed uₒ (to the left)', 0, 200, 5, S.uo, 'm/s', x => { S.uo = x; reset(); });
+    const cv = canvas(root);
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    const pb = button(bar, '❚❚ Pause', 'sm-main', () => { S.play = !S.play; pb.textContent = S.play ? '❚❚ Pause' : '▶ Play'; });
+    button(bar, '↺ Restart', '', reset);
+    const ro = readouts(root);
+    function reset() { S.t = 0; S.fronts = []; S.acc = 0; S.sx = -0.35; S.ox = 0.45; }
+    reset();
+    // world units: 1 = canvas half width; time slowed: sound speed 0.35 width/s
+    const VS = 0.35;
+    function step(dt) { S.t += dt; S.sx += S.us / v * VS * dt; S.ox -= S.uo / v * VS * dt; S.acc += dt; const per = 0.28; while (S.acc > per) { S.acc -= per; S.fronts.push([S.sx, S.t]); } S.fronts = S.fronts.filter(([, t0]) => (S.t - t0) * VS < 2.2); if (S.sx > 0.9 || S.ox < -0.95) reset(); }
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 260, 380); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const sc = w / 2, cx = w / 2, cy = h * 0.5, X = x => cx + x * sc;
+      ctx.strokeStyle = COL.v; ctx.lineWidth = 1.3; S.fronts.forEach(([x, t0]) => { ctx.beginPath(); ctx.arc(X(x), cy, (S.t - t0) * VS * sc, 0, 7); ctx.stroke(); });
+      ctx.beginPath(); ctx.arc(X(S.sx), cy, 9, 0, 7); ctx.fillStyle = '#E7B54A'; ctx.fill(); ctx.strokeStyle = COL.ink; ctx.stroke(); text(ctx, 'S', X(S.sx), cy - 14, { a: 'center', b: 1 });
+      // observers: one ahead (moving observer), one behind (stationary)
+      const ob = (x, lab, c) => { ctx.beginPath(); ctx.arc(X(x), cy, 8, 0, 7); ctx.fillStyle = c; ctx.fill(); ctx.strokeStyle = COL.ink; ctx.stroke(); text(ctx, lab, X(x), cy + 26, { a: 'center', b: 1, fs: 12 }); };
+      ob(S.ox, 'O₁', COL.ball); ob(-0.85, 'O₂', '#BFD9A8');
+      const ahead = S.ox > S.sx, f1 = ahead ? S.f * (v + S.uo) / (v - S.us) : S.f * (v - S.uo) / (v + S.us), f2 = S.f * v / (v + S.us);
+      text(ctx, 'O₁ ' + (ahead ? 'ahead of' : 'behind') + ' the source', 10, 18, { fs: 11, b: 1, c: COL.ink });
+      if (S.us >= v * 0.98) text(ctx, 'source near the speed of sound: the wavefronts pile up (shock wave)', 10, h - 10, { fs: 11, b: 1, c: COL.r });
+      ro([['source frequency fₛ', S.f + ' Hz'], ['O₁ hears', fmt(f1, 0) + ' Hz', 'hl'], ['O₂ (behind, at rest) hears', fmt(f2, 0) + ' Hz', 'hl'], ['formula', "f′ = f(v ± uₒ)/(v ∓ uₛ), v = 340 m/s"]]);
+    }
+    loop(cv, dt => { if (S.play) step(dt); draw(); });
+    new ResizeObserver(() => draw()).observe(root);
+    draw();
+  });
+  // ---------- guitar and flute ----------
+  window.PhysiQSims.add('instruments', function (root) {
+    const { COL, fmt, el, slider, button, toggle, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const L0 = 0.648, V = 343;
+    const STR = { E2: { n: 'low E (thick)', mu: 6.2e-3 }, A2: { n: 'A string', mu: 3.6e-3 }, E4: { n: 'high E (thin)', mu: 4.0e-4 } };
+    const NOTES = [['C', 262], ['D', 294], ['E', 330], ['F', 349], ['G', 392], ['A', 440], ['B', 494], ['C′', 523]];
+    const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+    const noteName = f => { const n = Math.round(12 * Math.log2(f / 440)) + 57; return NAMES[((n % 12) + 12) % 12] + Math.floor(n / 12); };
+    const S = { ins: 'guitar', str: 'E4', T: 73, fret: 0, note: 0, over: false, snd: false, t: 0, pluck: 0 };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    let gctl, fctl;
+    const ib = [['guitar', '🎸 Guitar'], ['flute', '🪈 Flute']].map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.ins ? ' on' : ''), () => { S.ins = k; ib.forEach(x => x.classList.toggle('on', x === b)); show(); }); return b; });
+    gctl = el('div', 'sm-ctl'); root.appendChild(gctl); fctl = el('div', 'sm-ctl'); root.appendChild(fctl);
+    const srow = el('div', 'sm-row sm-pre'); gctl.appendChild(srow);
+    const sb = Object.entries(STR).map(([k, o]) => { const b = button(srow, o.n, 'sm-chip' + (k === S.str ? ' on' : ''), () => { S.str = k; sb.forEach(x => x.classList.toggle('on', x === b)); play(); }); return b; });
+    const grow = el('div', 'sm-row'); gctl.appendChild(grow);
+    slider(grow, 'tension T', 40, 110, 1, S.T, 'N', x => { S.T = x; });
+    slider(grow, 'fret pressed (0 = open string)', 0, 12, 1, S.fret, '', x => { S.fret = x; play(); });
+    const nrow = el('div', 'sm-row sm-pre'); fctl.appendChild(nrow);
+    const nb = NOTES.map(([n], i) => { const b = button(nrow, n, 'sm-chip' + (i === S.note ? ' on' : ''), () => { S.note = i; nb.forEach(x => x.classList.toggle('on', x === b)); play(); }); return b; });
+    const frow = el('div', 'sm-row sm-bar'); fctl.appendChild(frow);
+    toggle(frow, 'Overblow (blow harder)', false, v => { S.over = v; play(); });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    button(bar, '▶ Play the note', '', () => { S.snd = true; play(true); });
+    function show() { gctl.hidden = S.ins !== 'guitar'; fctl.hidden = S.ins !== 'flute'; play(); }
+    const cv = canvas(root); const ro = readouts(root);
+    function cur() {
+      if (S.ins === 'guitar') { const mu = STR[S.str].mu, l = L0 / Math.pow(2, S.fret / 12), v = Math.sqrt(S.T / mu); return { l, v, f: v / (2 * l), n: 1 }; }
+      const f1 = NOTES[S.note][1], l = V / (2 * f1), n = S.over ? 2 : 1; return { l, v: V, f: n * f1, n };
+    }
+    let ac = null;
+    function play(force) {
+      S.pluck = 1; if (!S.snd && !force) return;
+      try { if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); } catch (e) { return; }
+      const c = cur(), t = ac.currentTime, out = ac.createGain(); out.connect(ac.destination);
+      const parts = S.ins === 'guitar' ? [[1, 0.5], [2, 0.25], [3, 0.15], [4, 0.08], [5, 0.05]] : [[1, 0.5], [2, 0.18], [3, 0.06]];
+      parts.forEach(([k, a]) => { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = c.f * k; g.gain.value = 0; o.connect(g); g.connect(out);
+        if (S.ins === 'guitar') { g.gain.setValueAtTime(a * 0.4, t); g.gain.exponentialRampToValueAtTime(0.0005, t + 2.2 / Math.sqrt(k)); }
+        else { g.gain.linearRampToValueAtTime(a * 0.3, t + 0.08); g.gain.setValueAtTime(a * 0.3, t + 1.0); g.gain.linearRampToValueAtTime(0, t + 1.3); }
+        o.start(t); o.stop(t + 2.4); });
+      if (S.ins === 'flute') { const len = 1.3, buf = ac.createBuffer(1, ac.sampleRate * len, ac.sampleRate), d = buf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.02; const ns = ac.createBufferSource(), bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = c.f * 2; ns.buffer = buf; ns.connect(bp); bp.connect(out); ns.start(t); }
+    }
+    function frame(dt) {
+      if (dt < 0) dt = 0; S.t += dt; S.pluck = Math.max(0, S.pluck - dt * (S.ins === 'guitar' ? 0.5 : 0)); if (S.ins === 'flute') S.pluck = 1;
+      const c = cur();
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(0.75, 260, 320) : cv.size(0.36, 230, 280); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const x0 = 24, x1 = w - 24, sc = (x1 - x0) / L0, yc = h * 0.45, osc = Math.sin(2 * Math.PI * S.t * 3);   // slowed down to 3 vibrations per second
+      if (S.ins === 'guitar') {
+        // neck with frets; bridge at the right
+        ctx.fillStyle = '#7A4E2D'; ctx.fillRect(x0 - 10, yc - 34, (x1 - x0) * 0.62 + 10, 68); ctx.fillStyle = '#C79A5B'; ctx.beginPath(); ctx.ellipse(x1 - (x1 - x0) * 0.17, yc, (x1 - x0) * 0.22, Math.min(80, h * 0.36), 0, 0, 7); ctx.fill();
+        ctx.beginPath(); ctx.arc(x1 - (x1 - x0) * 0.3, yc, 22, 0, 7); ctx.fillStyle = '#3A2614'; ctx.fill();
+        for (let n = 1; n <= 12; n++) { const x = x0 + (L0 - L0 / Math.pow(2, n / 12)) * sc; ctx.fillStyle = '#D6D6D6'; ctx.fillRect(x - 1, yc - 34, 2.5, 68); if ([3, 5, 7, 9].includes(n)) { ctx.beginPath(); ctx.arc(x - (L0 / Math.pow(2, n / 12) - L0 / Math.pow(2, (n - 1) / 12)) * sc / 2, yc, 4, 0, 7); ctx.fillStyle = '#EDE6D6'; ctx.fill(); } if (n === 12) text(ctx, '12th fret (halfway) ↓', x + 4, yc - 42, { a: 'right', fs: 10.5, c: COL.sub }); }
+        ctx.fillStyle = '#E8DCC0'; ctx.fillRect(x0 - 3, yc - 34, 6, 68); ctx.fillStyle = '#2B1B0E'; ctx.fillRect(x1 - 4, yc - 30, 8, 60);
+        const xs = x0 + (L0 - c.l) * sc, Ap = 16 * S.pluck;
+        if (S.fret > 0) { ctx.strokeStyle = '#888'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x0, yc); ctx.lineTo(xs, yc); ctx.stroke(); ctx.beginPath(); ctx.arc(xs - 6, yc, 9, 0, 7); ctx.fillStyle = 'rgba(241,194,125,.9)'; ctx.fill(); }
+        ctx.strokeStyle = '#F2C94C'; ctx.lineWidth = STR[S.str].mu > 3e-3 ? 3 : 1.6; ctx.beginPath();
+        for (let k = 0; k <= 120; k++) { const x = xs + (x1 - xs) * k / 120, y = yc + Ap * osc * Math.sin(Math.PI * k / 120); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke();
+        ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xs, h - 30); ctx.lineTo(x1, h - 30); ctx.stroke(); [xs, x1].forEach(x => { ctx.beginPath(); ctx.moveTo(x, h - 36); ctx.lineTo(x, h - 24); ctx.stroke(); });
+        text(ctx, `vibrating length l = ${fmt(c.l * 100, 1)} cm = λ/2`, (xs + x1) / 2, h - 12, { a: 'center', fs: 12, b: 1 });
+        text(ctx, 'node', xs, yc + 50, { a: 'center', fs: 10.5, c: COL.sub }); text(ctx, 'node', x1, yc + 50, { a: 'center', fs: 10.5, c: COL.sub });
+      } else {
+        const sc = (x1 - x0) / 0.72, tl = 0.712 * sc, ty = yc - 14, th = 28, tx0 = x0, holes = NOTES.slice(1).map(([, f]) => 0.05 + V / (2 * f));
+        ctx.fillStyle = '#C9CDD3'; ctx.fillRect(tx0, ty, tl, th); ctx.strokeStyle = '#7D848F'; ctx.lineWidth = 1.5; ctx.strokeRect(tx0, ty, tl, th);
+        ctx.beginPath(); ctx.ellipse(tx0 + 0.05 * sc, ty, 6, 4, 0, 0, 7); ctx.fillStyle = '#333'; ctx.fill(); text(ctx, 'mouth hole', tx0 + 0.05 * sc, ty - 10, { a: 'center', fs: 10.5, c: COL.sub });
+        const lEnd = 0.05 + c.l;   // the air column ends at the first open hole
+        holes.forEach(p => { const open = p >= lEnd - 0.004; ctx.beginPath(); ctx.ellipse(tx0 + p * sc, ty, 5, 3.5, 0, 0, 7); ctx.fillStyle = open ? '#fff' : '#2B3140'; ctx.fill(); ctx.strokeStyle = '#555'; ctx.lineWidth = 1; ctx.stroke(); });
+        // stationary wave (displacement) in the air column, antinodes at both ends
+        const a = tx0 + 0.05 * sc, b = Math.min(tx0 + tl, tx0 + lEnd * sc);
+        ['#3E8E1E', 'rgba(62,142,30,.45)'].forEach((col, j) => { ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); for (let k = 0; k <= 120; k++) { const x = a + (b - a) * k / 120, y = yc + (j ? -1 : 1) * 11 * osc * Math.cos(c.n * Math.PI * k / 120); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); });
+        ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a, h - 30); ctx.lineTo(b, h - 30); ctx.stroke(); [a, b].forEach(x => { ctx.beginPath(); ctx.moveTo(x, h - 36); ctx.lineTo(x, h - 24); ctx.stroke(); });
+        text(ctx, `air column l = ${fmt(c.l * 100, 1)} cm` + (c.n === 1 ? ' = λ/2' : ' = λ (2nd harmonic)'), (a + b) / 2, h - 12, { a: 'center', fs: 12, b: 1 });
+        text(ctx, 'antinode', a, yc + 34, { a: 'center', fs: 10.5, c: COL.sub }); text(ctx, 'antinode', b, yc + 34, { a: 'center', fs: 10.5, c: COL.sub });
+        text(ctx, 'open hole ○  closed hole ●', w - 10, 18, { a: 'right', fs: 10.5, c: COL.sub });
+      }
+      text(ctx, 'vibration shown slowed down', 10, 18, { fs: 10.5, c: COL.sub });
+      const rows = [['frequency f', fmt(c.f, 0) + ' Hz', 'hl'], ['note', noteName(c.f), 'hl'], ['wavelength λ', fmt(2 * c.l / c.n * 100, 1) + ' cm']];
+      if (S.ins === 'guitar') rows.push(['wave speed on the string v = √(T/μ)', fmt(c.v, 0) + ' m s⁻¹']); else rows.push(['speed of sound in air', '343 m s⁻¹']);
+      ro(rows);
+    }
+    show();
+    loop(cv, frame);
+  });
+
 })();

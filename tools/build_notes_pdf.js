@@ -28,8 +28,8 @@ for (const m of html.matchAll(/'((?:S[23]-)?\d+)':'(Chapter \d+ — [^']+)'/g)) 
 
 const SEM = {
   1: { title: 'Mechanics & Heat', range: '1–12' },
-  2: { title: 'Electricity & Magnetism', range: '12–18' },
-  3: { title: 'Oscillations, Waves & Modern Physics', range: '19–25' },
+  2: { title: 'Electricity & Magnetism', range: '13–19' },
+  3: { title: 'Oscillations, Waves & Modern Physics', range: '20–26' },
 };
 const chapterId = k => { const m = k.match(/^(S[23]-)?(\d+)\./); return m ? (m[1] || '') + m[2] : null; };
 const semOf = k => k.startsWith('S2-') ? 2 : k.startsWith('S3-') ? 3 : 1;

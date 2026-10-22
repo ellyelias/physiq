@@ -1,303 +1,475 @@
-/* Semester 2 Chapter 18 Alternating Current Circuits: full notes by Cikgu Suhaili (from the Unit 8 Alternating Current slides).
-   App chapter 18 = STPM 2026 syllabus chapter 19. Following the syllabus, the current is derived from a sinusoidal
-   voltage V = V0 sin ωt for each element (the slides start from the current), and the derivations of the r.m.s. value
-   and of the resonance frequency are written out in full. */
+/* Semester 2 Chapter 17 Electromagnetic Induction: full notes by Cikgu Suhaili (from the Unit 7 Electromagnetic Induction slides,
+   with the magnetic-flux examples from the Unit 6 slides). App chapter 17 = STPM 2026 syllabus chapter 18.
+   Back e.m.f. in a d.c. motor (slides 7.6) is not in the 2026 syllabus and is left out. */
 (function () {
   'use strict';
   const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq } = window.PhysiQLessons.H;
-  const arr = (x1, y1, x2, y2, c = 'r', w = 2.4) => L(x1, y1, x2, y2, c, 'e', { w });
-  const sub0 = s => `${s}<sub>0</sub>`, rms = s => `${s}<sub>rms</sub>`;
-  const PI = Math.PI;
+  const ms = 'm&#8239;s<sup>−1</sup>', mu0 = 'μ<sub>0</sub>', eps = 'ε';
+
+  const X = (x, y, r = 4.5, c = '#C3BEF7') => `<path d="M${x - r},${y - r} L${x + r},${y + r} M${x + r},${y - r} L${x - r},${y + r}" stroke="${c}" stroke-width="1.5"/>`;
+  const O = (x, y, r = 4.5, c = '#C3BEF7') => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="${c}" stroke-width="1.5"/><circle cx="${x}" cy="${y}" r="1.6" fill="${c}"/>`;
+  const grid = (x0, y0, nx, ny, dx, dy, f = X) => { let s = ''; for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) s += f(x0 + i * dx, y0 + j * dy); return s; };
+  const arr = (x1, y1, x2, y2, c = 'r', w = 2.2) => L(x1, y1, x2, y2, c, 'e', { w });
+  const magnet = (x, y, w = 80, h = 26, nRight = true) => `<rect x="${x}" y="${y}" width="${w / 2}" height="${h}" fill="${nRight ? '#9FC3E8' : '#F2A08A'}" stroke="${C.ink}" stroke-width="1.4"/><rect x="${x + w / 2}" y="${y}" width="${w / 2}" height="${h}" fill="${nRight ? '#F2A08A' : '#9FC3E8'}" stroke="${C.ink}" stroke-width="1.4"/>` +
+    T(x + w / 4, y + h / 2 + 5, nRight ? 'S' : 'N', { fs: 13, b: 1 }) + T(x + 3 * w / 4, y + h / 2 + 5, nRight ? 'N' : 'S', { fs: 13, b: 1 });
+  const coil = (x, y, n, w, h, c = '#B5651D') => { let s = ''; for (let i = 0; i < n; i++) s += `<ellipse cx="${x + i * w / (n - 1)}" cy="${y}" rx="6" ry="${h / 2}" fill="none" stroke="${c}" stroke-width="2"/>`; return s; };
+  const galv = (x, y) => `<circle cx="${x}" cy="${y}" r="13" fill="#fff" stroke="${C.ink}" stroke-width="1.6"/>` + T(x, y + 5, 'G', { fs: 13, b: 1 });
 
   // ---------- figures ----------
   const F = {};
-  const wave = (x0, y0, w, a, ph = 0, cyc = 2) => { let d = ''; for (let i = 0; i <= 120; i++) { const t = i / 120 * cyc * 2 * PI; d += (i ? 'L' : 'M') + (x0 + w * i / 120).toFixed(1) + ',' + (y0 - a * Math.sin(t + ph)).toFixed(1); } return d; };
-  F.ac = () => svg(320, 150, L(30, 75, 300, 75, 'k', 'e', { w: 1.2 }) + L(30, 140, 30, 10, 'k', 'e', { w: 1.2 }) + P(wave(30, 75, 240, 50, 0, 2), 'v', { w: 2.4 }) +
-    L(26, 25, 34, 25, 'k') + T(24, 29, 'I₀', { fs: 12, a: 'end' }) + L(26, 125, 34, 125, 'k') + T(24, 129, '−I₀', { fs: 12, a: 'end' }) + T(300, 92, 't', { fs: 13, it: 1 }) + T(40, 16, 'I', { fs: 13, it: 1, b: 1, a: 'start' }) +
-    L(30, 140, 150, 140, 's', 'b', { w: 1 }) + T(90, 136, 'T = 1/f', { fs: 11, c: C.sub }), 320);
-  F.phasor = () => {
-    const cx = 80, cy = 80, r = 55, a = 40 * PI / 180, px = cx + r * Math.cos(a), py = cy - r * Math.sin(a);
-    let s = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${C.grid}" stroke-width="1.4"/>` + arr(cx, cy, px, py, 'v', 2.6) + L(px, py, px, cy, 's', '', { w: 1, d: '4 3' }) + L(px, py, 210 + 40 / 360 * 100, py, 's', '', { w: 1, d: '4 3' });
-    s += P(`M${cx + 22},${cy} A22,22 0 0 0 ${cx + 22 * Math.cos(a)},${cy - 22 * Math.sin(a)}`, 'k', { w: 1.2 }) + T(cx + 30, cy - 6, 'ωt', { fs: 11, it: 1, a: 'start' }) + T(px + 6, py - 6, 'A₀', { fs: 12, b: 1, c: C.v, a: 'start' });
-    s += P(`M${cx + r * 0.75},${cy - r * 0.95} A${r},${r} 0 0 0 ${cx + r * 0.3},${cy - r * 1.12}`, 'o', { w: 1.4, a: 'o' }) + T(cx + r * 0.85, cy - r * 1.05, 'ω', { fs: 12, it: 1, c: C.o, a: 'start' });
-    s += L(210, cy, 330, cy, 'k', 'e', { w: 1.2 }) + L(210, cy + 60, 210, cy - 64, 'k', 'e', { w: 1.2 }) + P(wave(210, cy, 100, r, 0, 1), 'v', { w: 2.2 }) + T(330, cy + 16, 't', { fs: 12, it: 1 }) + T(270, 158, 'projection = A₀ sin ωt', { fs: 11, c: C.sub });
-    return svg(340, 165, s, 340);
+  F.flux = () => {
+    let s = `<path d="M90,40 L190,20 L190,120 L90,140 Z" fill="#EEEAFD" stroke="${C.v}" stroke-width="1.6"/>` + T(118, 134, 'area A', { fs: 11, c: C.v });
+    s += arr(140, 80, 230, 62, 'g', 2.4) + T(238, 60, 'A (normal)', { fs: 12, b: 1, c: C.g, a: 'start' });
+    for (let i = 0; i < 4; i++) s += arr(20, 30 + i * 30, 300, 30 + i * 30, 'o', 1.3);
+    s += T(300, 22, 'B', { fs: 13, it: 1, b: 1, c: C.o, a: 'end' }) + P('M190,80 A50,50 0 0 0 186,70', 'k', { w: 1.2 }) + T(206, 84, 'θ', { fs: 13, it: 1, a: 'start' });
+    return svg(320, 150, s, 320);
   };
-  // element panel: circuit symbol, phasor diagram and V, I graphs
-  const element = (kind) => {
-    const ph = kind === 'R' ? 0 : kind === 'C' ? PI / 2 : -PI / 2;   // phase of I relative to V
-    let sym = '';
-    if (kind === 'R') sym = `<rect x="36" y="22" width="44" height="16" fill="#fff" stroke="${C.ink}" stroke-width="1.8"/>`;
-    if (kind === 'C') sym = L(54, 14, 54, 46, 'k', '', { w: 2.4 }) + L(64, 14, 64, 46, 'k', '', { w: 2.4 });
-    if (kind === 'L') sym = `<path d="M36,30 q6,-14 12,0 q6,-14 12,0 q6,-14 12,0 q6,-14 12,0" fill="none" stroke="${C.ink}" stroke-width="2"/>`;
-    let s = L(10, 30, 36, 30, 'k', '', { w: 1.8 }) + L(kind === 'C' ? 64 : 80, 30, 110, 30, 'k', '', { w: 1.8 }) + (kind === 'C' ? L(36, 30, 54, 30, 'k', '', { w: 1.8 }) : '') + sym;
-    s += `<circle cx="60" cy="74" r="11" fill="#fff" stroke="${C.ink}" stroke-width="1.6"/><path d="M53,74 q3.5,-7 7,0 q3.5,7 7,0" fill="none" stroke="${C.ink}" stroke-width="1.4"/>` + L(10, 30, 10, 74, 'k', '', { w: 1.8 }) + L(10, 74, 49, 74, 'k', '', { w: 1.8 }) + L(71, 74, 110, 74, 'k', '', { w: 1.8 }) + L(110, 74, 110, 30, 'k', '', { w: 1.8 });
-    // phasors: V along the horizontal reference here, I at angle ph
-    const cx = 60, cy = 150, r = 40;
-    s += arr(cx, cy, cx + r, cy, 'v', 2.6) + T(cx + r + 4, cy + 4, 'V', { fs: 12, b: 1, c: C.v, a: 'start' });
-    const ix = cx + 0.8 * r * Math.cos(ph), iy = cy - 0.8 * r * Math.sin(ph);
-    s += arr(cx, cy + (kind === 'R' ? 6 : 0), ix, iy + (kind === 'R' ? 6 : 0), 'r', 2.6) + T(ix + (kind === 'R' ? 4 : 8), iy + (kind === 'R' ? 20 : 4), 'I', { fs: 12, b: 1, c: C.r, a: 'start' });
-    if (kind !== 'R') s += P(`M${cx + 16},${cy} A16,16 0 0 ${kind === 'C' ? 0 : 1} ${cx},${cy - (kind === 'C' ? 16 : -16)}`, 'k', { w: 1.1 }) + T(cx + 20, cy + (kind === 'C' ? -14 : 24), 'π/2', { fs: 11, a: 'start' });
-    // graphs
-    const gx = 130, gy = 110, gw = 190;
-    s += L(gx, gy, gx + gw + 8, gy, 'k', 'e', { w: 1.1 }) + L(gx, gy + 56, gx, gy - 60, 'k', 'e', { w: 1.1 }) + P(wave(gx, gy, gw, 46, 0, 1.5), 'v', { w: 2.2 }) + P(wave(gx, gy, gw, 30, ph, 1.5), 'r', { w: 2.2, d: kind === 'R' ? '' : '' }) + T(gx + gw + 8, gy + 16, 't', { fs: 12, it: 1 });
-    s += T(gx + 6, gy - 50, 'V', { fs: 12, b: 1, c: C.v, a: 'start' }) + T(gx + 22, gy - 50, 'I', { fs: 12, b: 1, c: C.r, a: 'start' });
-    const title = kind === 'R' ? 'resistor: V and I in phase' : kind === 'C' ? 'capacitor: I leads V by π/2' : 'inductor: I lags V by π/2';
-    s += T(170, 190, title, { fs: 12, b: 1 });
-    return svg(340, 198, s, 340);
+  F.cases = () => {
+    const box = (title, inner) => svg(150, 120, inner + T(75, 114, title, { fs: 11, c: C.sub }), 150);
+    return `<div class="ls-two" style="grid-template-columns:repeat(2,minmax(0,1fr))">` +
+      box('θ = 0°: Φ = BA (maximum)', `<line x1="40" y1="20" x2="40" y2="90" stroke="${C.v}" stroke-width="4"/>` + arr(10, 40, 130, 40, 'o', 1.4) + arr(10, 70, 130, 70, 'o', 1.4) + arr(40, 55, 80, 55, 'g', 2.2)) +
+      box('θ = 90°: Φ = 0', `<line x1="20" y1="55" x2="110" y2="55" stroke="${C.v}" stroke-width="4"/>` + arr(10, 30, 130, 30, 'o', 1.4) + arr(10, 80, 130, 80, 'o', 1.4) + arr(65, 55, 65, 16, 'g', 2.2)) + '</div>';
   };
-  F.powR = () => { let d = ''; const x0 = 30, y0 = 110, w = 260; for (let i = 0; i <= 120; i++) { const t = i / 120 * 4 * PI; d += (i ? 'L' : 'M') + (x0 + w * i / 120).toFixed(1) + ',' + (y0 - 80 * Math.sin(t / 2) ** 2).toFixed(1); }
-    return svg(320, 130, L(x0, y0, x0 + w + 10, y0, 'k', 'e', { w: 1.2 }) + L(x0, y0 + 8, x0, 16, 'k', 'e', { w: 1.2 }) + P(d, 'o', { w: 2.4 }) + L(x0, y0 - 40, x0 + w, y0 - 40, 'g', '', { w: 1.6, d: '6 4' }) + T(x0 + w, y0 - 46, 'mean = ½P₀', { fs: 11, b: 1, c: C.g, a: 'end' }) + T(x0 - 4, 34, 'P₀', { fs: 11, a: 'end' }) + T(x0 + w + 10, y0 + 16, 't', { fs: 12, it: 1 }) + T(x0 + 6, 16, 'P', { fs: 12, it: 1, b: 1, a: 'start' }), 320); };
-  F.powLC = () => { let d = ''; const x0 = 30, y0 = 70, w = 260; for (let i = 0; i <= 120; i++) { const t = i / 120 * 4 * PI; d += (i ? 'L' : 'M') + (x0 + w * i / 120).toFixed(1) + ',' + (y0 - 46 * Math.sin(t)).toFixed(1); }
-    return svg(320, 140, L(x0, y0, x0 + w + 10, y0, 'k', 'e', { w: 1.2 }) + L(x0, 126, x0, 12, 'k', 'e', { w: 1.2 }) + P(d, 'o', { w: 2.4 }) + T(x0 + w, y0 - 8, 'mean = 0', { fs: 11, b: 1, c: C.g, a: 'end' }) + T(x0 + 50, 18, 'energy stored', { fs: 10.5, c: C.sub }) + T(x0 + 120, 132, 'energy returned', { fs: 10.5, c: C.sub }) + T(x0 + w + 10, y0 + 16, 't', { fs: 12, it: 1 }), 320); };
-  const triangle = (kind) => {
-    // phasor diagram (current along the reference) and impedance triangle
-    const ox = 40, oy = kind === 'RC' ? 40 : 120, R = 110, X = 70;
-    const up = kind === 'RC' ? -1 : 1;   // RC: V below I; RL: V above I
-    let s = arr(ox, oy, ox + R, oy, 'g', 2.4) + T(ox + R / 2, oy + (kind === 'RC' ? -8 : 18), 'V_R', { fs: 12, b: 1, c: C.g }) + arr(ox + R + 30, oy, ox + R + 70, oy, 'r', 2.2) + T(ox + R + 76, oy + 4, 'I', { fs: 12, b: 1, c: C.r, a: 'start' });
-    s += arr(ox + R, oy, ox + R, oy - up * X, kind === 'RC' ? 'o' : 'v', 2.4) + T(ox + R + 6, oy - up * X / 2 + 4, kind === 'RC' ? 'V_C' : 'V_L', { fs: 12, b: 1, c: kind === 'RC' ? C.o : C.v, a: 'start' });
-    s += arr(ox, oy, ox + R, oy - up * X, 'k', 2.6) + T(ox + R / 2 - 12, oy - up * X / 2 - (kind === 'RC' ? -14 : 10), 'V', { fs: 13, b: 1, it: 1 });
-    s += P(`M${ox + 28},${oy} A28,28 0 0 ${kind === 'RC' ? 1 : 0} ${ox + 28 * Math.cos(Math.atan(X / R))},${oy - up * 28 * Math.sin(Math.atan(X / R))}`, 'k', { w: 1.1 }) + T(ox + 36, oy - up * 8 + 4, 'φ', { fs: 13, it: 1, a: 'start' });
-    s += T(110, 156, kind === 'RC' ? 'R-C: V lags I by φ' : 'R-L: V leads I by φ', { fs: 12, b: 1 });
-    return svg(240, 164, s, 240);
+  F.faraday = () => {
+    let s = magnet(20, 50, 90, 28, true) + arr(120, 64, 150, 64, 'r', 2.4) + T(135, 54, 'v', { fs: 12, it: 1, b: 1, c: C.r });
+    s += coil(180, 64, 8, 100, 60) + L(180, 34, 180, 14, 'k', '', { w: 1.6 }) + L(180, 14, 300, 14, 'k', '', { w: 1.6 }) + L(280, 94, 280, 120, 'k', '', { w: 1.6 }) + L(280, 120, 300, 120, 'k', '', { w: 1.6 }) + L(300, 14, 300, 52, 'k', '', { w: 1.6 }) + L(300, 78, 300, 120, 'k', '', { w: 1.6 }) + galv(300, 65);
+    s += T(168, 112, 'N', { fs: 14, b: 1, c: C.r }) + T(168, 128, 'induced pole', { fs: 10, c: C.r }) + T(230, 142, 'the coil repels the approaching N pole', { fs: 11, c: C.sub });
+    return svg(330, 150, s, 330);
   };
-  F.rc = () => two(triangle('RC'), svg(240, 164, L(40, 40, 150, 40, 'k', '', { w: 2.4 }) + L(150, 40, 150, 110, 'o', '', { w: 2.4 }) + L(40, 40, 150, 110, 'v', '', { w: 2.6 }) + T(95, 32, 'R', { fs: 13, it: 1, b: 1 }) + T(158, 80, 'X_C', { fs: 13, it: 1, b: 1, c: C.o, a: 'start' }) + T(84, 90, 'Z', { fs: 13, it: 1, b: 1, c: C.v }) + T(66, 56, 'φ', { fs: 13, it: 1 }) + T(120, 156, 'impedance triangle', { fs: 12, b: 1 }), 240));
-  F.rl = () => two(triangle('RL'), svg(240, 164, L(40, 120, 150, 120, 'k', '', { w: 2.4 }) + L(150, 120, 150, 50, 'v', '', { w: 2.4 }) + L(40, 120, 150, 50, 'o', '', { w: 2.6 }) + T(95, 138, 'R', { fs: 13, it: 1, b: 1 }) + T(158, 90, 'X_L', { fs: 13, it: 1, b: 1, c: C.v, a: 'start' }) + T(84, 76, 'Z', { fs: 13, it: 1, b: 1, c: C.o }) + T(66, 112, 'φ', { fs: 13, it: 1 }) + T(120, 156, 'impedance triangle', { fs: 12, b: 1 }), 240));
-  F.rlc = () => {
-    const ox = 50, oy = 110, R = 120, XL = 90, XC = 40;
-    let s = arr(ox, oy, ox + R, oy, 'g', 2.4) + T(ox + R / 2, oy + 18, 'V_R', { fs: 12, b: 1, c: C.g }) + arr(ox + R + 36, oy, ox + R + 76, oy, 'r', 2.2) + T(ox + R + 82, oy + 4, 'I', { fs: 12, b: 1, c: C.r, a: 'start' });
-    s += arr(ox, oy, ox, oy - XL, 'v', 2.4) + T(ox - 6, oy - XL + 6, 'V_L', { fs: 12, b: 1, c: C.v, a: 'end' }) + arr(ox, oy, ox, oy + XC, 'o', 2.4) + T(ox - 6, oy + XC, 'V_C', { fs: 12, b: 1, c: C.o, a: 'end' });
-    s += L(ox + R, oy, ox + R, oy - (XL - XC), 's', 'e', { w: 1.8, d: '5 3' }) + T(ox + R + 6, oy - (XL - XC) / 2, 'V_L − V_C', { fs: 11.5, c: C.sub, a: 'start' }) + arr(ox, oy, ox + R, oy - (XL - XC), 'k', 2.6) + T(ox + R / 2 - 10, oy - (XL - XC) / 2 - 12, 'V', { fs: 13, b: 1, it: 1 }) + T(ox + 34, oy - 6, 'φ', { fs: 13, it: 1, a: 'start' });
-    return svg(300, 170, s + T(150, 166, 'X_L > X_C: V leads I by φ', { fs: 12, b: 1 }), 300);
+  F.lenz = () => {
+    const panel = (title, approach) => {
+      let s = magnet(8, 52, 70, 24, true) + arr(84, 64, 104, 64, 'r', 2) + T(94, 56, approach ? 'in' : '', { fs: 10, c: C.r });
+      if (!approach) s = magnet(8, 52, 70, 24, true) + arr(66, 42, 30, 42, 'r', 2) + T(76, 46, 'out', { fs: 10, c: C.r, a: 'start' });
+      s += `<ellipse cx="140" cy="64" rx="10" ry="34" fill="none" stroke="#B5651D" stroke-width="2.4"/>`;
+      s += arr(110, 30, 170, 30, 'o', 1.6) + T(180, 34, 'B ext', { fs: 10, c: C.o, a: 'start' });
+      s += approach ? arr(170, 100, 110, 100, 'v', 2) + T(180, 104, 'B ind', { fs: 10, c: C.v, a: 'start' }) : arr(110, 100, 170, 100, 'v', 2) + T(180, 104, 'B ind', { fs: 10, c: C.v, a: 'start' });
+      s += T(110, 128, title, { fs: 11, b: 1 });
+      return svg(220, 136, s, 220);
+    };
+    return two(panel('flux increasing: B ind opposes B ext', true), panel('flux decreasing: B ind is along B ext', false));
   };
-  F.zf = () => {
-    const g = (title, f) => { let d = ''; for (let i = 1; i <= 80; i++) { const x = i / 80; d += (i > 1 ? 'L' : 'M') + (30 + 120 * x).toFixed(1) + ',' + (110 - Math.min(95, f(x))).toFixed(1); } return svg(170, 140, axes(30, 110, 130, 88, 'f', 'Z', { noO: 0 }) + L(30, 90, 150, 90, 's', '', { w: 1, d: '4 3' }) + T(156, 94, 'R', { fs: 11, it: 1, a: 'start' }) + P(d, 'v', { w: 2.4 }) + T(85, 134, title, { fs: 11, b: 1 }), 170); };
-    return two(g('R-C: Z falls towards R', x => 20 + 6 / x), g('R-L: Z rises with f', x => 20 + 90 * x * x / (1 + x)));
+  F.rod = () => {
+    let s = grid(30, 30, 8, 4, 36, 30, O);
+    s += L(30, 20, 290, 20, 'k', '', { w: 2.6 }) + L(30, 130, 290, 130, 'k', '', { w: 2.6 }) + L(30, 20, 30, 130, 'k', '', { w: 2.6 }) + `<rect x="${30 - 8}" y="62" width="16" height="26" fill="#fff" stroke="${C.ink}" stroke-width="1.6"/>` + T(14, 80, 'R', { fs: 12, it: 1, b: 1 });
+    s += `<rect x="196" y="12" width="10" height="126" rx="4" fill="#E9C46A" stroke="${C.ink}" stroke-width="1.4"/>` + T(190, 10, 'P', { fs: 12, b: 1, a: 'end' }) + T(190, 150, 'Q', { fs: 12, b: 1, a: 'end' });
+    s += arr(206, 75, 252, 75, 'r', 2.6) + T(258, 79, 'v', { fs: 13, it: 1, b: 1, c: C.r, a: 'start' }) + arr(196, 100, 160, 100, 'o', 2.2) + T(150, 96, 'F = BIl', { fs: 11, it: 1, b: 1, c: C.o, a: 'end' });
+    s += arr(201, 40, 201, 60, 'g', 2) + arr(120, 130, 80, 130, 'g', 2) + T(100, 146, 'I (clockwise)', { fs: 11, b: 1, c: C.g }) + L(222, 20, 222, 130, 's', 'b', { w: 1 }) + T(226, 120, 'l', { fs: 13, it: 1, a: 'start' });
+    s += T(306, 10, 'B out of the page', { fs: 10.5, c: C.sub, a: 'end' });
+    return svg(310, 156, s, 310);
   };
-  F.res = () => {
-    let xl = '', xc = '', z = ''; const x0 = 40, y0 = 150, w = 260;
-    for (let i = 1; i <= 100; i++) { const f = i / 100 * 2; const XL = 60 * f, XC = 60 / f, Z = Math.sqrt(20 * 20 + (XL - XC) ** 2); const X = x0 + w * f / 2;
-      xl += (i > 1 ? 'L' : 'M') + X.toFixed(1) + ',' + (y0 - Math.min(140, XL)).toFixed(1); xc += (i > 1 ? 'L' : 'M') + X.toFixed(1) + ',' + (y0 - Math.min(140, XC)).toFixed(1); z += (i > 1 ? 'L' : 'M') + X.toFixed(1) + ',' + (y0 - Math.min(140, Z)).toFixed(1); }
-    let s = L(x0, y0, x0 + w + 12, y0, 'k', 'e', { w: 1.2 }) + L(x0, y0 + 4, x0, 6, 'k', 'e', { w: 1.2 }) + P(xl, 'v', { w: 2 }) + P(xc, 'o', { w: 2 }) + P(z, 'ink', { w: 2.6 }) + L(x0, y0 - 20, x0 + w, y0 - 20, 'g', '', { w: 1.6, d: '6 4' });
-    s += T(x0 + w, 30, 'X_L ∝ f', { fs: 11, b: 1, c: C.v, a: 'end' }) + T(x0 + 34, 20, 'X_C ∝ 1/f', { fs: 11, b: 1, c: C.o, a: 'start' }) + T(x0 + w, y0 - 26, 'R', { fs: 11, b: 1, c: C.g, a: 'end' }) + T(x0 + w - 60, 64, 'Z', { fs: 13, b: 1, it: 1 });
-    s += L(x0 + w / 2, y0 - 2, x0 + w / 2, y0 + 4, 'k') + T(x0 + w / 2, y0 + 16, 'f₀', { fs: 12, it: 1 }) + T(x0 + w + 12, y0 + 16, 'f', { fs: 12, it: 1 }) + T(x0 + w / 2 + 6, y0 - 26, 'Z = R', { fs: 11, c: C.sub, a: 'start' });
-    return svg(320, 172, s, 320);
+  F.frhr = () => {
+    const ox = 120, oy = 110; let s = '';
+    s += arr(ox, oy, ox, oy - 80, 'r', 3) + T(ox, oy - 88, 'motion (thumb)', { fs: 12, b: 1, c: C.r });
+    s += arr(ox, oy, ox + 110, oy, 'v', 3) + T(ox + 116, oy + 5, 'B (first finger)', { fs: 12, b: 1, c: C.v, a: 'start' });
+    s += arr(ox, oy, ox - 62, oy + 42, 'g', 3) + T(ox - 66, oy + 58, 'induced current (second finger)', { fs: 12, b: 1, c: C.g, a: 'start' });
+    return svg(340, 175, s, 340);
+  };
+  F.gen = () => {
+    const cx = 80, cy = 80; let s = '';
+    for (let i = 0; i < 4; i++) s += arr(10, 30 + i * 33, 150, 30 + i * 33, 'o', 1.3);
+    s += T(150, 22, 'B', { fs: 13, it: 1, b: 1, c: C.o, a: 'end' });
+    const a = 40 * Math.PI / 180, dx = Math.cos(a), dy = Math.sin(a);
+    s += `<line x1="${cx - 50 * dy}" y1="${cy - 50 * dx}" x2="${cx + 50 * dy}" y2="${cy + 50 * dx}" stroke="#B5651D" stroke-width="5"/>`;
+    s += arr(cx, cy, cx + 58 * dx, cy - 58 * dy, 'g', 2.4) + T(cx + 62 * dx + 4, cy - 62 * dy, 'normal', { fs: 11, b: 1, c: C.g, a: 'start' }) + P(`M${cx + 30},${cy} A30,30 0 0 0 ${cx + 30 * dx},${cy - 30 * dy}`, 'k', { w: 1.2 }) + T(cx + 38, cy - 8, 'θ = ωt', { fs: 11.5, it: 1, a: 'start' }) + `<circle cx="${cx}" cy="${cy}" r="3" fill="${C.ink}"/>`;
+    s += T(cx, 160, 'coil seen edge-on, axis ⊥ page', { fs: 10.5, c: C.sub });
+    // graph
+    const gx = 190, gy = 80, gw = 140, ga = 46; let e = '', f = '';
+    for (let i = 0; i <= 80; i++) { const t = i / 80 * 2 * Math.PI, x = gx + gw * i / 80; e += (i ? 'L' : 'M') + x.toFixed(1) + ',' + (gy - ga * Math.sin(t)).toFixed(1); f += (i ? 'L' : 'M') + x.toFixed(1) + ',' + (gy - ga * 0.7 * Math.cos(t)).toFixed(1); }
+    s += L(gx, gy, gx + gw + 10, gy, 'k', 'e', { w: 1.2 }) + L(gx, gy + 56, gx, gy - 58, 'k', 'e', { w: 1.2 }) + P(f, 'sub', { w: 1.6, d: '5 4' }) + P(e, 'v', { w: 2.4 }) + T(gx + gw + 8, gy + 16, 't', { fs: 12, it: 1 }) + T(gx + 10, gy - 52, 'ε', { fs: 13, it: 1, b: 1, c: C.v, a: 'start' }) + T(gx + gw - 10, gy - 40, 'Φ', { fs: 13, it: 1, c: C.sub }) + T(gx - 4, gy - ga + 4, 'ε₀', { fs: 11, a: 'end', c: C.v });
+    return svg(340, 170, s, 340);
+  };
+  F.ex29 = () => { let e = ''; const gx = 40, gy = 80, gw = 260, A = 50, Tt = 0.42, tmax = 0.84;
+    for (let i = 0; i <= 160; i++) { const t = tmax * i / 160; e += (i ? 'L' : 'M') + (gx + gw * t / tmax).toFixed(1) + ',' + (gy - A * Math.sin(2 * Math.PI * t / Tt)).toFixed(1); }
+    let s = L(gx, gy, gx + gw + 14, gy, 'k', 'e', { w: 1.2 }) + L(gx, gy + 60, gx, gy - 62, 'k', 'e', { w: 1.2 }) + P(e, 'v', { w: 2.2 }) + T(gx + gw + 12, gy - 8, 't / s', { fs: 11, it: 1 }) + T(gx + 4, gy - 64, 'ε / V', { fs: 11, it: 1, a: 'start' });
+    s += L(gx - 4, gy - A, gx + 4, gy - A, 'k') + T(gx - 6, gy - A + 4, '28', { fs: 11, a: 'end' }) + L(gx - 4, gy + A, gx + 4, gy + A, 'k') + T(gx - 6, gy + A + 4, '−28', { fs: 11, a: 'end' });
+    [0.21, 0.42, 0.63, 0.84].forEach(t => { const x = gx + gw * t / tmax; s += L(x, gy - 3, x, gy + 3, 'k') + T(x, gy + (t === 0.42 || t === 0.84 ? 16 : -8), String(t), { fs: 10.5, c: C.sub }); });
+    return svg(330, 150, s, 330); };
+  F.ex24 = () => { let s = grid(36, 26, 7, 4, 36, 30); s += `<circle cx="140" cy="70" r="46" fill="none" stroke="#B5651D" stroke-width="2.4"/>` + P('M116,30 A46,46 0 0 0 96,58', 'g', { w: 2, a: 'g' }) + T(92, 40, 'I', { fs: 13, it: 1, b: 1, c: C.g, a: 'end' }) + T(214, 40, 'B into the page,', { fs: 11, c: C.sub, a: 'start' }) + T(214, 56, 'increasing', { fs: 11, c: C.sub, a: 'start' }) + L(94, 70, 186, 70, 's', 'b', { w: 1 }) + T(140, 64, '10 cm', { fs: 11, c: C.sub });
+    return svg(300, 140, s, 300); };
+  F.selfL = () => {
+    let s = coil(70, 60, 9, 150, 50) + L(70, 85, 40, 85, 'k', '', { w: 1.6 }) + L(40, 85, 40, 130, 'k', '', { w: 1.6 }) + L(220, 85, 250, 85, 'k', '', { w: 1.6 }) + L(250, 85, 250, 130, 'k', '', { w: 1.6 });
+    s += L(40, 130, 120, 130, 'k', '', { w: 1.6 }) + L(160, 130, 250, 130, 'k', '', { w: 1.6 }) + L(120, 118, 120, 142, 'k', '', { w: 1.8 }) + L(130, 124, 130, 136, 'k', '', { w: 4 }) + L(130, 130, 160, 130, 'k', '', { w: 1.6 }) + T(140, 154, 'changing current', { fs: 11, c: C.sub });
+    s += arr(80, 30, 210, 30, 'v', 2) + T(145, 22, 'B of the coil itself', { fs: 11, c: C.v });
+    s += `<g transform="translate(262,40)"><path d="M0,20 q8,-16 16,0 q8,-16 16,0 q8,-16 16,0 q8,-16 16,0" fill="none" stroke="${C.ink}" stroke-width="2"/></g>` + T(294, 76, 'inductor', { fs: 10.5, c: C.sub });
+    return svg(340, 162, s, 340);
+  };
+  F.growth = () => { let a = '', b = ''; const gx = 34, gy = 120, gw = 240, gh = 90;
+    for (let i = 0; i <= 80; i++) { const t = i / 80 * 5; a += (i ? 'L' : 'M') + (gx + gw * t / 5).toFixed(1) + ',' + (gy - gh * (1 - Math.exp(-t))).toFixed(1); }
+    b = `M${gx},${gy} L${gx},${gy - gh} L${gx + gw},${gy - gh}`;
+    return svg(300, 150, axes(gx, gy, gw + 14, gh + 18, 't', 'I') + P(b, 'sub', { w: 1.6, d: '5 4' }) + P(a, 'v', { w: 2.4 }) + T(gx + gw, gy - gh - 6, 'resistor only', { fs: 10.5, c: C.sub, a: 'end' }) + T(gx + 110, gy - 30, 'with an inductor', { fs: 10.5, b: 1, c: C.v, a: 'start' }), 300); };
+  F.coax = () => {
+    let s = `<rect x="40" y="50" width="240" height="44" fill="#F4F1E6" stroke="none"/>` + coil(40, 72, 16, 240, 44, '#B5651D') + coil(120, 72, 6, 70, 74, '#2C6BB3');
+    s += T(30, 18, 'primary: N_p turns, length l_p, area A', { fs: 11, b: 1, c: '#B5651D', a: 'start' }) + T(155, 128, 'secondary: N_s turns wound round the middle', { fs: 11, b: 1, c: '#2C6BB3' });
+    for (let y of [62, 82]) s += arr(60, y, 270, y, 'o', 1.2);
+    return svg(320, 136, s, 320);
   };
 
   const S = `
-${sec('18-1', '18.1 Alternating current through a resistor', `
-<p>An <b>alternating current</b> (a.c.) changes its magnitude and direction periodically. The output of an a.c. generator is sinusoidal:</p>
-${eq(`<i>V</i> = <i>V</i><sub>0</sub> sin ω<i>t</i> &nbsp;&nbsp;&nbsp; <i>I</i> = <i>I</i><sub>0</sub> sin ω<i>t</i> &nbsp;&nbsp;&nbsp; ω = 2π<i>f</i> = ${fr('2π', '<i>T</i>')}`)}
-${fig(F.ac(), 'Figure 18.1: a sinusoidal alternating current with peak value I₀ and period T.')}
-${ul([`<i>V</i>, <i>I</i>: instantaneous values; <i>V</i><sub>0</sub>, <i>I</i><sub>0</sub>: peak values; ω: angular frequency (rad s<sup>−1</sup>); <i>f</i>: frequency (Hz).`])}
-${h4('Phasors')}
-${fig(F.phasor(), 'Figure 18.2: a phasor of length A₀ rotating anticlockwise at ω. Its vertical projection is A₀ sin ωt.')}
-<p>A <b>phasor</b> is a vector that rotates anticlockwise at the angular frequency ω. Its length is the peak value and its projection on the vertical axis gives the instantaneous value. A <b>phasor diagram</b> shows the phase difference between voltage and current.</p>
-
-${h4('Root mean square (r.m.s.) value')}
-${def('r.m.s. current, <i>I</i><sub>rms</sub>', `the ${red('value of the steady direct current that produces the same average power')} in a resistor as the alternating current. (The r.m.s. voltage is defined in the same way.)`)}
-${steps([`Power in a resistor at any instant: <i>P</i> = <i>I</i><sup>2</sup><i>R</i>. The average power is ⟨<i>I</i><sup>2</sup>⟩<i>R</i>.`, `A steady current <i>I</i><sub>rms</sub> gives the same power if <i>I</i><sub>rms</sub><sup>2</sup><i>R</i> = ⟨<i>I</i><sup>2</sup>⟩<i>R</i>, so <i>I</i><sub>rms</sub> = ${sq('⟨<i>I</i><sup>2</sup>⟩')}: the <b>square root of the mean of the square</b> of the current.`, `For <i>I</i> = <i>I</i><sub>0</sub> sin ω<i>t</i>: <i>I</i><sup>2</sup> = <i>I</i><sub>0</sub><sup>2</sup> sin<sup>2</sup> ω<i>t</i> = ½<i>I</i><sub>0</sub><sup>2</sup>(1 − cos 2ω<i>t</i>). Over a whole cycle the mean of cos 2ω<i>t</i> is zero, so ⟨<i>I</i><sup>2</sup>⟩ = ½<i>I</i><sub>0</sub><sup>2</sup>.`])}
-${key(`${rms('<i>I</i>')} = ${fr('<i>I</i><sub>0</sub>', sq('2'))} &nbsp;&nbsp;&nbsp; ${rms('<i>V</i>')} = ${fr('<i>V</i><sub>0</sub>', sq('2'))}`, 'sinusoidal a.c. only. Mains 240 V means V<sub>rms</sub> = 240 V, so V<sub>0</sub> = 339 V.')}
-${tip(`Ammeters and voltmeters for a.c. read r.m.s. values. Unless a question says "peak", assume a quoted a.c. voltage or current is r.m.s.`)}
-${sim('rms', 'Where the r.m.s. value comes from', 'Watch the current, its square and the mean of the square. The steady current that gives the same heating is the square root of that mean: I₀/√2 for a sine wave.')}
-
-${h4('Current in a pure resistor')}
-${steps([`Supply voltage across the resistor: <i>V</i> = <i>V</i><sub>0</sub> sin ω<i>t</i>.`, `At every instant <i>I</i> = ${fr('<i>V</i>', '<i>R</i>')} = ${fr('<i>V</i><sub>0</sub>', '<i>R</i>')} sin ω<i>t</i> = <i>I</i><sub>0</sub> sin ω<i>t</i>, with <i>I</i><sub>0</sub> = <i>V</i><sub>0</sub>/<i>R</i>.`, `The current and voltage reach their maximum and zero values at the same time: they are <b>in phase</b> (phase difference 0).`])}
-${fig(element('R'), 'Figure 18.3: a pure resistor: circuit, phasor diagram and graphs.')}
-${h4('Power in a pure resistor')}
-${steps([`<i>P</i> = <i>IV</i> = <i>I</i><sub>0</sub><i>V</i><sub>0</sub> sin<sup>2</sup> ω<i>t</i> = <i>P</i><sub>0</sub> sin<sup>2</sup> ω<i>t</i>, always positive: the resistor always takes energy and turns it into heat.`, `Mean of sin<sup>2</sup> ω<i>t</i> = ½, so:`])}
-${key(`⟨<i>P</i>⟩ = ½<i>I</i><sub>0</sub><i>V</i><sub>0</sub> = ${rms('<i>I</i>')}${rms('<i>V</i>')} = ${rms('<i>I</i>')}<sup>2</sup><i>R</i> = ${fr(`${rms('<i>V</i>')}<sup>2</sup>`, '<i>R</i>')}`, 'average power = half the peak power P₀ = I₀V₀')}
-${fig(F.powR(), 'Figure 18.4: power in a resistor varies between 0 and P₀ at twice the supply frequency.')}
-${example('18.1.1', `A 240 V (r.m.s.), 50 Hz supply is connected to a 60 Ω heater. Find (a) the peak voltage, (b) the r.m.s. and peak currents, (c) the mean power, (d) the peak power.`,
-  steps([`(a) <i>V</i><sub>0</sub> = ${sq('2')}(240) = <b>339 V</b>`, `(b) <i>I</i><sub>rms</sub> = ${fr('240', '60')} = <b>4.0 A</b>; <i>I</i><sub>0</sub> = ${sq('2')}(4.0) = <b>5.7 A</b>`, `(c) ⟨<i>P</i>⟩ = <i>I</i><sub>rms</sub><i>V</i><sub>rms</sub> = (4.0)(240) = <b>960 W</b>`, `(d) <i>P</i><sub>0</sub> = <i>I</i><sub>0</sub><i>V</i><sub>0</sub> = 2⟨<i>P</i>⟩ = <b>1920 W</b>`]))}
-${example('18.1.2', `The current in a resistor is <i>I</i> = 3.0 sin 100π<i>t</i> A. Find (a) the frequency, (b) the r.m.s. current, (c) the current at <i>t</i> = 2.5 ms.`,
-  steps([`(a) ω = 100π, <i>f</i> = ${fr('ω', '2π')} = <b>50 Hz</b>`, `(b) <i>I</i><sub>rms</sub> = ${fr('3.0', sq('2'))} = <b>2.1 A</b>`, `(c) <i>I</i> = 3.0 sin(100π × 0.0025) = 3.0 sin(π/4) = <b>2.1 A</b>`]))}
+${sec('17-1', '18.1 Magnetic flux', `
+${def('Magnetic flux, Φ', `through a surface: the ${red('scalar product of the magnetic flux density B and the area vector A')} of the surface. It measures the number of field lines passing through the area.`)}
+${key(`Φ = <b>B</b> · <b>A</b> = <i>BA</i> cos θ`, 'θ = angle between B and the normal to the surface (the direction of the area vector A). Unit: weber (Wb) = T m<sup>2</sup>. Scalar.')}
+${fig(F.flux(), 'Figure 18.1: the area vector A is normal to the surface.')}
+${fig(F.cases(), 'Figure 18.2: B along the normal gives the largest flux; B in the plane of the surface gives none.')}
+${ul([`Flux linkage of a coil of <i>N</i> turns: <i>N</i>Φ.`, `Rearranged, <i>B</i> = Φ/<i>A</i><sub>⊥</sub>: magnetic flux density is the flux per unit area perpendicular to the field (1 T = 1 Wb m<sup>−2</sup>).`])}
+${tip(`Read the question carefully: "the <b>plane</b> of the loop makes θ with B" means the normal makes (90° − θ) with B, so Φ = <i>BA</i> sin θ.`)}
+${example('18.1.1', `A rectangular loop of area 200 cm<sup>2</sup> has its plane at 41° to a 0.28 T field. Find the flux through it.`,
+  steps([`Angle between B and the normal = 90° − 41° = 49°`, `Φ = <i>BA</i> cos 49° = (0.28)(200 × 10<sup>−4</sup>)(0.656) = <b>3.7 × 10<sup>−3</sup> Wb</b>`]))}
+${example('18.1.2', `A 25 cm × 15 cm loop is in a 0.60 T field and the flux through it is 0.015 Wb. Find the angle between the plane of the loop and the field.`,
+  steps([`cos θ = ${fr('Φ', '<i>BA</i>')} = ${fr('0.015', '(0.60)(0.25 × 0.15)')} = 0.667, θ = 48.2° (between B and the normal)`, `Angle between the plane and B = 90° − 48.2° = <b>41.8°</b>`]))}
+${example('18.1.3', `A flux of 50 μWb passes perpendicularly through a loop of area 0.78 m<sup>2</sup>. Find the flux density.`, steps([`<i>B</i> = ${fr('Φ', '<i>A</i>')} = ${fr('50 × 10<sup>−6</sup>', '0.78')} = <b>6.4 × 10<sup>−5</sup> T</b>`]))}
 `)}
 
-${sec('18-2', '18.2 Alternating current through an inductor', `
-<p>A <b>pure (ideal) inductor</b> has inductance but no resistance.</p>
-${h4('Deriving the current')}
-${steps([`The supply voltage is <i>V</i> = <i>V</i><sub>0</sub> sin ω<i>t</i>. With no resistance, the applied voltage just balances the back e.m.f.: <i>V</i> = <i>L</i>${fr('d<i>I</i>', 'd<i>t</i>')}.`, `${fr('d<i>I</i>', 'd<i>t</i>')} = ${fr('<i>V</i><sub>0</sub>', '<i>L</i>')} sin ω<i>t</i> &nbsp;⇒&nbsp; <i>I</i> = −${fr('<i>V</i><sub>0</sub>', 'ω<i>L</i>')} cos ω<i>t</i>`, `<i>I</i> = <i>I</i><sub>0</sub> sin(ω<i>t</i> − ${fr('π', '2')}), with <i>I</i><sub>0</sub> = ${fr('<i>V</i><sub>0</sub>', 'ω<i>L</i>')}.`])}
-${note(`In an inductor the <b>current lags the voltage by π/2</b> (a quarter of a cycle): the voltage reaches its peak a quarter-cycle before the current. (Equivalently, V leads I by π/2.)`)}
-${fig(element('L'), 'Figure 18.5: a pure inductor: circuit, phasor diagram and graphs.')}
-${def('Inductive reactance, <i>X</i><sub>L</sub>', `the ${red('opposition of an inductor to alternating current')}: the ratio of the r.m.s. (or peak) voltage across it to the r.m.s. (or peak) current through it.`)}
-${key(`<i>X</i><sub>L</sub> = ${fr('<i>V</i><sub>0</sub>', '<i>I</i><sub>0</sub>')} = ω<i>L</i> = 2π<i>fL</i>`, 'unit: ohm. X<sub>L</sub> ∝ f: an inductor passes d.c. (f = 0) freely but opposes high frequencies.')}
-${h4('Power in a pure inductor')}
-${steps([`<i>P</i> = <i>IV</i> = <i>I</i><sub>0</sub>(−cos ω<i>t</i>) × <i>V</i><sub>0</sub> sin ω<i>t</i> = −½<i>I</i><sub>0</sub><i>V</i><sub>0</sub> sin 2ω<i>t</i>`, `This is positive for half the time (energy stored in the magnetic field) and negative for the other half (energy returned to the supply). Its mean over a cycle is zero.`])}
-${key(`⟨<i>P</i>⟩ = 0`, 'a pure inductor (or capacitor) uses no energy on average')}
-${fig(F.powLC(), 'Figure 18.6: power in a pure inductor or capacitor: energy is stored and returned every half-cycle.')}
-${example('18.2.1', `A coil of inductance 0.50 H and negligible resistance is connected to a 120 V, 60 Hz supply. Find the r.m.s. current.`, steps([`<i>X</i><sub>L</sub> = 2π<i>fL</i> = 2π(60)(0.50) = 188 Ω`, `<i>I</i><sub>rms</sub> = ${fr('120', '188')} = <b>0.64 A</b>`]))}
-${example('18.2.2', `A 240 V, 50 Hz supply drives a current of 3.0 A through a pure inductor. Find its inductance.`, steps([`<i>X</i><sub>L</sub> = ${fr('240', '3.0')} = 80 Ω`, `<i>L</i> = ${fr('<i>X</i><sub>L</sub>', '2π<i>f</i>')} = ${fr('80', '2π(50)')} = <b>0.25 H</b>`]))}
+${sec('17-2', "18.2 Faraday's law and Lenz's law", `
+${h4("Faraday's experiments")}
+${ul([`A steady current in one coil produces <b>no</b> current in a second coil. A current is induced only at the moment the first current is switched on or off.`, `Moving a magnet towards a coil induces a current; moving it away induces a current in the opposite direction; no current flows when the magnet and coil are at rest relative to each other.`, `The induced current is larger when the magnet moves faster, when the coil has more turns and when the magnet is stronger.`])}
+${fig(F.faraday(), 'Figure 18.3: a magnet pushed into a coil connected to a galvanometer.')}
+${def("Faraday's law", `the ${red('magnitude of the induced e.m.f. is proportional to the rate of change of magnetic flux linkage')}.`)}
+${def("Lenz's law", `the ${red('induced current flows in a direction that opposes the change producing it')}.`)}
+${key(`${eps} = −<i>N</i>${fr('dΦ', 'd<i>t</i>')}`, 'the minus sign is Lenz\'s law. Average e.m.f.: |ε| = N|ΔΦ|/Δt')}
+${ul([`Φ = <i>BA</i> cos θ can change in three ways: change <i>B</i> (${eps} = −<i>NA</i> d<i>B</i>/d<i>t</i>), change the area <i>A</i> (${eps} = −<i>NB</i> d<i>A</i>/d<i>t</i>), or change the angle θ (rotate the coil).`, `If the coil is part of a closed circuit of resistance <i>R</i>, the induced current is <i>I</i> = |${eps}|/<i>R</i>.`, `Lenz's law follows from the <b>conservation of energy</b>: if the induced current helped the change, energy would be created from nothing. Work must be done against the opposing force, and this work becomes electrical energy.`])}
+${h4("Using Lenz's law")}
+${fig(F.lenz(), 'Figure 18.4: the induced field opposes an increase of flux and supports a decrease.')}
+${steps([`Decide whether the flux through the loop is increasing or decreasing.`, `The induced current makes its own field <b>opposite</b> to the external field if the flux is increasing, and <b>along</b> it if the flux is decreasing.`, `Use the right-hand grip rule to turn the induced field into a current direction.`])}
+${note(`A north pole pushed towards a coil makes the near end of the coil a north pole (repelling it). Pulled away, the near end becomes a south pole (attracting it). Either way you must do work.`)}
+${sim('faraday', 'Magnet and coil', 'Move the magnet in and out of the coil with the slider (or press "Move it for me"). The galvanometer only deflects while the flux is changing; faster motion and more turns give a bigger e.m.f. The colour of the coil end shows the induced pole.')}
+${example('18.2.1', `A coil of 50 turns and diameter 8.0 cm is in a 1.8 T field perpendicular to its plane. The field falls to 0.60 T in 2.0 ms. Find the average induced e.m.f.`,
+  steps([`<i>A</i> = π(0.040)<sup>2</sup> = 5.03 × 10<sup>−3</sup> m<sup>2</sup>`, `|${eps}| = <i>NA</i>${fr('|Δ<i>B</i>|', 'Δ<i>t</i>')} = (50)(5.03 × 10<sup>−3</sup>)${fr('1.2', '2.0 × 10<sup>−3</sup>')} = <b>151 V</b>`]))}
+${example('18.2.2', `An elastic circular loop in the plane of the paper is in a 0.75 T field into the paper. Its diameter shrinks from 20.0 cm to 6.0 cm in 0.50 s. Find (a) the direction of the induced current, (b) the average induced e.m.f., (c) the average current if the loop's resistance is 2.5 Ω.`,
+  steps([`(a) The flux into the paper decreases, so the induced current makes a field into the paper inside the loop: <b>clockwise</b>.`, `(b) |Δ<i>A</i>| = π(0.100<sup>2</sup> − 0.030<sup>2</sup>) = 2.86 × 10<sup>−2</sup> m<sup>2</sup>; |${eps}| = <i>B</i>${fr('|Δ<i>A</i>|', 'Δ<i>t</i>')} = (0.75)${fr('2.86 × 10<sup>−2</sup>', '0.50')} = <b>43 mV</b>`, `(c) <i>I</i> = ${fr('0.043', '2.5')} = <b>17 mA</b>`]))}
+${example('18.2.3', `A circular coil of radius 3.05 cm, 40 turns and resistance 3.55 Ω is perpendicular to a field of 1.25 × 10<sup>−2</sup> T. The field increases to 0.450 T in 0.250 s. Find the induced current.`,
+  steps([`|${eps}| = <i>NA</i>${fr('Δ<i>B</i>', 'Δ<i>t</i>')} = (40)π(0.0305)<sup>2</sup>${fr('0.450 − 0.0125', '0.250')} = 0.205 V`, `<i>I</i> = ${fr('0.205', '3.55')} = <b>0.058 A</b>`]))}
+${example('18.2.4', `A single circular loop of diameter 10 cm is connected in series with a 37 Ω resistor. The field through the loop is into the page and increasing at 0.050 T s<sup>−1</sup>. Find the current and its direction.`,
+  steps([`|${eps}| = <i>A</i>${fr('d<i>B</i>', 'd<i>t</i>')} = π(0.050)<sup>2</sup>(0.050) = 3.93 × 10<sup>−4</sup> V`, `<i>I</i> = ${fr('3.93 × 10<sup>−4</sup>', '37')} = <b>1.1 × 10<sup>−5</sup> A</b>`, `The flux into the page increases, so the induced field inside the loop points out of the page: the current is <b>anticlockwise</b>.`]), fig(F.ex24()))}
+
+${h4('E.m.f. induced in a straight conductor moving in a field')}
+${fig(F.rod(), 'Figure 18.5: a rod of length l sliding at speed v along two rails in a uniform field.')}
+${steps([`In a time d<i>t</i> the rod moves d<i>x</i> = <i>v</i> d<i>t</i>, so the area of the circuit increases by d<i>A</i> = <i>l</i> d<i>x</i> = <i>lv</i> d<i>t</i>.`, `The flux increases by dΦ = <i>B</i> d<i>A</i> = <i>Blv</i> d<i>t</i>.`, `Faraday's law: |${eps}| = ${fr('dΦ', 'd<i>t</i>')} = <i>Blv</i>. If <b>v</b> makes an angle θ with <b>B</b>, only the component <i>v</i> sin θ cuts the field lines:`])}
+${key(`${eps} = <i>Blv</i> sin θ`, 'θ = angle between v and B (rod perpendicular to both)')}
+${ul([`The same result comes from the magnetic force on the free electrons in the rod: they are pushed along the rod, one end becomes negative and the other positive.`, `Direction of the induced current: <b>Fleming's right-hand rule</b> (thumb = motion, first finger = field, second finger = induced current). It always agrees with Lenz's law.`, `The current in the rod feels a force <i>BIl</i> that <b>opposes the motion</b>; to keep the rod moving at constant speed an equal applied force is needed. The mechanical power <i>Fv</i> equals the electrical power <i>I</i><sup>2</sup><i>R</i>.`])}
+${fig(F.frhr(), "Figure 18.6: Fleming's right-hand rule (for generators: induced current).")}
+${sim('rod', 'A rod sliding on rails', 'Push the rod with a steady speed. The area of the circuit and the flux grow, an e.m.f. Blv is induced and a current flows. The current makes a force on the rod that opposes the motion; the work done against it becomes heat in R.')}
+${example('18.2.5', `In Figure 18.5, <i>l</i> = 0.10 m, <i>v</i> = 2.5 ${ms}, <i>B</i> = 0.60 T and the total resistance of the circuit is 0.030 Ω. Find (a) the induced e.m.f., (b) the current, (c) the force on the rod, (d) the power dissipated.`,
+  steps([`(a) ${eps} = <i>Blv</i> = (0.60)(0.10)(2.5) = <b>0.15 V</b>`, `(b) <i>I</i> = ${fr('0.15', '0.030')} = <b>5.0 A</b>`, `(c) <i>F</i> = <i>BIl</i> = (0.60)(5.0)(0.10) = <b>0.30 N</b>, opposing the motion`, `(d) <i>P</i> = <i>I</i><sup>2</sup><i>R</i> = (5.0)<sup>2</sup>(0.030) = <b>0.75 W</b> (= <i>Fv</i> = (0.30)(2.5))`]))}
+${example('18.2.6', `A wire of length 0.20 m moves at 4.0 ${ms} at 40° to a field of 0.50 T. Find the induced e.m.f.`, steps([`${eps} = <i>Blv</i> sin θ = (0.50)(0.20)(4.0) sin 40° = <b>0.26 V</b>`]))}
+${example('18.2.7', `A rod of length 0.400 m moves on rails in a field of 1.20 T and the induced e.m.f. is 3.60 V. Find (a) its speed, (b) the current if the total resistance is 0.900 Ω, (c) the force the field exerts on the rod.`,
+  steps([`(a) <i>v</i> = ${fr(eps, '<i>Bl</i>')} = ${fr('3.60', '(1.20)(0.400)')} = <b>7.50 ${ms}</b>`, `(b) <i>I</i> = ${fr('3.60', '0.900')} = <b>4.00 A</b>`, `(c) <i>F</i> = <i>BIl</i> = (1.20)(4.00)(0.400) = <b>1.92 N</b>, opposite to the velocity`]))}
+
+${h4('E.m.f. induced in a rotating coil (a.c. generator)')}
+${fig(F.gen(), 'Figure 18.7: a coil rotating at angular speed ω in a uniform field, and the e.m.f. it produces.')}
+${steps([`A coil of <i>N</i> turns, area <i>A</i>, rotates at constant angular speed ω about an axis perpendicular to a uniform field <i>B</i>. At time <i>t</i> the normal makes θ = ω<i>t</i> with B.`, `Flux through each turn: Φ = <i>BA</i> cos ω<i>t</i>.`, `${eps} = −<i>N</i>${fr('dΦ', 'd<i>t</i>')} = −<i>NBA</i>${fr('d', 'd<i>t</i>')}(cos ω<i>t</i>) = <i>NBA</i>ω sin ω<i>t</i>`])}
+${key(`${eps} = <i>NBA</i>ω sin ω<i>t</i> = ${eps}<sub>0</sub> sin ω<i>t</i>`, `peak e.m.f. ${eps}<sub>0</sub> = <i>NBA</i>ω; ω = 2π<i>f</i>`)}
+${ul([`The e.m.f. is <b>largest when the flux is zero</b> (plane of the coil parallel to B: the sides cut the field lines fastest) and <b>zero when the flux is largest</b> (plane perpendicular to B).`, `Doubling the speed of rotation doubles both the peak e.m.f. and the frequency.`])}
+${sim('generator', 'A.C. generator', 'Change the speed of rotation, the flux density and the number of turns. Compare the flux graph with the e.m.f. graph: the e.m.f. is largest where the flux changes fastest, which is where the flux is zero.')}
+${example('18.2.8', `A generator coil has 100 turns of area 0.20 m<sup>2</sup> and turns at 60 rev s<sup>−1</sup> in a field of 1.0 × 10<sup>−3</sup> T. Find the peak e.m.f.`, steps([`${eps}<sub>0</sub> = <i>NBA</i>ω = (100)(1.0 × 10<sup>−3</sup>)(0.20)(2π × 60) = <b>7.5 V</b>`]))}
+${example('18.2.9', `The graph shows the output of a generator whose coil has 150 turns of area 0.020 m<sup>2</sup>. Find (a) the frequency, (b) the angular speed, (c) the flux density.`,
+  steps([`(a) Period <i>T</i> = 0.42 s, so <i>f</i> = ${fr('1', '0.42')} = <b>2.4 Hz</b>`, `(b) ω = 2π<i>f</i> = <b>15 rad s<sup>−1</sup></b>`, `(c) <i>B</i> = ${fr(`${eps}<sub>0</sub>`, '<i>NA</i>ω')} = ${fr('28', '(150)(0.020)(14.96)')} = <b>0.62 T</b>`]), fig(F.ex29()))}
+${example('18.2.10', `A generator coil has 500 turns, each of area 60 cm<sup>2</sup>, and turns at 3600 rev min<sup>−1</sup> in a 2.0 mT field. Find (a) the frequency of the e.m.f., (b) the peak e.m.f., (c) the e.m.f. when the plane of the coil makes 60° with the field.`,
+  steps([`(a) <i>f</i> = ${fr('3600', '60')} = <b>60 Hz</b> (ω = 2π × 60 = 377 rad s<sup>−1</sup>)`, `(b) ${eps}<sub>0</sub> = <i>NBA</i>ω = (500)(2.0 × 10<sup>−3</sup>)(60 × 10<sup>−4</sup>)(377) = <b>2.26 V</b>`, `(c) The plane is at 60° to B, so the normal is at θ = 30° to B: ${eps} = ${eps}<sub>0</sub> sin 30° = <b>1.13 V</b>`]))}
+${h4('Motor and dynamo: the same machine')}
+${ul([`An <b>electric motor</b> is a coil in a magnetic field. A current in the coil makes forces <i>BIl</i> on its two long sides, one up and one down, which turn the coil (Chapter 17). A <b>split-ring commutator</b> reverses the current every half turn, so the coil keeps turning the same way.`, `A <b>dynamo</b> (like a bicycle dynamo) is the same machine used the other way round: you turn the coil, the flux through it changes, and an e.m.f. ε = <i>NBA</i>ω sin ω<i>t</i> is induced. With <b>slip rings</b> it gives a.c.; with a commutator the output is always in one direction (d.c.).`, `In a working motor the turning coil also acts as a dynamo: it induces a back e.m.f. that opposes the supply (Lenz's law), which is why a motor takes a large current when it starts and a smaller one at full speed.`])}
+${sim('motor', 'Motor and dynamo', 'As a motor: switch on the current and watch the forces BIl on the two long sides turn the coil, with the commutator swapping the current every half turn. As a dynamo: turn the handle faster or slower and see the lamp and the e.m.f. graph; switch between slip rings (a.c.) and a commutator (d.c.).')}
+${exercises("Exercise: Faraday's and Lenz's laws", [
+  { q: `A 200-turn coil of area 4.0 cm<sup>2</sup> is turned from a position where its plane is perpendicular to a 0.30 T field to one where its plane is parallel to it, in 0.050 s. Find the average e.m.f.`, a: `ΔΦ = <i>BA</i> − 0; |${eps}| = <i>NBA</i>/Δ<i>t</i> = (200)(0.30)(4.0 × 10<sup>−4</sup>)/0.050 = <b>0.48 V</b>` },
+  { q: `Explain, using energy, why the induced current must oppose the change that produces it.`, a: `If it helped the change, the motion would speed up by itself and electrical energy would appear without any work being done, breaking the conservation of energy. Because it opposes the change, work must be done, and that work becomes the electrical energy.` },
+  { q: `An aircraft with a wingspan of 40 m flies horizontally at 250 ${ms} where the vertical component of the Earth's field is 4.0 × 10<sup>−5</sup> T. Find the e.m.f. between its wing tips.`, a: `${eps} = <i>Blv</i> = (4.0 × 10<sup>−5</sup>)(40)(250) = <b>0.40 V</b>` }])}
 `)}
 
-${sec('18-3', '18.3 Alternating current through a capacitor', `
-<p>A <b>pure (ideal) capacitor</b> has capacitance but no resistance or inductance.</p>
-${h4('Deriving the current')}
-${steps([`With <i>V</i> = <i>V</i><sub>0</sub> sin ω<i>t</i> across it, the charge on the capacitor is <i>Q</i> = <i>CV</i> = <i>CV</i><sub>0</sub> sin ω<i>t</i>.`, `<i>I</i> = ${fr('d<i>Q</i>', 'd<i>t</i>')} = ω<i>CV</i><sub>0</sub> cos ω<i>t</i>`, `<i>I</i> = <i>I</i><sub>0</sub> sin(ω<i>t</i> + ${fr('π', '2')}), with <i>I</i><sub>0</sub> = ω<i>CV</i><sub>0</sub>.`])}
-${note(`In a capacitor the <b>current leads the voltage by π/2</b>: the current is largest when the capacitor is uncharged (V = 0) and zero when it is fully charged.`)}
-${fig(element('C'), 'Figure 18.7: a pure capacitor: circuit, phasor diagram and graphs.')}
-${tip(`A memory aid: <b>CIVIL</b>. In a <b>C</b>apacitor, <b>I</b> leads <b>V</b>; <b>V</b> leads <b>I</b> in an inductor (<b>L</b>).`)}
-${def('Capacitive reactance, <i>X</i><sub>C</sub>', `the ${red('opposition of a capacitor to alternating current')}: the ratio of the r.m.s. (or peak) voltage across it to the r.m.s. (or peak) current.`)}
-${key(`<i>X</i><sub>C</sub> = ${fr('<i>V</i><sub>0</sub>', '<i>I</i><sub>0</sub>')} = ${fr('1', 'ω<i>C</i>')} = ${fr('1', '2π<i>fC</i>')}`, 'unit: ohm. X<sub>C</sub> ∝ 1/f: a capacitor blocks d.c. but passes high frequencies easily.')}
-${h4('Power in a pure capacitor')}
-${steps([`<i>P</i> = <i>IV</i> = <i>I</i><sub>0</sub> cos ω<i>t</i> × <i>V</i><sub>0</sub> sin ω<i>t</i> = ½<i>I</i><sub>0</sub><i>V</i><sub>0</sub> sin 2ω<i>t</i>.`, `Energy is stored in the electric field while the capacitor charges and returned while it discharges: <b>⟨<i>P</i>⟩ = 0</b> (Figure 18.6).`])}
-${example('18.3.1', `An 8.00 μF capacitor is connected to a 150 V (r.m.s.), 60.0 Hz supply. Find the capacitive reactance, the r.m.s. current and the peak current.`,
-  steps([`<i>X</i><sub>C</sub> = ${fr('1', '2π<i>fC</i>')} = ${fr('1', '2π(60.0)(8.00 × 10<sup>−6</sup>)')} = <b>332 Ω</b>`, `<i>I</i><sub>rms</sub> = ${fr('150', '332')} = <b>0.452 A</b>; <i>I</i><sub>0</sub> = ${sq('2')}(0.452) = <b>0.639 A</b>`]))}
-${sim('acphase', 'R, L or C on an a.c. supply', 'Choose a resistor, an inductor or a capacitor. The rotating phasors and the graphs show the phase of the current against the voltage; the power curve shows why only the resistor uses energy on average. Change the frequency and watch the reactance.')}
-${exercises('Exercise: single elements', [
-  { q: `At what frequency does a 2.0 μF capacitor have a reactance of 400 Ω?`, a: `<i>f</i> = 1/(2π<i>X</i><sub>C</sub><i>C</i>) = <b>199 Hz</b>` },
-  { q: `The frequency of the supply to a pure inductor is doubled while the r.m.s. voltage stays the same. What happens to the r.m.s. current?`, a: `<i>X</i><sub>L</sub> = 2π<i>fL</i> doubles, so the current is <b>halved</b>.` },
-  { q: `Explain why the average power taken by a pure capacitor is zero.`, a: `In one quarter-cycle the capacitor charges and stores energy taken from the supply; in the next quarter-cycle it discharges and returns the same energy. Over a whole cycle the net energy taken is zero.` }])}
+${sec('17-3', '18.3 Self induction', `
+${def('Self induction', `the ${red('production of an induced e.m.f. in a coil because of a change of the current in the same coil')}.`)}
+${fig(F.selfL(), 'Figure 18.8: the coil\'s own changing field changes the flux linking it.')}
+${ul([`The current in the coil produces a field and a flux through the coil itself. When the current changes, the flux changes and an e.m.f. is induced (a <b>back e.m.f.</b>).`, `By Lenz's law it opposes the change: while the current is <b>rising</b> the induced e.m.f. opposes the current; while it is <b>falling</b> the induced e.m.f. acts in the direction of the current, trying to keep it flowing.`, `A coil used for its self-inductance is called an <b>inductor</b>.`])}
+${def('Self-inductance, <i>L</i>', `the ${red('ratio of the self-induced e.m.f. to the rate of change of current in the coil')}: <i>L</i> = −${eps}/(d<i>I</i>/d<i>t</i>). Equivalently, the flux linkage per unit current, <i>L</i> = <i>N</i>Φ/<i>I</i>.`)}
+${key(`${eps} = −<i>L</i>${fr('d<i>I</i>', 'd<i>t</i>')} &nbsp;&nbsp;&nbsp; <i>LI</i> = <i>N</i>Φ`, 'unit: henry (H) = Wb A<sup>−1</sup> = V s A<sup>−1</sup>. A coil has L = 1 H if a current changing at 1 A s<sup>−1</sup> induces 1 V.')}
+${ul([`<i>LI</i> = <i>N</i>Φ comes from Faraday's law: −<i>L</i> d<i>I</i>/d<i>t</i> = −<i>N</i> dΦ/d<i>t</i>, integrated from zero current (and zero flux).`, `<i>L</i> depends on the size and shape of the coil, the number of turns and the core material; <b>not on the current</b>.`])}
+${h4('Self-inductance of a solenoid')}
+${steps([`Field inside a long solenoid of <i>N</i> turns and length <i>l</i>: <i>B</i> = ${fr(`${mu0}<i>NI</i>`, '<i>l</i>')}.`, `Flux through each turn: Φ = <i>BA</i> = ${fr(`${mu0}<i>NIA</i>`, '<i>l</i>')}.`, `<i>L</i> = ${fr('<i>N</i>Φ', '<i>I</i>')} = ${fr('<i>N</i>', '<i>I</i>')} × ${fr(`${mu0}<i>NIA</i>`, '<i>l</i>')}:`])}
+${key(`<i>L</i> = ${fr(`${mu0}<i>N</i><sup>2</sup><i>A</i>`, '<i>l</i>')}`, `with a core of relative permeability μ<sub>r</sub>: <i>L</i> = μ<sub>r</sub>${mu0}<i>N</i><sup>2</sup><i>A</i>/<i>l</i>`)}
+${example('18.3.1', `The current in a 230 mH coil rises steadily from 20.0 mA to 28.0 mA in 140 ms. Find the induced e.m.f.`, steps([`${eps} = −<i>L</i>${fr('Δ<i>I</i>', 'Δ<i>t</i>')} = −(0.230)${fr('8.0 × 10<sup>−3</sup>', '0.140')} = <b>−1.3 × 10<sup>−2</sup> V</b> (it opposes the rising current)`]))}
+${example('18.3.2', `A solenoid of length 0.052 m and cross-sectional area 1.2 × 10<sup>−3</sup> m<sup>2</sup> must have an inductance of 1.4 mH. How many turns does it need?`, steps([`<i>N</i> = ${sq(`${fr('<i>Ll</i>', `${mu0}<i>A</i>`)}`)} = ${sq(`${fr('(1.4 × 10<sup>−3</sup>)(0.052)', '(4π × 10<sup>−7</sup>)(1.2 × 10<sup>−3</sup>)')}`)} = <b>220 turns</b>`]))}
+${example('18.3.3', `The current in a coil rises steadily from zero to 50.0 A in 10.0 s, inducing an e.m.f. of 45.0 V. Find (a) the self-inductance, (b) the flux linkage when the current is 50.0 A.`, steps([`(a) <i>L</i> = ${fr('|' + eps + '|', 'd<i>I</i>/d<i>t</i>')} = ${fr('45.0', '5.00')} = <b>9.00 H</b>`, `(b) <i>N</i>Φ = <i>LI</i> = (9.00)(50.0) = <b>450 Wb</b>`]))}
+${example('18.3.4', `An air-cored solenoid of 450 turns, diameter 15.0 mm and length 12.0 cm carries 40.0 mA. Find (a) the field inside, (b) the flux through each turn, (c) the inductance.`,
+  steps([`(a) <i>B</i> = ${fr(`${mu0}<i>NI</i>`, '<i>l</i>')} = ${fr('(4π × 10<sup>−7</sup>)(450)(0.0400)', '0.120')} = <b>1.88 × 10<sup>−4</sup> T</b>`, `(b) Φ = <i>BA</i> = (1.88 × 10<sup>−4</sup>)π(7.50 × 10<sup>−3</sup>)<sup>2</sup> = <b>3.33 × 10<sup>−8</sup> Wb</b>`, `(c) <i>L</i> = ${fr('<i>N</i>Φ', '<i>I</i>')} = ${fr('(450)(3.33 × 10<sup>−8</sup>)', '0.0400')} = <b>3.75 × 10<sup>−4</sup> H</b>`]))}
 `)}
 
-${sec('18-4', '18.4 R-C, R-L and R-L-C circuits in series', `
-<p>In a series circuit the <b>same current</b> flows through every component, so the current is used as the reference phasor. The voltages across the components have different phases, so they add as <b>phasors</b> (vectors), not as numbers.</p>
-${def('Impedance, <i>Z</i>', `the ${red('total opposition of a circuit to alternating current')}: <i>Z</i> = <i>V</i><sub>rms</sub>/<i>I</i><sub>rms</sub> = <i>V</i><sub>0</sub>/<i>I</i><sub>0</sub>. It combines resistance and reactance; unit: ohm.`)}
-${h4('R-C series circuit')}
-${fig(F.rc(), 'Figure 18.8: R-C series: V_R is in phase with I, V_C lags I by π/2.')}
-${steps([`<i>V</i><sup>2</sup> = <i>V</i><sub>R</sub><sup>2</sup> + <i>V</i><sub>C</sub><sup>2</sup> = (<i>IR</i>)<sup>2</sup> + (<i>IX</i><sub>C</sub>)<sup>2</sup>`, `<i>Z</i> = ${fr('<i>V</i>', '<i>I</i>')} = ${sq('<i>R</i><sup>2</sup> + <i>X</i><sub>C</sub><sup>2</sup>')}, &nbsp; tan φ = ${fr('<i>X</i><sub>C</sub>', '<i>R</i>')} = ${fr('1', 'ω<i>CR</i>')}, the current <b>leads</b> the voltage by φ.`])}
-${h4('R-L series circuit')}
-${fig(F.rl(), 'Figure 18.9: R-L series: V_L leads I by π/2.')}
-${steps([`<i>V</i><sup>2</sup> = <i>V</i><sub>R</sub><sup>2</sup> + <i>V</i><sub>L</sub><sup>2</sup>`, `<i>Z</i> = ${sq('<i>R</i><sup>2</sup> + <i>X</i><sub>L</sub><sup>2</sup>')}, &nbsp; tan φ = ${fr('<i>X</i><sub>L</sub>', '<i>R</i>')} = ${fr('ω<i>L</i>', '<i>R</i>')}, the voltage <b>leads</b> the current by φ.`])}
-${fig(F.zf(), 'Figure 18.10: how the impedance of R-C and R-L circuits changes with frequency.')}
-${h4('R-L-C series circuit')}
-${fig(F.rlc(), 'Figure 18.11: R-L-C series: V_L and V_C point in opposite directions, so they partly cancel.')}
-${steps([`<i>V</i><sub>L</sub> leads <i>I</i> by π/2 and <i>V</i><sub>C</sub> lags <i>I</i> by π/2, so they are in <b>opposite</b> directions on the phasor diagram. Their resultant is (<i>V</i><sub>L</sub> − <i>V</i><sub>C</sub>).`, `<i>V</i><sup>2</sup> = <i>V</i><sub>R</sub><sup>2</sup> + (<i>V</i><sub>L</sub> − <i>V</i><sub>C</sub>)<sup>2</sup> = <i>I</i><sup>2</sup>[<i>R</i><sup>2</sup> + (<i>X</i><sub>L</sub> − <i>X</i><sub>C</sub>)<sup>2</sup>]`])}
-${key(`<i>Z</i> = ${sq('<i>R</i><sup>2</sup> + (<i>X</i><sub>L</sub> − <i>X</i><sub>C</sub>)<sup>2</sup>')} &nbsp;&nbsp;&nbsp; tan φ = ${fr('<i>X</i><sub>L</sub> − <i>X</i><sub>C</sub>', '<i>R</i>')}`, 'X<sub>L</sub> > X<sub>C</sub>: V leads I (inductive). X<sub>L</sub> < X<sub>C</sub>: V lags I (capacitive).')}
-${tip(`The r.m.s. voltages across the components do <b>not</b> add up to the supply voltage. Only the phasor sum does. A voltmeter across the inductor alone can read more than the supply!`)}
-${example('18.4.1', `A 10 kΩ resistor and a 0.10 μF capacitor are in series with an a.c. supply of angular frequency 1.0 × 10<sup>4</sup> rad s<sup>−1</sup>. The r.m.s. voltage across the resistor is 20 V. Find the r.m.s. voltage across the capacitor.`,
-  steps([`<i>X</i><sub>C</sub> = ${fr('1', 'ω<i>C</i>')} = ${fr('1', '(1.0 × 10<sup>4</sup>)(0.10 × 10<sup>−6</sup>)')} = 1.0 kΩ`, `<i>I</i> = ${fr('20', '10 × 10<sup>3</sup>')} = 2.0 mA, so <i>V</i><sub>C</sub> = <i>IX</i><sub>C</sub> = <b>2.0 V</b>`]))}
-${example('18.4.2', `A series R-L-C circuit has <i>R</i> = 25.0 Ω, <i>C</i> = 50.0 μF and <i>L</i> = 0.300 H, and is driven by a 120 V, 60 Hz supply. Find (a) the impedance, (b) the r.m.s. current, (c) the phase angle between the voltage and the current.`,
-  steps([`<i>X</i><sub>L</sub> = 2π(60)(0.300) = 113.1 Ω; <i>X</i><sub>C</sub> = ${fr('1', '2π(60)(50.0 × 10<sup>−6</sup>)')} = 53.1 Ω`, `(a) <i>Z</i> = ${sq('25.0<sup>2</sup> + (113.1 − 53.1)<sup>2</sup>')} = <b>65.0 Ω</b>`, `(b) <i>I</i><sub>rms</sub> = ${fr('120', '65.0')} = <b>1.85 A</b>`, `(c) tan φ = ${fr('60.0', '25.0')}, φ = <b>67.4°</b>; <i>X</i><sub>L</sub> > <i>X</i><sub>C</sub>, so the voltage leads the current.`]))}
+${sec('17-4', '18.4 Energy stored in an inductor', `
+${fig(F.growth(), 'Figure 18.9: when the switch is closed, the back e.m.f. of an inductor makes the current rise gradually.')}
+${ul([`While the current in an inductor is rising, a back e.m.f. opposes it. The source must do work to drive charge against this e.m.f.`, `This work is not lost: it is <b>stored in the magnetic field</b> of the inductor. When the current is switched off, the energy is given back (this is why a spark can jump across a switch that breaks an inductive circuit).`])}
+${h4('Deriving U = ½LI²')}
+${steps([`Power supplied against the back e.m.f.: <i>P</i> = <i>I</i>|${eps}| = <i>IL</i>${fr('d<i>I</i>', 'd<i>t</i>')}`, `Energy in a time d<i>t</i>: d<i>U</i> = <i>P</i> d<i>t</i> = <i>LI</i> d<i>I</i>`, `Total energy as the current rises from 0 to <i>I</i>: <i>U</i> = ∫<sub>0</sub><sup><i>I</i></sup> <i>LI</i> d<i>I</i> = ½<i>LI</i><sup>2</sup>`])}
+${key(`<i>U</i> = ½<i>LI</i><sup>2</sup>`, `for a solenoid: <i>U</i> = ½${fr(`${mu0}<i>N</i><sup>2</sup><i>A</i>`, '<i>l</i>')}<i>I</i><sup>2</sup>`)}
+${sim('inductor', 'Switching on an inductor', 'Close the switch and watch the current rise gradually while the back e.m.f. falls. Open it again and the stored energy ½LI² is given back. Change L and R: a larger L/R makes the rise slower.')}
+${example('18.4.1', `How much energy is stored in a 0.085 H inductor carrying 2.5 A?`, steps([`<i>U</i> = ½<i>LI</i><sup>2</sup> = ½(0.085)(2.5)<sup>2</sup> = <b>0.27 J</b>`]))}
+${example('18.4.2', `A steady current of 2.5 A in a coil of 500 turns produces a flux of 1.4 × 10<sup>−4</sup> Wb through each turn. Find (a) the average back e.m.f. if the current is stopped in 0.080 s, (b) the inductance, (c) the energy stored at 2.5 A.`,
+  steps([`(a) |${eps}| = <i>N</i>${fr('ΔΦ', 'Δ<i>t</i>')} = (500)${fr('1.4 × 10<sup>−4</sup>', '0.080')} = <b>0.88 V</b>`, `(b) <i>L</i> = ${fr('<i>N</i>Φ', '<i>I</i>')} = ${fr('(500)(1.4 × 10<sup>−4</sup>)', '2.5')} = <b>2.8 × 10<sup>−2</sup> H</b>`, `(c) <i>U</i> = ½<i>LI</i><sup>2</sup> = ½(0.028)(2.5)<sup>2</sup> = <b>8.8 × 10<sup>−2</sup> J</b>`]))}
+`)}
 
-${h4('Resonance in an R-L-C circuit')}
-${fig(F.res(), 'Figure 18.12: X_L, X_C, R and Z against frequency. Z is smallest, and equal to R, at f₀.')}
-${ul([`At low frequency <i>X</i><sub>C</sub> is large; at high frequency <i>X</i><sub>L</sub> is large. In between there is a frequency where they are equal.`, `When <i>X</i><sub>L</sub> = <i>X</i><sub>C</sub>, <i>V</i><sub>L</sub> and <i>V</i><sub>C</sub> cancel exactly: <i>Z</i> = <i>R</i> (its <b>minimum</b>), the current is a <b>maximum</b> (<i>I</i> = <i>V</i>/<i>R</i>) and it is <b>in phase</b> with the supply voltage (φ = 0).`])}
-${def('Resonance', `in a series R-L-C circuit occurs when the ${red('frequency of the supply makes the inductive reactance equal to the capacitive reactance')}, so the impedance is a minimum (equal to R) and the current is a maximum.`)}
-${h4('Deriving the resonance frequency')}
-${steps([`Condition: <i>X</i><sub>L</sub> = <i>X</i><sub>C</sub> &nbsp;⇒&nbsp; 2π<i>f</i><sub>0</sub><i>L</i> = ${fr('1', '2π<i>f</i><sub>0</sub><i>C</i>')}`, `<i>f</i><sub>0</sub><sup>2</sup> = ${fr('1', '4π<sup>2</sup><i>LC</i>')}:`])}
-${key(`<i>f</i><sub>0</sub> = ${fr('1', `2π${sq('<i>LC</i>')}`)} &nbsp;&nbsp;&nbsp; ω<sub>0</sub> = ${fr('1', sq('<i>LC</i>'))}`, 'independent of R. A smaller R gives a taller, sharper current peak.')}
-${ul([`Tuning a radio: the capacitance is changed until <i>f</i><sub>0</sub> equals the frequency of the wanted station, so that station gives a large current.`])}
-${sim('rlc', 'Series R-L-C circuit and resonance', 'Choose R-C, R-L or R-L-C and change the frequency. The phasor diagram shows V_R, V_L, V_C and the supply V; the graph shows the current against frequency. Find the resonance: V_L and V_C cancel and the current peaks.')}
-${example('18.4.3', `A 50 Ω resistor, a 200 mH inductor and a 0.050 μF capacitor are in series with a 150 V (r.m.s.) supply of variable frequency. Find (a) the resonance frequency, (b) the r.m.s. voltage across each component at resonance, (c) the voltage across the inductor and capacitor together, (d) the equation of the supply voltage at resonance.`,
-  steps([`(a) <i>f</i><sub>0</sub> = ${fr('1', `2π${sq('(0.200)(0.050 × 10<sup>−6</sup>)')}`)} = <b>1.59 kHz</b> (ω<sub>0</sub> = 1.0 × 10<sup>4</sup> rad s<sup>−1</sup>)`, `(b) <i>I</i> = ${fr('150', '50')} = 3.0 A. <i>X</i><sub>L</sub> = ω<sub>0</sub><i>L</i> = 2000 Ω = <i>X</i><sub>C</sub>. <i>V</i><sub>R</sub> = <b>150 V</b>, <i>V</i><sub>L</sub> = <i>V</i><sub>C</sub> = (3.0)(2000) = <b>6.0 kV</b>`, `(c) <i>V</i><sub>L</sub> and <i>V</i><sub>C</sub> are equal and opposite: <b>0 V</b>`, `(d) <i>V</i><sub>0</sub> = ${sq('2')}(150) = 212 V: <b><i>V</i> = 212 sin(1.0 × 10<sup>4</sup> <i>t</i>)</b> V`]))}
-${example('18.4.4', `A 200 Ω resistor, a 0.75 H inductor and a capacitor <i>C</i> are in series with a 250 V supply. Resonance occurs at 600 Hz. Find (a) <i>X</i><sub>L</sub> and <i>X</i><sub>C</sub> at resonance, (b) <i>C</i>, (c) the impedance at resonance, (d) the current at resonance.`,
-  steps([`(a) <i>X</i><sub>L</sub> = 2π(600)(0.75) = <b>2.83 kΩ</b> = <i>X</i><sub>C</sub>`, `(b) <i>C</i> = ${fr('1', '2π<i>fX</i><sub>C</sub>')} = ${fr('1', '2π(600)(2827)')} = <b>93.8 nF</b>`, `(c) <i>Z</i> = <i>R</i> = <b>200 Ω</b>`, `(d) <i>I</i> = ${fr('250', '200')} = <b>1.25 A</b>. Phasor diagram: <i>V</i><sub>R</sub> along <i>I</i>, <i>V</i><sub>L</sub> and <i>V</i><sub>C</sub> equal and opposite.`]))}
-${exercises('Exercise: series circuits', [
-  { q: `A 40 Ω resistor and a 0.10 H inductor are in series with a 100 V, 50 Hz supply. Find the current and the phase angle.`, a: `<i>X</i><sub>L</sub> = 31.4 Ω, <i>Z</i> = 50.9 Ω, <i>I</i> = <b>1.97 A</b>, φ = tan<sup>−1</sup>(31.4/40) = <b>38.1°</b> (V leads I)` },
-  { q: `What capacitance must be put in series with a 25 mH inductor so that the circuit resonates at 1.0 kHz?`, a: `<i>C</i> = 1/(4π<sup>2</sup><i>f</i><sub>0</sub><sup>2</sup><i>L</i>) = <b>1.0 μF</b>` },
-  { q: `Sketch the phasor diagram for a series R-L-C circuit driven below its resonance frequency and state whether the current leads or lags the voltage.`, a: `Below f₀, X<sub>C</sub> > X<sub>L</sub>, so V<sub>C</sub> is longer than V<sub>L</sub>; the resultant V lies below the current phasor. The current <b>leads</b> the voltage (the circuit is capacitive).` }])}
+${sec('17-5', '18.5 Mutual induction', `
+${def('Mutual induction', `the ${red('production of an induced e.m.f. in one coil because of a change of current in a neighbouring coil')}.`)}
+${ul([`The changing current in the <b>primary</b> coil changes the flux linking the <b>secondary</b> coil, so an e.m.f. is induced in the secondary. (This is what Faraday saw when he switched the current on and off.)`, `The transformer and the induction coil work by mutual induction.`])}
+${def('Mutual inductance, <i>M</i>', `the ${red('ratio of the e.m.f. induced in one coil to the rate of change of current in the other coil')}: <i>M</i> = −${eps}<sub>s</sub>/(d<i>I</i><sub>p</sub>/d<i>t</i>). Equivalently, the flux linkage of the secondary per unit current in the primary.`)}
+${key(`${eps}<sub>s</sub> = −<i>M</i>${fr('d<i>I</i><sub>p</sub>', 'd<i>t</i>')} &nbsp;&nbsp;&nbsp; <i>MI</i><sub>p</sub> = <i>N</i><sub>s</sub>Φ<sub>s</sub>`, 'unit: henry (H). M is the same whichever coil is called the primary.')}
+${h4('Two coaxial solenoids')}
+${fig(F.coax(), 'Figure 18.10: a short secondary coil wound round the middle of a long primary solenoid.')}
+${steps([`Field inside the primary: <i>B</i><sub>p</sub> = ${fr(`${mu0}<i>N</i><sub>p</sub><i>I</i><sub>p</sub>`, '<i>l</i><sub>p</sub>')}.`, `All of this flux passes through each turn of the secondary: Φ<sub>s</sub> = <i>B</i><sub>p</sub><i>A</i> = ${fr(`${mu0}<i>N</i><sub>p</sub><i>I</i><sub>p</sub><i>A</i>`, '<i>l</i><sub>p</sub>')}.`, `<i>M</i> = ${fr('<i>N</i><sub>s</sub>Φ<sub>s</sub>', '<i>I</i><sub>p</sub>')}:`])}
+${key(`<i>M</i> = ${fr(`${mu0}<i>N</i><sub>p</sub><i>N</i><sub>s</sub><i>A</i>`, '<i>l</i><sub>p</sub>')}`, '<i>A</i> = cross-sectional area of the primary; <i>l</i><sub>p</sub> = length of the primary')}
+${example('18.5.1', `A primary solenoid of radius 2.0 cm and length 24 cm has 500 turns. A secondary coil of 80 turns is wound round its centre. Find (a) the mutual inductance, (b) the e.m.f. induced in the secondary when the primary current changes at 4.8 A s<sup>−1</sup>.`,
+  steps([`(a) <i>M</i> = ${fr(`${mu0}<i>N</i><sub>p</sub><i>N</i><sub>s</sub><i>A</i>`, '<i>l</i><sub>p</sub>')} = ${fr('(4π × 10<sup>−7</sup>)(500)(80)π(0.020)<sup>2</sup>', '0.24')} = <b>2.6 × 10<sup>−4</sup> H</b>`, `(b) |${eps}<sub>s</sub>| = <i>M</i>${fr('d<i>I</i><sub>p</sub>', 'd<i>t</i>')} = (2.63 × 10<sup>−4</sup>)(4.8) = <b>1.3 × 10<sup>−3</sup> V</b>`]))}
+${h4('A real use: transformers and power lines')}
+${ul([`A <b>transformer</b> is two coils on one iron core. An <b>alternating</b> current in the primary makes a changing flux in the core, which induces an e.m.f. in the secondary by <b>mutual induction</b>. (A steady d.c. would give no changing flux and no output.)`, `For an ideal transformer: ${fr('<i>V</i><sub>s</sub>', '<i>V</i><sub>p</sub>')} = ${fr('<i>N</i><sub>s</sub>', '<i>N</i><sub>p</sub>')} and, with no energy lost, <i>V</i><sub>p</sub><i>I</i><sub>p</sub> = <i>V</i><sub>s</sub><i>I</i><sub>s</sub>.`, `Power stations send electricity at very <b>high voltage</b> (132–400 kV). For the same power <i>P</i> = <i>VI</i>, a higher voltage means a <b>smaller current</b>, and the heat wasted in the cables, <i>I</i><sup>2</sup><i>R</i>, falls with the <b>square</b> of the current.`, `Step-up transformers raise the voltage at the power station; step-down transformers near our homes bring it back to 240 V.`])}
+${sim('grid', 'Transformers and power lines', 'Send 20 MW from the power station to the town through cables of total resistance 4.0 Ω. Change the transmission voltage and watch the current, the heat lost in the cables and how bright the town is.')}
+${example('18.5.2', `A power station sends 20 MW through cables of total resistance 4.0 Ω. Find the power lost in the cables if it is sent at (a) 11 kV, (b) 275 kV.`,
+  steps([`(a) <i>I</i> = ${fr('<i>P</i>', '<i>V</i>')} = ${fr('20 × 10<sup>6</sup>', '11 × 10<sup>3</sup>')} = 1820 A; &nbsp; <i>P</i><sub>loss</sub> = <i>I</i><sup>2</sup><i>R</i> = (1820)<sup>2</sup>(4.0) = <b>13 MW</b> (two-thirds of the power!)`, `(b) <i>I</i> = ${fr('20 × 10<sup>6</sup>', '275 × 10<sup>3</sup>')} = 72.7 A; &nbsp; <i>P</i><sub>loss</sub> = (72.7)<sup>2</sup>(4.0) = <b>21 kW</b> (about 0.1%)`]))}
+${exercises('Exercise: inductance', [
+  { q: `A solenoid 25 cm long has 1000 turns and a cross-sectional area of 4.0 cm<sup>2</sup>. Find (a) its self-inductance, (b) the energy stored when it carries 3.0 A.`, a: `(a) <i>L</i> = ${mu0}<i>N</i><sup>2</sup><i>A</i>/<i>l</i> = <b>2.0 × 10<sup>−3</sup> H</b> &nbsp; (b) <i>U</i> = ½<i>LI</i><sup>2</sup> = <b>9.0 × 10<sup>−3</sup> J</b>` },
+  { q: `The current in the primary of a pair of coils (M = 0.15 H) falls steadily from 4.0 A to zero in 0.020 s. Find the e.m.f. induced in the secondary.`, a: `|${eps}| = <i>M</i>Δ<i>I</i>/Δ<i>t</i> = (0.15)(4.0/0.020) = <b>30 V</b>` },
+  { q: `State two differences between self induction and mutual induction.`, a: `Self induction: the e.m.f. is induced in the same coil whose current changes, and it opposes the change of that current. Mutual induction: the e.m.f. is induced in a second coil, by a change of current in the first; it needs two coils linked by flux.` }])}
 `)}
 `;
   window.PhysiQLessons.register('LESSON-S2-18', { html: () => S });
 
   // ===================== simulations =====================
-  // ---------- 1. r.m.s. ----------
-  window.PhysiQSims.add('rms', function (root) {
-    const { COL, fmt, el, slider, canvas, text, readouts, loop } = window.PhysiQSims.U;
-    const S = { I0: 4, t: 0 };
+  // ---------- 1. magnet and coil ----------
+  window.PhysiQSims.add('faraday', function (root) {
+    const { COL, fmt, el, slider, toggle, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const S = { x: 0, auto: false, t: 0, N: 10, prevPhi: null, emf: 0, hist: [] };
     const ctl = el('div', 'sm-row'); root.appendChild(ctl);
-    slider(ctl, 'peak current <i>I</i>₀', 1, 6, 0.5, S.I0, 'A', v => { S.I0 = v; });
+    const pos = slider(ctl, 'magnet position (drag to move it)', 0, 1, 0.005, S.x, '', v => { S.x = v; });
+    slider(ctl, 'number of turns <i>N</i>', 5, 30, 5, S.N, '', v => { S.N = v; });
+    const tg = el('div', 'sm-row'); root.appendChild(tg);
+    toggle(tg, 'Move it for me', false, v => { S.auto = v; });
     const cv = canvas(root); const ro = readouts(root);
+    const phiOf = x => { const d = (1 - x) * 1.6 + 0.12; return 1 / Math.pow(d, 2.2); };   // flux per turn (arbitrary), rises as the magnet approaches
     function frame(dt) {
-      if (dt < 0) dt = 0; S.t = (S.t + dt * 0.25) % 1;
-      const ctx = cv.ctx, { w, h } = cv.size(0.5, 260, 330); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const gx = 44, gw = w - 64, top = 16, H1 = (h - 60) * 0.5, y2 = h - 16, gh2 = h - 60 - H1;
-      const X = u => gx + gw * u;
-      ctx.fillStyle = '#fff'; ctx.fillRect(gx, top, gw, H1);
-      // current
-      const Y1 = I => top + H1 / 2 - I / 6 * (H1 / 2 - 4);
-      ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, Y1(0)); ctx.lineTo(gx + gw, Y1(0)); ctx.stroke();
-      ctx.strokeStyle = COL.v; ctx.lineWidth = 2.2; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const u = i / 200, I = S.I0 * Math.sin(2 * Math.PI * 2 * u); i ? ctx.lineTo(X(u), Y1(I)) : ctx.moveTo(X(u), Y1(I)); } ctx.stroke();
-      text(ctx, 'I', gx - 8, top + H1 / 2 + 4, { a: 'right', b: 1, it: 1, c: COL.v });
-      // I squared
-      const base = y2, Y2 = q => base - q / 36 * (gh2 - 4);
-      ctx.fillStyle = '#fff'; ctx.fillRect(gx, base - gh2, gw, gh2);
-      ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, base); ctx.lineTo(gx + gw, base); ctx.stroke();
-      ctx.fillStyle = 'rgba(242,102,27,.15)'; ctx.beginPath(); ctx.moveTo(X(0), base); for (let i = 0; i <= 200; i++) { const u = i / 200; ctx.lineTo(X(u), Y2((S.I0 * Math.sin(4 * Math.PI * u)) ** 2)); } ctx.lineTo(X(1), base); ctx.fill();
-      ctx.strokeStyle = COL.o; ctx.lineWidth = 2.2; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const u = i / 200, q = (S.I0 * Math.sin(4 * Math.PI * u)) ** 2; i ? ctx.lineTo(X(u), Y2(q)) : ctx.moveTo(X(u), Y2(q)); } ctx.stroke();
-      const mean = S.I0 * S.I0 / 2; ctx.strokeStyle = COL.gr; ctx.setLineDash([6, 4]); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(gx, Y2(mean)); ctx.lineTo(gx + gw, Y2(mean)); ctx.stroke(); ctx.setLineDash([]);
-      text(ctx, 'I²', gx - 8, base - gh2 + 4, { a: 'right', b: 1, it: 1, c: COL.o }); text(ctx, 'mean of I² = I₀²/2', gx + gw - 4, Y2(mean) - 6, { a: 'right', b: 1, fs: 11, c: COL.gr });
-      // I_rms line on the current graph
-      const irms = S.I0 / Math.SQRT2; ctx.strokeStyle = COL.gr; ctx.setLineDash([6, 4]); ctx.beginPath(); ctx.moveTo(gx, Y1(irms)); ctx.lineTo(gx + gw, Y1(irms)); ctx.stroke(); ctx.setLineDash([]); text(ctx, 'I_rms = I₀/√2', gx + gw - 4, Y1(irms) - 6, { a: 'right', b: 1, fs: 11, c: COL.gr });
-      // moving marker
-      const u = S.t, I = S.I0 * Math.sin(4 * Math.PI * u); ctx.beginPath(); ctx.arc(X(u), Y1(I), 5, 0, 7); ctx.fillStyle = COL.v; ctx.fill(); ctx.beginPath(); ctx.arc(X(u), Y2(I * I), 5, 0, 7); ctx.fillStyle = COL.o; ctx.fill();
-      ro([['I₀', fmt(S.I0, 1) + ' A'], ['mean of I²', fmt(mean, 2) + ' A²', 'hl'], ['I_rms = √(mean of I²)', fmt(irms, 2) + ' A', 'hl'], ['mean of I itself', '0 (no use for heating)']]);
+      if (dt <= 0) dt = 1 / 60;
+      if (S.auto) { S.t += dt; S.x = 0.5 - 0.5 * Math.cos(S.t * 1.6); pos.set(S.x); }
+      const phi = phiOf(S.x); if (S.prevPhi == null) S.prevPhi = phi;
+      const raw = -S.N * (phi - S.prevPhi) / dt; S.prevPhi = phi; S.emf += (raw - S.emf) * Math.min(1, dt * 12);
+      S.hist.push(S.emf); if (S.hist.length > 220) S.hist.shift();
+      const ctx = cv.ctx, { w, h } = cv.size(0.6, 260, 360); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const narrow = w < 520, cy = h * 0.32, coilX = narrow ? w * 0.46 : w * 0.6, cw = narrow ? w * 0.28 : Math.min(150, w * 0.26);
+      // coil
+      const n = Math.min(14, 4 + S.N / 3);
+      for (let i = 0; i < n; i++) { const x = coilX + i * cw / (n - 1); ctx.strokeStyle = '#B5651D'; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.ellipse(x, cy, 6, 34, 0, 0, 7); ctx.stroke(); }
+      // induced pole on the near end
+      const big = Math.abs(S.emf) > 0.05, pole = S.emf < 0 ? 'N' : 'S';
+      if (big) { ctx.fillStyle = pole === 'N' ? 'rgba(242,160,138,.9)' : 'rgba(159,195,232,.9)'; ctx.beginPath(); ctx.arc(coilX - 18, cy - 46, 13, 0, 7); ctx.fill(); text(ctx, pole, coilX - 18, cy - 41, { a: 'center', b: 1, fs: 13 }); text(ctx, 'induced pole', coilX - 18, cy - 64, { a: 'center', fs: 10.5, c: COL.sub }); }
+      // magnet (N facing the coil)
+      const mw = Math.min(110, w * 0.22), mx = 14 + S.x * (coilX - mw - 40 - 14);
+      ctx.fillStyle = '#9FC3E8'; ctx.fillRect(mx, cy - 14, mw / 2, 28); ctx.fillStyle = '#F2A08A'; ctx.fillRect(mx + mw / 2, cy - 14, mw / 2, 28); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.3; ctx.strokeRect(mx, cy - 14, mw, 28);
+      text(ctx, 'S', mx + mw / 4, cy + 5, { a: 'center', b: 1, fs: 14 }); text(ctx, 'N', mx + 3 * mw / 4, cy + 5, { a: 'center', b: 1, fs: 14 });
+      // galvanometer
+      const gx = Math.min(w - 26, coilX + cw + (narrow ? 32 : 60)), gy = cy, gr = narrow ? 20 : 26;
+      ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(coilX + cw, cy + 34); ctx.lineTo(gx, cy + 34); ctx.lineTo(gx, gy + gr); ctx.moveTo(coilX, cy - 34); ctx.lineTo(coilX, cy - 50); ctx.lineTo(gx, cy - 50); ctx.lineTo(gx, gy - gr); ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(gx, gy, gr, 0, 7); ctx.fill(); ctx.stroke();
+      const ang = Math.max(-1.2, Math.min(1.2, S.emf * 0.25)); ctx.strokeStyle = COL.r; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(gx, gy + 8); ctx.lineTo(gx + 20 * Math.sin(ang), gy + 8 - 20 * Math.cos(ang)); ctx.stroke(); text(ctx, 'G', gx, gy + 20, { a: 'center', b: 1, fs: 11 });
+      // emf trace
+      const bx = 40, by = h * 0.62, bw = w - 60, bh = h * 0.32;
+      ctx.fillStyle = '#fff'; ctx.fillRect(bx, by, bw, bh); ctx.strokeStyle = COL.grid; ctx.strokeRect(bx, by, bw, bh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(bx, by + bh / 2); ctx.lineTo(bx + bw, by + bh / 2); ctx.stroke();
+      text(ctx, 'induced e.m.f.', bx, by - 6, { fs: 11, b: 1, c: COL.v });
+      ctx.strokeStyle = COL.v; ctx.lineWidth = 2; ctx.beginPath(); S.hist.forEach((v, i) => { const X = bx + bw * i / 220, Y = by + bh / 2 - Math.max(-1, Math.min(1, v / 6)) * bh * 0.45; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+      const moving = Math.abs(S.emf) > 0.05;
+      ro([['magnet', !moving ? 'at rest: no e.m.f.' : (S.emf < 0 ? 'approaching: flux increasing' : 'moving away: flux decreasing'), 'hl'], ['near end of the coil', moving ? (pole === 'N' ? 'N pole: repels the magnet' : 'S pole: attracts the magnet back') : '—', 'hl'], ['e.m.f. (relative)', fmt(Math.abs(S.emf), 2)], ['N turns', String(S.N)]]);
     }
     loop(cv, frame);
   });
 
-  // ---------- 2. R, L or C on an a.c. supply ----------
-  window.PhysiQSims.add('acphase', function (root) {
+  // ---------- 2. rod on rails ----------
+  window.PhysiQSims.add('rod', function (root) {
     const { COL, fmt, el, slider, button, canvas, text, readouts, arrow, loop } = window.PhysiQSims.U;
-    const S = { k: 'L', f: 50, th: 0, R: 100, L: 0.32, C: 32e-6, V0: 10 };
-    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
-    const ks = [['R', 'resistor 100 Ω'], ['L', 'inductor 0.32 H'], ['C', 'capacitor 32 μF']];
-    const chips = ks.map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.k ? ' on' : ''), () => { S.k = k; chips.forEach(x => x.classList.toggle('on', x === b)); }); return b; });
+    const S = { B: 0.60, v: 2.5, l: 0.10, R: 0.030, x: 0.15, run: true };
     const ctl = el('div', 'sm-row'); root.appendChild(ctl);
-    slider(ctl, 'supply frequency <i>f</i>', 10, 200, 5, S.f, 'Hz', v => { S.f = v; });
+    slider(ctl, 'flux density <i>B</i>', 0.1, 1.0, 0.05, S.B, 'T', v => { S.B = v; });
+    slider(ctl, 'speed <i>v</i>', 0, 5, 0.1, S.v, 'm s⁻¹', v => { S.v = v; });
+    slider(ctl, 'resistance <i>R</i>', 0.01, 0.10, 0.005, S.R, 'Ω', v => { S.R = v; });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    button(bar, 'Start again', '', () => { S.x = 0.15; });
     const cv = canvas(root); const ro = readouts(root);
     function frame(dt) {
-      if (dt < 0) dt = 0; S.th = (S.th + dt * 2.2) % (2 * Math.PI);   // drawn slowly
-      const X = S.k === 'R' ? S.R : S.k === 'L' ? 2 * Math.PI * S.f * S.L : 1 / (2 * Math.PI * S.f * S.C), I0 = S.V0 / X, ph = S.k === 'R' ? 0 : S.k === 'C' ? Math.PI / 2 : -Math.PI / 2;
-      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(1.2, 420, 520) : cv.size(0.5, 260, 340); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const cx = narrow ? w / 2 : 100, cy = narrow ? 90 : h / 2 - 10, R = narrow ? 66 : 76;
-      ctx.strokeStyle = COL.grid; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
-      const iScale = Math.min(1, I0 / 0.2);   // current phasor length (relative)
-      arrow(ctx, cx, cy, cx + R * Math.cos(S.th), cy - R * Math.sin(S.th), COL.v, 3); text(ctx, 'V', cx + (R + 12) * Math.cos(S.th), cy - (R + 12) * Math.sin(S.th) + 4, { a: 'center', b: 1, c: COL.v });
-      const ia = S.th + ph, ir = R * (0.35 + 0.5 * iScale);
-      arrow(ctx, cx, cy, cx + ir * Math.cos(ia), cy - ir * Math.sin(ia), COL.r, 3); text(ctx, 'I', cx + (ir + 12) * Math.cos(ia), cy - (ir + 12) * Math.sin(ia) + 4, { a: 'center', b: 1, c: COL.r });
-      // graphs
-      const gx = narrow ? 30 : 210, gw = w - gx - 16, g1 = narrow ? 190 : 20, gh = narrow ? (h - 190 - 30) / 2 : (h - 50) / 2;
-      const graph = (y0, f, col, label, mean) => { ctx.fillStyle = '#fff'; ctx.fillRect(gx, y0, gw, gh); ctx.strokeStyle = COL.grid; ctx.strokeRect(gx, y0, gw, gh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, y0 + gh / 2); ctx.lineTo(gx + gw, y0 + gh / 2); ctx.stroke(); text(ctx, label, gx + 4, y0 + 12, { fs: 11, b: 1, c: col[0] });
-        f.forEach((fn, j) => { ctx.strokeStyle = col[j]; ctx.lineWidth = 2; ctx.beginPath(); for (let i = 0; i <= 160; i++) { const a = S.th - 4 * Math.PI * (1 - i / 160); const Y = y0 + gh / 2 - fn(a) * gh * 0.42; i ? ctx.lineTo(gx + gw * i / 160, Y) : ctx.moveTo(gx + gw * i / 160, Y); } ctx.stroke(); });
-        if (mean != null) { ctx.strokeStyle = COL.gr; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(gx, y0 + gh / 2 - mean * gh * 0.42); ctx.lineTo(gx + gw, y0 + gh / 2 - mean * gh * 0.42); ctx.stroke(); ctx.setLineDash([]); text(ctx, 'mean power', gx + gw - 4, y0 + gh / 2 - mean * gh * 0.42 - 5, { a: 'right', fs: 10.5, c: COL.gr, b: 1 }); } };
-      graph(g1, [a => Math.sin(a), a => (0.35 + 0.5 * iScale) * Math.sin(a + ph)], [COL.v, COL.r], 'V (purple) and I (red)');
-      graph(g1 + gh + 10, [a => Math.sin(a) * Math.sin(a + ph)], [COL.o], 'power P = IV', S.k === 'R' ? 0.5 : 0);
-      ro([['phase of I relative to V', S.k === 'R' ? 'in phase' : S.k === 'C' ? 'I leads V by π/2' : 'I lags V by π/2', 'hl'], [S.k === 'R' ? 'resistance R' : S.k === 'L' ? 'reactance X_L = 2πfL' : 'reactance X_C = 1/(2πfC)', fmt(X, 1) + ' Ω', 'hl'], ['peak current (V₀ = 10 V)', fmt(I0 * 1000, 1) + ' mA'], ['average power', S.k === 'R' ? fmt(0.5 * S.V0 * I0, 2) + ' W' : '0 W']]);
+      if (dt < 0) dt = 0;
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 230, 320); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const x0 = 50, x1 = w - 30, top = 34, bot = h - 60, xmax = 0.6;
+      S.x += S.v * dt * 0.06; if (S.x > xmax) S.x = 0.15;
+      const X = xm => x0 + (x1 - x0) * xm / xmax, xr = X(S.x);
+      // shaded area of the circuit
+      ctx.fillStyle = 'rgba(213,220,59,.25)'; ctx.fillRect(x0, top, xr - x0, bot - top);
+      for (let x = x0 + 18; x < x1; x += 34) for (let y = top + 16; y < bot; y += 30) { ctx.strokeStyle = 'rgba(106,99,236,.45)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, 4.5, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.arc(x, y, 1.5, 0, 7); ctx.fillStyle = 'rgba(106,99,236,.6)'; ctx.fill(); }
+      ctx.strokeStyle = COL.ink; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x1, top); ctx.lineTo(x0, top); ctx.lineTo(x0, bot); ctx.lineTo(x1, bot); ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.fillRect(x0 - 9, (top + bot) / 2 - 16, 18, 32); ctx.lineWidth = 1.6; ctx.strokeRect(x0 - 9, (top + bot) / 2 - 16, 18, 32); text(ctx, 'R', x0 - 16, (top + bot) / 2 + 5, { a: 'right', b: 1, it: 1 });
+      ctx.fillStyle = '#E9C46A'; ctx.fillRect(xr - 5, top - 10, 10, bot - top + 20); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.3; ctx.strokeRect(xr - 5, top - 10, 10, bot - top + 20);
+      const emf = S.B * S.l * S.v, I = emf / S.R, Fm = S.B * I * S.l;
+      if (S.v > 0) { arrow(ctx, xr + 8, (top + bot) / 2, xr + 50, (top + bot) / 2, COL.r, 2.6); text(ctx, 'v', xr + 54, (top + bot) / 2 + 4, { b: 1, it: 1, c: COL.r });
+        const fl = Math.min(80, Math.max(20, Math.min(xr - x0 - 20, 12 + Fm * 120))); arrow(ctx, xr - 8, (top + bot) / 2 + 30, xr - 8 - fl, (top + bot) / 2 + 30, COL.o, 2.6); text(ctx, 'F = BIl', xr - 8 - fl / 2, (top + bot) / 2 + 22, { a: 'center', b: 1, fs: 11, c: COL.o });
+        // current: clockwise (down the rod, along the bottom rail to the left, up through R, along the top rail to the right)
+        arrow(ctx, xr + 12, top + 10, xr + 12, top + 40, COL.gr, 2.2); arrow(ctx, (x0 + xr) / 2 + 20, bot + 14, (x0 + xr) / 2 - 20, bot + 14, COL.gr, 2.2); text(ctx, 'I (clockwise)', (x0 + xr) / 2, bot + 32, { a: 'center', b: 1, fs: 11, c: COL.gr }); }
+      text(ctx, 'B out of the page', w - 10, 16, { a: 'right', fs: 11, c: COL.v, b: 1 }); text(ctx, 'l = 0.10 m', xr + 8, top - 14, { fs: 11, c: COL.sub });
+      ro([['ε = Blv', fmt(emf, 3) + ' V', 'hl'], ['I = ε/R', fmt(I, 2) + ' A', 'hl'], ['force on the rod BIl (opposes v)', fmt(Fm, 3) + ' N'], ['power I²R = Fv', fmt(I * I * S.R, 3) + ' W']]);
     }
     loop(cv, frame);
   });
 
-  // ---------- 3. series R-L-C and resonance ----------
-  window.PhysiQSims.add('rlc', function (root) {
-    const { COL, fmt, el, slider, button, canvas, text, readouts, arrow } = window.PhysiQSims.U;
-    const S = { m: 'RLC', R: 200, L: 0.2, C: 0.05e-6, f: 1200, V: 150 };
-    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
-    const modes = [['RC', 'R-C'], ['RL', 'R-L'], ['RLC', 'R-L-C']];
-    const chips = modes.map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.m ? ' on' : ''), () => { S.m = k; chips.forEach(x => x.classList.toggle('on', x === b)); draw(); }); return b; });
+  // ---------- 3. a.c. generator ----------
+  window.PhysiQSims.add('generator', function (root) {
+    const { COL, fmt, el, slider, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const S = { f: 1.0, B: 0.50, N: 50, A: 0.010, th: 0, hist: [] };
     const ctl = el('div', 'sm-row'); root.appendChild(ctl);
-    slider(ctl, 'frequency <i>f</i>', 200, 4000, 5, S.f, 'Hz', v => { S.f = v; draw(); });
-    slider(ctl, 'resistance <i>R</i>', 50, 1000, 10, S.R, 'Ω', v => { S.R = v; draw(); });
+    slider(ctl, 'rotation frequency <i>f</i> (slowed down)', 0.2, 2, 0.1, S.f, 'Hz', v => { S.f = v; });
+    slider(ctl, 'flux density <i>B</i>', 0.1, 1, 0.05, S.B, 'T', v => { S.B = v; });
+    slider(ctl, 'turns <i>N</i>', 10, 100, 10, S.N, '', v => { S.N = v; });
     const cv = canvas(root); const ro = readouts(root);
-    const calc = f => { const XL = S.m === 'RC' ? 0 : 2 * Math.PI * f * S.L, XC = S.m === 'RL' ? 0 : 1 / (2 * Math.PI * f * S.C), Z = Math.hypot(S.R, XL - XC); return { XL, XC, Z, I: S.V / Z, phi: Math.atan2(XL - XC, S.R) }; };
-    function draw() {
-      const narrow = root.clientWidth < 520, ctx = cv.ctx, { w, h } = narrow ? cv.size(1.25, 440, 540) : cv.size(0.5, 270, 340); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
-      const r = calc(S.f), VR = r.I * S.R, VL = r.I * r.XL, VC = r.I * r.XC;
-      // phasor diagram (current along +x)
-      const ox = narrow ? 50 : 40, oy = narrow ? 120 : h / 2, pw = narrow ? w - 100 : Math.min(260, w * 0.38);
-      const sc = pw * 0.85 / Math.max(S.V, VR, Math.max(VL, VC) * 0.6, 1);
-      const cap = v => Math.min(v * sc, narrow ? 100 : h / 2 - 20);
-      arrow(ctx, ox, oy, ox + VR * sc, oy, COL.gr, 3); text(ctx, 'V_R', ox + VR * sc / 2, oy + 16, { a: 'center', b: 1, fs: 11, c: COL.gr });
-      if (S.m !== 'RC') { arrow(ctx, ox, oy, ox, oy - cap(VL), COL.v, 3); text(ctx, 'V_L', ox - 6, oy - cap(VL) + 10, { a: 'right', b: 1, fs: 11, c: COL.v }); }
-      if (S.m !== 'RL') { arrow(ctx, ox, oy, ox, oy + cap(VC), COL.o, 3); text(ctx, 'V_C', ox - 6, oy + cap(VC), { a: 'right', b: 1, fs: 11, c: COL.o }); }
-      const vy = Math.max(-(narrow ? 100 : h / 2 - 20), Math.min(narrow ? 100 : h / 2 - 20, (VL - VC) * sc));
-      arrow(ctx, ox, oy, ox + VR * sc, oy - vy, COL.ink, 3.2); text(ctx, 'V', ox + VR * sc + 6, oy - vy + 4, { b: 1, it: 1 });
-      arrow(ctx, ox + VR * sc + 20, oy, ox + VR * sc + 52, oy, COL.r, 2.4); text(ctx, 'I', ox + VR * sc + 56, oy + 4, { b: 1, c: COL.r });
-      // resonance curve
-      const gx = narrow ? 40 : ox + pw + 50, gy = narrow ? 260 : 24, gw = w - gx - 16, gh = narrow ? h - 260 - 36 : h - 60;
-      ctx.fillStyle = '#fff'; ctx.fillRect(gx, gy, gw, gh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx, gy + gh); ctx.lineTo(gx + gw, gy + gh); ctx.stroke();
-      const Imax = S.V / S.R, Xf = f => gx + gw * (f - 200) / 3800, Yi = I => gy + gh - I / Imax * gh * 0.95;
-      ctx.strokeStyle = COL.v; ctx.lineWidth = 2.2; ctx.beginPath(); for (let i = 0; i <= 200; i++) { const f = 200 + 3800 * i / 200, I = calc(f).I; i ? ctx.lineTo(Xf(f), Yi(I)) : ctx.moveTo(Xf(f), Yi(I)); } ctx.stroke();
-      ctx.beginPath(); ctx.arc(Xf(S.f), Yi(r.I), 6, 0, 7); ctx.fillStyle = COL.o; ctx.fill();
-      text(ctx, 'I_rms (peak = V/R = ' + fmt(S.V / S.R, 2) + ' A)', gx + 4, gy + 12, { fs: 11, b: 1 }); text(ctx, 'f', gx + gw, gy + gh + 16, { a: 'right', it: 1, fs: 12 }); text(ctx, '200 Hz', gx, gy + gh + 14, { fs: 10, c: COL.sub }); text(ctx, '4 kHz', gx + gw, gy + gh + 28, { a: 'right', fs: 10, c: COL.sub });
-      const f0 = 1 / (2 * Math.PI * Math.sqrt(S.L * S.C));
-      if (S.m === 'RLC') { ctx.strokeStyle = COL.sub; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(Xf(f0), gy); ctx.lineTo(Xf(f0), gy + gh); ctx.stroke(); ctx.setLineDash([]); text(ctx, 'f₀', Xf(f0) + 4, gy + gh - 6, { it: 1, fs: 11, c: COL.sub }); }
-      const res = S.m === 'RLC' && Math.abs(S.f - f0) / f0 < 0.012;
-      if (res) text(ctx, 'resonance: Z = R, I largest, V in phase with I', w / 2, h - 6, { a: 'center', b: 1, fs: 12, c: COL.gr });
-      ro([['impedance Z', fmt(r.Z, 0) + ' Ω', 'hl'], ['current I_rms', fmt(r.I, 3) + ' A', 'hl'], ['phase angle φ', fmt(Math.abs(r.phi) * 180 / Math.PI, 1) + '° ' + (Math.abs(r.phi) < 0.01 ? '(in phase)' : r.phi > 0 ? '(V leads I)' : '(V lags I)')], ['X_L, X_C', (S.m === 'RC' ? '—' : fmt(r.XL, 0) + ' Ω') + ', ' + (S.m === 'RL' ? '—' : fmt(r.XC, 0) + ' Ω')], ['V_R, V_L, V_C', fmt(VR, 0) + ', ' + fmt(VL, 0) + ', ' + fmt(VC, 0) + ' V'], ['f₀ = 1/(2π√LC)', S.m === 'RLC' ? fmt(f0, 0) + ' Hz' : '—']]);
+    function frame(dt) {
+      if (dt < 0) dt = 0;
+      const om = 2 * Math.PI * S.f; S.th = (S.th + om * dt) % (2 * Math.PI);
+      const e0 = S.N * S.B * S.A * om, e = e0 * Math.sin(S.th), phi = S.B * S.A * Math.cos(S.th);
+      S.hist.push([e, phi]); if (S.hist.length > 160) S.hist.shift();
+      const narrow0 = root.clientWidth < 520, ctx = cv.ctx, { w, h } = narrow0 ? cv.size(1.15, 400, 500) : cv.size(0.5, 260, 340); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const narrow = w < 520, cx = narrow ? w / 2 : 110, cy = narrow ? 80 : h / 2, R = narrow ? 50 : 70;
+      for (let y = cy - R; y <= cy + R + 1; y += R / 2) { ctx.strokeStyle = 'rgba(242,102,27,.5)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(cx - R - 20, y); ctx.lineTo(cx + R + 20, y); ctx.stroke(); }
+      text(ctx, 'B →', cx + R + 20, cy - R - 6, { a: 'right', fs: 11, c: COL.o, b: 1 });
+      const dx = Math.cos(S.th), dy = Math.sin(S.th);
+      ctx.strokeStyle = '#B5651D'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(cx - R * 0.8 * dy, cy - R * 0.8 * dx); ctx.lineTo(cx + R * 0.8 * dy, cy + R * 0.8 * dx); ctx.stroke();
+      ctx.strokeStyle = COL.gr; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + R * dx, cy - R * dy); ctx.stroke(); text(ctx, 'normal', cx + R * dx * 1.1, cy - R * dy * 1.1, { a: 'center', fs: 10, c: COL.gr });
+      // graphs
+      const gx = narrow ? 36 : 250, gy0 = narrow ? 170 : 26, gw = w - gx - 16, gh = narrow ? (h - gy0 - 30) / 2 : (h - 60) / 2;
+      const draw = (k, y0, col, label, max) => { ctx.fillStyle = '#fff'; ctx.fillRect(gx, y0, gw, gh); ctx.strokeStyle = COL.grid; ctx.strokeRect(gx, y0, gw, gh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, y0 + gh / 2); ctx.lineTo(gx + gw, y0 + gh / 2); ctx.stroke(); text(ctx, label, gx + 4, y0 + 12, { fs: 11, b: 1, c: col });
+        ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); S.hist.forEach((p, i) => { const X = gx + gw * i / 160, Y = y0 + gh / 2 - p[k] / max * gh * 0.42; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke(); };
+      draw(1, gy0, COL.sub, 'flux Φ = BA cos ωt', 1.0 * 0.010);
+      draw(0, gy0 + gh + 14, COL.v, 'e.m.f. ε = NBAω sin ωt', S.N * S.B * S.A * 2 * Math.PI * 2);
+      ro([['peak e.m.f. ε₀ = NBAω', fmt(e0, 2) + ' V', 'hl'], ['e.m.f. now', fmt(e, 2) + ' V', 'hl'], ['angle θ = ωt', fmt(S.th * 180 / Math.PI, 0) + '°'], ['coil area A', '0.010 m²']]);
     }
-    new ResizeObserver(() => draw()).observe(root);
-    draw();
+    loop(cv, frame);
+  });
+
+  // ---------- 4. switching on an inductor ----------
+  window.PhysiQSims.add('inductor', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const S = { L: 2.0, R: 4.0, E: 6.0, on: false, I: 0, t: 0, hist: [] };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'inductance <i>L</i>', 0.5, 5, 0.5, S.L, 'H', v => { S.L = v; });
+    slider(ctl, 'resistance <i>R</i>', 1, 10, 0.5, S.R, 'Ω', v => { S.R = v; });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    const sw = button(bar, 'Close the switch', '', () => { S.on = !S.on; sw.textContent = S.on ? 'Open the switch' : 'Close the switch'; S.hist = []; S.t = 0; });
+    const cv = canvas(root); const ro = readouts(root);
+    function frame(dt) {
+      if (dt < 0) dt = 0;
+      const sdt = dt * 0.6; S.t += sdt;
+      const Imax = S.E / S.R;
+      if (S.on) S.I += (Imax - S.I) * (1 - Math.exp(-S.R * sdt / S.L)); else S.I *= Math.exp(-(S.R + 20) * sdt / S.L);   // opening: energy dumped quickly (spark / extra resistance)
+      const back = S.on ? S.E - S.I * S.R : 0;
+      if (S.t < 8) S.hist.push([S.t, S.I]);
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 240, 320); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const bx = 50, by = 20, bw = w - 70, bh = h - 60;
+      ctx.fillStyle = '#fff'; ctx.fillRect(bx, by, bw, bh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx, by + bh); ctx.lineTo(bx + bw, by + bh); ctx.stroke();
+      const Y = I => by + bh - I / 6 * bh, Xt = t => bx + bw * t / 8;
+      ctx.setLineDash([5, 4]); ctx.strokeStyle = COL.sub; ctx.beginPath(); ctx.moveTo(bx, Y(Imax)); ctx.lineTo(bx + bw, Y(Imax)); ctx.stroke(); ctx.setLineDash([]); text(ctx, 'ε/R = ' + fmt(Imax, 2) + ' A', bx + bw - 4, Y(Imax) - 6, { a: 'right', fs: 11, c: COL.sub });
+      ctx.strokeStyle = COL.v; ctx.lineWidth = 2.4; ctx.beginPath(); S.hist.forEach(([t, I], i) => { i ? ctx.lineTo(Xt(t), Y(I)) : ctx.moveTo(Xt(t), Y(I)); }); ctx.stroke();
+      text(ctx, 'I / A', bx - 8, by + 6, { a: 'right', fs: 11, b: 1 }); text(ctx, 't (time constant L/R = ' + fmt(S.L / S.R, 2) + ' s)', bx + bw, by + bh + 20, { a: 'right', fs: 11, c: COL.sub });
+      const U = 0.5 * S.L * S.I * S.I;
+      ro([['current I', fmt(S.I, 2) + ' A', 'hl'], ['back e.m.f. L dI/dt', fmt(back, 2) + ' V', 'hl'], ['energy stored ½LI²', fmt(U, 2) + ' J'], ['supply e.m.f.', '6.0 V']]);
+    }
+    loop(cv, frame);
+  });
+  // ---------- motor and dynamo ----------
+  window.PhysiQSims.add('motor', function (root) {
+    const { COL, fmt, el, slider, button, toggle, canvas, text, readouts, arrow, loop } = window.PhysiQSims.U;
+    const S = { mode: 'motor', on: false, th: 0.3, om: 0, crank: 2, dc: false, hist: [] };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    let modeUI = [];
+    const build = () => { ctl.innerHTML = ''; modeUI = [];
+      if (S.mode === 'motor') { modeUI.push(toggle(ctl, 'Switch on the current', S.on, v => { S.on = v; })); }
+      else { slider(ctl, 'turning speed', 0, 5, 0.5, S.crank, 'turns per second', v => { S.crank = v; }); toggle(ctl, 'Commutator (d.c.) instead of slip rings (a.c.)', S.dc, v => { S.dc = v; S.hist = []; }); } };
+    const chips = [['motor', 'Electric motor'], ['dynamo', 'Dynamo (generator)']].map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.mode ? ' on' : ''), () => { S.mode = k; S.hist = []; chips.forEach(x => x.classList.toggle('on', x === b)); build(); }); return b; });
+    build();
+    const cv = canvas(root); const ro = readouts(root);
+    function frame(dt) {
+      if (dt < 0) dt = 0;
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(1.1, 380, 480) : cv.size(0.52, 280, 360); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      // motion
+      let emf = 0, torque = 0;
+      if (S.mode === 'motor') { torque = S.on ? Math.abs(Math.cos(S.th)) * 9 : 0; S.om += (torque - 1.6 * S.om) * dt; S.th += S.om * dt; }
+      else { S.om = 2 * Math.PI * S.crank; S.th += S.om * dt; emf = S.om * Math.cos(S.th) / (2 * Math.PI * 3); if (S.dc) emf = Math.abs(emf); S.hist.push(emf); if (S.hist.length > 220) S.hist.shift(); }
+      // scene
+      const cx = narrow ? w / 2 : w * 0.34, cy = narrow ? 120 : h / 2 - 6, R = narrow ? 64 : 76, depth = narrow ? 110 : 130;
+      const P = (x, y, z) => [cx + x + 0.45 * z, cy - y - 0.3 * z];
+      // magnets and field
+      ctx.fillStyle = '#F2A08A'; ctx.fillRect(cx - R - 70, cy - 52, 44, 104); ctx.fillStyle = '#9FC3E8'; ctx.fillRect(cx + R + 70, cy - 52, 44, 104);
+      text(ctx, 'N', cx - R - 48, cy + 6, { a: 'center', b: 1, fs: 18 }); text(ctx, 'S', cx + R + 92, cy + 6, { a: 'center', b: 1, fs: 18 });
+      ctx.strokeStyle = 'rgba(106,99,236,.25)'; ctx.lineWidth = 1.2; for (let y = -40; y <= 40; y += 20) { ctx.beginPath(); ctx.moveTo(cx - R - 24, cy + y); ctx.lineTo(cx + R + 66, cy + y); ctx.stroke(); }
+      text(ctx, 'B →', cx + R + 40, cy - 58, { a: 'center', fs: 11, b: 1, c: COL.v });
+      // coil: long sides along z, at ±R(cos th, sin th)
+      const c = Math.cos(S.th), sn = Math.sin(S.th), A1 = [R * c, R * sn], A2 = [-R * c, -R * sn], zf = -depth / 2, zb = depth / 2;
+      const p1f = P(A1[0], A1[1], zf), p1b = P(A1[0], A1[1], zb), p2f = P(A2[0], A2[1], zf), p2b = P(A2[0], A2[1], zb);
+      ctx.strokeStyle = '#B5651D'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(...p1f); ctx.lineTo(...p1b); ctx.lineTo(...p2b); ctx.lineTo(...p2f); ctx.stroke();
+      // commutator / slip rings at the front, on the axis
+      const ax = P(0, 0, zf - 26); ctx.beginPath(); ctx.moveTo(...p1f); ctx.lineTo(ax[0] + 6, ax[1] - 4); ctx.moveTo(...p2f); ctx.lineTo(ax[0] - 6, ax[1] + 4); ctx.stroke();
+      ctx.lineWidth = 6; ctx.strokeStyle = '#C9A227';
+      const ringR = 12;
+      if (S.mode === 'motor' || S.dc) { for (const off of [0, Math.PI]) { ctx.beginPath(); ctx.arc(ax[0], ax[1], ringR, S.th + off + 0.25, S.th + off + Math.PI - 0.25); ctx.stroke(); } }
+      else { ctx.beginPath(); ctx.ellipse(ax[0], ax[1] - 4, ringR, ringR * 0.5, 0, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.ellipse(ax[0], ax[1] + 6, ringR, ringR * 0.5, 0, 0, 7); ctx.stroke(); }
+      ctx.fillStyle = '#555'; ctx.fillRect(ax[0] - ringR - 12, ax[1] - 4, 8, 8); ctx.fillRect(ax[0] + ringR + 4, ax[1] - 4, 8, 8);
+      // external circuit: battery (motor) or lamp (dynamo) below
+      const bx = ax[0], by = narrow ? cy + 120 : h - 40;
+      ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(ax[0] - ringR - 12, ax[1]); ctx.lineTo(bx - 50, ax[1]); ctx.lineTo(bx - 50, by); ctx.lineTo(bx - 14, by); ctx.moveTo(ax[0] + ringR + 12, ax[1]); ctx.lineTo(bx + 50, ax[1]); ctx.lineTo(bx + 50, by); ctx.lineTo(bx + 14, by); ctx.stroke();
+      if (S.mode === 'motor') { ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx - 4, by - 12); ctx.lineTo(bx - 4, by + 12); ctx.stroke(); ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(bx + 4, by - 6); ctx.lineTo(bx + 4, by + 6); ctx.stroke(); text(ctx, S.on ? 'battery: ON' : 'battery: off', bx, by + 26, { a: 'center', fs: 11, b: 1, c: S.on ? COL.gr : COL.sub }); }
+      else { const br = Math.min(1, Math.abs(emf)); const g = ctx.createRadialGradient(bx, by, 2, bx, by, 40); g.addColorStop(0, `rgba(255,230,120,${br})`); g.addColorStop(1, 'rgba(255,230,120,0)'); ctx.fillStyle = g; ctx.fillRect(bx - 40, by - 40, 80, 80); ctx.beginPath(); ctx.arc(bx, by, 12, 0, 7); ctx.fillStyle = `rgba(255,240,170,${0.3 + 0.7 * br})`; ctx.fill(); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.4; ctx.stroke(); text(ctx, 'lamp', bx, by + 28, { a: 'center', fs: 11, c: COL.sub }); }
+      // current and force arrows on the long sides (motor), or induced current (dynamo)
+      const mid1 = P(A1[0], A1[1], 0), mid2 = P(A2[0], A2[1], 0);
+      if (S.mode === 'motor' && S.on) { const sgn = c >= 0 ? 1 : -1;   // commutator keeps the side on the right carrying current one way
+        arrow(ctx, mid1[0], mid1[1], mid1[0], mid1[1] - 46 * sgn * (sn * 0 + 1) * Math.sign(c || 1), COL.o, 3); arrow(ctx, mid2[0], mid2[1], mid2[0], mid2[1] + 46 * Math.sign(c || 1), COL.o, 3);
+        text(ctx, 'F = BIl', mid1[0] + 8, mid1[1] - 30 * Math.sign(c || 1), { fs: 11, b: 1, c: COL.o }); }
+      // e.m.f. graph for the dynamo, torque note for the motor
+      if (S.mode === 'dynamo') { const gx = narrow ? 30 : w * 0.64, gw = w - gx - 14, gy = narrow ? h - 110 : 40, gh = narrow ? 90 : h - 90;
+        ctx.fillStyle = '#fff'; ctx.fillRect(gx, gy, gw, gh); ctx.strokeStyle = COL.grid; ctx.strokeRect(gx, gy, gw, gh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, gy + gh / 2); ctx.lineTo(gx + gw, gy + gh / 2); ctx.stroke();
+        ctx.strokeStyle = COL.v; ctx.lineWidth = 2; ctx.beginPath(); S.hist.forEach((v, i) => { const X = gx + gw * i / 220, Y = gy + gh / 2 - v * gh * 0.45; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+        text(ctx, S.dc ? 'output (d.c., one direction)' : 'output e.m.f. (a.c.)', gx + 4, gy + 12, { fs: 11, b: 1, c: COL.v }); }
+      ro(S.mode === 'motor' ? [['turning effect', S.on ? (Math.abs(c) < 0.15 ? 'small: coil ⊥ field (carried on by its momentum)' : 'large: coil sides cut across B') : 'no current, no force', 'hl'], ['speed', fmt(S.om / (2 * Math.PI), 1) + ' turns per second', 'hl'], ['commutator', 'reverses the current every half turn']]
+        : [['e.m.f. ε = NBAω sin ωt', 'peak ∝ turning speed', 'hl'], ['output now (relative)', fmt(emf, 2), 'hl'], ['lamp', Math.abs(emf) > 0.6 ? 'bright' : Math.abs(emf) > 0.2 ? 'dim' : 'off']]);
+    }
+    loop(cv, frame);
+  });
+
+  // ---------- transformers and power lines ----------
+  window.PhysiQSims.add('grid', function (root) {
+    const { COL, fmt, el, slider, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const VS = [11, 33, 66, 132, 275, 400], P = 20e6, Rl = 4.0;
+    const S = { k: 0, t: 0 };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    const sl = slider(ctl, 'transmission voltage (step)', 0, 5, 1, S.k, '', v => { S.k = v; });
+    const out = ctl.querySelector('output'); const show = () => { out.textContent = VS[S.k] + ' kV'; }; show(); ctl.querySelector('input').addEventListener('input', show);
+    const cv = canvas(root); const ro = readouts(root);
+    function frame(dt) {
+      if (dt < 0) dt = 0; S.t += dt;
+      const V = VS[S.k] * 1e3, I = P / V, loss = Math.min(P, I * I * Rl), frac = loss / P;
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 230, 300); ctx.clearRect(0, 0, w, h);
+      const sky = ctx.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#DCEBFA'); sky.addColorStop(1, '#F7F8F0'); ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+      const gy = h - 30; ctx.fillStyle = '#9CBB35'; ctx.fillRect(0, gy, w, h - gy);
+      // power station
+      ctx.fillStyle = '#8A8F99'; ctx.fillRect(10, gy - 60, 56, 60); ctx.fillRect(18, gy - 92, 12, 34); ctx.fillRect(40, gy - 84, 12, 26);
+      for (let i = 0; i < 3; i++) { ctx.fillStyle = `rgba(200,200,200,${0.5 - i * 0.15})`; ctx.beginPath(); ctx.arc(24 + i * 6, gy - 100 - i * 12 - (S.t * 10 % 12), 7 + i * 3, 0, 7); ctx.fill(); }
+      text(ctx, 'power station', 38, gy + 18, { a: 'center', fs: 10, c: COL.ink });
+      // transformers
+      const tf = (x, lab) => { ctx.fillStyle = '#5A6170'; ctx.fillRect(x - 12, gy - 40, 24, 40); ctx.strokeStyle = '#B5651D'; ctx.lineWidth = 2; for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(x - 6, gy - 34 + i * 8, 7, 3, 0, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.ellipse(x + 6, gy - 34 + i * 8, 7, 3, 0, 0, 7); ctx.stroke(); } text(ctx, lab, x, gy + 18, { a: 'center', fs: 10 }); };
+      const x1 = 92, x2 = w - 118; tf(x1, 'step-up'); tf(x2, 'step-down');
+      // pylons and cable
+      const py = gy - 70, n = Math.max(2, Math.floor((x2 - x1) / 90));
+      ctx.strokeStyle = '#6B6B6B'; ctx.lineWidth = 2;
+      for (let i = 1; i < n; i++) { const x = x1 + (x2 - x1) * i / n; ctx.beginPath(); ctx.moveTo(x - 10, gy); ctx.lineTo(x, py - 6); ctx.lineTo(x + 10, gy); ctx.moveTo(x - 14, py); ctx.lineTo(x + 14, py); ctx.stroke(); }
+      const heat = Math.min(1, frac * 1.6);
+      ctx.strokeStyle = `rgb(${Math.round(60 + 195 * heat)},${Math.round(60 - 20 * heat)},${Math.round(60 - 30 * heat)})`; ctx.lineWidth = 2 + 4 * heat; if (heat > 0.2) { ctx.shadowColor = '#FF5A2A'; ctx.shadowBlur = 14 * heat; }
+      // cable: from the step-up transformer over the pylons to the step-down transformer, sagging between supports
+      const cy = xx => { const f = (xx - x1) / (x2 - x1) * n, seg = Math.min(n - 1, Math.floor(f)), fl = f - seg; return py + 4 * fl * (1 - fl) * 14; };
+      ctx.beginPath(); ctx.moveTo(x1, gy - 40); ctx.lineTo(x1, py); for (let xx = x1; xx <= x2; xx += 3) ctx.lineTo(xx, cy(xx)); ctx.lineTo(x2, py); ctx.lineTo(x2, gy - 40); ctx.stroke(); ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x2 + 12, gy - 12); ctx.lineTo(w - 74, gy - 12); ctx.stroke();
+      // moving charge dots: more and faster with a bigger current
+      const nd = Math.min(30, 4 + Math.round(I / 70)), sp = Math.min(1.2, 0.1 + I / 2000);
+      for (let i = 0; i < nd; i++) { const f = ((S.t * sp + i / nd) % 1), x = x1 + (x2 - x1) * f; ctx.beginPath(); ctx.arc(x, cy(x), 2.6, 0, 7); ctx.fillStyle = '#2C6BB3'; ctx.fill(); }
+      // town
+      const tx = w - 44; for (let i = 0; i < 3; i++) { const hx = tx - 30 + i * 22; ctx.fillStyle = '#C9B79C'; ctx.fillRect(hx, gy - 22, 18, 22); ctx.fillStyle = `rgba(255,214,90,${0.25 + 0.75 * (1 - frac)})`; ctx.fillRect(hx + 5, gy - 16, 8, 8); }
+      text(ctx, 'town', tx - 8, gy - 30, { a: 'center', fs: 10, b: 1 });
+      text(ctx, VS[S.k] + ' kV', (x1 + x2) / 2, py - 24, { a: 'center', b: 1, fs: 14, c: COL.v });
+      if (frac > 0.2) text(ctx, 'cables get hot: energy wasted as heat', (x1 + x2) / 2, py - 42, { a: 'center', b: 1, fs: 12, c: COL.r });
+      ro([['current in the cables I = P/V', fmt(I, I < 100 ? 1 : 0) + ' A', 'hl'], ['power lost I²R', loss >= 1e6 ? fmt(loss / 1e6, 1) + ' MW' : fmt(loss / 1e3, 1) + ' kW', 'hl'], ['fraction lost', fmt(frac * 100, frac < 0.01 ? 2 : 0) + ' %'], ['step-up turns ratio Ns/Np (from 11 kV)', fmt(VS[S.k] / 11, 1)], ['step-down turns ratio Ns/Np (to 240 V)', '1 : ' + fmt(V / 240, 0)]]);
+    }
+    loop(cv, frame);
   });
 })();

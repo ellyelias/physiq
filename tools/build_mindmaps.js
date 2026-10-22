@@ -3,7 +3,7 @@
 //         assets/mindmaps/<id>.webp                    (shown in the app's Notes tab)
 // Needs: node + playwright, python3 + Pillow, and in NODE_PATH (or tools/node_modules):
 //        katex, @fontsource/barlow-condensed, @fontsource/source-sans-3
-// usage: node tools/build_mindmaps.js [chapterId ...]     e.g.  node tools/build_mindmaps.js S2-18
+// usage: node tools/build_mindmaps.js [chapterId ...]     e.g.  node tools/build_mindmaps.js S2-19
 const fs = require('fs'), path = require('path'), cp = require('child_process'), os = require('os');
 const { chromium } = require('playwright');
 const katex = require('katex');
