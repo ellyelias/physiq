@@ -250,3 +250,20 @@ button{border-radius:999px;}
 .rv-none{color:var(--sub);}
 .rv-sum{display:flex;align-items:baseline;gap:8px;padding:11px 14px;}
 .rv-open{width:100%;}
+
+/* Back button (physiq-back.js) and the in-app picture viewer */
+.pqb-btn{flex:none;display:inline-flex;align-items:center;gap:4px;height:38px;padding:0 14px 0 8px;border-radius:999px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font:600 15px var(--ui);cursor:pointer;}
+.pqb-btn[hidden]{display:none;}
+.pqb-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+.pqb-btn:active{background:var(--tagy);color:var(--tagy-ink);border-color:var(--tagy);}
+.masthead .v2-topbar .pqb-btn{margin-right:-4px;}
+@media (max-width:420px){ .masthead .v2-topbar .pqb-btn{padding:0 10px 0 6px;font-size:14px;} }
+html.pqb-lock, html.pqb-lock body{overflow:hidden;}
+.pqb-view{position:fixed;inset:0;z-index:1000;background:#141C17;display:flex;flex-direction:column;}
+.pqb-view[hidden]{display:none;}
+.pqb-vbar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px, env(safe-area-inset-right,0px)) 10px max(14px, env(safe-area-inset-left,0px));background:var(--pg-dark);box-shadow:0 2px 0 var(--lime);}
+.pqb-zoom{display:flex;align-items:center;gap:6px;color:#fff;font:600 14px var(--ui);}
+.pqb-zoom button{width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font:700 20px var(--ui);line-height:1;cursor:pointer;}
+.pqb-z{min-width:3.2em;text-align:center;}
+.pqb-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;}
+.pqb-scroll img{display:block;width:100%;max-width:none;height:auto;margin:0 auto;background:#fff;border-radius:6px;}

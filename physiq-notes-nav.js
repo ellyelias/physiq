@@ -72,6 +72,23 @@
     nav.dataset.view = view;
     nav.innerHTML = markup(view, false);
     if (home) { home.dataset.view = homeView; home.innerHTML = markup(homeView, true); }
+    record();
+  }
+  // Back button (physiq-back.js): remember each menu / note shown so Back returns to the one before
+  let last = null, noRecord = false;
+  function record() {
+    const cur = { view, homeView, val: sel.value };
+    if (last && !noRecord && window.PhysiQBack && (cur.view !== last.view || cur.homeView !== last.homeView || (cur.view === 'content' && cur.val !== last.val))) {
+      const prev = last;
+      window.PhysiQBack.push(() => restore(prev));
+    }
+    noRecord = false; last = cur;
+  }
+  function restore(p) {
+    let changed = p.view !== view || p.homeView !== homeView;
+    if (p.val !== sel.value && [...sel.options].some(o => o.value === p.val)) { ignoreUntil = Date.now() + 400; sel.value = p.val; sel.dispatchEvent(new Event('change')); changed = true; }
+    view = p.view; homeView = p.homeView; render();
+    return changed;
   }
   function markup(view, isHome) {
     const s = semNow();
@@ -118,7 +135,7 @@
   function onClick(e, isHome) {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.sem) {
-      if (String(semSel.value) !== b.dataset.sem) { ignoreUntil = Date.now() + 800; semSel.value = b.dataset.sem; semSel.dispatchEvent(new Event('change')); }
+      if (String(semSel.value) !== b.dataset.sem) { ignoreUntil = Date.now() + 800; semSel.value = b.dataset.sem; semSel.dispatchEvent(new Event('change')); noRecord = false; }
       if (isHome) { homeView = 'menu'; render(); } else show('menu');
       return;
     }
@@ -138,7 +155,7 @@
     if (view !== 'content') { view = 'content'; render(); } else render();
   }).observe(content, { childList: true });
   // a semester change from the top bar re-renders the notes: go back to that semester's menu
-  semSel.addEventListener('change', () => { ignoreUntil = Date.now() + 800; if (view !== 'sem') { view = 'menu'; } if (homeView !== 'sem') homeView = 'menu'; setTimeout(render, 0); });
+  semSel.addEventListener('change', () => { ignoreUntil = Date.now() + 800; noRecord = true; if (view !== 'sem') { view = 'menu'; } if (homeView !== 'sem') homeView = 'menu'; setTimeout(render, 0); });
   // opening the Notes tab directly starts from the semester choice
   document.addEventListener('click', e => {
     const t = e.target.closest('.tab[data-tab="notes"], #v2-bottomnav [data-go="notes"], .v2-home [data-go="notes"]');

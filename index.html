@@ -539,7 +539,7 @@
   }
 </style>
 <link rel="stylesheet" href="physiq-v2.css">
-<link rel="stylesheet" href="physiq-poster.css?v=20261022c">
+<link rel="stylesheet" href="physiq-poster.css?v=20261022d">
 <link rel="stylesheet" href="physiq-lessons.css?v=20261022b">
 </head>
 <body>
@@ -18361,7 +18361,15 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       </button>`).join('');
     $$('#learn-steps .learn-step').forEach(b => b.addEventListener('click', () => { learnState.step = b.dataset.step; learnState.topic = null; renderLearn(); }));
     renderLearnBody(done, best, si);
+    // Back button: each chapter / step / topic shown in Learn by chapter can be returned to
+    const snap = {ch: learnState.ch, step: learnState.step, topic: learnState.topic}, sig = JSON.stringify(snap);
+    if (window.PhysiQBack && learnLastSig && sig !== learnLastSig){
+      const prev = learnLastSnap;
+      window.PhysiQBack.push(() => { const sel = document.getElementById('learn-ch'); if (sel && ![...sel.options].some(o => o.value === prev.ch)) return false; Object.assign(learnState, prev); if (sel) sel.value = prev.ch; renderLearn(); return true; });
+    }
+    learnLastSig = sig; learnLastSnap = snap;
   }
+  let learnLastSig = null, learnLastSnap = null;
 
   function learnTopicChips(topics){
     if (!learnState.topic || !topics.includes(learnState.topic)) learnState.topic = topics[0];
@@ -18523,6 +18531,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
 })();
 </script>
 <script src="physiq-v2-ui.js"></script>
-<script src="physiq-notes-nav.js"></script>
+<script src="physiq-notes-nav.js?v=20261022c"></script>
+<script src="physiq-back.js?v=20261022c"></script>
 </body>
 </html>
