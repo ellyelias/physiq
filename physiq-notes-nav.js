@@ -54,6 +54,8 @@
     if (/^FORMULA-/.test(v)) return 'Formula list';
     if (/^DEFS-/.test(v)) return 'Definition list';
     if (/^DERIV-/.test(v)) return 'Syllabus derivations';
+    if (/^FLASH-/.test(v)) return 'Flashcards';
+    if (v === 'REALWORLD') return 'Physics in Real Life';
     const bc = bcGroup(); if (bc && bc.opts.some(o => o.v === v)) return 'Section B & C guide';
     return 'Chapters';
   }
@@ -67,7 +69,8 @@
 
   function render() {
     const inContent = view === 'content';
-    extras.forEach(el => el.classList.toggle('nn-off', !inContent));
+    // flashcards and Physics in Real Life have no topic to practise or PDF to download
+    extras.forEach(el => el.classList.toggle('nn-off', !inContent || /^FLASH-|^REALWORLD$/.test(sel.value)));
     if (contentCard) contentCard.classList.toggle('nn-off', !inContent);
     nav.dataset.view = view;
     nav.innerHTML = markup(view, false);
@@ -147,6 +150,14 @@
     if (b.dataset.pick) { if (isHome) openInNotes(b.dataset.pick); else pick(b.dataset.pick); }
   }
   nav.addEventListener('click', e => onClick(e, false));
+  // open a Notes page from anywhere (Home buttons, flashcard semester switch, Physics in Real Life), changing semester first if asked
+  window.PhysiQNotesNav = {
+    open(v, sem) {
+      if (sem && String(semSel.value) !== String(sem)) { semSel.value = String(sem); semSel.dispatchEvent(new Event('change')); }
+      ignoreUntil = 0; view = 'content';
+      openInNotes(v);
+    }
+  };
   if (home) home.addEventListener('click', e => onClick(e, true));
 
   // anything that renders a note (menu, Learn, Home, mind map "View derivations") opens the content view

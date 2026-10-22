@@ -1,0 +1,126 @@
+/* PhysiQ flashcards. Uses the poster theme tokens (physiq-poster.css). */
+.fc{max-width:760px;margin:0 auto;}
+.fc-head{background:var(--pg-dark);color:#fff;border-radius:20px;padding:20px 20px 18px;position:relative;overflow:hidden;margin-bottom:16px;}
+.fc-head::after{content:"";position:absolute;right:-80px;top:-110px;width:240px;height:190px;border-radius:50%;border:18px solid var(--tagy);opacity:.9;transform:rotate(-18deg);pointer-events:none;}
+.fc-k{font-size:13px;font-weight:600;color:var(--tagy);position:relative;z-index:1;}
+#notes-content .fc-title{font-family:var(--display);font-weight:400;font-size:clamp(32px,7vw,46px);line-height:1;text-transform:uppercase;color:#fff;margin:6px 0 6px;border:0;padding:0;letter-spacing:.01em;position:relative;z-index:1;}
+.fc-sub{color:#D9DED0;font-size:14.5px;margin:0 0 14px;max-width:520px;position:relative;z-index:1;}
+.fc-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;position:relative;z-index:1;}
+.fc-seg{display:inline-flex;background:#33473A;border-radius:999px;padding:3px;}
+.fc-seg button{border:0;background:transparent;color:#fff;font:600 13.5px var(--ui);padding:7px 14px;border-radius:999px;cursor:pointer;}
+.fc-seg button.on{background:var(--tagy);color:var(--tagy-ink);}
+.fc-sel{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#D9DED0;}
+.fc-sel select{font:600 13.5px var(--ui);color:var(--ink);background:#fff;border:0;border-radius:10px;padding:7px 10px;max-width:260px;}
+.fc-tog{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:#fff;cursor:pointer;}
+.fc-tog input{width:18px;height:18px;accent-color:var(--tagy);margin:0;}
+.fc-shuf{display:inline-flex;align-items:center;gap:6px;border:1.5px solid rgba(255,255,255,.35);background:transparent;color:#fff;font:600 13.5px var(--ui);padding:6px 12px;border-radius:999px;cursor:pointer;}
+.fc-shuf svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.fc-shuf.on{background:var(--tagy);color:var(--tagy-ink);border-color:var(--tagy);}
+
+.fc-prog{display:flex;align-items:center;gap:12px;margin:0 2px 12px;}
+.fc-bar{flex:1;height:8px;border-radius:999px;background:#E3E6D8;overflow:hidden;}
+.fc-bar i{display:block;height:100%;width:0;background:var(--lime);border-radius:999px;transition:width .3s;}
+.fc-count{font-size:13.5px;font-weight:600;color:var(--sub);white-space:nowrap;}
+
+.fc-stage{min-height:300px;display:flex;}
+.fc-card{flex:1;display:flex;text-align:left;cursor:pointer;border-radius:22px;outline:none;-webkit-tap-highlight-color:transparent;}
+.fc-card:focus-visible{box-shadow:0 0 0 3px var(--violet-b);}
+.fc-face{flex:1;display:flex;flex-direction:column;min-height:300px;border-radius:22px;padding:20px 22px 22px;box-shadow:var(--shadow);animation:fcIn .22s ease-out;}
+@keyframes fcIn{from{opacity:0;transform:translateY(6px) scale(.99);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.fc-face{animation:none;}}
+.fc-front{background:#fff;border:1.5px solid var(--line);}
+.fc-back{background:var(--lilac-tint);border:1.5px solid #D9D2FA;}
+.fc-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:12px;}
+.fc-type{display:inline-block;font-family:var(--head);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 12px;color:#fff;background:var(--orange-p);}
+.fc-type.formula{background:var(--violet-b);}
+.fc-back .fc-type{background:var(--pg-dark);text-transform:none;letter-spacing:0;font-size:14px;}
+.fc-topic{font-size:13px;color:var(--sub);font-weight:600;}
+.fc-q{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-family:var(--head);font-weight:600;font-size:clamp(26px,5.4vw,36px);line-height:1.2;color:var(--ink);padding:10px 4px;}
+.fc-hint{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:13.5px;color:var(--sub);border-top:1px dashed var(--line);padding-top:10px;}
+.fc-hint b{color:var(--violet-d);}
+.fc-a{flex:1;color:var(--ink);}
+.fc-def{font-size:clamp(18px,3.4vw,21px);line-height:1.6;}
+.fc-def b{color:var(--violet-d);}
+.fc-eq{display:flex;align-items:center;justify-content:center;text-align:center;font-family:"Newsreader",Georgia,serif;font-size:clamp(26px,5.6vw,36px);line-height:1.9;padding:8px 0;overflow-x:auto;}
+.fc-sym{font-size:15px;line-height:1.6;color:var(--ink);background:rgba(255,255,255,.7);border-radius:12px;padding:10px 12px;margin-top:10px;}
+.fc-sym b{display:block;font-family:var(--head);font-weight:600;color:var(--violet-d);font-size:14px;margin-bottom:2px;}
+.fc-known{margin-top:12px;font-size:13.5px;font-weight:700;color:var(--green);}
+
+.fc-acts{display:flex;align-items:center;gap:10px;margin:14px 0 8px;}
+.fc-acts.fc-off{display:none;}
+.fc-nav{flex:none;width:52px;height:52px;border-radius:50%;border:1.5px solid var(--line);background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.fc-nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+.fc-nav:disabled{opacity:.35;cursor:default;}
+.fc-btn{flex:1;min-height:52px;border-radius:16px;border:0;font:700 16px var(--ui);cursor:pointer;padding:10px 14px;}
+.fc-again{background:var(--orange-tint);color:#9A3A0B;border:1.5px solid #F6C7A6;}
+.fc-knew{background:var(--lime);color:var(--tagy-ink);}
+.fc-btn:hover,.fc-nav:hover:not(:disabled){filter:brightness(1.04);}
+.fc-keys{font-size:12.5px;color:var(--sub);text-align:center;margin:4px 0 0;}
+
+.fc-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;background:#fff;border:1.5px solid var(--line);border-radius:22px;padding:28px 20px;box-shadow:var(--shadow);}
+.fc-empty b{font-family:var(--head);font-weight:600;font-size:22px;color:var(--ink);}
+.fc-empty p{margin:0;color:var(--sub);font-size:15px;}
+.fc-empty .fc-btn{flex:none;min-width:220px;margin-top:8px;}
+.fc-big{font-family:var(--display);font-size:64px;line-height:1;color:var(--pg-dark);}
+.fc-big span{font-size:32px;color:var(--sub);}
+.fc-sum-b{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
+
+@media (max-width:560px){
+  .fc-head{padding:18px 16px 16px;}
+  .fc-sel{width:100%;} .fc-sel select{flex:1;max-width:none;}
+  .fc-face{padding:16px 16px 18px;min-height:280px;}
+  .fc-nav{width:46px;height:46px;}
+  .fc-btn{font-size:15px;padding:10px 8px;}
+  .fc-keys{display:none;}
+}
+.fc-sems{display:flex;gap:8px;margin:0 0 14px;position:relative;z-index:1;}
+.fc-sem{flex:1;max-width:140px;border:2px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-family:var(--head);font-weight:600;font-size:17px;letter-spacing:.03em;text-transform:uppercase;padding:9px 10px;border-radius:14px;cursor:pointer;}
+.fc-sem.on{background:var(--tagy);color:var(--tagy-ink);border-color:var(--tagy);}
+
+/* ---------- Physics in Real Life (all Real-World Physics videos) ---------- */
+.rl{max-width:900px;margin:0 auto;}
+.rl-head{background:var(--pg-dark);color:#fff;border-radius:20px;padding:20px 20px 18px;position:relative;overflow:hidden;margin-bottom:18px;}
+.rl-head::after{content:"";position:absolute;right:-80px;top:-110px;width:240px;height:190px;border-radius:50%;border:18px solid var(--orange-p);opacity:.9;transform:rotate(-18deg);pointer-events:none;}
+.rl-k{font-size:13px;font-weight:600;color:var(--tagy);position:relative;z-index:1;}
+#notes-content .rl-title{font-family:var(--display);font-weight:400;font-size:clamp(32px,7vw,46px);line-height:1;text-transform:uppercase;color:#fff;margin:6px 0 6px;border:0;padding:0;position:relative;z-index:1;}
+.rl-sub{color:#D9DED0;font-size:14.5px;margin:0;max-width:560px;position:relative;z-index:1;}
+.rl-sec{margin:0 0 22px;}
+#notes-content .rl-sh{font-family:var(--head);font-weight:600;font-size:1.25em;color:var(--tagy-ink);background:var(--tagy);display:inline-block;padding:5px 16px 5px 14px;border-radius:6px 999px 999px 6px;margin:4px 0 12px;border:0;text-transform:none;letter-spacing:0;}
+.rl-item{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:var(--shadow);}
+.rl-vids{display:grid;gap:10px;align-content:start;}
+.rl-vid{position:relative;}
+.rl-vid .rl-play,.rl-vid iframe{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:12px;overflow:hidden;background:#111;}
+.rl-play{position:relative;padding:0;cursor:pointer;}
+.rl-play img{width:100%;height:100%;object-fit:cover;display:block;opacity:.9;}
+.rl-pb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:var(--orange-p);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.35);}
+.rl-pb svg{width:28px;height:28px;margin-left:3px;}
+.rl-vcap{font-size:12.5px;color:var(--sub);margin-top:5px;line-height:1.35;}
+.rl-body{display:flex;flex-direction:column;}
+.rl-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.rl-sem,.rl-ch{font-size:12.5px;font-weight:700;border-radius:999px;padding:3px 10px;}
+.rl-sem{background:var(--pg-dark);color:var(--tagy);}
+.rl-ch{background:var(--lilac-tint);color:var(--violet-d);}
+#notes-content .rl-t{font-family:var(--head);font-weight:600;font-size:1.3em;line-height:1.2;color:var(--ink);margin:4px 0 4px;border:0;padding:0;text-transform:none;letter-spacing:0;}
+.rl-ev{margin:0 0 6px;color:var(--sub);font-size:14.5px;}
+.rl-ph{margin:0 0 12px;font-size:15px;}
+.rl-go{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:12px;background:var(--violet-b);color:#fff;font:700 14.5px var(--ui);padding:10px 14px;cursor:pointer;text-align:left;}
+.rl-go svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+.rl-note{font-size:13px;color:var(--sub);text-align:center;}
+@media (max-width:640px){.rl-item{grid-template-columns:minmax(0,1fr);}}
+.ls-rw.ls-rw-flash{box-shadow:0 0 0 4px var(--tagy), var(--shadow);transition:box-shadow .3s;}
+
+/* ---------- Home: Flashcards and Physics in Real Life buttons ---------- */
+.hx{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 16px;}
+.hx-b{display:flex;align-items:center;gap:14px;text-align:left;border:0;border-radius:20px;padding:18px;min-height:104px;color:#fff;cursor:pointer;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.hx-b::after{content:"";position:absolute;right:-50px;top:-60px;width:150px;height:120px;border-radius:50%;border:14px solid rgba(255,255,255,.18);pointer-events:none;}
+.hx-fc{background:var(--violet-b);}
+.hx-rw{background:var(--orange-p);}
+.hx-ico{flex:none;width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;}
+.hx-ico svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.hx-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;position:relative;z-index:1;}
+.hx-t b{font-family:var(--head);font-weight:600;font-size:21px;text-transform:uppercase;letter-spacing:.02em;line-height:1.1;}
+.hx-t span{font-size:13.5px;line-height:1.35;opacity:.95;}
+.hx-go{flex:none;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:1;}
+.hx-b:hover{filter:brightness(1.06);}
+@media (max-width:560px){.hx{grid-template-columns:minmax(0,1fr);gap:10px;}.hx-b{min-height:88px;padding:16px;}}
+.fc .fc-nav svg{width:24px;height:24px;stroke:var(--pg-dark);stroke-width:2.6;}
