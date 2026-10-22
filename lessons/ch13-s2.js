@@ -148,6 +148,12 @@ ${example('13.5.2', `A 2 μF capacitor is charged to 200 V by a battery. Find (a
   steps([`(a) <i>Q</i> = <i>CV</i> = (2 × 10<sup>−6</sup>)(200) = <b>4.0 × 10<sup>−4</sup> C</b>`, `(b) <i>E</i> = <i>QV</i> = (4.0 × 10<sup>−4</sup>)(200) = <b>0.080 J</b>`, `(c) <i>U</i> = ½<i>QV</i> = <b>0.040 J</b>: half of the energy supplied`]))}
 ${example('13.5.3', `<i>C</i><sub>1</sub> = 6.00 μF is charged by closing S<sub>1</sub> (<i>V</i> = 20.0 V). S<sub>1</sub> is then opened and S<sub>2</sub> closed, connecting <i>C</i><sub>1</sub> to the uncharged <i>C</i><sub>2</sub> = 3.00 μF. Find (a) the initial charge on <i>C</i><sub>1</sub>, (b) the final p.d., (c) the final charge on each capacitor, (d) the energy lost.`,
   steps([`(a) <i>Q</i><sub>1</sub> = <i>C</i><sub>1</sub><i>V</i> = (6.00 μF)(20.0) = <b>120 μC</b>`, `(b) After S<sub>2</sub> is closed the capacitors are in parallel and share the charge until their p.d.s are equal. Charge is conserved: <i>V</i>′ = ${fr('<i>Q</i><sub>total</sub>', '<i>C</i><sub>1</sub> + <i>C</i><sub>2</sub>')} = ${fr('120', '9.00')} = <b>13.3 V</b>`, `(c) <i>Q</i><sub>1</sub>′ = (6.00)(13.33) = <b>80.0 μC</b>; &nbsp; <i>Q</i><sub>2</sub>′ = (3.00)(13.33) = <b>40.0 μC</b>`, `(d) before: ½(120 × 10<sup>−6</sup>)(20.0) = 1.20 × 10<sup>−3</sup> J; after: ½(120 × 10<sup>−6</sup>)(13.33) = 0.80 × 10<sup>−3</sup> J; lost = <b>4.0 × 10<sup>−4</sup> J</b> (as heat in the connecting wires)`]), fig(F.e10()))}
+${h4('Store slowly, release quickly: camera flash and defibrillator')}
+<p>A capacitor can be charged slowly by a small battery and then discharged in a fraction of a millisecond. The <b>same energy</b> released in a much <b>shorter time</b> gives a huge <b>power</b>. This is how a camera flash and a heart defibrillator work.</p>
+${ul([`<b>Charging</b> goes through a large resistance (the charging circuit), so the time constant <i>RC</i> is about a second or more: you wait for the "ready" light.`, `<b>Discharging</b> goes through a small resistance (the flash tube, or the patient's chest, about 50 Ω), so the time constant is about a millisecond.`, `Energy stored: <i>U</i> = ½<i>CV</i><sup>2</sup>. Power ≈ energy ÷ time, so releasing it in about a millisecond gives tens of kilowatts.`])}
+${sim('flash', 'Camera flash and defibrillator', 'Choose the device and press Charge: watch the capacitor charge slowly (seconds). Then press Fire: the energy comes out in about a millisecond. A defibrillator shock stops the chaotic heartbeat so that a normal rhythm can restart.')}
+${example('13.5.4', `A defibrillator has a 32 μF capacitor charged to 3.5 kV. It discharges through the patient's chest, of resistance 50 Ω. Find (a) the energy stored, (b) the time constant of the discharge, (c) the initial current, (d) the average power if the energy is delivered in 3.0 ms.`,
+  steps([`(a) <i>U</i> = ½<i>CV</i><sup>2</sup> = ½(32 × 10<sup>−6</sup>)(3500)<sup>2</sup> = <b>196 J</b>`, `(b) τ = <i>RC</i> = (50)(32 × 10<sup>−6</sup>) = <b>1.6 × 10<sup>−3</sup> s</b>`, `(c) <i>I</i><sub>0</sub> = ${fr('<i>V</i><sub>0</sub>', '<i>R</i>')} = ${fr('3500', '50')} = <b>70 A</b>`, `(d) <i>P</i> ≈ ${fr('196', '3.0 × 10<sup>−3</sup>')} = <b>6.5 × 10<sup>4</sup> W</b> (65 kW): far more than its battery could give directly`]))}
 ${exercises('Exercise: energy', [
   { q: `<i>C</i><sub>1</sub> = 3.00 μF and <i>C</i><sub>2</sub> = 6.00 μF are connected in series to a 4.00 V battery. Find (a) the equivalent capacitance, (b) the charge on each capacitor, (c) the p.d. across each, (d) the energy stored in each, (e) the area of each plate of <i>C</i><sub>1</sub> if its plates are 0.010 mm apart in vacuum.`, a: `(a) 2.00 μF &nbsp; (b) 8.00 μC &nbsp; (c) <i>V</i><sub>1</sub> = 2.67 V, <i>V</i><sub>2</sub> = 1.33 V &nbsp; (d) <i>U</i><sub>1</sub> = 1.07 × 10<sup>−5</sup> J, <i>U</i><sub>2</sub> = 5.33 × 10<sup>−6</sup> J &nbsp; (e) 3.39 m<sup>2</sup>` }])}
 `)}
@@ -385,6 +391,61 @@ ${exercises('Exercise: RC circuits', [
       ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(mx, my0, mw, 10); ctx.fillStyle = fr > 0.85 ? '#FF8A5C' : '#D5DC3B'; ctx.fillRect(mx, my0, mw * Math.min(1, fr), 10);
       text(ctx, 'E / dielectric strength of air', mx, my0 + 24, { fs: 10.5, c: '#DDE3EA' });
       ro([['charge on the cloud Q', fmt(S.Q, 1) + ' C', 'hl'], ['field E = Q/(ε₀A)', fmt(E / 1e6, 2) + ' × 10⁶ V m⁻¹', 'hl'], ['capacitance C = ε₀A/d', fmt(Cap * 1e9, 1) + ' nF'], ['p.d. V = Q/C', fmt(V / 1e9, 2) + ' × 10⁹ V'], ['energy stored ½QV', fmt(U / 1e9, 1) + ' × 10⁹ J'], ['flashes', String(S.count)], ['thunder heard after d/340', fmt(S.d * 1000 / 340, 1) + ' s' + (heardAt > performance.now() ? ' (wait for it…)' : '')]]);
+    }
+    loop(cv, frame);
+  });
+  // ---------- camera flash and defibrillator: charge slowly, discharge quickly ----------
+  window.PhysiQSims.add('flash', function (root) {
+    const { COL, fmt, el, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const DEV = { cam: { name: 'camera flash', C: 150e-6, V: 300, Rc: 10e3, Rd: 2 }, def: { name: 'defibrillator', C: 32e-6, V: 3500, Rc: 100e3, Rd: 50 } };
+    const S = { k: 'def', phase: 'idle', Vc: 0, t: 0, hist: [], fire: 0, after: 0, ecg: 0 };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const chips = [['def', 'Defibrillator'], ['cam', 'Camera flash']].map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.k ? ' on' : ''), () => { S.k = k; S.phase = 'idle'; S.Vc = 0; S.t = 0; S.hist = []; S.fire = 0; S.after = 0; chips.forEach(x => x.classList.toggle('on', x === b)); }); return b; });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    button(bar, '⚡ Charge', '', () => { if (S.phase !== 'firing') { S.phase = 'charging'; S.t = 0; S.hist = []; S.Vc = 0; S.after = 0; } });
+    button(bar, '💥 Fire', '', () => { if (S.Vc > 1 && S.phase !== 'firing') { S.phase = 'firing'; S.fire = 0; S.V0 = S.Vc; } });
+    const cv = canvas(root); const ro = readouts(root);
+    function heart(ctx, x, y, r, col) { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x, y + r * 0.9); ctx.bezierCurveTo(x - r * 1.4, y - r * 0.1, x - r * 0.7, y - r * 1.1, x, y - r * 0.4); ctx.bezierCurveTo(x + r * 0.7, y - r * 1.1, x + r * 1.4, y - r * 0.1, x, y + r * 0.9); ctx.fill(); }
+    function frame(dt) {
+      if (dt < 0) dt = 0;
+      const D = DEV[S.k], tc = D.Rc * D.C, td = D.Rd * D.C;
+      if (S.phase === 'charging') { S.t += dt; S.Vc = D.V * (1 - Math.exp(-S.t / tc)); S.hist.push([S.t, S.Vc]); if (S.Vc > 0.99 * D.V) S.phase = 'ready'; }
+      if (S.phase === 'firing') { S.fire += dt / 1.2; S.Vc = S.V0 * Math.exp(-S.fire * 5); if (S.fire >= 1) { S.phase = 'idle'; S.Vc = 0; S.after = 1; S.hist = []; } }
+      if (S.after > 0) S.after += dt;
+      S.ecg += dt;
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(1.0, 360, 460) : cv.size(0.5, 270, 340); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      // device picture
+      const px = narrow ? w / 2 : w * 0.2, py = narrow ? 80 : h * 0.4;
+      const flashA = S.phase === 'firing' ? Math.max(0, 1 - S.fire * 2.2) : 0;
+      if (S.k === 'cam') {
+        ctx.fillStyle = '#2E3440'; ctx.fillRect(px - 60, py - 30, 120, 70); ctx.fillStyle = '#4C566A'; ctx.beginPath(); ctx.arc(px, py + 6, 24, 0, 7); ctx.fill(); ctx.fillStyle = '#88C0D0'; ctx.beginPath(); ctx.arc(px, py + 6, 14, 0, 7); ctx.fill();
+        ctx.fillStyle = `rgba(255,255,230,${0.35 + 0.65 * flashA})`; ctx.fillRect(px + 22, py - 44, 34, 14); ctx.strokeStyle = COL.ink; ctx.strokeRect(px + 22, py - 44, 34, 14);
+        if (flashA > 0) { const g = ctx.createRadialGradient(px + 39, py - 37, 4, px + 39, py - 37, 160); g.addColorStop(0, `rgba(255,255,220,${0.9 * flashA})`); g.addColorStop(1, 'rgba(255,255,220,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); }
+        text(ctx, S.phase === 'ready' ? 'ready light ON' : S.phase === 'charging' ? 'charging…' : '', px, py + 58, { a: 'center', fs: 11, b: 1, c: S.phase === 'ready' ? COL.gr : COL.sub });
+      } else {
+        // heart with an ECG strip
+        const beating = S.after > 0.6;
+        heart(ctx, px, py - 8, 26 + (beating ? 3 * Math.max(0, Math.sin(S.ecg * 7)) : 1.5 * Math.random()), flashA > 0 ? '#FFD36B' : '#D9534F');
+        const ex = px - 70, ew = 140, ey = py + 46; ctx.fillStyle = '#10261A'; ctx.fillRect(ex, ey - 18, ew, 36); ctx.strokeStyle = '#4CE07A'; ctx.lineWidth = 1.6; ctx.beginPath();
+        for (let i = 0; i <= 140; i++) { const tt = S.ecg * 1.5 + i / 50; let y;
+          if (beating) { const ph = (tt % 1); y = ph < 0.05 ? -14 * Math.sin(ph / 0.05 * Math.PI) : ph < 0.1 ? 6 * Math.sin((ph - 0.05) / 0.05 * Math.PI) : ph > 0.3 && ph < 0.42 ? -4 * Math.sin((ph - 0.3) / 0.12 * Math.PI) : 0; }
+          else y = 7 * Math.sin(tt * 23) * Math.sin(tt * 3.7) + 3 * Math.sin(tt * 41);
+          i ? ctx.lineTo(ex + i, ey + y) : ctx.moveTo(ex + i, ey + y); }
+        ctx.stroke();
+        text(ctx, beating ? 'normal rhythm restarted' : 'chaotic rhythm (fibrillation)', px, ey + 32, { a: 'center', fs: 11, b: 1, c: beating ? COL.gr : COL.r });
+        if (flashA > 0) { ctx.fillStyle = `rgba(255,240,150,${0.5 * flashA})`; ctx.fillRect(0, 0, w, h); }
+      }
+      // graphs: capacitor voltage while charging (seconds), current while discharging (milliseconds)
+      const gx = narrow ? 44 : w * 0.42, gw = w - gx - 16, gy = narrow ? 170 : 24, gh = narrow ? (h - 170 - 50) / 2 : (h - 70) / 2;
+      const panel = (y0, title) => { ctx.fillStyle = '#fff'; ctx.fillRect(gx, y0, gw, gh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(gx, y0); ctx.lineTo(gx, y0 + gh); ctx.lineTo(gx + gw, y0 + gh); ctx.stroke(); text(ctx, title, gx + 6, y0 + 13, { fs: 11, b: 1 }); };
+      panel(gy, 'charging: V across C (time in seconds)');
+      const T1 = 5 * tc; ctx.strokeStyle = COL.v; ctx.lineWidth = 2.2; ctx.beginPath(); S.hist.forEach(([t, V], i) => { const X = gx + gw * Math.min(1, t / T1), Y = gy + gh - V / D.V * (gh - 18); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+      text(ctx, '5RC = ' + fmt(T1, 1) + ' s', gx + gw - 4, gy + gh - 4, { a: 'right', fs: 10, c: COL.sub });
+      const g2 = gy + gh + 30; panel(g2, 'firing: current (time in milliseconds)');
+      if (S.phase === 'firing' || S.after > 0) { const f = S.phase === 'firing' ? S.fire : 1; ctx.strokeStyle = COL.o; ctx.lineWidth = 2.2; ctx.beginPath(); for (let i = 0; i <= 100 * f; i++) { const u = i / 100, X = gx + gw * u, Y = g2 + 16 + (gh - 18) * (1 - Math.exp(-u * 5)); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); } ctx.stroke(); }
+      text(ctx, '5RC = ' + fmt(5 * td * 1000, 1) + ' ms', gx + gw - 4, g2 + gh - 4, { a: 'right', fs: 10, c: COL.sub });
+      const U = 0.5 * D.C * D.V * D.V;
+      ro([['capacitor', fmt(D.C * 1e6, 0) + ' μF charged to ' + (D.V >= 1000 ? fmt(D.V / 1000, 1) + ' kV' : fmt(D.V, 0) + ' V'), 'hl'], ['energy stored ½CV²', fmt(U, U < 20 ? 2 : 0) + ' J', 'hl'], ['charging time constant RC', fmt(tc, 1) + ' s'], ['discharge time constant RC', fmt(td * 1000, 2) + ' ms'], ['peak current V/R', fmt(D.V / D.Rd, 0) + ' A'], ['power ≈ U ÷ 2RC', fmt(U / (2 * td) / 1000, 0) + ' kW']]);
     }
     loop(cv, frame);
   });

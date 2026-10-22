@@ -260,7 +260,11 @@ ${example('16.6.2', `A velocity selector must let positive ions moving to the ri
   steps([`<i>B</i> = ${fr('<i>E</i>', '<i>v</i>')} = ${fr('300', '6.0 × 10<sup>3</sup>')} = <b>0.050 T</b>`, `The electric force on the ions is into the page, so the magnetic force must be out of the page. By Fleming's left-hand rule (second finger to the right, thumb out of the page) B points <b>up the page</b>.`]))}
 ${example('16.6.3', `In a Thomson experiment the beam is undeflected with <i>E</i> = 2.0 × 10<sup>4</sup> V m<sup>−1</sup> and <i>B</i> = 1.0 mT. With the electric field switched off, the beam moves in an arc of radius 11.4 cm. Find (a) the speed of the electrons, (b) e/m.`,
   steps([`(a) <i>v</i> = ${fr('<i>E</i>', '<i>B</i>')} = ${fr('2.0 × 10<sup>4</sup>', '1.0 × 10<sup>−3</sup>')} = <b>2.0 × 10<sup>7</sup> ${ms}</b>`, `(b) ${fr('<i>e</i>', '<i>m</i>')} = ${fr('<i>E</i>', '<i>B</i><sup>2</sup><i>r</i>')} = ${fr('2.0 × 10<sup>4</sup>', '(1.0 × 10<sup>−3</sup>)<sup>2</sup>(0.114)')} = <b>1.75 × 10<sup>11</sup> C kg<sup>−1</sup></b>`]))}
-${note(`<b>Mass spectrometer.</b> Ions of the same charge leave a velocity selector with the same speed. In a magnetic field alone, <i>r</i> = <i>mv</i>/(<i>qB</i>) ∝ <i>m</i>, so ions of different mass (isotopes) land at different places.`)}
+${h4('A real use: the mass spectrometer')}
+${steps([`Atoms of the sample are <b>ionised</b> (given the same charge, usually +<i>e</i>) and accelerated into a beam.`, `A <b>velocity selector</b> (crossed <i>E</i> and <i>B</i><sub>1</sub>) lets through only ions with <i>v</i> = <i>E</i>/<i>B</i><sub>1</sub>, so all ions leave it with the same speed.`, `In a second field <i>B</i><sub>2</sub> alone, each ion moves in a semicircle of radius <i>r</i> = <i>mv</i>/(<i>qB</i><sub>2</sub>) ∝ <i>m</i>: heavier ions make bigger circles and land further along the detector.`, `So the detector separates <b>isotopes</b> (same charge, different mass). It is used to date rocks and fossils (carbon-14), test for drugs in sport and check the purity of chemicals.`])}
+${sim('massspec', 'Mass spectrometer', 'Choose an element and watch its isotopes leave the velocity selector at the same speed and then separate in the magnetic field B₂. Change B₂: a stronger field makes smaller circles and brings the isotopes closer together on the detector.')}
+${example('16.6.4', `Singly charged neon ions leave a velocity selector at 1.0 × 10<sup>5</sup> ${ms} and enter a field <i>B</i><sub>2</sub> = 0.50 T. Find the distance between the places where neon-20 and neon-22 ions hit the detector. (1 u = 1.66 × 10<sup>−27</sup> kg)`,
+  steps([`<i>r</i><sub>20</sub> = ${fr('<i>mv</i>', '<i>eB</i>')} = ${fr('(20 × 1.66 × 10<sup>−27</sup>)(1.0 × 10<sup>5</sup>)', '(1.60 × 10<sup>−19</sup>)(0.50)')} = 4.15 × 10<sup>−2</sup> m; similarly <i>r</i><sub>22</sub> = 4.57 × 10<sup>−2</sup> m`, `Each ion lands a diameter (2<i>r</i>) from the entrance slit, so the separation is 2(<i>r</i><sub>22</sub> − <i>r</i><sub>20</sub>) = 2(0.42 × 10<sup>−2</sup>) = <b>8.3 × 10<sup>−3</sup> m</b> (8.3 mm)`]))}
 `)}
 
 ${sec('16-7', '16.7 Hall effect', `
@@ -453,6 +457,55 @@ ${exercises('Exercise: crossed fields and the Hall effect', [
       text(ctx, 'V_H = ' + fmt(VH * 1e3, 2) + ' mV', w - 10, h - 10, { a: 'right', b: 1, fs: 13, c: COL.gr });
       text(ctx, 'top face: ' + (k ? (topSign === '+' ? 'positive' : 'negative') : 'no charge'), 10, h - 10, { b: 1, fs: 12, c: COL.ink });
       ro([['Hall voltage V_H = BI/(net)', fmt(VH * 1e3, 2) + ' mV', 'hl'], ['carriers pushed to', S.B * S.I ? 'the top face' : '—', 'hl'], ['n (this slab)', '1.0 × 10²² m⁻³'], ['thickness t', '1.0 mm']]);
+    }
+    loop(cv, frame);
+  });
+  // ---------- mass spectrometer ----------
+  window.PhysiQSims.add('massspec', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const u = 1.66e-27, e = 1.6e-19, v = 1.0e5;
+    const SETS = { Ne: [[20, 0.905, '#6A63EC'], [21, 0.003, '#2BB3A3'], [22, 0.092, '#F2661B']], Cl: [[35, 0.76, '#3E8E1E'], [37, 0.24, '#C0392B']], C: [[12, 0.989, '#5A6170'], [13, 0.011, '#F2661B'], [14, 0.0, '#6A63EC']] };
+    const S = { el: 'Ne', B: 0.5, ions: [], hits: {} };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const chips = [['Ne', 'Neon (20, 21, 22)'], ['Cl', 'Chlorine (35, 37)'], ['C', 'Carbon (12, 13, 14)']].map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.el ? ' on' : ''), () => { S.el = k; S.ions = []; S.hits = {}; chips.forEach(x => x.classList.toggle('on', x === b)); }); return b; });
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'magnetic field <i>B</i><sub>2</sub>', 0.2, 1.0, 0.05, S.B, 'T', x => { S.B = x; S.ions = []; S.hits = {}; });
+    const cv = canvas(root); const ro = readouts(root);
+    let acc = 0;
+    function frame(dt) {
+      if (dt < 0) dt = 0;
+      const ctx = cv.ctx, { w, h } = cv.size(0.62, 300, 420); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const set = SETS[S.el];
+      const wallX = Math.min(w * 0.4, 170), beamY = h - 40, mMax = set[set.length - 1][0], maxD = 2 * mMax * u * v / (e * 0.2);   // largest diameter for this element
+      const sc = (h - 80) / maxD;
+      // source and velocity selector
+      ctx.fillStyle = '#E9E2C9'; ctx.fillRect(4, beamY - 16, 40, 32); ctx.strokeStyle = COL.ink; ctx.strokeRect(4, beamY - 16, 40, 32); text(ctx, 'ion', 24, beamY - 2, { a: 'center', fs: 10 }); text(ctx, 'source', 24, beamY + 10, { a: 'center', fs: 10 });
+      ctx.fillStyle = '#F2A08A'; ctx.fillRect(48, beamY - 22, wallX - 60, 5); ctx.fillStyle = '#9FC3E8'; ctx.fillRect(48, beamY + 17, wallX - 60, 5);
+      text(ctx, 'velocity selector', (48 + wallX - 12) / 2, beamY + 36, { a: 'center', fs: 10.5, c: COL.sub });
+      // B2 region and detector
+      ctx.fillStyle = 'rgba(106,99,236,.06)'; ctx.fillRect(wallX, 10, w - wallX - 10, h - 20);
+      for (let x = wallX + 18; x < w - 10; x += 30) for (let y = 22; y < h - 14; y += 30) { ctx.strokeStyle = 'rgba(106,99,236,.28)'; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(x - 3.5, y - 3.5); ctx.lineTo(x + 3.5, y + 3.5); ctx.moveTo(x + 3.5, y - 3.5); ctx.lineTo(x - 3.5, y + 3.5); ctx.stroke(); }
+      text(ctx, 'B₂ into the page', w - 14, 24, { a: 'right', fs: 11, b: 1, c: COL.v });
+      ctx.fillStyle = '#2E3440'; ctx.fillRect(wallX - 4, 10, 8, beamY - 18); ctx.fillRect(wallX - 4, beamY + 8, 8, h - beamY - 18);
+      // paths
+      set.forEach(([m, ab, col]) => { const r = m * u * v / (e * S.B) * sc; ctx.strokeStyle = col; ctx.globalAlpha = 0.35; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(wallX, beamY - r, r, Math.PI / 2, -Math.PI / 2, true); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+        const hy = beamY - 2 * r; ctx.fillStyle = col; ctx.fillRect(wallX - 4, hy - 2, 8, 4); });
+      // close-up of the detector (positions magnified 5 times about the middle isotope)
+      { const zx = 10, zw = wallX - 30, zy = 40, zh = Math.max(80, beamY - 120), mid = set[Math.floor((set.length - 1) / 2)][0], c0 = zy + zh / 2;
+        ctx.fillStyle = '#fff'; ctx.fillRect(zx, zy, zw, zh); ctx.strokeStyle = COL.grid; ctx.strokeRect(zx, zy, zw, zh); text(ctx, 'detector (close-up ×5)', zx + 2, zy - 8, { fs: 10.5, b: 1 });
+        ctx.fillStyle = '#2E3440'; ctx.fillRect(zx + zw - 8, zy + 4, 4, zh - 8);
+        set.forEach(([m, , col]) => { const y = c0 - (m - mid) * 2 * u * v / (e * S.B) * sc * 5; if (y < zy + 6 || y > zy + zh - 6) return; const n = S.hits[m] || 0;
+          ctx.fillStyle = col; ctx.fillRect(zx + zw - 8 - Math.min(zw - 50, 4 + n * 0.5), y - 3, Math.min(zw - 50, 4 + n * 0.5), 6); text(ctx, m + ' u', zx + 6, y + 4, { fs: 11, b: 1, c: col }); }); }
+      // ions: straight through the selector, then a semicircle in B2
+      acc += dt; while (acc > 0.07) { acc -= 0.07; let x = Math.random(), k = 0, sum = 0; for (; k < set.length; k++) { sum += Math.max(set[k][1], 0.06); if (x * set.reduce((a, q) => a + Math.max(q[1], 0.06), 0) < sum) break; } S.ions.push({ k: Math.min(k, set.length - 1), s: 0 }); }
+      const speed = 260;   // pixels per second on screen
+      S.ions = S.ions.filter(io => { const [m, , col] = set[io.k], r = m * u * v / (e * S.B) * sc, L1 = wallX - 38; io.s += speed * dt;
+        let X, Y; if (io.s < L1) { X = 38 + io.s; Y = beamY; } else { const th = (io.s - L1) / r; if (th >= Math.PI) { S.hits[m] = (S.hits[m] || 0) + 1; return false; } X = wallX + r * Math.sin(th); Y = beamY - r + r * Math.cos(th); }
+        ctx.beginPath(); ctx.arc(X, Y, 3.6, 0, 7); ctx.fillStyle = col; ctx.fill(); return true; });
+      const rows = [['speed from the selector v = E/B₁', '1.0 × 10⁵ m s⁻¹', 'hl']];
+      set.forEach(([m]) => rows.push([`r for mass ${m} u`, fmt(m * u * v / (e * S.B) * 100, 2) + ' cm']));
+      rows.push(['gap between the outer two on the detector', fmt(2 * (set[set.length - 1][0] - set[0][0]) * u * v / (e * S.B) * 1000, 1) + ' mm', 'hl']);
+      ro(rows);
     }
     loop(cv, frame);
   });

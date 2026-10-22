@@ -165,6 +165,9 @@ ${example('17.2.9', `The graph shows the output of a generator whose coil has 15
   steps([`(a) Period <i>T</i> = 0.42 s, so <i>f</i> = ${fr('1', '0.42')} = <b>2.4 Hz</b>`, `(b) ω = 2π<i>f</i> = <b>15 rad s<sup>−1</sup></b>`, `(c) <i>B</i> = ${fr(`${eps}<sub>0</sub>`, '<i>NA</i>ω')} = ${fr('28', '(150)(0.020)(14.96)')} = <b>0.62 T</b>`]), fig(F.ex29()))}
 ${example('17.2.10', `A generator coil has 500 turns, each of area 60 cm<sup>2</sup>, and turns at 3600 rev min<sup>−1</sup> in a 2.0 mT field. Find (a) the frequency of the e.m.f., (b) the peak e.m.f., (c) the e.m.f. when the plane of the coil makes 60° with the field.`,
   steps([`(a) <i>f</i> = ${fr('3600', '60')} = <b>60 Hz</b> (ω = 2π × 60 = 377 rad s<sup>−1</sup>)`, `(b) ${eps}<sub>0</sub> = <i>NBA</i>ω = (500)(2.0 × 10<sup>−3</sup>)(60 × 10<sup>−4</sup>)(377) = <b>2.26 V</b>`, `(c) The plane is at 60° to B, so the normal is at θ = 30° to B: ${eps} = ${eps}<sub>0</sub> sin 30° = <b>1.13 V</b>`]))}
+${h4('Motor and dynamo: the same machine')}
+${ul([`An <b>electric motor</b> is a coil in a magnetic field. A current in the coil makes forces <i>BIl</i> on its two long sides, one up and one down, which turn the coil (Chapter 16). A <b>split-ring commutator</b> reverses the current every half turn, so the coil keeps turning the same way.`, `A <b>dynamo</b> (like a bicycle dynamo) is the same machine used the other way round: you turn the coil, the flux through it changes, and an e.m.f. ε = <i>NBA</i>ω sin ω<i>t</i> is induced. With <b>slip rings</b> it gives a.c.; with a commutator the output is always in one direction (d.c.).`, `In a working motor the turning coil also acts as a dynamo: it induces a back e.m.f. that opposes the supply (Lenz's law), which is why a motor takes a large current when it starts and a smaller one at full speed.`])}
+${sim('motor', 'Motor and dynamo', 'As a motor: switch on the current and watch the forces BIl on the two long sides turn the coil, with the commutator swapping the current every half turn. As a dynamo: turn the handle faster or slower and see the lamp and the e.m.f. graph; switch between slip rings (a.c.) and a commutator (d.c.).')}
 ${exercises("Exercise: Faraday's and Lenz's laws", [
   { q: `A 200-turn coil of area 4.0 cm<sup>2</sup> is turned from a position where its plane is perpendicular to a 0.30 T field to one where its plane is parallel to it, in 0.050 s. Find the average e.m.f.`, a: `ΔΦ = <i>BA</i> − 0; |${eps}| = <i>NBA</i>/Δ<i>t</i> = (200)(0.30)(4.0 × 10<sup>−4</sup>)/0.050 = <b>0.48 V</b>` },
   { q: `Explain, using energy, why the induced current must oppose the change that produces it.`, a: `If it helped the change, the motion would speed up by itself and electrical energy would appear without any work being done, breaking the conservation of energy. Because it opposes the change, work must be done, and that work becomes the electrical energy.` },
@@ -211,6 +214,11 @@ ${steps([`Field inside the primary: <i>B</i><sub>p</sub> = ${fr(`${mu0}<i>N</i><
 ${key(`<i>M</i> = ${fr(`${mu0}<i>N</i><sub>p</sub><i>N</i><sub>s</sub><i>A</i>`, '<i>l</i><sub>p</sub>')}`, '<i>A</i> = cross-sectional area of the primary; <i>l</i><sub>p</sub> = length of the primary')}
 ${example('17.5.1', `A primary solenoid of radius 2.0 cm and length 24 cm has 500 turns. A secondary coil of 80 turns is wound round its centre. Find (a) the mutual inductance, (b) the e.m.f. induced in the secondary when the primary current changes at 4.8 A s<sup>−1</sup>.`,
   steps([`(a) <i>M</i> = ${fr(`${mu0}<i>N</i><sub>p</sub><i>N</i><sub>s</sub><i>A</i>`, '<i>l</i><sub>p</sub>')} = ${fr('(4π × 10<sup>−7</sup>)(500)(80)π(0.020)<sup>2</sup>', '0.24')} = <b>2.6 × 10<sup>−4</sup> H</b>`, `(b) |${eps}<sub>s</sub>| = <i>M</i>${fr('d<i>I</i><sub>p</sub>', 'd<i>t</i>')} = (2.63 × 10<sup>−4</sup>)(4.8) = <b>1.3 × 10<sup>−3</sup> V</b>`]))}
+${h4('A real use: transformers and power lines')}
+${ul([`A <b>transformer</b> is two coils on one iron core. An <b>alternating</b> current in the primary makes a changing flux in the core, which induces an e.m.f. in the secondary by <b>mutual induction</b>. (A steady d.c. would give no changing flux and no output.)`, `For an ideal transformer: ${fr('<i>V</i><sub>s</sub>', '<i>V</i><sub>p</sub>')} = ${fr('<i>N</i><sub>s</sub>', '<i>N</i><sub>p</sub>')} and, with no energy lost, <i>V</i><sub>p</sub><i>I</i><sub>p</sub> = <i>V</i><sub>s</sub><i>I</i><sub>s</sub>.`, `Power stations send electricity at very <b>high voltage</b> (132–400 kV). For the same power <i>P</i> = <i>VI</i>, a higher voltage means a <b>smaller current</b>, and the heat wasted in the cables, <i>I</i><sup>2</sup><i>R</i>, falls with the <b>square</b> of the current.`, `Step-up transformers raise the voltage at the power station; step-down transformers near our homes bring it back to 240 V.`])}
+${sim('grid', 'Transformers and power lines', 'Send 20 MW from the power station to the town through cables of total resistance 4.0 Ω. Change the transmission voltage and watch the current, the heat lost in the cables and how bright the town is.')}
+${example('17.5.2', `A power station sends 20 MW through cables of total resistance 4.0 Ω. Find the power lost in the cables if it is sent at (a) 11 kV, (b) 275 kV.`,
+  steps([`(a) <i>I</i> = ${fr('<i>P</i>', '<i>V</i>')} = ${fr('20 × 10<sup>6</sup>', '11 × 10<sup>3</sup>')} = 1820 A; &nbsp; <i>P</i><sub>loss</sub> = <i>I</i><sup>2</sup><i>R</i> = (1820)<sup>2</sup>(4.0) = <b>13 MW</b> (two-thirds of the power!)`, `(b) <i>I</i> = ${fr('20 × 10<sup>6</sup>', '275 × 10<sup>3</sup>')} = 72.7 A; &nbsp; <i>P</i><sub>loss</sub> = (72.7)<sup>2</sup>(4.0) = <b>21 kW</b> (about 0.1%)`]))}
 ${exercises('Exercise: inductance', [
   { q: `A solenoid 25 cm long has 1000 turns and a cross-sectional area of 4.0 cm<sup>2</sup>. Find (a) its self-inductance, (b) the energy stored when it carries 3.0 A.`, a: `(a) <i>L</i> = ${mu0}<i>N</i><sup>2</sup><i>A</i>/<i>l</i> = <b>2.0 × 10<sup>−3</sup> H</b> &nbsp; (b) <i>U</i> = ½<i>LI</i><sup>2</sup> = <b>9.0 × 10<sup>−3</sup> J</b>` },
   { q: `The current in the primary of a pair of coils (M = 0.15 H) falls steadily from 4.0 A to zero in 0.020 s. Find the e.m.f. induced in the secondary.`, a: `|${eps}| = <i>M</i>Δ<i>I</i>/Δ<i>t</i> = (0.15)(4.0/0.020) = <b>30 V</b>` },
@@ -357,6 +365,110 @@ ${exercises('Exercise: inductance', [
       text(ctx, 'I / A', bx - 8, by + 6, { a: 'right', fs: 11, b: 1 }); text(ctx, 't (time constant L/R = ' + fmt(S.L / S.R, 2) + ' s)', bx + bw, by + bh + 20, { a: 'right', fs: 11, c: COL.sub });
       const U = 0.5 * S.L * S.I * S.I;
       ro([['current I', fmt(S.I, 2) + ' A', 'hl'], ['back e.m.f. L dI/dt', fmt(back, 2) + ' V', 'hl'], ['energy stored ½LI²', fmt(U, 2) + ' J'], ['supply e.m.f.', '6.0 V']]);
+    }
+    loop(cv, frame);
+  });
+  // ---------- motor and dynamo ----------
+  window.PhysiQSims.add('motor', function (root) {
+    const { COL, fmt, el, slider, button, toggle, canvas, text, readouts, arrow, loop } = window.PhysiQSims.U;
+    const S = { mode: 'motor', on: false, th: 0.3, om: 0, crank: 2, dc: false, hist: [] };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    let modeUI = [];
+    const build = () => { ctl.innerHTML = ''; modeUI = [];
+      if (S.mode === 'motor') { modeUI.push(toggle(ctl, 'Switch on the current', S.on, v => { S.on = v; })); }
+      else { slider(ctl, 'turning speed', 0, 5, 0.5, S.crank, 'turns per second', v => { S.crank = v; }); toggle(ctl, 'Commutator (d.c.) instead of slip rings (a.c.)', S.dc, v => { S.dc = v; S.hist = []; }); } };
+    const chips = [['motor', 'Electric motor'], ['dynamo', 'Dynamo (generator)']].map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.mode ? ' on' : ''), () => { S.mode = k; S.hist = []; chips.forEach(x => x.classList.toggle('on', x === b)); build(); }); return b; });
+    build();
+    const cv = canvas(root); const ro = readouts(root);
+    function frame(dt) {
+      if (dt < 0) dt = 0;
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(1.1, 380, 480) : cv.size(0.52, 280, 360); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      // motion
+      let emf = 0, torque = 0;
+      if (S.mode === 'motor') { torque = S.on ? Math.abs(Math.cos(S.th)) * 9 : 0; S.om += (torque - 1.6 * S.om) * dt; S.th += S.om * dt; }
+      else { S.om = 2 * Math.PI * S.crank; S.th += S.om * dt; emf = S.om * Math.cos(S.th) / (2 * Math.PI * 3); if (S.dc) emf = Math.abs(emf); S.hist.push(emf); if (S.hist.length > 220) S.hist.shift(); }
+      // scene
+      const cx = narrow ? w / 2 : w * 0.34, cy = narrow ? 120 : h / 2 - 6, R = narrow ? 64 : 76, depth = narrow ? 110 : 130;
+      const P = (x, y, z) => [cx + x + 0.45 * z, cy - y - 0.3 * z];
+      // magnets and field
+      ctx.fillStyle = '#F2A08A'; ctx.fillRect(cx - R - 70, cy - 52, 44, 104); ctx.fillStyle = '#9FC3E8'; ctx.fillRect(cx + R + 70, cy - 52, 44, 104);
+      text(ctx, 'N', cx - R - 48, cy + 6, { a: 'center', b: 1, fs: 18 }); text(ctx, 'S', cx + R + 92, cy + 6, { a: 'center', b: 1, fs: 18 });
+      ctx.strokeStyle = 'rgba(106,99,236,.25)'; ctx.lineWidth = 1.2; for (let y = -40; y <= 40; y += 20) { ctx.beginPath(); ctx.moveTo(cx - R - 24, cy + y); ctx.lineTo(cx + R + 66, cy + y); ctx.stroke(); }
+      text(ctx, 'B →', cx + R + 40, cy - 58, { a: 'center', fs: 11, b: 1, c: COL.v });
+      // coil: long sides along z, at ±R(cos th, sin th)
+      const c = Math.cos(S.th), sn = Math.sin(S.th), A1 = [R * c, R * sn], A2 = [-R * c, -R * sn], zf = -depth / 2, zb = depth / 2;
+      const p1f = P(A1[0], A1[1], zf), p1b = P(A1[0], A1[1], zb), p2f = P(A2[0], A2[1], zf), p2b = P(A2[0], A2[1], zb);
+      ctx.strokeStyle = '#B5651D'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(...p1f); ctx.lineTo(...p1b); ctx.lineTo(...p2b); ctx.lineTo(...p2f); ctx.stroke();
+      // commutator / slip rings at the front, on the axis
+      const ax = P(0, 0, zf - 26); ctx.beginPath(); ctx.moveTo(...p1f); ctx.lineTo(ax[0] + 6, ax[1] - 4); ctx.moveTo(...p2f); ctx.lineTo(ax[0] - 6, ax[1] + 4); ctx.stroke();
+      ctx.lineWidth = 6; ctx.strokeStyle = '#C9A227';
+      const ringR = 12;
+      if (S.mode === 'motor' || S.dc) { for (const off of [0, Math.PI]) { ctx.beginPath(); ctx.arc(ax[0], ax[1], ringR, S.th + off + 0.25, S.th + off + Math.PI - 0.25); ctx.stroke(); } }
+      else { ctx.beginPath(); ctx.ellipse(ax[0], ax[1] - 4, ringR, ringR * 0.5, 0, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.ellipse(ax[0], ax[1] + 6, ringR, ringR * 0.5, 0, 0, 7); ctx.stroke(); }
+      ctx.fillStyle = '#555'; ctx.fillRect(ax[0] - ringR - 12, ax[1] - 4, 8, 8); ctx.fillRect(ax[0] + ringR + 4, ax[1] - 4, 8, 8);
+      // external circuit: battery (motor) or lamp (dynamo) below
+      const bx = ax[0], by = narrow ? cy + 120 : h - 40;
+      ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(ax[0] - ringR - 12, ax[1]); ctx.lineTo(bx - 50, ax[1]); ctx.lineTo(bx - 50, by); ctx.lineTo(bx - 14, by); ctx.moveTo(ax[0] + ringR + 12, ax[1]); ctx.lineTo(bx + 50, ax[1]); ctx.lineTo(bx + 50, by); ctx.lineTo(bx + 14, by); ctx.stroke();
+      if (S.mode === 'motor') { ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx - 4, by - 12); ctx.lineTo(bx - 4, by + 12); ctx.stroke(); ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(bx + 4, by - 6); ctx.lineTo(bx + 4, by + 6); ctx.stroke(); text(ctx, S.on ? 'battery: ON' : 'battery: off', bx, by + 26, { a: 'center', fs: 11, b: 1, c: S.on ? COL.gr : COL.sub }); }
+      else { const br = Math.min(1, Math.abs(emf)); const g = ctx.createRadialGradient(bx, by, 2, bx, by, 40); g.addColorStop(0, `rgba(255,230,120,${br})`); g.addColorStop(1, 'rgba(255,230,120,0)'); ctx.fillStyle = g; ctx.fillRect(bx - 40, by - 40, 80, 80); ctx.beginPath(); ctx.arc(bx, by, 12, 0, 7); ctx.fillStyle = `rgba(255,240,170,${0.3 + 0.7 * br})`; ctx.fill(); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.4; ctx.stroke(); text(ctx, 'lamp', bx, by + 28, { a: 'center', fs: 11, c: COL.sub }); }
+      // current and force arrows on the long sides (motor), or induced current (dynamo)
+      const mid1 = P(A1[0], A1[1], 0), mid2 = P(A2[0], A2[1], 0);
+      if (S.mode === 'motor' && S.on) { const sgn = c >= 0 ? 1 : -1;   // commutator keeps the side on the right carrying current one way
+        arrow(ctx, mid1[0], mid1[1], mid1[0], mid1[1] - 46 * sgn * (sn * 0 + 1) * Math.sign(c || 1), COL.o, 3); arrow(ctx, mid2[0], mid2[1], mid2[0], mid2[1] + 46 * Math.sign(c || 1), COL.o, 3);
+        text(ctx, 'F = BIl', mid1[0] + 8, mid1[1] - 30 * Math.sign(c || 1), { fs: 11, b: 1, c: COL.o }); }
+      // e.m.f. graph for the dynamo, torque note for the motor
+      if (S.mode === 'dynamo') { const gx = narrow ? 30 : w * 0.64, gw = w - gx - 14, gy = narrow ? h - 110 : 40, gh = narrow ? 90 : h - 90;
+        ctx.fillStyle = '#fff'; ctx.fillRect(gx, gy, gw, gh); ctx.strokeStyle = COL.grid; ctx.strokeRect(gx, gy, gw, gh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, gy + gh / 2); ctx.lineTo(gx + gw, gy + gh / 2); ctx.stroke();
+        ctx.strokeStyle = COL.v; ctx.lineWidth = 2; ctx.beginPath(); S.hist.forEach((v, i) => { const X = gx + gw * i / 220, Y = gy + gh / 2 - v * gh * 0.45; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+        text(ctx, S.dc ? 'output (d.c., one direction)' : 'output e.m.f. (a.c.)', gx + 4, gy + 12, { fs: 11, b: 1, c: COL.v }); }
+      ro(S.mode === 'motor' ? [['turning effect', S.on ? (Math.abs(c) < 0.15 ? 'small: coil ⊥ field (carried on by its momentum)' : 'large: coil sides cut across B') : 'no current, no force', 'hl'], ['speed', fmt(S.om / (2 * Math.PI), 1) + ' turns per second', 'hl'], ['commutator', 'reverses the current every half turn']]
+        : [['e.m.f. ε = NBAω sin ωt', 'peak ∝ turning speed', 'hl'], ['output now (relative)', fmt(emf, 2), 'hl'], ['lamp', Math.abs(emf) > 0.6 ? 'bright' : Math.abs(emf) > 0.2 ? 'dim' : 'off']]);
+    }
+    loop(cv, frame);
+  });
+
+  // ---------- transformers and power lines ----------
+  window.PhysiQSims.add('grid', function (root) {
+    const { COL, fmt, el, slider, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const VS = [11, 33, 66, 132, 275, 400], P = 20e6, Rl = 4.0;
+    const S = { k: 0, t: 0 };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    const sl = slider(ctl, 'transmission voltage (step)', 0, 5, 1, S.k, '', v => { S.k = v; });
+    const out = ctl.querySelector('output'); const show = () => { out.textContent = VS[S.k] + ' kV'; }; show(); ctl.querySelector('input').addEventListener('input', show);
+    const cv = canvas(root); const ro = readouts(root);
+    function frame(dt) {
+      if (dt < 0) dt = 0; S.t += dt;
+      const V = VS[S.k] * 1e3, I = P / V, loss = Math.min(P, I * I * Rl), frac = loss / P;
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 230, 300); ctx.clearRect(0, 0, w, h);
+      const sky = ctx.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#DCEBFA'); sky.addColorStop(1, '#F7F8F0'); ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+      const gy = h - 30; ctx.fillStyle = '#9CBB35'; ctx.fillRect(0, gy, w, h - gy);
+      // power station
+      ctx.fillStyle = '#8A8F99'; ctx.fillRect(10, gy - 60, 56, 60); ctx.fillRect(18, gy - 92, 12, 34); ctx.fillRect(40, gy - 84, 12, 26);
+      for (let i = 0; i < 3; i++) { ctx.fillStyle = `rgba(200,200,200,${0.5 - i * 0.15})`; ctx.beginPath(); ctx.arc(24 + i * 6, gy - 100 - i * 12 - (S.t * 10 % 12), 7 + i * 3, 0, 7); ctx.fill(); }
+      text(ctx, 'power station', 38, gy + 18, { a: 'center', fs: 10, c: COL.ink });
+      // transformers
+      const tf = (x, lab) => { ctx.fillStyle = '#5A6170'; ctx.fillRect(x - 12, gy - 40, 24, 40); ctx.strokeStyle = '#B5651D'; ctx.lineWidth = 2; for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(x - 6, gy - 34 + i * 8, 7, 3, 0, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.ellipse(x + 6, gy - 34 + i * 8, 7, 3, 0, 0, 7); ctx.stroke(); } text(ctx, lab, x, gy + 18, { a: 'center', fs: 10 }); };
+      const x1 = 92, x2 = w - 118; tf(x1, 'step-up'); tf(x2, 'step-down');
+      // pylons and cable
+      const py = gy - 70, n = Math.max(2, Math.floor((x2 - x1) / 90));
+      ctx.strokeStyle = '#6B6B6B'; ctx.lineWidth = 2;
+      for (let i = 1; i < n; i++) { const x = x1 + (x2 - x1) * i / n; ctx.beginPath(); ctx.moveTo(x - 10, gy); ctx.lineTo(x, py - 6); ctx.lineTo(x + 10, gy); ctx.moveTo(x - 14, py); ctx.lineTo(x + 14, py); ctx.stroke(); }
+      const heat = Math.min(1, frac * 1.6);
+      ctx.strokeStyle = `rgb(${Math.round(60 + 195 * heat)},${Math.round(60 - 20 * heat)},${Math.round(60 - 30 * heat)})`; ctx.lineWidth = 2 + 4 * heat; if (heat > 0.2) { ctx.shadowColor = '#FF5A2A'; ctx.shadowBlur = 14 * heat; }
+      // cable: from the step-up transformer over the pylons to the step-down transformer, sagging between supports
+      const cy = xx => { const f = (xx - x1) / (x2 - x1) * n, seg = Math.min(n - 1, Math.floor(f)), fl = f - seg; return py + 4 * fl * (1 - fl) * 14; };
+      ctx.beginPath(); ctx.moveTo(x1, gy - 40); ctx.lineTo(x1, py); for (let xx = x1; xx <= x2; xx += 3) ctx.lineTo(xx, cy(xx)); ctx.lineTo(x2, py); ctx.lineTo(x2, gy - 40); ctx.stroke(); ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x2 + 12, gy - 12); ctx.lineTo(w - 74, gy - 12); ctx.stroke();
+      // moving charge dots: more and faster with a bigger current
+      const nd = Math.min(30, 4 + Math.round(I / 70)), sp = Math.min(1.2, 0.1 + I / 2000);
+      for (let i = 0; i < nd; i++) { const f = ((S.t * sp + i / nd) % 1), x = x1 + (x2 - x1) * f; ctx.beginPath(); ctx.arc(x, cy(x), 2.6, 0, 7); ctx.fillStyle = '#2C6BB3'; ctx.fill(); }
+      // town
+      const tx = w - 44; for (let i = 0; i < 3; i++) { const hx = tx - 30 + i * 22; ctx.fillStyle = '#C9B79C'; ctx.fillRect(hx, gy - 22, 18, 22); ctx.fillStyle = `rgba(255,214,90,${0.25 + 0.75 * (1 - frac)})`; ctx.fillRect(hx + 5, gy - 16, 8, 8); }
+      text(ctx, 'town', tx - 8, gy - 30, { a: 'center', fs: 10, b: 1 });
+      text(ctx, VS[S.k] + ' kV', (x1 + x2) / 2, py - 24, { a: 'center', b: 1, fs: 14, c: COL.v });
+      if (frac > 0.2) text(ctx, 'cables get hot: energy wasted as heat', (x1 + x2) / 2, py - 42, { a: 'center', b: 1, fs: 12, c: COL.r });
+      ro([['current in the cables I = P/V', fmt(I, I < 100 ? 1 : 0) + ' A', 'hl'], ['power lost I²R', loss >= 1e6 ? fmt(loss / 1e6, 1) + ' MW' : fmt(loss / 1e3, 1) + ' kW', 'hl'], ['fraction lost', fmt(frac * 100, frac < 0.01 ? 2 : 0) + ' %'], ['step-up turns ratio Ns/Np (from 11 kV)', fmt(VS[S.k] / 11, 1)], ['step-down turns ratio Ns/Np (to 240 V)', '1 : ' + fmt(V / 240, 0)]]);
     }
     loop(cv, frame);
   });
