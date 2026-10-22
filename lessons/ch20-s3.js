@@ -2,7 +2,7 @@
    App chapter 20 = STPM 2026 syllabus chapter 21. 20.1, 20.2 and 20.5 are written from the syllabus (the deck covers 20.3 and 20.4). */
 (function () {
   'use strict';
-  const { fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq, ms, ms2 } = window.PhysiQLessons.H;
+  const { fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq, ms, ms2, rw } = window.PhysiQLessons.H;
   const kx = `${fr('2π<i>x</i>', 'λ')}`;
 
   // ---------- figures ----------
@@ -162,6 +162,27 @@ ${exercises('Exercises', [
   { q: `A standing wave on a string has nodes 0.25 m apart. The wave speed is 100 ${ms}. Find the frequency.`, a: `λ = 0.50 m, <i>f</i> = 200 Hz` },
   { q: `State two differences between an electromagnetic wave and a sound wave.`, a: `e.g. EM waves can travel through a vacuum but sound needs a medium; EM waves are transverse but sound is longitudinal; EM waves travel at 3.00 × 10<sup>8</sup> ${ms} in a vacuum, much faster than sound.` }])}
 `)}
+
+${sec('20-rw', 'Real-World Physics: Japan’s tsunami sea wall', rw({
+  id: 'ls-20-rw-tsunami',
+  meta: 'Tōhoku coast, Japan · built after 11 March 2011',
+  title: 'Why does a tsunami grow taller as it reaches the shore?',
+  lead: `<p>On 11 March 2011 a magnitude 9 earthquake off north-east Japan sent a tsunami onto the Tōhoku coast. The old sea walls were designed for waves of about 8 m, but the waves reached 12–15 m, poured over the walls and destroyed many of them. About 20 000 people died.</p><p>Japan then built nearly <b>400 km</b> of new concrete sea walls along the coast, up to <b>14.7 m</b> high, with deep foundations and wider bases so they do not collapse if a wave goes over the top.</p>`,
+  video: { id: 'tJ6G2lTo6xA', title: 'Japan’s giant tsunami sea wall', channel: 'YouTube documentary' },
+  watch: 'compare the height of the tsunami in the open ocean with its height when it reaches the coast.',
+  physics: ul([`A tsunami is a <b>progressive wave</b> with a very long wavelength (hundreds of kilometres). Its speed depends on the depth of the water: <i>v</i> = √(<i>gd</i>) (given).`, `In the deep ocean it travels at about 700–900 km h<sup>−1</sup> but is often less than 1 m high. Near the coast the water becomes shallow, so the wave <b>slows down</b>.`, `The <b>frequency stays the same</b> (it is set by the source), so from <i>v</i> = <i>f</i>λ the <b>wavelength becomes shorter</b>. The same energy is squeezed into a shorter, slower wave, so the <b>amplitude grows</b>. Since <i>I</i> ∝ <i>A</i><sup>2</sup>, the wave arriving at the wall is extremely powerful.`]),
+  qs: [
+    { q: `The speed of a tsunami is given by <i>v</i> = √(<i>gd</i>), where <i>d</i> is the depth of the water. What is its speed in the open ocean where <i>d</i> = 4000 m?`, opts: ['63 m s<sup>−1</sup>', '198 m s<sup>−1</sup>', '3.9 × 10<sup>4</sup> m s<sup>−1</sup>', '713 m s<sup>−1</sup>'], ans: 1,
+      why: steps([`<i>v</i> = √(<i>gd</i>) = √(9.81 × 4000)`, `= <b>198 m s<sup>−1</sup></b> (about 713 km h<sup>−1</sup>, as fast as a jet aircraft)`]) },
+    { q: `The tsunami in Quick check 1 has a period of 20 minutes. What is its wavelength in the open ocean?`, opts: ['9.9 m', '2.4 × 10<sup>3</sup> m', '2.4 × 10<sup>5</sup> m', '1.4 × 10<sup>7</sup> m'], ans: 2,
+      why: steps([`<i>T</i> = 20 × 60 = 1200 s`, `λ = <i>vT</i> = (198)(1200)`, `= <b>2.4 × 10<sup>5</sup> m</b> (about 240 km)`]) },
+    { q: `As a tsunami moves from deep water into shallow water near the coast, which statement is correct?`, opts: ['Its frequency decreases and its wavelength stays the same.', 'Its speed increases and its wavelength increases.', 'Its frequency stays the same, its speed decreases and its wavelength decreases.', 'Its speed stays the same and its amplitude decreases.'], ans: 2,
+      why: `<p>The frequency is fixed by the source. The speed falls in shallow water, so λ = <i>v</i>/<i>f</i> falls. The energy is concentrated into a shorter wave, so the amplitude increases.</p>` },
+    { q: `Near the coast, the amplitude of a tsunami increases from 1.0 m to 4.0 m. Assuming intensity ∝ (amplitude)<sup>2</sup>, by what factor does the intensity increase?`, opts: ['2', '4', '8', '16'], ans: 3,
+      why: steps([`${fr('<i>I</i><sub>2</sub>', '<i>I</i><sub>1</sub>')} = (${fr('<i>A</i><sub>2</sub>', '<i>A</i><sub>1</sub>')})<sup>2</sup> = (${fr('4.0', '1.0')})<sup>2</sup>`, `= <b>16</b>`]) }
+  ],
+  src: `Sources: The B1M; NOAA U.S. Tsunami Warning System. The depth and period in the calculations are typical values for practice. Preview the clip before class. <a href="https://www.youtube.com/watch?v=tJ6G2lTo6xA" target="_blank" rel="noopener">youtube.com/watch?v=tJ6G2lTo6xA</a>`
+}))}
 `;
   window.PhysiQLessons.register('LESSON-S3-20', { html: () => S });
 

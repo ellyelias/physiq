@@ -99,7 +99,7 @@ ${qs}
     'LESSON-S3-19': { sem: '3', chapter: 19, title: 'Oscillations', topics: ['S3-19.1 Characteristics of Simple Harmonic Motion', 'S3-19.2 Kinematics of Simple Harmonic Motion', 'S3-19.3 Energy in Simple Harmonic Motion', 'S3-19.4 Systems in Simple Harmonic Motion', 'S3-19.5 Damped Oscillation', 'S3-19.6 Forced Oscillation and Resonance'], sims: 4,
       toc: [['ls-19-1', '19.1 Characteristics'], ['ls-19-2', '19.2 Kinematics'], ['ls-19-3', '19.3 Energy'], ['ls-19-4', '19.4 Systems'], ['ls-19-5', '19.5 Damping'], ['ls-19-6', '19.6 Resonance'], ['ls-19-7', 'Summary']] },
     'LESSON-S3-20': { sem: '3', chapter: 20, title: 'Wave Motion', topics: ['S3-20.1 Progressive Waves', 'S3-20.2 Wave Intensity', 'S3-20.3 Principle of Superposition', 'S3-20.4 Standing Waves', 'S3-20.5 Electromagnetic Waves'], sims: 5,
-      toc: [['ls-20-1', '20.1 Progressive waves'], ['ls-20-2', '20.2 Intensity'], ['ls-20-3', '20.3 Superposition'], ['ls-20-4', '20.4 Standing waves'], ['ls-20-5', '20.5 EM waves'], ['ls-20-6', 'Summary']] },
+      toc: [['ls-20-1', '20.1 Progressive waves'], ['ls-20-2', '20.2 Intensity'], ['ls-20-3', '20.3 Superposition'], ['ls-20-4', '20.4 Standing waves'], ['ls-20-5', '20.5 EM waves'], ['ls-20-6', 'Summary'], ['ls-20-rw', 'Real-world: tsunami wall']] },
     'LESSON-S3-21': { sem: '3', chapter: 21, title: 'Sound Waves', topics: ['S3-21.1 Propagation of Sound Waves', 'S3-21.2 Sources of Sound', 'S3-21.3 Intensity Level of Sound', 'S3-21.4 Beat', 'S3-21.5 Doppler Effect'], sims: 5,
       toc: [['ls-21-1', '21.1 Propagation'], ['ls-21-2', '21.2 Sources of sound'], ['ls-21-3', '21.3 Intensity level'], ['ls-21-4', '21.4 Beats'], ['ls-21-5', '21.5 Doppler effect']] },
     'LESSON-S3-22': { sem: '3', chapter: 22, title: 'Geometrical Optics', topics: ['S3-22.1 Spherical Mirrors', 'S3-22.2 Refraction at Spherical Surfaces', 'S3-22.3 Thin Lenses'], sims: 4,
@@ -129,7 +129,7 @@ ${qs}
   };
   Object.values(LESSONS).forEach(L0 => { L0.label = 'Full notes · Cikgu Suhaili'; });
   const BODY = {}, loading = {};
-  const VER = '20261022j';
+  const VER = '20261022k';
   function register(k, o) { BODY[k] = o; }
   function load(k, done) {
     if (BODY[k]) return done();
