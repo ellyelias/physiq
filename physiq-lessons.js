@@ -101,6 +101,8 @@
       toc: [['ls-15-1', '15.1 E.m.f. and internal resistance'], ['ls-15-2', "15.2 Kirchhoff's laws"], ['ls-15-3', '15.3 Potential divider'], ['ls-15-4', '15.4 Potentiometer and bridge']] },
     'LESSON-S2-16': { sem: '2', chapter: 16, title: 'Magnetic Fields', topics: ['S2-16.1 Concept of a Magnetic Field', 'S2-16.2 Force on a Moving Charge', 'S2-16.3 Force on a Current-Carrying Conductor', 'S2-16.4 Magnetic Fields Due to Currents', 'S2-16.5 Force Between Two Current-Carrying Conductors', 'S2-16.6 Determination of the Ratio e/m', 'S2-16.7 Hall Effect'], sims: 4,
       toc: [['ls-16-1', '16.1 Magnetic field'], ['ls-16-2', '16.2 Force on a moving charge'], ['ls-16-3', '16.3 Force on a conductor'], ['ls-16-4', '16.4 Fields due to currents'], ['ls-16-5', '16.5 Parallel conductors'], ['ls-16-6', '16.6 e/m'], ['ls-16-7', '16.7 Hall effect']] },
+    'LESSON-S2-17': { sem: '2', chapter: 17, title: 'Electromagnetic Induction', topics: ['S2-17.1 Magnetic Flux', "S2-17.2 Faraday's Law and Lenz's Law", 'S2-17.3 Self Induction', 'S2-17.4 Energy Stored in an Inductor', 'S2-17.5 Mutual Induction'], sims: 4,
+      toc: [['ls-17-1', '17.1 Magnetic flux'], ['ls-17-2', "17.2 Faraday's and Lenz's laws"], ['ls-17-3', '17.3 Self induction'], ['ls-17-4', '17.4 Energy in an inductor'], ['ls-17-5', '17.5 Mutual induction']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
