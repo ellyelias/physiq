@@ -6598,13 +6598,22 @@ const NOTES_EXTRA = (function(){
     }catch(e){}
   }
 
+  // Full notes (Cikgu Suhaili): PDFs of the chapter and of the whole semester, built by tools/build_fullnotes_pdf.js
+  const FULLNOTES_PDF_SEMS = ['1'];
+  function fullNotesDownloads(L){
+    if (!L || !FULLNOTES_PDF_SEMS.includes(String(L.sem))) return;
+    const c = document.getElementById('dl-chapter'), f = document.getElementById('dl-semester');
+    if (c){ c.href = 'downloads/fullnotes/PhysiQ_FullNotes_Sem' + L.sem + '_Ch' + String(L.chapter).padStart(2, '0') + '.pdf'; c.textContent = 'Chapter ' + L.chapter + ' full notes'; c.style.display = ''; }
+    if (f){ f.href = 'downloads/fullnotes/PhysiQ_FullNotes_Sem' + L.sem + '.pdf'; f.textContent = 'Full Semester ' + L.sem + ' notes'; }
+  }
+
   function renderNotesContent(){
     const key = $('#notes-topic-select').value;
     if (key.indexOf('DERIV-') === 0){ $('#notes-content').innerHTML = derivPage(key); updateNotesDownloads('GUIDE-' + key.split('-')[1]); return; }
     if (/^(FORMULA|DEFS)-/.test(key)){ $('#notes-content').innerHTML = quickListPage(key); updateNotesDownloads(key); return; }
     if (key.indexOf('LESSON-') === 0 && window.PhysiQLessons && window.PhysiQLessons.has(key)){
       const LS = window.PhysiQLessons, box = $('#notes-content');
-      box.innerHTML = LS.render(key); LS.init(box); updateNotesDownloads(LS.LESSONS[key].topics[0]); return;
+      box.innerHTML = LS.render(key); LS.init(box); updateNotesDownloads(LS.LESSONS[key].topics[0]); fullNotesDownloads(LS.LESSONS[key]); return;
     }
     let title = key, body;
     if (key.indexOf('GUIDE-') === 0){
