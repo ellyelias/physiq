@@ -99,6 +99,8 @@
       toc: [['ls-14-1', '14.1 Conduction'], ['ls-14-2', '14.2 Drift velocity'], ['ls-14-3', '14.3 Current density'], ['ls-14-4', '14.4 Conductivity and resistivity']] },
     'LESSON-S2-15': { sem: '2', chapter: 15, title: 'Direct Current Circuits', topics: ['S2-15.1 Internal Resistance', "S2-15.2 Kirchhoff's Laws", 'S2-15.3 Potential Divider', 'S2-15.4 Potentiometer and Wheatstone Bridge'], sims: 3,
       toc: [['ls-15-1', '15.1 E.m.f. and internal resistance'], ['ls-15-2', "15.2 Kirchhoff's laws"], ['ls-15-3', '15.3 Potential divider'], ['ls-15-4', '15.4 Potentiometer and bridge']] },
+    'LESSON-S2-16': { sem: '2', chapter: 16, title: 'Magnetic Fields', topics: ['S2-16.1 Concept of a Magnetic Field', 'S2-16.2 Force on a Moving Charge', 'S2-16.3 Force on a Current-Carrying Conductor', 'S2-16.4 Magnetic Fields Due to Currents', 'S2-16.5 Force Between Two Current-Carrying Conductors', 'S2-16.6 Determination of the Ratio e/m', 'S2-16.7 Hall Effect'], sims: 4,
+      toc: [['ls-16-1', '16.1 Magnetic field'], ['ls-16-2', '16.2 Force on a moving charge'], ['ls-16-3', '16.3 Force on a conductor'], ['ls-16-4', '16.4 Fields due to currents'], ['ls-16-5', '16.5 Parallel conductors'], ['ls-16-6', '16.6 e/m'], ['ls-16-7', '16.7 Hall effect']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
