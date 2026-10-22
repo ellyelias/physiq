@@ -93,7 +93,7 @@
       toc: [['ls-25-1', '25.1 Nucleus'], ['ls-25-2', '25.2 Radioactivity'], ['ls-25-3', '25.3 Nuclear reactions'], ['ls-25-4', 'Summary']] },
     'LESSON-S2-12': { sem: '2', chapter: 12, title: 'Electrostatics', topics: ["S2-12.1 Coulomb's Law", 'S2-12.2 Electric Field', "S2-12.3 Gauss's Law", 'S2-12.4 Electric Potential'], sims: 3,
       toc: [['ls-12-1', "12.1 Coulomb's law"], ['ls-12-2', '12.2 Electric field'], ['ls-12-3', "12.3 Gauss's law"], ['ls-12-4', '12.4 Electric potential'], ['ls-12-5', 'Summary']] },
-    'LESSON-S2-13': { sem: '2', chapter: 13, title: 'Capacitors', topics: ['S2-13.1 Capacitance', 'S2-13.2 Parallel Plate Capacitors', 'S2-13.3 Dielectrics', 'S2-13.4 Capacitors in Series and in Parallel', 'S2-13.5 Energy Stored in a Charged Capacitor', 'S2-13.6 Charging and Discharging of a Capacitor'], sims: 3,
+    'LESSON-S2-13': { sem: '2', chapter: 13, title: 'Capacitors', topics: ['S2-13.1 Capacitance', 'S2-13.2 Parallel Plate Capacitors', 'S2-13.3 Dielectrics', 'S2-13.4 Capacitors in Series and in Parallel', 'S2-13.5 Energy Stored in a Charged Capacitor', 'S2-13.6 Charging and Discharging of a Capacitor'], sims: 4,
       toc: [['ls-13-1', '13.1 Capacitance'], ['ls-13-2', '13.2 Parallel plates'], ['ls-13-3', '13.3 Dielectrics'], ['ls-13-4', '13.4 Series and parallel'], ['ls-13-5', '13.5 Energy stored'], ['ls-13-6', '13.6 Charging and discharging']] },
     'LESSON-S2-14': { sem: '2', chapter: 14, title: 'Electric Current', topics: ['S2-14.1 Conduction of Electricity', 'S2-14.2 Drift Velocity', 'S2-14.3 Current Density', 'S2-14.4 Electric Conductivity and Resistivity'], sims: 2,
       toc: [['ls-14-1', '14.1 Conduction'], ['ls-14-2', '14.2 Drift velocity'], ['ls-14-3', '14.3 Current density'], ['ls-14-4', '14.4 Conductivity and resistivity']] },
@@ -110,7 +110,7 @@
   };
   Object.values(LESSONS).forEach(L0 => { L0.label = 'Full notes · Cikgu Suhaili'; });
   const BODY = {}, loading = {};
-  const VER = '20261022c';
+  const VER = '20261022d';
   function register(k, o) { BODY[k] = o; }
   function load(k, done) {
     if (BODY[k]) return done();

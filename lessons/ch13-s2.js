@@ -101,6 +101,13 @@ ${note(`The <b>dielectric strength</b> is the largest electric field a material 
 ${example('13.3.1', `A parallel plate capacitor has plates of area 2.0 × 10<sup>−2</sup> m<sup>2</sup>, 1.0 cm apart in air. It is charged to 3000 V and the battery is disconnected. A dielectric sheet is then slid in to fill the gap, and the p.d. falls to 1000 V. Find (a) the capacitance in air, (b) the charge on each plate, (c) the capacitance with the dielectric, (d) the dielectric constant, (e) the permittivity of the dielectric, (f) the field before, (g) the field after the dielectric is inserted.`,
   steps([`(a) <i>C</i><sub>0</sub> = ${fr('(8.85 × 10<sup>−12</sup>)(2.0 × 10<sup>−2</sup>)', '0.010')} = <b>1.77 × 10<sup>−11</sup> F</b>`, `(b) <i>Q</i><sub>0</sub> = <i>C</i><sub>0</sub><i>V</i><sub>0</sub> = (1.77 × 10<sup>−11</sup>)(3000) = <b>5.31 × 10<sup>−8</sup> C</b>`, `(c) the charge stays the same: <i>C</i> = <i>Q</i><sub>0</sub>/<i>V</i> = 5.31 × 10<sup>−8</sup>/1000 = <b>5.31 × 10<sup>−11</sup> F</b>`, `(d) ε<sub>r</sub> = <i>C</i>/<i>C</i><sub>0</sub> = <b>3.0</b>`, `(e) ε = ε<sub>r</sub>ε<sub>0</sub> = <b>2.66 × 10<sup>−11</sup> F m<sup>−1</sup></b>`, `(f) <i>E</i><sub>0</sub> = <i>V</i><sub>0</sub>/<i>d</i> = 3000/0.010 = <b>3.0 × 10<sup>5</sup> V m<sup>−1</sup></b>`, `(g) <i>E</i> = <i>E</i><sub>0</sub>/ε<sub>r</sub> = <b>1.0 × 10<sup>5</sup> V m<sup>−1</sup></b>`]))}
 ${tip(`First ask: is the capacitor still connected to the battery? If yes, <i>V</i> stays the same. If it was disconnected first, <i>Q</i> stays the same. Everything else follows from <i>C</i> = <i>Q</i>/<i>V</i>.`)}
+${h4('A natural capacitor: the thundercloud and the ground')}
+<p>The base of a thundercloud and the ground below it behave like the two plates of a huge parallel plate capacitor, with the <b>air between them as the dielectric</b>.</p>
+${steps([`Inside the cloud, collisions between ice crystals and soft hail separate charge. The base of the cloud usually becomes <b>negative</b>.`, `This negative charge repels electrons in the ground below, so the ground surface becomes <b>positive</b> (charging by induction): the two "plates" carry +<i>Q</i> and −<i>Q</i>.`, `As more charge builds up, the electric field in the air between them grows: <i>E</i> = <i>V</i>/<i>d</i> = <i>Q</i>/(ε<sub>0</sub><i>A</i>).`, `When <i>E</i> reaches the <b>dielectric strength of air</b> (about 3 × 10<sup>6</sup> V m<sup>−1</sup>), the air is ionised and becomes a conductor. The dielectric breaks down and the capacitor discharges through it: this is <b>lightning</b>.`, `The huge current heats the air channel to about 30 000 K. The air expands suddenly, and we hear this as <b>thunder</b>.`])}
+${sim('lightning', 'Thundercloud and ground: a natural capacitor', 'Let the storm charge the cloud. Watch the charges on the cloud base and the ground, and the field in the air between them. When the field reaches the dielectric strength of air, the air breaks down and the capacitor discharges as lightning. Try a higher cloud: does it flash at a different charge?')}
+${example('13.3.2', `The base of a thundercloud is 1.0 km above flat ground and has an area of 1.0 km<sup>2</sup>. Treat the cloud and the ground as a parallel plate capacitor with air between them (dielectric strength 3.0 × 10<sup>6</sup> V m<sup>−1</sup>). Find (a) the capacitance, (b) the largest charge the cloud can hold before the air breaks down, (c) the p.d. between the cloud and the ground at that moment, (d) the energy released if the whole charge is discharged.`,
+  steps([`(a) <i>C</i> = ${fr('ε<sub>0</sub><i>A</i>', '<i>d</i>')} = ${fr('(8.85 × 10<sup>−12</sup>)(1.0 × 10<sup>6</sup>)', '1.0 × 10<sup>3</sup>')} = <b>8.9 × 10<sup>−9</sup> F</b> (8.9 nF)`, `(b) <i>E</i> = ${fr('<i>Q</i>', 'ε<sub>0</sub><i>A</i>')} ⇒ <i>Q</i> = ε<sub>0</sub><i>AE</i> = (8.85 × 10<sup>−12</sup>)(1.0 × 10<sup>6</sup>)(3.0 × 10<sup>6</sup>) = <b>27 C</b>`, `(c) <i>V</i> = <i>Ed</i> = (3.0 × 10<sup>6</sup>)(1.0 × 10<sup>3</sup>) = <b>3.0 × 10<sup>9</sup> V</b>`, `(d) <i>U</i> = ½<i>QV</i> = ½(26.6)(3.0 × 10<sup>9</sup>) = <b>4.0 × 10<sup>10</sup> J</b>`]))}
+${note(`This is an idealised model. In a real storm the flash starts at a lower average field, because the field is much stronger near sharp points, raindrops and ice, and the charge is spread through the cloud. Still, the answers are the right size: a real flash carries tens of coulombs.`)}
 `)}
 
 ${sec('13-4', '13.4 Capacitors in series and in parallel', `
@@ -285,5 +292,72 @@ ${exercises('Exercise: RC circuits', [
     loop(cv, dt => { if (S.run && S.t < TMAX) S.t += dt * 3; draw(); });
     new ResizeObserver(() => draw()).observe(root);
     draw();
+  });
+  // ---------- thundercloud and ground: a natural capacitor ----------
+  window.PhysiQSims.add('lightning', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const e0 = 8.85e-12, A = 1.0e6, Ebd = 3.0e6;
+    const S = { d: 1.0, Q: 0, run: true, rate: 4, flash: 0, bolt: null, count: 0, lastQ: 0 };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'height of the cloud base <i>d</i>', 0.5, 2.0, 0.1, S.d, 'km', v => { S.d = v; });
+    slider(ctl, 'how fast the storm charges the cloud', 1, 10, 1, S.rate, '', v => { S.rate = v; });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    const pb = button(bar, 'Pause the storm', '', () => { S.run = !S.run; pb.textContent = S.run ? 'Pause the storm' : 'Let the storm charge the cloud'; });
+    button(bar, 'Start again', '', () => { S.Q = 0; S.flash = 0; S.bolt = null; S.count = 0; });
+    const cv = canvas(root); const ro = readouts(root);
+    const Qmax = e0 * A * Ebd;   // charge at breakdown (does not depend on d)
+    function makeBolt(x0, y0, y1) {
+      const pts = [[x0, y0]]; let x = x0, y = y0; const n = 14, br = [];
+      for (let i = 1; i <= n; i++) { y = y0 + (y1 - y0) * i / n; x += (Math.random() - 0.5) * 34; pts.push([x, y]);
+        if (Math.random() < 0.3 && i < n - 2) { const b = [[x, y]]; let bx = x, by = y; for (let k = 0; k < 4; k++) { bx += (Math.random() - 0.3) * 26 * (Math.random() < 0.5 ? -1 : 1); by += (y1 - y0) / n * 0.9; b.push([bx, by]); } br.push(b); } }
+      return { pts, br };
+    }
+    function frame(dt) {
+      if (dt < 0) dt = 0;
+      const ctx = cv.ctx, { w, h } = cv.size(0.62, 300, 420); ctx.clearRect(0, 0, w, h);
+      // charge build-up (tens of coulombs over a few seconds, scaled)
+      if (S.run && !S.flash) S.Q = Math.min(Qmax, S.Q + Qmax * 0.035 * S.rate * dt);
+      const E = S.Q / (e0 * A), dm = S.d * 1000, Cap = e0 * A / dm, V = E * dm, U = 0.5 * S.Q * V;
+      if (!S.flash && S.Q >= Qmax * 0.999) { S.flash = 1.0; S.lastQ = S.Q; S.count++; }
+      // sky
+      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#2B3445'); g.addColorStop(1, '#5D6B7D'); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      const groundY = h - 46, top = 22, cloudBase = top + 50 + (1 - (S.d - 0.5) / 1.5) * (groundY - top - 140);
+      // ground
+      ctx.fillStyle = '#4C6B2F'; ctx.fillRect(0, groundY, w, h - groundY); ctx.fillStyle = '#3B5424';
+      for (let x = 20; x < w; x += 70) { ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x + 8, groundY - 26); ctx.lineTo(x + 16, groundY); ctx.fill(); }
+      ctx.fillStyle = '#C9B79C'; ctx.fillRect(w * 0.72, groundY - 22, 34, 22); ctx.fillStyle = '#8E3B2E'; ctx.beginPath(); ctx.moveTo(w * 0.72 - 4, groundY - 22); ctx.lineTo(w * 0.72 + 17, groundY - 38); ctx.lineTo(w * 0.72 + 38, groundY - 22); ctx.fill();
+      // cloud
+      ctx.fillStyle = '#9AA3B2'; const cx0 = w * 0.12, cx1 = w * 0.88;
+      ctx.beginPath(); ctx.moveTo(cx0, cloudBase);
+      for (let x = cx0; x <= cx1 - 40; x += 40) { ctx.arc(x + 20, cloudBase - 24 - 10 * Math.sin(x * 0.07), 34, Math.PI, 0); }
+      ctx.lineTo(cx1, cloudBase); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#7C8596'; ctx.fillRect(cx0, cloudBase - 12, cx1 - cx0, 12);
+      // charges: number shown grows with Q
+      const nq = Math.round(14 * S.Q / Qmax);
+      for (let i = 0; i < nq; i++) { const x = cx0 + 14 + i * (cx1 - cx0 - 28) / 13; text(ctx, '−', x, cloudBase + 4, { a: 'center', b: 1, fs: 18, c: '#9CD0FF' }); text(ctx, '+', x, groundY + 18, { a: 'center', b: 1, fs: 16, c: '#FFC2A8' }); }
+      // field lines (from + ground up to − cloud), brightness grows with E
+      const fr = E / Ebd;
+      if (fr > 0.02 && !S.flash) { ctx.strokeStyle = `rgba(255,236,120,${0.15 + 0.7 * fr})`; ctx.lineWidth = 1.4 + 1.2 * fr;
+        for (let x = cx0 + 30; x < cx1 - 10; x += (cx1 - cx0 - 40) / 7) { ctx.beginPath(); ctx.moveTo(x, groundY - 4); ctx.lineTo(x, cloudBase + 12); ctx.stroke(); ctx.beginPath(); const my = (groundY + cloudBase) / 2; ctx.moveTo(x - 5, my + 4); ctx.lineTo(x, my - 6); ctx.lineTo(x + 5, my + 4); ctx.stroke(); } }
+      text(ctx, 'air (dielectric)', 10, (groundY + cloudBase) / 2 + 4, { fs: 11, c: '#DDE3EA', b: 1 });
+      text(ctx, 'd = ' + fmt(S.d, 1) + ' km', w - 10, (groundY + cloudBase) / 2 + 4, { a: 'right', fs: 11, c: '#DDE3EA' });
+      // lightning
+      if (S.flash > 0) {
+        if (!S.bolt) S.bolt = makeBolt(w * (0.35 + Math.random() * 0.3), cloudBase, groundY);
+        const a = Math.min(1, S.flash * 1.6);
+        ctx.fillStyle = `rgba(255,255,255,${0.55 * a * (Math.random() < 0.7 ? 1 : 0.4)})`; ctx.fillRect(0, 0, w, h);
+        const drawPath = (pts, wd) => { ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); };
+        ctx.strokeStyle = `rgba(255,250,200,${a})`; ctx.lineWidth = 4; ctx.shadowColor = '#FFF6B0'; ctx.shadowBlur = 18; drawPath(S.bolt.pts); ctx.lineWidth = 1.8; S.bolt.br.forEach(b => drawPath(b)); ctx.shadowBlur = 0;
+        S.flash -= dt * 1.2; S.Q = Math.max(0, S.Q - S.lastQ * dt * 4);
+        text(ctx, 'air breaks down: lightning!', w / 2, (groundY + cloudBase) / 2 - 34, { a: 'center', b: 1, fs: 15, c: '#FFF3A0' });
+        if (S.flash <= 0) { S.flash = 0; S.bolt = null; S.Q = 0; }
+      }
+      // field meter
+      const mx = 12, my0 = top - 6, mw = Math.min(180, w * 0.4);
+      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(mx, my0, mw, 10); ctx.fillStyle = fr > 0.85 ? '#FF8A5C' : '#D5DC3B'; ctx.fillRect(mx, my0, mw * Math.min(1, fr), 10);
+      text(ctx, 'E / dielectric strength of air', mx, my0 + 24, { fs: 10.5, c: '#DDE3EA' });
+      ro([['charge on the cloud Q', fmt(S.Q, 1) + ' C', 'hl'], ['field E = Q/(ε₀A)', fmt(E / 1e6, 2) + ' × 10⁶ V m⁻¹', 'hl'], ['capacitance C = ε₀A/d', fmt(Cap * 1e9, 1) + ' nF'], ['p.d. V = Q/C', fmt(V / 1e9, 2) + ' × 10⁹ V'], ['energy stored ½QV', fmt(U / 1e9, 1) + ' × 10⁹ J'], ['flashes', String(S.count)]]);
+    }
+    loop(cv, frame);
   });
 })();
