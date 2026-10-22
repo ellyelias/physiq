@@ -103,6 +103,8 @@
       toc: [['ls-16-1', '16.1 Magnetic field'], ['ls-16-2', '16.2 Force on a moving charge'], ['ls-16-3', '16.3 Force on a conductor'], ['ls-16-4', '16.4 Fields due to currents'], ['ls-16-5', '16.5 Parallel conductors'], ['ls-16-6', '16.6 e/m'], ['ls-16-7', '16.7 Hall effect']] },
     'LESSON-S2-17': { sem: '2', chapter: 17, title: 'Electromagnetic Induction', topics: ['S2-17.1 Magnetic Flux', "S2-17.2 Faraday's Law and Lenz's Law", 'S2-17.3 Self Induction', 'S2-17.4 Energy Stored in an Inductor', 'S2-17.5 Mutual Induction'], sims: 4,
       toc: [['ls-17-1', '17.1 Magnetic flux'], ['ls-17-2', "17.2 Faraday's and Lenz's laws"], ['ls-17-3', '17.3 Self induction'], ['ls-17-4', '17.4 Energy in an inductor'], ['ls-17-5', '17.5 Mutual induction']] },
+    'LESSON-S2-18': { sem: '2', chapter: 18, title: 'Alternating Current Circuits', topics: ['S2-18.1 AC Through a Pure Resistor', 'S2-18.2 AC Through a Pure Inductor', 'S2-18.3 AC Through a Pure Capacitor', 'S2-18.4 R-C and R-L Series Circuits'], sims: 3,
+      toc: [['ls-18-1', '18.1 A.c. through a resistor'], ['ls-18-2', '18.2 Through an inductor'], ['ls-18-3', '18.3 Through a capacitor'], ['ls-18-4', '18.4 R-C, R-L and R-L-C']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
