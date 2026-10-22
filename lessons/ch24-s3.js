@@ -160,6 +160,11 @@ ${example('24.4.3', `X-rays of wavelength 0.36 × 10<sup>−10</sup> m give a fi
 ${exercises('Exercise: Bragg’s law', [{ q: `X-rays are diffracted by a crystal with plane spacing 2.65 × 10<sup>−10</sup> m. The first-order reflection is at 8.0°. Find the wavelength.`, a: `7.38 × 10<sup>−11</sup> m` }])}
 ${h4('Applications of X-rays')}
 ${table(['Field', 'Uses'], [['Medicine', 'radiography of bones and organs; CT scans; radiotherapy to destroy cancer cells'], ['Industry', 'non-destructive testing of welds, castings and pipes; X-ray crystallography of materials'], ['Security', 'baggage and cargo scanning at airports'], ['Research', 'crystal structures of DNA and proteins; X-ray astronomy']])}
+${h4('Inside a hospital X-ray machine')}
+${ul([`The tube current (a few mA) is set by heating the filament: a hotter filament emits more electrons per second, so more X-ray photons are produced and the picture is brighter. It does not change λ<sub>min</sub>.`, `The tube voltage (about 50–120 kV) sets the energy of each electron, <i>eV</i>, and so the most energetic photons. Higher voltage gives more penetrating ("harder") X-rays.`, `Bone contains calcium, which has a higher atomic number than soft tissue, so it absorbs X-rays much more strongly. Where X-rays reach the detector it turns dark; behind bone it stays light. That is why bones look white on an X-ray image.`, `About 99% of the electrons' energy becomes heat in the target, so the anode is made of tungsten and is often a spinning disc, so the heat is spread around its rim.`])}
+${sim('xtube', 'Taking an X-ray picture of a hand', 'Turn on the tube and watch an X-ray image build up. The filament current controls how many electrons (and photons) there are each second; the voltage controls the energy of each one. At low voltage even the soft tissue blocks most X-rays; at high voltage the bones become less clear.')}
+${example('24.4.3', `A hospital X-ray tube operates at 80 kV with a tube current of 5.0 mA. Find (a) the number of electrons striking the target each second, (b) the power supplied to the tube, (c) the rate of heat production in the target if 1% of the energy becomes X-rays, (d) the minimum wavelength of the X-rays.`,
+  steps([`(a) <i>n</i> = ${fr('<i>I</i>', '<i>e</i>')} = ${fr('5.0 × 10<sup>−3</sup>', '1.60 × 10<sup>−19</sup>')} = <b>3.1 × 10<sup>16</sup> s<sup>−1</sup></b>`, `(b) <i>P</i> = <i>IV</i> = (5.0 × 10<sup>−3</sup>)(80 × 10<sup>3</sup>) = <b>400 W</b>`, `(c) heat = 0.99 × 400 = <b>396 W</b> (only 4 W becomes X-rays)`, `(d) λ<sub>min</sub> = ${fr('<i>hc</i>', '<i>eV</i>')} = ${fr('(6.63 × 10<sup>−34</sup>)(3.00 × 10<sup>8</sup>)', '(1.60 × 10<sup>−19</sup>)(80 × 10<sup>3</sup>)')} = <b>1.55 × 10<sup>−11</sup> m</b>`]))}
 `)}
 
 ${sec('24-5', '24.5 Nanoscience', `
@@ -340,5 +345,93 @@ ${exercises('Exercises', [
     }
     new ResizeObserver(() => draw()).observe(root);
     draw();
+  });
+  // ---------- X-ray tube and a radiograph ----------
+  window.PhysiQSims.add('xtube', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const S = { on: false, I: 5, V: 70, el: [], ph: [], heat: 0, spin: 0, img: null, t: 0 };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'tube current (filament heating)', 1, 10, 1, S.I, 'mA', x => { S.I = x; });
+    slider(ctl, 'tube voltage', 20, 140, 5, S.V, 'kV', x => { S.V = x; });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    const ob = button(bar, '⚡ Switch on the tube', '', () => { S.on = !S.on; ob.textContent = S.on ? '⏹ Switch off' : '⚡ Switch on the tube'; });
+    button(bar, 'New film', '', () => { S.img = null; });
+    const cv = canvas(root); const ro = readouts(root);
+    // the hand in a unit box (u across, v down): finger outlines and bones (segments with joints between them)
+    const FC = [0.30, 0.42, 0.54, 0.66], FT = [0.06, 0.0, 0.03, 0.10];
+    const fingers = FC.map((c, i) => [c - 0.055, FT[i], c + 0.055, 0.56]);
+    const segs = [];
+    FC.forEach((c, i) => { const t = FT[i] + 0.03, L = 0.53 - t, r = 0.017; [[t, t + L * 0.22], [t + L * 0.31, t + L * 0.57], [t + L * 0.66, 0.53]].forEach(([a, b]) => segs.push([c, a + r, c, b - r, r])); segs.push([c, 0.58 + r, c + (c - 0.48) * 0.25, 0.9 - r, 0.019]); });
+    segs.push([0.835, 0.44, 0.795, 0.54, 0.02], [0.78, 0.61, 0.745, 0.74, 0.021], [0.73, 0.80, 0.69, 0.90, 0.021]);
+    [[0.34, 0.95], [0.44, 0.95], [0.54, 0.95], [0.63, 0.95]].forEach(([u, v]) => segs.push([u - 0.02, v, u + 0.02, v, 0.03]));
+    const thumb = [[0.86, 0.38], [0.66, 0.95]];
+    function dseg(u, v, [x1, y1, x2, y2, r]) { const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy || 1e-9; let t = ((u - x1) * dx + (v - y1) * dy) / L2; t = Math.max(0, Math.min(1, t)); const ex = x1 + t * dx - u, ey = y1 + t * dy - v; return Math.hypot(ex, ey) < r * (1 + 0.35 * Math.abs(2 * t - 1)); }
+    const isBone = (u, v) => segs.some(sg => dseg(u, v, sg));
+    const inThumb = (u, v) => dseg(u, v, [thumb[0][0], thumb[0][1], thumb[1][0], thumb[1][1], 0.065]);
+    const isTissue = (u, v) => (u > 0.24 && u < 0.72 && v > 0.5 && v < 1.0) || fingers.some(([a, b, c, d]) => u > a && u < c && v > b && v < d) || inThumb(u, v);
+    const NX = 64, NY = 60;
+    let tr = null, trV = -1;
+    function trans() {   // fraction of X-rays getting through each pixel; lower voltage → absorbed more
+      if (trV === S.V) return tr; trV = S.V; tr = new Float32Array(NX * NY); const mu = Math.pow(70 / S.V, 1.5);
+      for (let k = 0; k < NX * NY; k++) { const u = (k % NX + 0.5) / NX, v = (Math.floor(k / NX) + 0.5) / NY; let x = 1; if (isTissue(u, v)) x *= Math.exp(-1.0 * mu); if (isBone(u, v)) x *= Math.exp(-3.0 * mu); tr[k] = x; }
+      return tr;
+    }
+    function frame(dt) {
+      if (dt < 0) dt = 0; dt = Math.min(dt, 0.05); S.t += dt;
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(0.92, 340, 420) : cv.size(0.55, 360, 420); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const tx = 20, ty = 30, th = 64, tw = narrow ? w - 40 : w * 0.52;
+      const cx = tx + 40, ax = tx + tw - 60, ay = ty + th / 2;
+      // hand, film positions
+      const top = ty + th + 34, avail = h - top - 30;
+      let hw, hx, ix;
+      if (narrow) { hw = Math.min((w - 60) / 2, avail / 0.95); hx = w - 20 - hw; ix = 20; }
+      else { hw = Math.min(w * 0.28, avail / 0.95); hx = ax - hw / 2 - 6; ix = Math.max(hx + hw + 40, w * 0.66); }
+      const hh2 = hw * 0.95, hy = top, dy = hy + hh2 + 4, iy = hy;
+      // tube
+      ctx.fillStyle = 'rgba(205,225,240,.6)'; ctx.strokeStyle = '#7D8C99'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(tx + tw / 2, ay, tw / 2, th / 2, 0, 0, 7); ctx.fill(); ctx.stroke();
+      text(ctx, 'vacuum', tx + tw / 2, ty + 14, { a: 'center', fs: 10.5, c: COL.sub });
+      const glow = S.I / 10;
+      ctx.strokeStyle = S.on ? `rgb(255,${Math.round(200 - 120 * glow)},60)` : '#666'; ctx.lineWidth = 2.5; ctx.beginPath(); for (let i = 0; i <= 8; i++) ctx.lineTo(cx + (i % 2 ? 5 : -5), ay - 14 + i * 3.5); ctx.stroke();
+      text(ctx, 'hot filament (−)', tx + 4, ty - 8, { fs: 10.5, c: COL.sub });
+      text(ctx, 'spinning tungsten target (+)', tx + tw, ty - 8, { a: 'right', fs: 10.5, c: COL.sub });
+      S.spin += dt * (S.on ? 20 : 0);
+      ctx.fillStyle = '#8A6F4D'; ctx.fillRect(ax + 14, ay - 4, 36, 8);
+      ctx.save(); ctx.translate(ax, ay); ctx.fillStyle = S.heat > 0.05 ? `rgb(${Math.round(140 + 115 * S.heat)},${Math.round(140 - 40 * S.heat)},${Math.round(140 - 90 * S.heat)})` : '#8C8C8C'; ctx.beginPath(); ctx.moveTo(-6, -22); ctx.lineTo(14, -18); ctx.lineTo(14, 18); ctx.lineTo(6, 22); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 1; const sy = ((S.spin * 10) % 36) - 18; ctx.beginPath(); ctx.moveTo(-2, sy); ctx.lineTo(13, sy + 2); ctx.stroke(); ctx.restore();
+      ctx.fillStyle = '#E2C35A'; ctx.fillRect(ax - 22, ty + th - 6, 28, 5);
+      // electrons
+      const vpx = 140 + S.V * 4;
+      if (S.on && Math.random() < S.I * 0.8 * dt * 10) S.el.push({ x: cx + 6, y: ay + (Math.random() - 0.5) * 10 });
+      S.el.forEach(e => { e.x += vpx * dt; });
+      S.el = S.el.filter(e => {
+        if (e.x < ax - 4) return true;
+        S.heat = Math.min(1, S.heat + 0.004 * (S.V / 70));
+        if (Math.random() < 0.3) { const u = 0.15 + Math.random() * 0.75, v = Math.random(), x0 = ax - 8, y0 = ty + th - 4, X = hx + u * hw, Y = hy + v * hh2, T = (Y - y0) / 300; S.ph.push({ x: x0, y: y0, vx: (X - x0) / T, vy: 300, stopY: Y, pass: Math.random() < trans()[Math.min(NY - 1, Math.floor(v * NY)) * NX + Math.min(NX - 1, Math.floor(u * NX))] }); }
+        return false;
+      });
+      S.heat = Math.max(0, S.heat - dt * 0.12);
+      ctx.fillStyle = '#2C6BB3'; S.el.forEach(e => { ctx.beginPath(); ctx.arc(e.x, e.y, 2.4, 0, 7); ctx.fill(); });
+      // hand
+      ctx.save(); ctx.globalAlpha = 0.9; ctx.fillStyle = '#F1C27D';
+      fingers.forEach(([a, b, c, d]) => { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(hx + a * hw, hy + b * hh2, (c - a) * hw, (d - b) * hh2, 9) : ctx.rect(hx + a * hw, hy + b * hh2, (c - a) * hw, (d - b) * hh2); ctx.fill(); });
+      ctx.fillRect(hx + 0.24 * hw, hy + 0.5 * hh2, 0.48 * hw, 0.5 * hh2);
+      ctx.lineCap = 'round'; ctx.strokeStyle = '#F1C27D'; ctx.lineWidth = 0.13 * hw; ctx.beginPath(); ctx.moveTo(hx + thumb[0][0] * hw, hy + thumb[0][1] * hh2); ctx.lineTo(hx + thumb[1][0] * hw, hy + thumb[1][1] * hh2); ctx.stroke(); ctx.lineCap = 'butt'; ctx.restore();
+      ctx.fillStyle = '#C9CED6'; ctx.fillRect(hx, dy, hw, 6); text(ctx, 'detector under the hand', hx + hw / 2, dy + 18, { a: 'center', fs: 10.5, c: COL.sub });
+      // image builds up: each pixel gets photons in proportion to what passes through the hand there
+      if (!S.img) S.img = new Float32Array(NX * NY);
+      if (S.on) { const t = trans(), rate = S.I * dt * 0.08; for (let k = 0; k < NX * NY; k++) S.img[k] += rate * t[k] * (0.6 + 0.8 * Math.random()); }
+      const pw = hw / NX, ph = hh2 / NY;
+      ctx.fillStyle = '#E8ECEF'; ctx.fillRect(ix, iy, hw, hh2);
+      for (let k = 0; k < NX * NY; k++) { const d = Math.min(1, S.img[k]); if (d < 0.02) continue; const g = Math.round(232 - 214 * d); ctx.fillStyle = `rgb(${g},${g + 3},${g + 7})`; ctx.fillRect(ix + (k % NX) * pw, iy + Math.floor(k / NX) * ph, pw + 0.6, ph + 0.6); }
+      ctx.strokeStyle = '#999'; ctx.lineWidth = 1; ctx.strokeRect(ix, iy, hw, hh2);
+      text(ctx, 'X-ray image', ix + hw / 2, iy + hh2 + 18, { a: 'center', fs: 11, b: 1 });
+      // photons: absorbed in the hand or pass through to the detector
+      S.ph = S.ph.filter(p => { p.x += p.vx * dt; p.y += p.vy * dt; if (!p.pass && p.y >= p.stopY) return false; if (p.y >= dy) return false; return true; });
+      ctx.strokeStyle = '#8A3FD1'; ctx.lineWidth = 1.4; S.ph.forEach(p => { const n = Math.hypot(p.vx, p.vy), ux = p.vx / n, uy = p.vy / n; ctx.beginPath(); for (let j = 0; j < 12; j++) { const s = 2.5 * Math.sin(j * 1.5), xx = p.x - ux * j * 1.8 - uy * s, yy = p.y - uy * j * 1.8 + ux * s; j ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); } ctx.stroke(); });
+      if (!narrow) { const bx = tx + tw + 24, by = ty; ctx.fillStyle = '#eee'; ctx.fillRect(bx, by, 12, th); ctx.fillStyle = '#E4572E'; ctx.fillRect(bx, by + th * (1 - S.heat), 12, th * S.heat); text(ctx, 'target temperature', bx + 18, by + th / 2, { fs: 10.5, c: COL.sub }); }
+      const P = S.I * S.V;
+      ro([['electrons per second n = I/e', fmt(S.I * 1e-3 / 1.6e-19 / 1e16, 2) + ' × 10¹⁶', 'hl'], ['energy of each electron eV', fmt(S.V, 0) + ' keV', 'hl'], ['shortest wavelength λmin = hc/eV', fmt(6.63e-34 * 3e8 / (1.6e-19 * S.V * 1e3) * 1e12, 1) + ' pm'], ['power supplied IV', fmt(P, 0) + ' W'], ['heat in the target (≈ 99%)', fmt(P * 0.99, 0) + ' W']]);
+    }
+    loop(cv, frame);
   });
 })();

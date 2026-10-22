@@ -99,6 +99,9 @@ ${ul([`The waves <b>interfere</b> with each other only while they overlap.`, `<b
 ${sim('pulses', 'Superposition of two pulses', 'Send two pulses towards each other, on the same side or on opposite sides. Pause while they overlap: the resultant (green) is the sum of the two displacements at every point. After they pass, each pulse is unchanged.')}
 ${example('20.3.1', `Two waves <i>y</i><sub>1</sub> = 3 sin (ω<i>t</i> − <i>kx</i>) cm and <i>y</i><sub>2</sub> = 4 sin (ω<i>t</i> − <i>kx</i> + π) cm travel along the same string. Find the amplitude of the resultant wave.`,
   steps([`sin (θ + π) = −sin θ, so <i>y</i><sub>2</sub> = −4 sin (ω<i>t</i> − <i>kx</i>)`, `<i>y</i> = <i>y</i><sub>1</sub> + <i>y</i><sub>2</sub> = −1 sin (ω<i>t</i> − <i>kx</i>) ⇒ amplitude <b>1 cm</b> (destructive interference)`]))}
+${h4('A real use: noise-cancelling headphones')}
+${ul([`A small microphone on the outside of each ear cup picks up the noise around you (an aeroplane engine, a bus, an air-conditioner).`, `The electronics produce an "anti-noise" wave with the <b>same amplitude</b> but <b>opposite phase</b> (a phase difference of π), and the speaker plays it into your ear.`, `At your ear the two waves superpose: <i>y</i> = <i>y</i><sub>noise</sub> + <i>y</i><sub>anti</sub> ≈ 0. This is <b>destructive interference</b>.`, `It works best for steady, low-frequency sounds. For high frequencies even a tiny delay in the electronics is a large fraction of a period, so the anti-noise is no longer in antiphase.`])}
+${sim('anc', 'Noise-cancelling headphones', 'Switch the noise cancelling on and off and compare the sound reaching the ear (green). Then add a delay in the electronics or change the noise frequency: the cancellation gets worse once the phase difference moves away from π. Switch on the sound to hear it (use earphones for the low hum).')}
 `)}
 
 ${sec('20-4', '20.4 Standing waves', `
@@ -298,4 +301,59 @@ ${exercises('Exercises', [
     new ResizeObserver(() => draw()).observe(root);
     draw();
   });
+  // ---------- noise-cancelling headphones ----------
+  window.PhysiQSims.add('anc', function (root) {
+    const { COL, fmt, el, slider, toggle, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const S = { on: true, f: 150, d: 0, t: 0, snd: false };
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    toggle(bar, 'Noise cancelling ON', S.on, v => { S.on = v; upd(); });
+    toggle(bar, '🔊 Sound', false, v => { S.snd = v; v ? start() : stop(); });
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'frequency of the noise', 50, 1000, 10, S.f, 'Hz', x => { S.f = x; upd(); });
+    slider(ctl, 'delay in the electronics', 0, 2, 0.05, S.d, 'ms', x => { S.d = x; upd(); });
+    const cv = canvas(root); const ro = readouts(root);
+    // sound: the noise and the anti-noise really are added together before they reach the speaker
+    let ac = null, nodes = null;
+    function start() {
+      try { if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); } catch (e) { ac = null; return; }
+      stop(); const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = S.f;
+      const g = ac.createGain(); g.gain.value = 0.25; const inv = ac.createGain(); const dl = ac.createDelay(0.01); const out = ac.createGain(); out.gain.value = 0.6;
+      o.connect(g); g.connect(out); g.connect(dl); dl.connect(inv); inv.connect(out); out.connect(ac.destination); o.start();
+      nodes = { o, inv, dl, out }; upd();
+    }
+    function stop() { if (nodes) { try { nodes.o.stop(); nodes.out.disconnect(); } catch (e) {} nodes = null; } }
+    function upd() { if (!nodes || !ac) return; const t = ac.currentTime; nodes.o.frequency.setTargetAtTime(S.f, t, 0.02); nodes.dl.delayTime.setTargetAtTime(S.d / 1000, t, 0.02); nodes.inv.gain.setTargetAtTime(S.on ? -1 : 0, t, 0.02); }
+    const watch = setInterval(() => { if (!root.isConnected || document.hidden) { stop(); if (!root.isConnected) clearInterval(watch); } }, 500);
+    function frame(dt) {
+      if (dt < 0) dt = 0; S.t += dt;
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(1.25, 420, 500) : cv.size(0.5, 300, 360); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const phi = 2 * Math.PI * S.f * S.d / 1000, res = S.on ? 2 * Math.abs(Math.sin(phi / 2)) : 1;
+      // headphone cup beside an ear
+      const hx = narrow ? w / 2 : w * 0.17, hy = narrow ? 88 : h / 2, sc = narrow ? 0.8 : 1;
+      ctx.save(); ctx.translate(hx, hy); ctx.scale(sc, sc);
+      ctx.fillStyle = '#F1C27D'; ctx.beginPath(); ctx.ellipse(18, 0, 26, 40, 0, 0, 7); ctx.fill(); ctx.strokeStyle = '#C9965A'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(18, 0, 13, 22, 0, -1.2, 1.9); ctx.stroke();
+      ctx.fillStyle = '#2B3140'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-44, -48, 44, 96, 18) : ctx.rect(-44, -48, 44, 96); ctx.fill();
+      ctx.fillStyle = '#5A6170'; ctx.fillRect(-6, -30, 8, 60);
+      ctx.beginPath(); ctx.arc(-48, -32, 5, 0, 7); ctx.fillStyle = COL.r; ctx.fill();
+      ctx.strokeStyle = '#2B3140'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(10, -40, 52, Math.PI * 1.05, Math.PI * 1.6); ctx.stroke();
+      // incoming noise waves
+      for (let i = 0; i < 3; i++) { const r = ((S.t * 40 + i * 20) % 60) + 10; ctx.strokeStyle = 'rgba(192,57,43,' + (0.6 - r / 120) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(-110, -32, r, -0.5, 0.5); ctx.stroke(); }
+      ctx.restore();
+      text(ctx, 'microphone', hx - 58 * sc, hy - 44 * sc, { a: 'right', fs: 10.5, c: COL.r, b: 1 }); text(ctx, 'speaker', hx - 2, hy + 62 * sc, { a: 'center', fs: 10.5, c: COL.sub, b: 1 }); text(ctx, 'noise', hx - 92 * sc, hy - 4, { a: 'center', fs: 10.5, c: COL.r });
+      // three traces
+      const gx = narrow ? 44 : w * 0.36, gw = w - gx - 14, top = narrow ? 150 : 22, gh = (h - top - 12) / 3, A = gh * 0.21;
+      
+      const tr = [['noise at the ear', COL.r, x => Math.sin(x)], ['anti-noise from the speaker', COL.v, x => S.on ? -Math.sin(x - phi) : 0], ['what the ear hears (sum)', '#3E8E1E', x => Math.sin(x) + (S.on ? -Math.sin(x - phi) : 0)]];
+      tr.forEach(([n, c, fn], i) => {
+        const y0 = top + gh * i + gh * 0.57; ctx.strokeStyle = '#D8DBCF'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, y0); ctx.lineTo(gx + gw, y0); ctx.stroke();
+        text(ctx, n, gx, top + gh * i + 12, { fs: 11, b: 1, c });
+        ctx.strokeStyle = c; ctx.lineWidth = i === 2 ? 2.6 : 1.8; ctx.beginPath();
+        for (let k = 0; k <= 240; k++) { const x = 2 * Math.PI * (k / 240 * 4 - S.t * 0.5); const yy = y0 - A * fn(x); k ? ctx.lineTo(gx + gw * k / 240, yy) : ctx.moveTo(gx + gw * k / 240, yy); }
+        ctx.stroke();
+      });
+      ro([['phase difference between noise and anti-noise', S.on ? fmt((180 + phi * 180 / Math.PI) % 360, 0) + '°' : 'no anti-noise', 'hl'], ['amplitude reaching the ear', fmt(res * 100, 0) + '% of the noise', 'hl'], ['delay as a fraction of one period', fmt(S.d / 1000 * S.f, 2) + ' T']]);
+    }
+    loop(cv, frame);
+  });
+
 })();

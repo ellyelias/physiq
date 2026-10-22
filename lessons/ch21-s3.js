@@ -96,6 +96,11 @@ ${example('21.2.5', `A tube of air 1.5 m long is closed at one end. It sustains 
   steps([`Third harmonic: <i>l</i> = 3λ/4 ⇒ λ = 4(1.5)/3 = 2.0 m`, `node to adjacent antinode = λ/4 = <b>0.5 m</b>`]))}
 ${example('21.2.6', `A pipe closed at one end produces a fundamental note of 300 Hz. The end correction is 8.00 mm and the speed of sound is 330 ${ms}. Calculate the length of the pipe.`,
   steps([`<i>f</i><sub>1</sub> = ${fr('<i>v</i>', '4(<i>l</i> + <i>c</i>)')} ⇒ <i>l</i> + <i>c</i> = ${fr('330', '4(300)')} = 0.275 m`, `<i>l</i> = 0.275 − 0.008 = <b>0.267 m</b>`]))}
+${h4('Real instruments: the guitar and the flute')}
+${ul([`<b>Guitar</b>: each string is fixed at the bridge and at the nut, so it vibrates with nodes at both ends: <i>f</i><sub>1</sub> = ${fr('1', '2<i>l</i>')}${sq(fr('<i>T</i>', 'μ'))}. Thicker strings (larger μ) give lower notes; turning the tuning peg changes the tension <i>T</i>.`, `Pressing a string against a <b>fret</b> shortens the vibrating length. The frets are placed so that each one raises the note by a semitone; the 12th fret is halfway along the string, so the note is one octave higher (double the frequency).`, `<b>Flute</b>: a pipe open at both ends (the mouth hole and the far end), so there is an antinode at each end: <i>f</i><sub>1</sub> = ${fr('<i>v</i>', '2<i>l</i>')}. Opening a finger hole makes the air column end there, so it is shorter and the note is higher.`, `Blowing harder makes the flute sound its second harmonic (overblowing): the same fingering gives a note one octave higher.`])}
+${sim('instruments', 'Guitar and flute', 'Choose the guitar or the flute. On the guitar, pick a string, change the tension and press a fret. On the flute, choose a note and overblow. Watch the vibrating length and the stationary wave, and switch on the sound to hear the note.')}
+${example('21.2.7', `The thinnest string of a guitar has a vibrating length of 0.648 m and a mass per unit length of 4.0 × 10<sup>−4</sup> kg m<sup>−1</sup>. It is tuned to a fundamental frequency of 330 Hz. Find (a) the speed of the transverse wave on the string, (b) the tension in the string, (c) the frequency when the string is pressed at the 12th fret, halfway along.`,
+  steps([`(a) Fundamental: <i>l</i> = λ/2 ⇒ λ = 1.296 m; <i>v</i> = <i>f</i>λ = (330)(1.296) = <b>428 ${ms}</b>`, `(b) <i>v</i> = ${sq(fr('<i>T</i>', 'μ'))} ⇒ <i>T</i> = <i>v</i><sup>2</sup>μ = (428)<sup>2</sup>(4.0 × 10<sup>−4</sup>) = <b>73 N</b>`, `(c) <i>f</i> ∝ ${fr('1', '<i>l</i>')}: half the length gives <b>660 Hz</b>, one octave higher`]))}
 ${exercises('Exercises: strings and pipes', [
   { q: `The distance between the first and the fourth antinodes of a stationary wave on a string is 15 cm. What is the speed of the wave if it vibrates at 50 Hz?`, a: `3 × λ/2 = 15 cm ⇒ λ = 0.10 m; <i>v</i> = 5 ${ms}` },
   { q: `A string 2.0 m long is fixed at both ends. At 85.0 Hz a standing wave with five loops forms. Find (a) the wavelength, (b) the wave speed, (c) the fundamental frequency.`, a: `(a) 0.8 m &nbsp; (b) 68 ${ms} &nbsp; (c) 17 Hz` }])}
@@ -309,4 +314,87 @@ ${exercises('Exercise: Doppler effect and beats', [
     new ResizeObserver(() => draw()).observe(root);
     draw();
   });
+  // ---------- guitar and flute ----------
+  window.PhysiQSims.add('instruments', function (root) {
+    const { COL, fmt, el, slider, button, toggle, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const L0 = 0.648, V = 343;
+    const STR = { E2: { n: 'low E (thick)', mu: 6.2e-3 }, A2: { n: 'A string', mu: 3.6e-3 }, E4: { n: 'high E (thin)', mu: 4.0e-4 } };
+    const NOTES = [['C', 262], ['D', 294], ['E', 330], ['F', 349], ['G', 392], ['A', 440], ['B', 494], ['C′', 523]];
+    const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+    const noteName = f => { const n = Math.round(12 * Math.log2(f / 440)) + 57; return NAMES[((n % 12) + 12) % 12] + Math.floor(n / 12); };
+    const S = { ins: 'guitar', str: 'E4', T: 73, fret: 0, note: 0, over: false, snd: false, t: 0, pluck: 0 };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    let gctl, fctl;
+    const ib = [['guitar', '🎸 Guitar'], ['flute', '🪈 Flute']].map(([k, n]) => { const b = button(pre, n, 'sm-chip' + (k === S.ins ? ' on' : ''), () => { S.ins = k; ib.forEach(x => x.classList.toggle('on', x === b)); show(); }); return b; });
+    gctl = el('div', 'sm-ctl'); root.appendChild(gctl); fctl = el('div', 'sm-ctl'); root.appendChild(fctl);
+    const srow = el('div', 'sm-row sm-pre'); gctl.appendChild(srow);
+    const sb = Object.entries(STR).map(([k, o]) => { const b = button(srow, o.n, 'sm-chip' + (k === S.str ? ' on' : ''), () => { S.str = k; sb.forEach(x => x.classList.toggle('on', x === b)); play(); }); return b; });
+    const grow = el('div', 'sm-row'); gctl.appendChild(grow);
+    slider(grow, 'tension T', 40, 110, 1, S.T, 'N', x => { S.T = x; });
+    slider(grow, 'fret pressed (0 = open string)', 0, 12, 1, S.fret, '', x => { S.fret = x; play(); });
+    const nrow = el('div', 'sm-row sm-pre'); fctl.appendChild(nrow);
+    const nb = NOTES.map(([n], i) => { const b = button(nrow, n, 'sm-chip' + (i === S.note ? ' on' : ''), () => { S.note = i; nb.forEach(x => x.classList.toggle('on', x === b)); play(); }); return b; });
+    const frow = el('div', 'sm-row sm-bar'); fctl.appendChild(frow);
+    toggle(frow, 'Overblow (blow harder)', false, v => { S.over = v; play(); });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    button(bar, '▶ Play the note', '', () => { S.snd = true; play(true); });
+    function show() { gctl.hidden = S.ins !== 'guitar'; fctl.hidden = S.ins !== 'flute'; play(); }
+    const cv = canvas(root); const ro = readouts(root);
+    function cur() {
+      if (S.ins === 'guitar') { const mu = STR[S.str].mu, l = L0 / Math.pow(2, S.fret / 12), v = Math.sqrt(S.T / mu); return { l, v, f: v / (2 * l), n: 1 }; }
+      const f1 = NOTES[S.note][1], l = V / (2 * f1), n = S.over ? 2 : 1; return { l, v: V, f: n * f1, n };
+    }
+    let ac = null;
+    function play(force) {
+      S.pluck = 1; if (!S.snd && !force) return;
+      try { if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); } catch (e) { return; }
+      const c = cur(), t = ac.currentTime, out = ac.createGain(); out.connect(ac.destination);
+      const parts = S.ins === 'guitar' ? [[1, 0.5], [2, 0.25], [3, 0.15], [4, 0.08], [5, 0.05]] : [[1, 0.5], [2, 0.18], [3, 0.06]];
+      parts.forEach(([k, a]) => { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = c.f * k; g.gain.value = 0; o.connect(g); g.connect(out);
+        if (S.ins === 'guitar') { g.gain.setValueAtTime(a * 0.4, t); g.gain.exponentialRampToValueAtTime(0.0005, t + 2.2 / Math.sqrt(k)); }
+        else { g.gain.linearRampToValueAtTime(a * 0.3, t + 0.08); g.gain.setValueAtTime(a * 0.3, t + 1.0); g.gain.linearRampToValueAtTime(0, t + 1.3); }
+        o.start(t); o.stop(t + 2.4); });
+      if (S.ins === 'flute') { const len = 1.3, buf = ac.createBuffer(1, ac.sampleRate * len, ac.sampleRate), d = buf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.02; const ns = ac.createBufferSource(), bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = c.f * 2; ns.buffer = buf; ns.connect(bp); bp.connect(out); ns.start(t); }
+    }
+    function frame(dt) {
+      if (dt < 0) dt = 0; S.t += dt; S.pluck = Math.max(0, S.pluck - dt * (S.ins === 'guitar' ? 0.5 : 0)); if (S.ins === 'flute') S.pluck = 1;
+      const c = cur();
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(0.75, 260, 320) : cv.size(0.36, 230, 280); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const x0 = 24, x1 = w - 24, sc = (x1 - x0) / L0, yc = h * 0.45, osc = Math.sin(2 * Math.PI * S.t * 3);   // slowed down to 3 vibrations per second
+      if (S.ins === 'guitar') {
+        // neck with frets; bridge at the right
+        ctx.fillStyle = '#7A4E2D'; ctx.fillRect(x0 - 10, yc - 34, (x1 - x0) * 0.62 + 10, 68); ctx.fillStyle = '#C79A5B'; ctx.beginPath(); ctx.ellipse(x1 - (x1 - x0) * 0.17, yc, (x1 - x0) * 0.22, Math.min(80, h * 0.36), 0, 0, 7); ctx.fill();
+        ctx.beginPath(); ctx.arc(x1 - (x1 - x0) * 0.3, yc, 22, 0, 7); ctx.fillStyle = '#3A2614'; ctx.fill();
+        for (let n = 1; n <= 12; n++) { const x = x0 + (L0 - L0 / Math.pow(2, n / 12)) * sc; ctx.fillStyle = '#D6D6D6'; ctx.fillRect(x - 1, yc - 34, 2.5, 68); if ([3, 5, 7, 9].includes(n)) { ctx.beginPath(); ctx.arc(x - (L0 / Math.pow(2, n / 12) - L0 / Math.pow(2, (n - 1) / 12)) * sc / 2, yc, 4, 0, 7); ctx.fillStyle = '#EDE6D6'; ctx.fill(); } if (n === 12) text(ctx, '12th fret (halfway) ↓', x + 4, yc - 42, { a: 'right', fs: 10.5, c: COL.sub }); }
+        ctx.fillStyle = '#E8DCC0'; ctx.fillRect(x0 - 3, yc - 34, 6, 68); ctx.fillStyle = '#2B1B0E'; ctx.fillRect(x1 - 4, yc - 30, 8, 60);
+        const xs = x0 + (L0 - c.l) * sc, Ap = 16 * S.pluck;
+        if (S.fret > 0) { ctx.strokeStyle = '#888'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x0, yc); ctx.lineTo(xs, yc); ctx.stroke(); ctx.beginPath(); ctx.arc(xs - 6, yc, 9, 0, 7); ctx.fillStyle = 'rgba(241,194,125,.9)'; ctx.fill(); }
+        ctx.strokeStyle = '#F2C94C'; ctx.lineWidth = STR[S.str].mu > 3e-3 ? 3 : 1.6; ctx.beginPath();
+        for (let k = 0; k <= 120; k++) { const x = xs + (x1 - xs) * k / 120, y = yc + Ap * osc * Math.sin(Math.PI * k / 120); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke();
+        ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xs, h - 30); ctx.lineTo(x1, h - 30); ctx.stroke(); [xs, x1].forEach(x => { ctx.beginPath(); ctx.moveTo(x, h - 36); ctx.lineTo(x, h - 24); ctx.stroke(); });
+        text(ctx, `vibrating length l = ${fmt(c.l * 100, 1)} cm = λ/2`, (xs + x1) / 2, h - 12, { a: 'center', fs: 12, b: 1 });
+        text(ctx, 'node', xs, yc + 50, { a: 'center', fs: 10.5, c: COL.sub }); text(ctx, 'node', x1, yc + 50, { a: 'center', fs: 10.5, c: COL.sub });
+      } else {
+        const sc = (x1 - x0) / 0.72, tl = 0.712 * sc, ty = yc - 14, th = 28, tx0 = x0, holes = NOTES.slice(1).map(([, f]) => 0.05 + V / (2 * f));
+        ctx.fillStyle = '#C9CDD3'; ctx.fillRect(tx0, ty, tl, th); ctx.strokeStyle = '#7D848F'; ctx.lineWidth = 1.5; ctx.strokeRect(tx0, ty, tl, th);
+        ctx.beginPath(); ctx.ellipse(tx0 + 0.05 * sc, ty, 6, 4, 0, 0, 7); ctx.fillStyle = '#333'; ctx.fill(); text(ctx, 'mouth hole', tx0 + 0.05 * sc, ty - 10, { a: 'center', fs: 10.5, c: COL.sub });
+        const lEnd = 0.05 + c.l;   // the air column ends at the first open hole
+        holes.forEach(p => { const open = p >= lEnd - 0.004; ctx.beginPath(); ctx.ellipse(tx0 + p * sc, ty, 5, 3.5, 0, 0, 7); ctx.fillStyle = open ? '#fff' : '#2B3140'; ctx.fill(); ctx.strokeStyle = '#555'; ctx.lineWidth = 1; ctx.stroke(); });
+        // stationary wave (displacement) in the air column, antinodes at both ends
+        const a = tx0 + 0.05 * sc, b = Math.min(tx0 + tl, tx0 + lEnd * sc);
+        ['#3E8E1E', 'rgba(62,142,30,.45)'].forEach((col, j) => { ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); for (let k = 0; k <= 120; k++) { const x = a + (b - a) * k / 120, y = yc + (j ? -1 : 1) * 11 * osc * Math.cos(c.n * Math.PI * k / 120); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); });
+        ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a, h - 30); ctx.lineTo(b, h - 30); ctx.stroke(); [a, b].forEach(x => { ctx.beginPath(); ctx.moveTo(x, h - 36); ctx.lineTo(x, h - 24); ctx.stroke(); });
+        text(ctx, `air column l = ${fmt(c.l * 100, 1)} cm` + (c.n === 1 ? ' = λ/2' : ' = λ (2nd harmonic)'), (a + b) / 2, h - 12, { a: 'center', fs: 12, b: 1 });
+        text(ctx, 'antinode', a, yc + 34, { a: 'center', fs: 10.5, c: COL.sub }); text(ctx, 'antinode', b, yc + 34, { a: 'center', fs: 10.5, c: COL.sub });
+        text(ctx, 'open hole ○  closed hole ●', w - 10, 18, { a: 'right', fs: 10.5, c: COL.sub });
+      }
+      text(ctx, 'vibration shown slowed down', 10, 18, { fs: 10.5, c: COL.sub });
+      const rows = [['frequency f', fmt(c.f, 0) + ' Hz', 'hl'], ['note', noteName(c.f), 'hl'], ['wavelength λ', fmt(2 * c.l / c.n * 100, 1) + ' cm']];
+      if (S.ins === 'guitar') rows.push(['wave speed on the string v = √(T/μ)', fmt(c.v, 0) + ' m s⁻¹']); else rows.push(['speed of sound in air', '343 m s⁻¹']);
+      ro(rows);
+    }
+    show();
+    loop(cv, frame);
+  });
+
 })();

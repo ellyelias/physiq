@@ -132,6 +132,11 @@ ${h4('Controlled fission in a nuclear reactor')}
 ${fig(F.reactor(), 'Figure 25.6: the core of a thermal fission reactor.')}
 ${table(['Part', 'Purpose'], [['Fuel rods', 'enriched uranium (3–5% U-235); the U-235 undergoes fission'], ['Moderator (water or graphite)', 'slows down the fast neutrons from fission by collisions, because slow neutrons are much more likely to cause fission of U-235'], ['Control rods (cadmium or boron)', 'absorb neutrons. They are raised or lowered so that, on average, exactly <b>one</b> neutron from each fission causes another fission: a steady (critical) rate'], ['Coolant', 'carries the heat away to produce steam, which drives turbines to generate electricity'], ['Concrete shield', 'absorbs neutrons and γ-radiation to protect the workers']])}
 ${sim('chain', 'Chain reaction and control rods', 'Fire one neutron into the uranium. Each fission (yellow nucleus) releases 2–3 new neutrons. Push the control rods in to absorb more neutrons: find the setting where the reaction keeps going at a steady rate.')}
+${h4('A nuclear power station')}
+${ul([`The fission energy heats the water in the reactor core. In a <b>pressurised water reactor</b> the water is kept at high pressure so it does not boil, and the same water acts as moderator and coolant.`, `The hot coolant is pumped through a <b>heat exchanger</b> (steam generator), where it boils water in a separate loop. The steam turns a <b>turbine</b> connected to a <b>generator</b>.`, `The steam is cooled back to water in a <b>condenser</b> and returned. Only about one third of the heat becomes electrical energy; the rest is given out to the cooling water.`, `If the power rises too fast, the control rods drop fully into the core (an emergency shutdown) and the chain reaction stops.`])}
+${sim('reactor', 'Inside a nuclear power station', 'Move the control rods. Pulled out, more neutrons survive and the power rises; pushed in, the power falls. Find the position where each fission causes, on average, exactly one more (k = 1) and the power stays steady. If the power goes above 120%, the reactor shuts itself down.')}
+${example('25.3.5', `A nuclear power station produces 1000 MW of electrical power with an efficiency of 33%. Each fission of U-235 releases 200 MeV. Find (a) the thermal power of the reactor, (b) the number of fissions per second, (c) the mass of U-235 used in one day.`,
+  steps([`(a) <i>P</i><sub>thermal</sub> = ${fr('1000', '0.33')} = <b>3.0 × 10<sup>3</sup> MW</b>`, `(b) energy per fission = 200 × 1.60 × 10<sup>−13</sup> = 3.2 × 10<sup>−11</sup> J ⇒ <i>n</i> = ${fr('3.0 × 10<sup>9</sup>', '3.2 × 10<sup>−11</sup>')} = <b>9.4 × 10<sup>19</sup> s<sup>−1</sup></b>`, `(c) nuclei per day = 9.4 × 10<sup>19</sup> × 86 400 = 8.1 × 10<sup>24</sup> ⇒ mass = ${fr('8.1 × 10<sup>24</sup>', '6.02 × 10<sup>23</sup>')} × 0.235 kg = <b>3.2 kg</b>`]))}
 ${h4('Nuclear fusion')}
 ${def('Nuclear fusion', `is ${red('the joining of two light nuclei to form a heavier nucleus')}, with the release of energy.`)}
 ${eq(`${nuc(2, 1, 'H')} + ${nuc(3, 1, 'H')} → ${nuc(4, 2, 'He')} + ${nuc(1, 0, 'n')} + 17.6 MeV`)}
@@ -260,4 +265,87 @@ ${exercises('Exercises', [
     new ResizeObserver(() => draw()).observe(root);
     draw();
   });
+  // ---------- nuclear power station ----------
+  window.PhysiQSims.add('reactor', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const S = { rod: 0.5, P: 1.0, scram: false, t: 0, turb: 0, flow: 0, hist: [], k: 1, nb: [] };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    const rs = slider(ctl, 'control rods pushed in', 0, 100, 1, 50, '%', x => { if (!S.scram) S.rod = x / 100; });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    button(bar, '🛑 Emergency shutdown', '', () => { S.scram = true; });
+    button(bar, 'Restart', '', () => { S.scram = false; S.rod = 0.5; S.P = 1; S.hist = []; S.ht = 0; const i = root.querySelector('input[type=range]'); if (i) { i.value = 50; i.dispatchEvent(new Event('input')); } });
+    const cv = canvas(root); const ro = readouts(root);
+    function frame(dt) {
+      if (dt < 0) dt = 0; dt = Math.min(dt, 0.05); S.t += dt;
+      const rod = S.scram ? 1 : S.rod;
+      S.k = 1 + 0.04 * (0.5 - rod);   // neutron multiplication factor
+      // power changes slowly because of delayed neutrons
+      S.P *= Math.exp((S.k - 1) / 0.4 * dt);
+      S.P = Math.max(S.scram ? 0.0 : 0.001, Math.min(S.P, 1.6));
+      if (S.P > 1.2 && !S.scram) S.scram = true;
+      if (S.scram) S.P = Math.max(0, S.P - S.P * 1.2 * dt);
+      S.ht = (S.ht || 0) + dt; if (S.ht > 0.05) { S.ht = 0; S.hist.push(S.P); if (S.hist.length > 400) S.hist.shift(); }
+      const P = Math.min(S.P, 1.6);
+      S.turb += dt * 8 * Math.min(P, 1.3); S.flow += dt * (0.3 + 0.7 * Math.min(P, 1.2));
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(0.88, 340, 420) : cv.size(0.4, 300, 380); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const sc = narrow ? w / 640 : Math.min(w / 900, h / 330); ctx.save(); ctx.scale(sc, sc);
+      const W = w / sc, H = h / sc;
+      // reactor vessel
+      const vx = 30, vy = 78, vw = 150, vh = 190;
+      ctx.fillStyle = '#5A6170'; ctx.fillRect(vx - 8, vy - 8, vw + 16, vh + 16);
+      const hot = Math.min(1, P / 1.6); ctx.fillStyle = `rgb(${Math.round(150 + 90 * hot)},${Math.round(200 - 90 * hot)},${Math.round(235 - 150 * hot)})`; ctx.fillRect(vx, vy, vw, vh);
+      // fuel rods and control rods
+      for (let i = 0; i < 5; i++) { const x = vx + 18 + i * 28; ctx.fillStyle = '#3E8E1E'; ctx.fillRect(x, vy + 70, 12, 110); }
+      for (let i = 0; i < 4; i++) { const x = vx + 34 + i * 28, d = 110 * rod; ctx.fillStyle = '#222'; ctx.fillRect(x - 1, vy - 40, 10, 40 + 30 + d); }
+      ctx.fillStyle = '#444'; ctx.fillRect(vx + 20, vy - 46, vw - 40, 8);
+      // neutrons flashing in the core (more when the power is higher)
+      const nN = Math.round(4 + 26 * Math.min(P, 1.4)); ctx.fillStyle = '#FFE34D';
+      for (let i = 0; i < nN; i++) { const r1 = (Math.sin(i * 91.7 + S.t * 7.3) + 1) / 2, r2 = (Math.sin(i * 37.1 + S.t * 5.1) + 1) / 2; ctx.beginPath(); ctx.arc(vx + 10 + r1 * (vw - 20), vy + 70 + r2 * 110, 2.2, 0, 7); ctx.fill(); }
+      text(ctx, 'reactor core', vx + vw / 2, vy + vh + 26, { a: 'center', fs: 14, b: 1 });
+      text(ctx, 'control rods', vx + vw + 10, vy - 30, { fs: 13, c: COL.sub }); text(ctx, 'fuel rods', vx + vw / 2, vy + vh - 4, { a: 'center', fs: 12, c: '#fff' });
+      // primary loop to the heat exchanger
+      const hx = 250, hy = 98, hw = 110, hh = 150;
+      const loopPts = [[vx + vw, vy + 30], [hx, vy + 30], [hx, hy + hh - 20], [vx + vw, hy + hh - 20]];
+      ctx.lineWidth = 9; ctx.strokeStyle = `rgba(220,${Math.round(120 - 60 * hot)},60,.85)`; ctx.beginPath(); ctx.moveTo(vx + vw + 8, vy + 30); ctx.lineTo(hx + 30, vy + 30); ctx.stroke();
+      ctx.strokeStyle = 'rgba(60,120,220,.85)'; ctx.beginPath(); ctx.moveTo(hx + 30, hy + hh - 20); ctx.lineTo(vx + vw + 8, hy + hh - 20); ctx.stroke();
+      // flowing dots
+      ctx.fillStyle = '#fff'; for (let i = 0; i < 4; i++) { const f = (S.flow + i / 4) % 1; ctx.beginPath(); ctx.arc(vx + vw + 8 + f * (hx + 22 - vx - vw), vy + 30, 2.5, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(hx + 30 - f * (hx + 22 - vx - vw), hy + hh - 20, 2.5, 0, 7); ctx.fill(); }
+      ctx.fillStyle = '#E3E6EA'; ctx.fillRect(hx, hy, hw, hh); ctx.strokeStyle = '#7D848F'; ctx.lineWidth = 2; ctx.strokeRect(hx, hy, hw, hh);
+      ctx.strokeStyle = 'rgba(220,90,60,.8)'; ctx.lineWidth = 5; ctx.beginPath(); for (let i = 0; i <= 6; i++) { const y = vy + 30 + i * ((hy + hh - 20 - vy - 30) / 6); ctx.lineTo(hx + (i % 2 ? hw - 20 : 30), y); } ctx.stroke();
+      text(ctx, 'heat exchanger', hx + hw / 2, hy + hh + 22, { a: 'center', fs: 13, b: 1 }); text(ctx, '(steam generator)', hx + hw / 2, hy + hh + 38, { a: 'center', fs: 12, c: COL.sub });
+      // steam to turbine
+      const tx = 430, ty = 88;
+      ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(160,160,170,.9)'; ctx.beginPath(); ctx.moveTo(hx + hw, hy + 15); ctx.lineTo(tx + 30, hy + 15); ctx.lineTo(tx + 30, ty + 30); ctx.stroke();
+      for (let i = 0; i < 5; i++) { const f = (S.flow * 1.4 + i / 5) % 1; ctx.fillStyle = 'rgba(255,255,255,' + (0.4 + 0.5 * Math.min(P, 1)) + ')'; ctx.beginPath(); ctx.arc(hx + hw + f * (tx + 30 - hx - hw), hy + 15, 3, 0, 7); ctx.fill(); }
+      text(ctx, 'steam', (hx + hw + tx) / 2 + 10, hy + 6, { a: 'center', fs: 12, c: COL.sub });
+      // turbine and generator
+      const tcx = tx + 30, tcy = ty + 80;
+      ctx.fillStyle = '#C9CDD3'; ctx.beginPath(); ctx.moveTo(tcx - 30, tcy - 30); ctx.lineTo(tcx + 30, tcy - 45); ctx.lineTo(tcx + 30, tcy + 45); ctx.lineTo(tcx - 30, tcy + 30); ctx.closePath(); ctx.fill();
+      ctx.save(); ctx.translate(tcx, tcy); ctx.rotate(S.turb); ctx.strokeStyle = '#555'; ctx.lineWidth = 4; for (let i = 0; i < 6; i++) { ctx.rotate(Math.PI / 3); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 26); ctx.stroke(); } ctx.restore();
+      text(ctx, 'turbine', tcx, tcy + 66, { a: 'center', fs: 13, b: 1 });
+      ctx.fillStyle = '#555'; ctx.fillRect(tcx + 30, tcy - 4, 50, 8);
+      const gx = tcx + 80; ctx.fillStyle = '#2C6BB3'; ctx.fillRect(gx, tcy - 32, 70, 64); text(ctx, 'generator', gx + 35, tcy + 66, { a: 'center', fs: 13, b: 1 });
+      const Pe = 1000 * Math.min(P, 1.6); text(ctx, fmt(Pe, 0) + ' MW', gx + 35, tcy + 5, { a: 'center', fs: 13, b: 1, c: '#fff' });
+      // condenser
+      const cx0 = tx - 10, cy0 = tcy + 90; ctx.fillStyle = '#DCEBF5'; ctx.fillRect(cx0, cy0, 120, 34); ctx.strokeStyle = '#7D848F'; ctx.lineWidth = 1.5; ctx.strokeRect(cx0, cy0, 120, 34); text(ctx, 'condenser', cx0 + 60, cy0 + 22, { a: 'center', fs: 12, b: 1 });
+      ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(60,120,220,.7)'; ctx.beginPath(); ctx.moveTo(cx0, cy0 + 17); ctx.lineTo(hx + hw, cy0 + 17); ctx.lineTo(hx + hw, hy + hh - 10); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(tcx, tcy + 45); ctx.lineTo(tcx, cy0); ctx.stroke();
+      // power graph
+      const px = narrow ? 30 : 640, py = narrow ? 335 : 60, pw = narrow ? W - 60 : W - px - 20, phh = narrow ? Math.min(220, H - py - 20) : 220;
+      if (pw > 60 && phh > 40) {
+        ctx.fillStyle = '#fff'; ctx.fillRect(px, py, pw, phh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py + phh); ctx.lineTo(px + pw, py + phh); ctx.stroke();
+        const Y = v => py + phh - Math.min(v, 1.6) / 1.6 * phh;
+        ctx.setLineDash([4, 4]); ctx.strokeStyle = COL.sub; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px, Y(1)); ctx.lineTo(px + pw, Y(1)); ctx.stroke(); ctx.strokeStyle = COL.r; ctx.beginPath(); ctx.moveTo(px, Y(1.2)); ctx.lineTo(px + pw, Y(1.2)); ctx.stroke(); ctx.setLineDash([]);
+        text(ctx, '100%', px + 4, Y(1) - 4, { fs: 11, c: COL.sub }); text(ctx, 'shutdown at 120%', px + pw - 4, Y(1.2) - 4, { a: 'right', fs: 11, c: COL.r });
+        ctx.strokeStyle = COL.o; ctx.lineWidth = 2.4; ctx.beginPath(); S.hist.forEach((v, i) => { const x = px + pw * i / 400; i ? ctx.lineTo(x, Y(v)) : ctx.moveTo(x, Y(v)); }); ctx.stroke();
+        text(ctx, 'reactor power', px + 4, py + 14, { fs: 12, b: 1 });
+      }
+      if (S.scram) text(ctx, narrow ? 'EMERGENCY SHUTDOWN: rods fully in' : 'SHUTDOWN: rods fully in', narrow ? 20 : px, narrow ? 22 : py - 14, { fs: narrow ? 14 : 13, b: 1, c: COL.r });
+      ctx.restore();
+      const state = S.scram ? 'shut down' : Math.abs(S.k - 1) < 0.002 ? 'steady (critical)' : S.k > 1 ? 'power rising (supercritical)' : 'power falling (subcritical)';
+      ro([['neutrons from each fission causing another fission, k', fmt(S.k, 3), 'hl'], ['state', state, 'hl'], ['thermal power', fmt(3000 * P, 0) + ' MW'], ['electrical power (33%)', fmt(1000 * P, 0) + ' MW']]);
+    }
+    loop(cv, frame);
+  });
+
 })();
