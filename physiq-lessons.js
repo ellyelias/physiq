@@ -129,7 +129,7 @@ ${qs}
   };
   Object.values(LESSONS).forEach(L0 => { L0.label = 'Full notes · Cikgu Suhaili'; });
   const BODY = {}, loading = {};
-  const VER = '20261022n';
+  const VER = '20261022p';
   function register(k, o) { BODY[k] = o; }
   function load(k, done) {
     if (BODY[k]) return done();
@@ -146,13 +146,15 @@ ${qs}
     return `<header class="ls-head"><div class="ls-head-k">Chapter ${L0.chapter} · Semester ${L0.sem}</div><h2 class="ls-title${L0.title.length > 18 ? ' long' : ''}">${L0.title}</h2>
 <div class="ls-head-by">Notes by Cikgu Suhaili</div>
 <div class="ls-head-m"><span class="ls-nex">${L0.examples ? L0.examples + ' worked examples' : ''}</span>${L0.sims ? `<span>${L0.sims} simulation${L0.sims > 1 ? 's' : ''}</span>` : ''}<span>Exercises with answers</span></div>
-<nav class="ls-toc">${L0.toc.map(([id, t]) => `<button type="button" data-ls-go="${id}">${t}</button>`).join('')}</nav>
+<nav class="ls-toc">${L0.toc.map(([id, t]) => `<button type="button" data-ls-go="${id}">${t}</button>`).join('')}${window.PhysiQRealWorld && window.PhysiQRealWorld.hasLesson(k) ? '<button type="button" data-ls-go="ls-rl">Physics in Real Life</button>' : ''}</nav>
 <div class="ls-size" role="group" aria-label="Text size"><span>Text size</span><button type="button" data-ls-size="0">A</button><button type="button" data-ls-size="1">A</button><button type="button" data-ls-size="2">A</button></div>
 </header>`;
   }
+  // Physics in Real Life videos for this chapter (physiq-realworld.js), at the end of the notes
+  const realLife = k => (window.PhysiQRealWorld ? window.PhysiQRealWorld.forLesson(k) : '');
   function render(k) {
     if (!LESSONS[k]) return '';
-    return `<div class="ls" data-lesson="${k}">${head(k)}<div class="ls-body">${BODY[k] ? BODY[k].html() : '<p class="ls-loading">Loading the notes…</p>'}</div></div>`;
+    return `<div class="ls" data-lesson="${k}">${head(k)}<div class="ls-body">${BODY[k] ? BODY[k].html() + realLife(k) : '<p class="ls-loading">Loading the notes…</p>'}</div></div>`;
   }
 
   // text size: remembered on this device only
@@ -187,7 +189,7 @@ ${qs}
       }
     });
     const count = () => { const n = root.querySelectorAll('.ls-body .ls-ex').length, c = root.querySelector('.ls-nex'); if (c && n) c.textContent = n + ' worked examples'; };
-    const fill = () => { const b = root.querySelector('.ls-body'); if (!b || !root.isConnected) return; b.innerHTML = BODY[k].html(); count(); if (window.PhysiQSims) window.PhysiQSims.mountAll(root); };
+    const fill = () => { const b = root.querySelector('.ls-body'); if (!b || !root.isConnected) return; b.innerHTML = BODY[k].html() + realLife(k); count(); if (window.PhysiQSims) window.PhysiQSims.mountAll(root); };
     if (BODY[k]) { count(); if (window.PhysiQSims) window.PhysiQSims.mountAll(root); } else load(k, fill);
   }
 

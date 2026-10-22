@@ -163,3 +163,29 @@
 .rl-link span{font-size:12.5px;color:var(--sub);line-height:1.35;}
 .rl-link em{font-style:normal;font-size:12.5px;font-weight:700;color:var(--violet-d);}
 .rl-link:hover{border-color:var(--violet-b);}
+
+/* ---------- Physics in Real Life v2: every chapter, every video plays in the app ---------- */
+.rl-jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;position:relative;z-index:1;}
+.rl-jump button{border:1.5px solid rgba(255,255,255,.35);background:transparent;color:#fff;font:600 13.5px var(--ui);padding:7px 14px;border-radius:999px;cursor:pointer;}
+.rl-jump button:hover{background:var(--tagy);color:var(--tagy-ink);border-color:var(--tagy);}
+#notes-content .rl-sh span{font-family:var(--ui);font-weight:500;font-size:.7em;margin-left:6px;opacity:.85;}
+.rl-chap{margin:0 0 18px;}
+.rl-chh{display:flex;align-items:center;gap:10px;margin:0 0 10px;}
+.rl-chn{flex:none;width:38px;height:38px;border-radius:11px;background:var(--violet-b);color:#fff;font-family:var(--head);font-weight:600;font-size:17px;display:flex;align-items:center;justify-content:center;}
+.rl-chh b{font-family:var(--head);font-weight:600;font-size:18px;color:var(--pg-dark);}
+.rl-item.multi{grid-template-columns:minmax(0,1fr);}
+.rl-item.multi .rl-vids{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+#notes-content .rl-item .rl-t,#notes-content .rl-ls-item .rl-t{font-family:var(--head);font-weight:600;font-size:1.25em;line-height:1.2;color:var(--ink);margin:2px 0 6px;border:0;padding:0;text-transform:none;letter-spacing:0;}
+.rl-vcap{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;}
+.rl-vcap span{flex:1 1 auto;min-width:0;}
+.rl-vcap a{color:var(--violet-d);font-weight:700;text-decoration:none;white-space:nowrap;}
+.rl-type{flex:0 0 auto !important;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#fff;background:var(--pg-dark);border-radius:999px;padding:2px 8px;}
+.rl-ph{font-size:15px;line-height:1.55;}
+.rl-lsub{color:var(--sub);font-size:.92em;margin:-6px 0 12px;}
+.rl-ls-item{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:var(--shadow);}
+.rl-ls-item.ls-rw-flash,.rl-item.ls-rw-flash{box-shadow:0 0 0 4px var(--tagy), var(--shadow);}
+@media (max-width:640px){.rl-ls-item{grid-template-columns:minmax(0,1fr);}}
+/* sports cards now hold a player */
+.sp-card{flex-direction:column;align-items:stretch;gap:8px;}
+.sp-card .rl-vid{margin:0;}
+.sp-why{font-size:14.5px;line-height:1.5;}
