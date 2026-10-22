@@ -97,6 +97,8 @@
       toc: [['ls-13-1', '13.1 Capacitance'], ['ls-13-2', '13.2 Parallel plates'], ['ls-13-3', '13.3 Dielectrics'], ['ls-13-4', '13.4 Series and parallel'], ['ls-13-5', '13.5 Energy stored'], ['ls-13-6', '13.6 Charging and discharging']] },
     'LESSON-S2-14': { sem: '2', chapter: 14, title: 'Electric Current', topics: ['S2-14.1 Conduction of Electricity', 'S2-14.2 Drift Velocity', 'S2-14.3 Current Density', 'S2-14.4 Electric Conductivity and Resistivity'], sims: 2,
       toc: [['ls-14-1', '14.1 Conduction'], ['ls-14-2', '14.2 Drift velocity'], ['ls-14-3', '14.3 Current density'], ['ls-14-4', '14.4 Conductivity and resistivity']] },
+    'LESSON-S2-15': { sem: '2', chapter: 15, title: 'Direct Current Circuits', topics: ['S2-15.1 Internal Resistance', "S2-15.2 Kirchhoff's Laws", 'S2-15.3 Potential Divider', 'S2-15.4 Potentiometer and Wheatstone Bridge'], sims: 3,
+      toc: [['ls-15-1', '15.1 E.m.f. and internal resistance'], ['ls-15-2', "15.2 Kirchhoff's laws"], ['ls-15-3', '15.3 Potential divider'], ['ls-15-4', '15.4 Potentiometer and bridge']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
