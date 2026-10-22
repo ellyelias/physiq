@@ -85,6 +85,8 @@
       toc: [['ls-21-1', '21.1 Propagation'], ['ls-21-2', '21.2 Sources of sound'], ['ls-21-3', '21.3 Intensity level'], ['ls-21-4', '21.4 Beats'], ['ls-21-5', '21.5 Doppler effect']] },
     'LESSON-S3-22': { sem: '3', chapter: 22, title: 'Geometrical Optics', topics: ['S3-22.1 Spherical Mirrors', 'S3-22.2 Refraction at Spherical Surfaces', 'S3-22.3 Thin Lenses'], sims: 4,
       toc: [['ls-22-1', '22.1 Spherical mirrors'], ['ls-22-2', '22.2 Refraction at spherical surfaces'], ['ls-22-3', '22.3 Thin lenses'], ['ls-22-4', 'Past-year questions']] },
+    'LESSON-S3-23': { sem: '3', chapter: 23, title: 'Wave Optics', topics: ['S3-23.1 Huygens\'s Principle', 'S3-23.2 Interference', 'S3-23.3 Two-slit Interference Pattern', 'S3-23.4 Interference in A Thin Film', 'S3-23.5 Diffraction by A Single Slit', 'S3-23.6 Diffraction Gratings', 'S3-23.7 Polarisation', 'S3-23.8 Optical Waveguides'], sims: 6,
+      toc: [['ls-23-1', '23.1 Huygens'], ['ls-23-2', '23.2 Interference'], ['ls-23-3', '23.3 Two slits'], ['ls-23-4', '23.4 Thin film'], ['ls-23-5', '23.5 Single slit'], ['ls-23-6', '23.6 Grating'], ['ls-23-7', '23.7 Polarisation'], ['ls-23-8', '23.8 Waveguides']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
