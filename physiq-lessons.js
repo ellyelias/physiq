@@ -110,7 +110,7 @@
   };
   Object.values(LESSONS).forEach(L0 => { L0.label = 'Full notes · Cikgu Suhaili'; });
   const BODY = {}, loading = {};
-  const VER = '20261022d';
+  const VER = '20261022e';
   function register(k, o) { BODY[k] = o; }
   function load(k, done) {
     if (BODY[k]) return done();
