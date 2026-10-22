@@ -3,7 +3,7 @@
    are not in the slides and were written from the syllabus. */
 (function () {
   'use strict';
-  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4 } = window.PhysiQLessons.H;
+  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, rw } = window.PhysiQLessons.H;
 
   // ---------- shared physics for the figures and the simulations ----------
   // charges: [{x, y, q}] in drawing units; field and potential up to a constant
@@ -294,6 +294,27 @@ ${sec('12-5', 'Summary', table(['Quantity', 'Point charge <i>Q</i>', 'Scalar or 
   ['Potential energy of <i>q</i>', '<i>U</i> = <i>qV</i> = <i>kQq</i>/<i>r</i>', 'scalar', 'J'],
   ['Flux through a closed surface', 'Φ = <i>Q</i><sub>enclosed</sub>/ε<sub>0</sub>', 'scalar', 'N m<sup>2</sup> C<sup>−1</sup>'],
   ['Link', '<i>E</i> = −d<i>V</i>/d<i>r</i>; uniform field <i>E</i> = <i>V</i>/<i>d</i>', '', '']]))}
+
+${sec('12-rw', 'Real-World Physics: the Burj Khalifa lightning conductor', rw({
+  id: 'ls-12-rw-lightning',
+  meta: 'Dubai · Richard Hammond’s BIG',
+  title: 'Does the Burj Khalifa collect lightning for electricity?',
+  lead: `<p>Being the tallest structure for miles, the Burj Khalifa is struck by lightning during thunderstorms. In <i>Richard Hammond’s BIG</i>, Richard climbs to its lightning conductor at the very top.</p><p><b>A common misconception:</b> the tower does <b>not</b> collect lightning to use as electricity. The lightning protection system safely carries the charge to earth. The tower’s steel frame also acts as a <b>Faraday cage</b>, so the current flows around the outside and the people inside are safe. No one has yet found a practical way to store the energy of lightning.</p>`,
+  video: { id: 'E0RdTXJaqJs', title: 'How The Burj Khalifa Is Dubai’s Lightning Rod', channel: 'Richard Hammond’s BIG' },
+  watch: 'notice the shape of the conductor at the top, and where the charge goes after a strike.',
+  physics: ul([`On a charged conductor, charge collects most densely at <b>sharp points</b>. The electric field there is very strong and can ionise the air, giving lightning an easy path to the conductor.`, `The conductor gives a <b>low-resistance path</b> to earth, so charge flows safely into the ground instead of through the building.`, `Inside a closed conductor the electric field is zero, and charge stays on the outer surface (Gauss’s law). This is why a steel-framed building protects the people inside.`, `A strike carries about 1 × 10<sup>9</sup> J, but it lasts only tens of microseconds and its time and place cannot be predicted, so it cannot practically be stored.`]),
+  qs: [
+    { q: `Why does a lightning conductor have a sharp, pointed tip?`, opts: ['Sharp points have a lower electric potential than flat surfaces.', 'Charge density is greatest at sharp points, so the electric field is strongest there and the air is easily ionised.', 'Sharp points have a smaller resistance than the rest of the conductor.', 'Sharp points repel lightning away from the building.'], ans: 1,
+      why: `<p>On a conductor, the surface charge density is highest where the curvature is greatest. The strong field at the tip ionises the air and provides a conducting path for the discharge.</p>` },
+    { q: `Why are people inside a steel-framed building safe when lightning strikes it?`, opts: ['The electric field inside a closed conductor is zero, and the charge stays on its outer surface.', 'Steel is an electrical insulator.', 'The lightning energy is stored in the steel frame.', 'The electric potential inside the building is always zero.'], ans: 0,
+      why: `<p>By Gauss’s law, there is no net charge and no electric field inside a closed conducting shell, so the current flows along the outside of the frame to earth (a Faraday cage).</p>` },
+    { q: `A lightning strike carries 1.0 × 10<sup>9</sup> J. A home uses 30 kWh of electrical energy per day. For how long could one strike supply the home, if all the energy could be stored?`, opts: ['0.3 days', '9.3 days', '33 days', '9.3 years'], ans: 1,
+      why: steps([`Energy per day = 30 kWh = 30 × 1000 × 3600 = 1.08 × 10<sup>8</sup> J`, `Time = ${fr('1.0 × 10<sup>9</sup>', '1.08 × 10<sup>8</sup>')} = <b>9.3 days</b>`]) + `<p>Even if it could be stored, one strike would run one home for only about a week, not a skyscraper.</p>` },
+    { q: `A lightning strike has an average current of 30 kA for 50 μs. How much charge flows to earth?`, opts: ['1.5 C', '600 C', '1.5 × 10<sup>−3</sup> C', '6.0 × 10<sup>8</sup> C'], ans: 0,
+      why: steps([`<i>Q</i> = <i>It</i>`, `= (30 × 10<sup>3</sup>)(50 × 10<sup>−6</sup>)`, `= <b>1.5 C</b>`]) + `<p>With 1.0 × 10<sup>9</sup> J, the potential difference is <i>V</i> = <i>W</i>/<i>Q</i> = 1.0 × 10<sup>9</sup>/1.5 ≈ 7 × 10<sup>8</sup> V: hundreds of millions of volts.</p>` }
+  ],
+  src: `Sources: <i>Richard Hammond’s BIG</i>, Episode 7 “Tallest Building On Earth” (Discovery, 2020); The National (UAE); UNSW Sydney. Preview the clip before class. <a href="https://www.youtube.com/watch?v=E0RdTXJaqJs" target="_blank" rel="noopener">youtube.com/watch?v=E0RdTXJaqJs</a>`
+}))}
 `;
   window.PhysiQLessons.register('LESSON-S2-12', { html: () => S });
 

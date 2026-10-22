@@ -2,7 +2,7 @@
    with the practice questions from STPM_2027_chapter_8_statics_Teachers_version.pptx). */
 (function () {
   'use strict';
-  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq } = window.PhysiQLessons.H;
+  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq, rw } = window.PhysiQLessons.H;
 
   const F = {};
   F.concurrent = () => svg(300, 140, dot(150, 70, 5, C.ink) + L(150, 70, 240, 30, 'v', 'e', { w: 2.4 }) + L(150, 70, 70, 40, 'g', 'e', { w: 2.4 }) + L(150, 70, 170, 135, 'r', 'e', { w: 2.4 }) +
@@ -103,7 +103,28 @@ ${exercises('Exercises: equilibrium of a rigid body', [
   { q: `A uniform 0.40 kN beam is hinged at P and held at 50° to the horizontal by a horizontal tie rope attached 3<i>L</i>/4 along it; a 2000 N load hangs from its end. Calculate the tension in the rope and the force of the hinge on the beam.`, f: fig(F.beam2()), a: `<i>T</i> = 2460 N; hinge force 3.4 kN at 44° to the horizontal` }])}
 ${pq('Practice question · centre of gravity and toppling', `A rectangular block 4 cm wide and 8 cm long stands on a plane inclined at angle θ. Which statement is true?`, ['The block topples if θ = 25°.', 'The block does not topple because it has a higher centre of gravity.', 'The block does not topple while the line of action of its weight passes inside its base (through or before the pivot).', 'The block topples if its length lies along the plane at the same angle.'], 2,
   `<p>The block tips over the lower edge when the vertical line through its centre of gravity passes outside the base, i.e. when tan θ &gt; ${fr('4', '8')}, θ &gt; 26.6°. While the weight acts inside the base, its moment about the pivot edge restores the block. At θ = 25° it does not topple.</p>${fig(F.topple())}`)}
-`)}`;
+`)}
+
+${sec('8-rw', 'Real-World Physics: why the Burj Khalifa doesn’t fall over', rw({
+  id: 'ls-8-rw-burj',
+  meta: 'Dubai · Richard Hammond’s BIG',
+  title: 'Standing 828 m tall on sand and weak rock',
+  lead: `<p>The Burj Khalifa in Dubai is 828 m tall, the tallest building on Earth. It stands on sand and weak rock, and must resist strong desert winds. In <i>Richard Hammond’s BIG</i>, Richard investigates how it stays standing.</p><p>Its weight rests on a thick concrete raft supported by about 190 deep concrete piles, which hold the tower up mainly by <b>friction</b> with the surrounding ground. Its Y-shaped plan, with three wings bracing a central core, gives a wide base, and the tower steps inwards (“setbacks”) as it rises.</p>`,
+  video: { id: 'N5i3UsiSoYY', title: 'The Physics Behind The Burj Khalifa And Why It Doesn’t Fall Over', channel: 'Quest TV', len: '9:55' },
+  watch: 'identify the forces acting on the tower (weight, upward forces from the piles, wind) and how the design keeps it in equilibrium.',
+  physics: ul([`For a rigid body in <b>equilibrium</b>: the resultant force is zero <i>and</i> the resultant torque about any point is zero.`, `The upward friction and normal forces from the piles balance the weight of the tower.`, `A wide base and a low <b>centre of gravity</b> make the tower stable: the wind would have to tilt it a long way before the line of action of its weight moved outside the base.`]),
+  qs: [
+    { q: `What are the conditions for the Burj Khalifa to be in static equilibrium?`, opts: ['The resultant force on it is zero only.', 'The resultant torque on it is zero only.', 'The resultant force on it is zero and the resultant torque about any point is zero.', 'Its weight is equal to the wind force.'], ans: 2,
+      why: `<p>A rigid body needs both conditions: Σ<b>F</b> = 0 (no linear acceleration) and Στ = 0 (no angular acceleration).</p>` },
+    { q: `Assume the weight of the tower is 4.8 × 10<sup>9</sup> N and it is shared equally by 192 piles. What is the upward force provided by each pile?`, opts: ['2.5 × 10<sup>5</sup> N', '2.5 × 10<sup>6</sup> N', '2.5 × 10<sup>7</sup> N', '9.2 × 10<sup>11</sup> N'], ans: 2,
+      why: steps([`Σ<i>F</i> = 0: 192<i>F</i> = <i>W</i>`, `<i>F</i> = ${fr('4.8 × 10<sup>9</sup>', '192')}`, `= <b>2.5 × 10<sup>7</sup> N</b>`]) },
+    { q: `Why does a wide base and a low centre of gravity make a tall building more stable against wind?`, opts: ['They make the weight of the building smaller.', 'The line of action of the weight stays within the base for a larger tilt, so the weight gives a restoring torque.', 'They reduce the wind force to zero.', 'They move the centre of gravity outside the base.'], ans: 1,
+      why: `<p>As long as the line of action of the weight passes through the base, the weight produces a torque that turns the building back. A wider base and lower centre of gravity increase the angle needed before it can topple.</p>` },
+    { q: `(Link to Chapter 9) A pile of cross-sectional area 1.77 m<sup>2</sup> carries a force of 2.5 × 10<sup>7</sup> N. What is the compressive stress in the pile?`, opts: ['4.4 × 10<sup>7</sup> Pa', '1.4 × 10<sup>7</sup> Pa', '7.1 × 10<sup>−8</sup> Pa', '1.4 × 10<sup>5</sup> Pa'], ans: 1,
+      why: steps([`σ = ${fr('<i>F</i>', '<i>A</i>')}`, `= ${fr('2.5 × 10<sup>7</sup>', '1.77')}`, `= <b>1.4 × 10<sup>7</sup> Pa</b>`]) }
+  ],
+  src: `Source: <i>Richard Hammond’s BIG</i>, Episode 7 “Tallest Building On Earth” (Discovery, 2020). Values in the calculations are rounded estimates for practice. Preview the clip before class. <a href="https://www.youtube.com/watch?v=N5i3UsiSoYY" target="_blank" rel="noopener">youtube.com/watch?v=N5i3UsiSoYY</a>`
+}))}`;
 
   // ---------- simulation: knot and triangle of forces ----------
   window.PhysiQSims.add('knot', function (root) {

@@ -149,7 +149,7 @@ ${exercises('Exercises: efficiency', [
   { q: `A hoist lifts a 3000 kg load through 8.00 m in 20.0 s. The power supplied to the engine is 18.0 hp. Calculate (a) the work output, (b) the power output and power input, (c) the efficiency of the engine and hoist. (1 hp = 746 W)`, a: `(a) 235 kJ &nbsp; (b) 11.8 kW; 13.4 kW &nbsp; (c) 87.7%` }])}
 `)}
 
-${sec('4-rw', 'Real-World Physics: the Nepal glacier collapse', rw({
+${sec('4-rw', 'Real-World Physics', rw({
   id: 'ls-4-rw-nepal',
   meta: 'Langtang, Nepal · 26 August 2026',
   title: 'When a glacier falls 1200 m: energy on a mountain scale',
@@ -168,6 +168,23 @@ ${sec('4-rw', 'Real-World Physics: the Nepal glacier collapse', rw({
       why: steps([`<i>P</i> = ${fr('<i>E</i>', '<i>t</i>')}`, `= ${fr('5.9 × 10<sup>15</sup>', '2.0 × 60')}`, `= <b>4.9 × 10<sup>13</sup> W</b>`]) }
   ],
   src: `Sources: Reuters; BBC Verify; Al Jazeera; USGS (reports from August–October 2026). Video by an independent channel: preview before use in class. <a href="https://www.youtube.com/watch?v=Ss9fMd9C8os" target="_blank" rel="noopener">youtube.com/watch?v=Ss9fMd9C8os</a>`
+}) + rw({
+  id: 'ls-4-rw-dam',
+  meta: 'Kölnbrein Dam, Austria · Richard Hammond’s BIG',
+  title: 'Inside a mega dam: how efficient is a hydroelectric turbine?',
+  lead: `<p>The Kölnbrein Dam in the Austrian Alps is a 200 m high concrete arch dam that holds back about 200 million tonnes of water. The water is piped down through the mountain, falling more than 1000 m to turbines in a power station far below.</p><p>In <i>Richard Hammond’s BIG</i> (Discovery), Richard goes inside the dam and finds that its turbines convert about <b>92%</b> of the energy of the water into electrical energy.</p>`,
+  video: { id: 'DbvgK3PrSWw', title: 'How the Turbines in the Kölnbrein Dam are 92% Efficient', channel: 'Richard Hammond’s BIG' },
+  watch: 'list every energy change from the water in the reservoir to the electricity leaving the power station.',
+  physics: ul([`Water at height <i>h</i> has gravitational potential energy. As it falls through the pipe, this becomes kinetic energy.`, `The fast water does <b>work</b> on the turbine blades and makes them rotate. The turbine turns a generator, which produces electrical energy by electromagnetic induction (Semester 2, Chapter 17).`, `<b>Efficiency</b> η = ${fr('useful output power', 'input power')} × 100%. The “missing” energy is not destroyed; it becomes internal energy (heat) and sound.`]),
+  qs: [
+    { q: `Which order of energy changes is correct for a hydroelectric power station?`, opts: ['Kinetic energy → gravitational potential energy → electrical energy', 'Gravitational potential energy → kinetic energy of water → rotational kinetic energy of turbine → electrical energy', 'Electrical energy → kinetic energy of water → gravitational potential energy', 'Gravitational potential energy → electrical energy → kinetic energy of turbine'], ans: 1,
+      why: `<p>The water loses potential energy as it falls, gains kinetic energy, does work on the turbine (rotational kinetic energy), and the generator converts this into electrical energy.</p>` },
+    { q: `Water flows at 20 m<sup>3</sup> s<sup>−1</sup> and falls through a height of 1000 m to the turbines. The efficiency of the system is 92%. What is the electrical power output? (Density of water = 1000 kg m<sup>−3</sup>)`, opts: ['1.80 × 10<sup>5</sup> W', '1.96 × 10<sup>8</sup> W', '1.80 × 10<sup>8</sup> W', '2.13 × 10<sup>8</sup> W'], ans: 2,
+      why: steps([`Mass per second = ρ<i>Q</i> = (1000)(20) = 2.0 × 10<sup>4</sup> kg s<sup>−1</sup>`, `<i>P</i><sub>in</sub> = (mass per second)<i>gh</i> = (2.0 × 10<sup>4</sup>)(9.81)(1000) = 1.96 × 10<sup>8</sup> W`, `<i>P</i><sub>out</sub> = η<i>P</i><sub>in</sub> = (0.92)(1.96 × 10<sup>8</sup>) = <b>1.80 × 10<sup>8</sup> W</b>`]) + note('The flow rate and height are assumed values for practice.') },
+    { q: `What happens to the remaining 8% of the input energy?`, opts: ['It is destroyed inside the turbine.', 'It is stored as gravitational potential energy in the dam wall.', 'It is converted into internal energy (heat) and sound by friction and turbulence.', 'It is converted back into the mass of the water.'], ans: 2,
+      why: `<p>Energy cannot be destroyed. Work done against friction in the bearings, and turbulence in the water, converts the rest into internal energy and sound, which are not useful outputs.</p>` }
+  ],
+  src: `Source: <i>Richard Hammond’s BIG</i>, Episode 3 “Austria’s Mega Dam” (Discovery, 2020). Preview the clip before class. <a href="https://www.youtube.com/watch?v=DbvgK3PrSWw" target="_blank" rel="noopener">youtube.com/watch?v=DbvgK3PrSWw</a>`
 }))}`;
 
   // ---------- simulation: energy on a track ----------

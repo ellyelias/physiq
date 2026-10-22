@@ -60,7 +60,7 @@
 <div class="ls-rw-top"><span class="ls-rw-tag">Real-World Physics</span><span class="ls-rw-meta">${o.meta}</span></div>
 <h4 class="ls-rw-t">${o.title}</h4>
 <div class="ls-rw-lead">${o.lead}</div>
-<div class="ls-rw-vid"><button type="button" class="ls-rw-play" data-rw-play="${v.id}" aria-label="Play video: ${v.title.replace(/"/g, '&quot;')}"><img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="" loading="lazy"><span class="ls-rw-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span><span class="ls-rw-len">${v.len}</span></button></div>
+<div class="ls-rw-vid"><button type="button" class="ls-rw-play" data-rw-play="${v.id}" aria-label="Play video: ${v.title.replace(/"/g, '&quot;')}"><img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="" loading="lazy"><span class="ls-rw-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span>${v.len ? `<span class="ls-rw-len">${v.len}</span>` : ''}</button></div>
 <div class="ls-rw-cap"><span>${v.title} · ${v.channel}</span><a href="${url}" target="_blank" rel="noopener">Open in YouTube ↗</a></div>
 ${o.watch ? `<p class="ls-rw-watch"><b>While you watch:</b> ${o.watch}</p>` : ''}
 <div class="ls-rw-link"><div class="ls-rw-lh">The physics</div>${o.physics}</div>
@@ -77,7 +77,7 @@ ${qs}
     'LESSON-3': { sem: '1', chapter: 3, title: 'Dynamics', topics: ["3.1 Newton's Laws of Motion", '3.2 Linear Momentum', '3.3 Elastic and Inelastic Collisions', '3.4 Friction'], sims: 3,
       toc: [['ls-3-1', "3.1 Newton's laws"], ['ls-3-2', '3.2 Momentum and impulse'], ['ls-3-3', '3.3 Reaction and friction']] },
     'LESSON-4': { sem: '1', chapter: 4, title: 'Work, Energy and Power', topics: ['4.1 Work Done by a Force', '4.2 Conservation of Energy', '4.3 Power and Efficiency'], sims: 2,
-      toc: [['ls-4-1', '4.1 Work'], ['ls-4-2', '4.2 Conservation of energy'], ['ls-4-3', '4.3 Power and efficiency'], ['ls-4-rw', 'Real-world: Nepal 2026']] },
+      toc: [['ls-4-1', '4.1 Work'], ['ls-4-2', '4.2 Conservation of energy'], ['ls-4-3', '4.3 Power and efficiency'], ['ls-4-rw', 'Real-world physics']] },
     'LESSON-5': { sem: '1', chapter: 5, title: 'Circular Motion', topics: ['5.1 Angular Velocity and Centripetal Acceleration', '5.2 Centripetal Force'], sims: 2,
       toc: [['ls-5-1', '5.1 Angular velocity'], ['ls-5-2', '5.2 Centripetal acceleration'], ['ls-5-3', '5.3 Centripetal force']] },
     'LESSON-6': { sem: '1', chapter: 6, title: 'Gravitation', topics: ["6.1 Newton's Law of Gravitation", '6.2 Gravitational Field and Potential', '6.3 Satellite Motion'], sims: 2,
@@ -85,7 +85,7 @@ ${qs}
     'LESSON-7': { sem: '1', chapter: 7, title: 'Rotation of Rigid Bodies', topics: ['7.1 Torque and Angular Acceleration', '7.2 Moment of Inertia', '7.3 Angular Momentum and Rotational Kinetic Energy'], sims: 1,
       toc: [['ls-7-1', '7.1 Centre of mass'], ['ls-7-2', '7.2 Moment of inertia'], ['ls-7-3', '7.3 Torque'], ['ls-7-4', '7.4 Angular momentum'], ['ls-7-5', '7.5 Rotational KE']] },
     'LESSON-8': { sem: '1', chapter: 8, title: 'Statics', topics: ['8.1 Equilibrium of Forces', '8.2 Moments and Centre of Gravity'], sims: 1,
-      toc: [['ls-8-1', 'Equilibrium of a particle'], ['ls-8-2', 'Equilibrium of a rigid body']] },
+      toc: [['ls-8-1', 'Equilibrium of a particle'], ['ls-8-2', 'Equilibrium of a rigid body'], ['ls-8-rw', 'Real-world: Burj Khalifa']] },
     'LESSON-9': { sem: '1', chapter: 9, title: 'Deformation of Solids', topics: ["9.1 Stress, Strain and Young's Modulus", '9.2 Elastic Energy'], sims: 1,
       toc: [['ls-9-0', 'Deformation'], ['ls-9-1', '9.1 Stress and strain'], ['ls-9-2', '9.2 Graphs and Young\u2019s modulus'], ['ls-9-3', '9.3 Strain energy']] },
     'LESSON-10': { sem: '1', chapter: 10, title: 'Kinetic Theory of Gases', topics: ['10.1 Ideal Gas Equation', '10.2 Kinetic Theory and Molecular Speeds'], sims: 1,
@@ -109,7 +109,7 @@ ${qs}
     'LESSON-S3-25': { sem: '3', chapter: 25, title: 'Nuclear Physics', topics: ['S3-25.1 Nucleus', 'S3-25.2 Radioactivity', 'S3-25.3 Nuclear Reaction'], sims: 4,
       toc: [['ls-25-1', '25.1 Nucleus'], ['ls-25-2', '25.2 Radioactivity'], ['ls-25-3', '25.3 Nuclear reactions'], ['ls-25-4', 'Summary']] },
     'LESSON-S2-12': { sem: '2', chapter: 12, title: 'Electrostatics', topics: ["S2-12.1 Coulomb's Law", 'S2-12.2 Electric Field', "S2-12.3 Gauss's Law", 'S2-12.4 Electric Potential'], sims: 3,
-      toc: [['ls-12-1', "12.1 Coulomb's law"], ['ls-12-2', '12.2 Electric field'], ['ls-12-3', "12.3 Gauss's law"], ['ls-12-4', '12.4 Electric potential'], ['ls-12-5', 'Summary']] },
+      toc: [['ls-12-1', "12.1 Coulomb's law"], ['ls-12-2', '12.2 Electric field'], ['ls-12-3', "12.3 Gauss's law"], ['ls-12-4', '12.4 Electric potential'], ['ls-12-5', 'Summary'], ['ls-12-rw', 'Real-world: lightning']] },
     'LESSON-S2-13': { sem: '2', chapter: 13, title: 'Capacitors', topics: ['S2-13.1 Capacitance', 'S2-13.2 Parallel Plate Capacitors', 'S2-13.3 Dielectrics', 'S2-13.4 Capacitors in Series and in Parallel', 'S2-13.5 Energy Stored in a Charged Capacitor', 'S2-13.6 Charging and Discharging of a Capacitor'], sims: 5,
       toc: [['ls-13-1', '13.1 Capacitance'], ['ls-13-2', '13.2 Parallel plates'], ['ls-13-3', '13.3 Dielectrics'], ['ls-13-4', '13.4 Series and parallel'], ['ls-13-5', '13.5 Energy stored'], ['ls-13-6', '13.6 Charging and discharging']] },
     'LESSON-S2-14': { sem: '2', chapter: 14, title: 'Electric Current', topics: ['S2-14.1 Conduction of Electricity', 'S2-14.2 Drift Velocity', 'S2-14.3 Current Density', 'S2-14.4 Electric Conductivity and Resistivity'], sims: 2,
@@ -127,7 +127,7 @@ ${qs}
   };
   Object.values(LESSONS).forEach(L0 => { L0.label = 'Full notes · Cikgu Suhaili'; });
   const BODY = {}, loading = {};
-  const VER = '20261022h';
+  const VER = '20261022i';
   function register(k, o) { BODY[k] = o; }
   function load(k, done) {
     if (BODY[k]) return done();
