@@ -53,16 +53,18 @@
   const dim = s => `<span class="ls-dim">${s.replace(/\^(−?-?\d+(?:\/\d+)?|[½])/g, (m, e) => `<sup>${e.replace('-', '−')}</sup>`)}</span>`;
   // Real-World Physics card: a current event, a YouTube video (loaded only when tapped), the physics link
   // and quick self-check MCQs. Not counted as a worked example; nothing here touches the question bank.
+  const vb = v => `<div class="ls-rw-vid"><button type="button" class="ls-rw-play" data-rw-play="${v.id}" aria-label="Play video: ${v.title.replace(/"/g, '&quot;')}"><img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="" loading="lazy"><span class="ls-rw-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span>${v.len ? `<span class="ls-rw-len">${v.len}</span>` : ''}</button></div>
+<div class="ls-rw-cap"><span>${v.title} · ${v.channel}</span><a href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">Open in YouTube ↗</a></div>`;
   const rw = o => {
-    const v = o.video, url = 'https://www.youtube.com/watch?v=' + v.id;
+    const v = o.video;
     const qs = (o.qs || []).map((x, i) => `<div class="ls-rw-q" data-rw-ans="${x.ans}"><div class="ls-rw-qh">Quick check ${i + 1}</div><div class="ls-rw-qq">${x.q}</div><div class="ls-rw-opts">${x.opts.map((t, j) => `<button type="button" class="ls-rw-opt" data-rw-opt="${j}"><b>${'ABCD'[j]}</b><span>${t}</span></button>`).join('')}</div><div class="ls-rw-why" hidden><p class="ls-rw-res"></p>${x.why}</div></div>`).join('');
     return `<div class="ls-rw"${o.id ? ` id="${o.id}"` : ''}>
 <div class="ls-rw-top"><span class="ls-rw-tag">Real-World Physics</span><span class="ls-rw-meta">${o.meta}</span></div>
 <h4 class="ls-rw-t">${o.title}</h4>
 <div class="ls-rw-lead">${o.lead}</div>
-<div class="ls-rw-vid"><button type="button" class="ls-rw-play" data-rw-play="${v.id}" aria-label="Play video: ${v.title.replace(/"/g, '&quot;')}"><img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="" loading="lazy"><span class="ls-rw-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span>${v.len ? `<span class="ls-rw-len">${v.len}</span>` : ''}</button></div>
-<div class="ls-rw-cap"><span>${v.title} · ${v.channel}</span><a href="${url}" target="_blank" rel="noopener">Open in YouTube ↗</a></div>
+${vb(v)}
 ${o.watch ? `<p class="ls-rw-watch"><b>While you watch:</b> ${o.watch}</p>` : ''}
+${o.video2 ? `<div class="ls-rw-also">Also watch</div>${vb(o.video2)}${o.watch2 ? `<p class="ls-rw-watch"><b>While you watch:</b> ${o.watch2}</p>` : ''}` : ''}
 <div class="ls-rw-link"><div class="ls-rw-lh">The physics</div>${o.physics}</div>
 ${qs}
 <p class="ls-rw-src">${o.src}</p>
@@ -127,7 +129,7 @@ ${qs}
   };
   Object.values(LESSONS).forEach(L0 => { L0.label = 'Full notes · Cikgu Suhaili'; });
   const BODY = {}, loading = {};
-  const VER = '20261022i';
+  const VER = '20261022j';
   function register(k, o) { BODY[k] = o; }
   function load(k, done) {
     if (BODY[k]) return done();

@@ -210,3 +210,4 @@
 .ls-rw-src a{color:var(--sub);}
 @media (max-width:520px){.ls-rw-pb{width:56px;height:56px;}#notes-content .ls-rw-t{font-size:1.18em;}}
 @media print{.ls-rw-vid{display:none;}.ls-rw-why[hidden]{display:block !important;}.ls-rw{box-shadow:none;break-inside:avoid-page;}}
+.ls-rw-also{margin:18px 18px 8px;font-family:var(--head);font-weight:600;font-size:.82em;letter-spacing:.06em;text-transform:uppercase;color:var(--violet-d);}
