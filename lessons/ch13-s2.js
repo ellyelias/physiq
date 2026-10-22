@@ -339,8 +339,8 @@ ${exercises('Exercise: RC circuits', [
       const fr = E / Ebd;
       if (fr > 0.02 && !S.flash) { ctx.strokeStyle = `rgba(255,236,120,${0.15 + 0.7 * fr})`; ctx.lineWidth = 1.4 + 1.2 * fr;
         for (let x = cx0 + 30; x < cx1 - 10; x += (cx1 - cx0 - 40) / 7) { ctx.beginPath(); ctx.moveTo(x, groundY - 4); ctx.lineTo(x, cloudBase + 12); ctx.stroke(); ctx.beginPath(); const my = (groundY + cloudBase) / 2; ctx.moveTo(x - 5, my + 4); ctx.lineTo(x, my - 6); ctx.lineTo(x + 5, my + 4); ctx.stroke(); } }
-      text(ctx, 'air (dielectric)', 10, (groundY + cloudBase) / 2 + 4, { fs: 11, c: '#DDE3EA', b: 1 });
-      text(ctx, 'd = ' + fmt(S.d, 1) + ' km', w - 10, (groundY + cloudBase) / 2 + 4, { a: 'right', fs: 11, c: '#DDE3EA' });
+      { const my = (groundY + cloudBase) / 2 + 22; ctx.fillStyle = 'rgba(29,43,31,.75)'; ctx.fillRect(6, my - 13, 104, 18); ctx.fillRect(w - 76, my - 13, 70, 18);
+        text(ctx, 'air (dielectric)', 10, my, { fs: 11, c: '#DDE3EA', b: 1 }); text(ctx, 'd = ' + fmt(S.d, 1) + ' km', w - 10, my, { a: 'right', fs: 11, c: '#DDE3EA' }); }
       // lightning
       if (S.flash > 0) {
         if (!S.bolt) S.bolt = makeBolt(w * (0.35 + Math.random() * 0.3), cloudBase, groundY);
