@@ -77,7 +77,7 @@
     function faceBack(c) {
       return `<div class="fc-face fc-back">
   <div class="fc-meta"><span class="fc-type ${c.kind}">${c.kind === 'def' ? 'Answer' : esc(c.front)}</span><span class="fc-topic">${esc(c.topic)}</span></div>
-  ${c.kind === 'def' ? `<div class="fc-a fc-def">${c.back}</div>` : `<div class="fc-a fc-eq">${c.back}</div>${c.extra ? `<div class="fc-sym"><b>Symbols and units</b>${c.extra}</div>` : ''}`}
+  ${c.kind === 'def' ? `<div class="fc-a fc-def">${c.back}</div>` : `<div class="fc-a fc-eq${c.long ? ' fc-eq-long' : ''}">${c.back}</div>${c.extra ? `<div class="fc-sym"><b>Symbols and units</b>${c.extra}</div>` : ''}`}
   ${known.has(c.id) ? '<div class="fc-known">✓ You marked this as known</div>' : ''}
 </div>`;
     }
