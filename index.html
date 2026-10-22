@@ -541,7 +541,7 @@
 <link rel="stylesheet" href="physiq-v2.css">
 <link rel="stylesheet" href="physiq-poster.css?v=20261022d">
 <link rel="stylesheet" href="physiq-lessons.css?v=20261022d">
-<link rel="stylesheet" href="physiq-flashcards.css?v=20261022b">
+<link rel="stylesheet" href="physiq-flashcards.css?v=20261022c">
 </head>
 <body>
 <div class="app">
@@ -1121,9 +1121,9 @@
 
 <script src="diagrams.js" defer></script>
 <script src="physiq-sims.js?v=20261022b"></script>
-<script src="physiq-lessons.js?v=20261022m"></script>
+<script src="physiq-lessons.js?v=20261022n"></script>
 <script src="physiq-flashcards.js?v=20261022b"></script>
-<script src="physiq-realworld.js?v=20261022a"></script>
+<script src="physiq-realworld.js?v=20261022b"></script>
 <script>
 (function(){
 
@@ -6720,7 +6720,8 @@ const NOTES_EXTRA = (function(){
     if (EXTRA_NOTES[key]){ $('#notes-content').innerHTML = `<h2>${escapeHtml(key)}</h2>` + EXTRA_NOTES[key]; updateNotesDownloads('GUIDE-1'); return; }
     const bc = NOTES_BC[key];
     $('#notes-content').innerHTML = `<h2>${escapeHtml(title.replace(/^S[23]-/, ''))}</h2>` + mindmapHTML(key) + derivForTopic(key) + (bc ? '<p class="notes-part">Part 1 · Section A: definitions, formulas and traps</p>' : '') + topicFigsInsert(key, mathify(body)) +
-      (bc ? `<div class="notes-bc"><p class="notes-part">Part 2 · Sections B &amp; C: derivations, explanations and a worked example</p>${bc}</div>` : '');
+      (bc ? `<div class="notes-bc"><p class="notes-part">Part 2 · Sections B &amp; C: derivations, explanations and a worked example</p>${bc}</div>` : '') +
+      (window.PhysiQRealWorld ? window.PhysiQRealWorld.forTopic(key) : '');
     updateNotesDownloads(key);
   }
 
@@ -18488,7 +18489,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       const src = step === 'an' ? NOTES_CONTENT : NOTES_BC;
       const key = step;
       let html = learnTopicChips(topics);
-      html += `<div id="learn-content"><h2>${escapeHtml(learnState.topic.replace(/^S[23]-/, ''))}</h2>${(src[learnState.topic] ? (step === 'an' ? mathify(src[learnState.topic]) : src[learnState.topic]) : '') || '<p class="empty">Notes for this topic are coming soon.</p>'}</div>`;
+      html += `<div id="learn-content"><h2>${escapeHtml(learnState.topic.replace(/^S[23]-/, ''))}</h2>${(src[learnState.topic] ? (step === 'an' ? mathify(src[learnState.topic]) : src[learnState.topic]) : '') || '<p class="empty">Notes for this topic are coming soon.</p>'}${step === 'an' && window.PhysiQRealWorld ? window.PhysiQRealWorld.forTopic(learnState.topic) : ''}</div>`;
       const i = topics.indexOf(learnState.topic);
       html += `<div class="btn-row learn-nav">`;
       if (i > 0) html += `<button type="button" class="btn-ghost" data-topic-go="${escapeHtml(topics[i - 1])}">← ${escapeHtml(topics[i - 1].split(' ')[0])}</button>`;

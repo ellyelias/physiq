@@ -400,7 +400,8 @@ ${exercises('Exercises: projectile motion', [
 <div class="ls-cmp o"><div class="ls-cmp-h">With air resistance</div>${ul(['<b>Horizontal velocity decreases</b>: air drag opposes the horizontal motion.', '<b>Vertical deceleration increases</b> on the way up: net downward force = <i>mg</i> + drag.', '<b>The trajectory is no longer a symmetrical parabola.</b>', '<b>Maximum range occurs at an angle less than 45°.</b>', '<b>Horizontal range and maximum height are both reduced.</b>', 'The time to descend is longer than the time to ascend.', 'The impact speed is less than the launch speed.'])}</div>
 </div>
 ${tip('Open the projectile launcher above and switch on "Air resistance": the dashed path is the ideal parabola, the solid path is with drag. Try 45° and then 40°: with drag, 40° goes further.')}
-</section>`;
+</section>
+<section class="ls-sec" id="ls-2-rw">${window.PhysiQRealWorld ? window.PhysiQRealWorld.sportsBlock('ls-2-rw-sports') : ''}</section>`;
 
   window.PhysiQLessons.register('LESSON-2', { html: () => S21 });
 })();

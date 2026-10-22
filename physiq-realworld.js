@@ -3,8 +3,41 @@
 (function () {
   'use strict';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // Projectile Motion in Sports (STPM 960, Semester 1, 2.2 Projectiles). These open on YouTube; nothing is embedded or autoplayed.
+  const SPORTS = [
+    { sport: 'Long jump', role: 'main', id: 'nD1SaasK8Vs', title: 'Long jump Projectile Motion Problem | Physics of Long Jump!',
+      why: 'After take-off, treat the athlete’s centre of mass as a projectile: launch velocity, time in the air and horizontal range.' },
+    { sport: 'Football kick', role: 'main', id: 's0ha2rgsvSU', title: '3.3 Projectile Motion, Part B',
+      why: 'A worked example with a kicked football: maximum height, time of flight and range. Watch it after learning the equations.' },
+    { sport: 'Basketball shot', role: '', id: '5GoQ2Vkkgn8', title: 'Projectile Motion - Basketball in Projectile Motion',
+      why: 'The ball follows a curved path once it leaves the player’s hands; compare its horizontal and vertical motion.' },
+    { sport: 'Javelin throw', role: 'ext', id: '_74f4pMWyZ8', title: 'Physics of Javelin Throw is more than just Projectile Motion | Neeraj Chopra Olympic Gold & Physics',
+      why: 'Release speed, angle and height all matter, but air resistance and aerodynamic lift act on a real javelin, so its path is not a perfect parabola.' }
+  ];
+  const ICO = { 'Long jump': '<path d="M4 20h7M13 6.5a1.5 1.5 0 1 0 0-.01M9 20l3-6 3 2 2-5M12 14l-3-3 4-2 3 1"/>', 'Football kick': '<circle cx="12" cy="12" r="8"/><path d="M12 8l3 2-1 4h-4l-1-4z"/>',
+    'Basketball shot': '<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4v16M6.5 6.5c3 3 3 8 0 11M17.5 6.5c-3 3-3 8 0 11"/>', 'Javelin throw': '<path d="M3 21L21 3M17 3h4v4"/>' };
+  function sportsBlock(id) {
+    const card = v => `<a class="sp-card${v.role === 'main' ? ' sp-main' : ''}${v.role === 'ext' ? ' sp-ext' : ''}" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">
+  <span class="sp-ico"><svg viewBox="0 0 24 24" aria-hidden="true">${ICO[v.sport] || ''}</svg></span>
+  <span class="sp-txt"><span class="sp-top"><b>${esc(v.sport)}</b>${v.role === 'main' ? '<em>Main lesson</em>' : v.role === 'ext' ? '<em class="x">Real-world extension</em>' : ''}</span>
+  <span class="sp-title">${esc(v.title)}</span><span class="sp-why">${esc(v.why)}</span><span class="sp-watch">Watch on YouTube ↗</span></span></a>`;
+    return `<div class="sp"${id ? ` id="${id}"` : ''}>
+<div class="sp-head"><span class="sp-tag">Physics in Real Life</span><span class="sp-ref">STPM 960 · Semester 1 · 2.2 Projectiles</span></div>
+<h3 class="sp-h">Projectile Motion in Sports</h3>
+<p class="sp-lead">Once the ball or the athlete leaves the ground or the hand, it becomes a projectile. If air resistance is neglected, the <b>horizontal component of velocity is constant</b> and the <b>vertical acceleration is <i>g</i> downwards</b>.</p>
+<div class="sp-grid">${SPORTS.map(card).join('')}</div>
+<div class="sp-ask"><b>While you watch, identify:</b><ol><li>the <b>launch point</b>: the instant the object becomes a projectile;</li><li>the <b>horizontal motion</b>: which velocity component stays constant;</li><li>the <b>vertical acceleration</b>: its size and direction;</li><li><b>one factor</b> that makes the real path differ from the ideal model.</li></ol></div>
+<p class="sp-note">Real sports trajectories are not always perfect parabolas. A spinning football can curve sideways because of the Magnus effect, and a javelin is affected by lift and air resistance; these go beyond the basic projectile model.</p>
+</div>`;
+  }
+  const TOPIC_BLOCKS = { '2.2 Projectiles': () => sportsBlock() };
+  function forTopic(t) { const f = TOPIC_BLOCKS[t]; return f ? f() : ''; }
+
   // lesson: the chapter's full-notes key; card: the id of the Real-World Physics card in that chapter
   const ITEMS = [
+    { title: 'Projectile Motion in Sports', event: 'Long jump, football, basketball and javelin', physics: 'Launch point, constant horizontal velocity, vertical acceleration g, effects of air resistance',
+      sem: '1', ch: 2, chName: 'Kinematics', lesson: 'LESSON-2', card: 'ls-2-rw-sports', links: true,
+      videos: SPORTS.map(v => ({ id: v.id, title: v.title, channel: v.sport + (v.role === 'ext' ? ' · extension' : '') })) },
     { title: 'When a glacier falls 1200 m', event: 'Nepal glacier collapse, August 2026', physics: 'Gravitational potential energy, work against friction, power',
       sem: '1', ch: 4, chName: 'Work, Energy and Power', lesson: 'LESSON-4', card: 'ls-4-rw-nepal',
       videos: [{ id: 'Ss9fMd9C8os', title: 'Why Nepal’s 2026 Flood Was Too Big for Any Single Defense', channel: 'DT Terra' }] },
@@ -30,7 +63,7 @@
     const order = ['1', '2', '3'];
     const nVid = ITEMS.reduce((n, x) => n + x.videos.length, 0);
     const card = (x, i) => `<article class="rl-item">
-  <div class="rl-vids">${x.videos.map(v => `<div class="rl-vid"><button type="button" class="rl-play" data-rl-play="${esc(v.id)}" aria-label="Play video: ${esc(v.title)}"><img src="https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button><div class="rl-vcap">${esc(v.title)} · ${esc(v.channel)}</div></div>`).join('')}</div>
+  <div class="rl-vids">${x.links ? `<div class="rl-links">${x.videos.map(v => `<a class="rl-link" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener"><b>${esc(v.channel)}</b><span>${esc(v.title)}</span><em>Watch on YouTube ↗</em></a>`).join('')}</div>` : x.videos.map(v => `<div class="rl-vid"><button type="button" class="rl-play" data-rl-play="${esc(v.id)}" aria-label="Play video: ${esc(v.title)}"><img src="https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button><div class="rl-vcap">${esc(v.title)} · ${esc(v.channel)}</div></div>`).join('')}</div>
   <div class="rl-body">
     <div class="rl-tags"><span class="rl-sem">Semester ${esc(x.sem)}</span><span class="rl-ch">Chapter ${x.ch} · ${esc(x.chName)}</span></div>
     <h3 class="rl-t">${esc(x.title)}</h3>
@@ -75,5 +108,5 @@
     });
   }
 
-  window.PhysiQRealWorld = { mount, items: ITEMS };
+  window.PhysiQRealWorld = { mount, items: ITEMS, sportsBlock, forTopic };
 })();

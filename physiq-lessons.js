@@ -125,11 +125,11 @@ ${qs}
     'LESSON-S2-19': { sem: '2', chapter: 19, title: 'Alternating Current Circuits', topics: ['S2-19.1 AC Through a Pure Resistor', 'S2-19.2 AC Through a Pure Inductor', 'S2-19.3 AC Through a Pure Capacitor', 'S2-19.4 R-C and R-L Series Circuits'], sims: 3,
       toc: [['ls-18-1', '19.1 A.c. through a resistor'], ['ls-18-2', '19.2 Through an inductor'], ['ls-18-3', '19.3 Through a capacitor'], ['ls-18-4', '19.4 R-C, R-L and R-L-C']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
-      toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
+      toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance'], ['ls-2-rw', 'Real-world: sports']] }
   };
   Object.values(LESSONS).forEach(L0 => { L0.label = 'Full notes · Cikgu Suhaili'; });
   const BODY = {}, loading = {};
-  const VER = '20261022m';
+  const VER = '20261022n';
   function register(k, o) { BODY[k] = o; }
   function load(k, done) {
     if (BODY[k]) return done();
