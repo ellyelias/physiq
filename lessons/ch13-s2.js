@@ -104,7 +104,7 @@ ${tip(`First ask: is the capacitor still connected to the battery? If yes, <i>V<
 ${h4('A natural capacitor: the thundercloud and the ground')}
 <p>The base of a thundercloud and the ground below it behave like the two plates of a huge parallel plate capacitor, with the <b>air between them as the dielectric</b>.</p>
 ${steps([`Inside the cloud, collisions between ice crystals and soft hail separate charge. The base of the cloud usually becomes <b>negative</b>.`, `This negative charge repels electrons in the ground below, so the ground surface becomes <b>positive</b> (charging by induction): the two "plates" carry +<i>Q</i> and −<i>Q</i>.`, `As more charge builds up, the electric field in the air between them grows: <i>E</i> = <i>V</i>/<i>d</i> = <i>Q</i>/(ε<sub>0</sub><i>A</i>).`, `When <i>E</i> reaches the <b>dielectric strength of air</b> (about 3 × 10<sup>6</sup> V m<sup>−1</sup>), the air is ionised and becomes a conductor. The dielectric breaks down and the capacitor discharges through it: this is <b>lightning</b>.`, `The huge current heats the air channel to about 30 000 K. The air expands suddenly, and we hear this as <b>thunder</b>. We see the flash almost at once (light travels at 3 × 10<sup>8</sup> m s<sup>−1</sup>) but hear the thunder later (sound travels at about 340 m s<sup>−1</sup>): distance ≈ 340 × delay, roughly 1 km for every 3 s.`])}
-${sim('lightning', 'Thundercloud and ground: a natural capacitor', 'Let the storm charge the cloud. Watch the charges on the cloud base and the ground, and the field in the air between them. When the field reaches the dielectric strength of air, the air breaks down and the capacitor discharges as lightning. Try a higher cloud: does it flash at a different charge? Turn on the thunder sound and count the seconds between the flash and the thunder.')}
+${sim('lightning', 'Thundercloud and ground: a natural capacitor', 'Let the storm charge the cloud. Watch the charges on the cloud base and the ground, and the field in the air between them. When the field reaches the dielectric strength of air, the air breaks down and the capacitor discharges as lightning. Try a higher cloud: does it flash at a different charge? Turn on the thunder sound and count the seconds between the flash and the thunder. Use slow motion to see the stepped leader come down before the bright return stroke.')}
 ${example('13.3.2', `The base of a thundercloud is 1.0 km above flat ground and has an area of 1.0 km<sup>2</sup>. Treat the cloud and the ground as a parallel plate capacitor with air between them (dielectric strength 3.0 × 10<sup>6</sup> V m<sup>−1</sup>). Find (a) the capacitance, (b) the largest charge the cloud can hold before the air breaks down, (c) the p.d. between the cloud and the ground at that moment, (d) the energy released if the whole charge is discharged.`,
   steps([`(a) <i>C</i> = ${fr('ε<sub>0</sub><i>A</i>', '<i>d</i>')} = ${fr('(8.85 × 10<sup>−12</sup>)(1.0 × 10<sup>6</sup>)', '1.0 × 10<sup>3</sup>')} = <b>8.9 × 10<sup>−9</sup> F</b> (8.9 nF)`, `(b) <i>E</i> = ${fr('<i>Q</i>', 'ε<sub>0</sub><i>A</i>')} ⇒ <i>Q</i> = ε<sub>0</sub><i>AE</i> = (8.85 × 10<sup>−12</sup>)(1.0 × 10<sup>6</sup>)(3.0 × 10<sup>6</sup>) = <b>27 C</b>`, `(c) <i>V</i> = <i>Ed</i> = (3.0 × 10<sup>6</sup>)(1.0 × 10<sup>3</sup>) = <b>3.0 × 10<sup>9</sup> V</b>`, `(d) <i>U</i> = ½<i>QV</i> = ½(26.6)(3.0 × 10<sup>9</sup>) = <b>4.0 × 10<sup>10</sup> J</b>`]))}
 ${note(`This is an idealised model. In a real storm the flash starts at a lower average field, because the field is much stronger near sharp points, raindrops and ice, and the charge is spread through the cloud. Still, the answers are the right size: a real flash carries tens of coulombs.`)}
@@ -311,13 +311,14 @@ ${exercises('Exercise: RC circuits', [
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
       src.connect(lp); lp.connect(g); g.connect(ac.destination); src.start(t0); src.stop(t0 + dur);
     }
-    const S = { d: 1.0, Q: 0, run: true, rate: 4, flash: 0, bolt: null, count: 0, lastQ: 0 };
+    const S = { d: 1.0, Q: 0, run: true, rate: 4, flash: 0, lead: 0, slow: false, bolt: null, count: 0, lastQ: 0 };
     const ctl = el('div', 'sm-row'); root.appendChild(ctl);
     slider(ctl, 'height of the cloud base <i>d</i>', 0.5, 2.0, 0.1, S.d, 'km', v => { S.d = v; });
     slider(ctl, 'how fast the storm charges the cloud', 1, 10, 1, S.rate, '', v => { S.rate = v; });
     const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
     const pb = button(bar, 'Pause the storm', '', () => { S.run = !S.run; pb.textContent = S.run ? 'Pause the storm' : 'Let the storm charge the cloud'; });
-    button(bar, 'Start again', '', () => { S.Q = 0; S.flash = 0; S.bolt = null; S.count = 0; });
+    button(bar, 'Start again', '', () => { S.Q = 0; S.flash = 0; S.lead = 0; S.bolt = null; S.count = 0; });
+    toggle(bar, '🐢 Slow motion', false, v => { S.slow = v; });
     toggle(bar, '🔊 Thunder sound', false, v => { sound = v; if (v && !ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ac = null; } } if (ac && ac.state === 'suspended') ac.resume(); });
     const cv = canvas(root); const ro = readouts(root);
     const Qmax = e0 * A * Ebd;   // charge at breakdown (does not depend on d)
@@ -329,11 +330,13 @@ ${exercises('Exercise: RC circuits', [
     }
     function frame(dt) {
       if (dt < 0) dt = 0;
+      const sf = S.slow ? 0.1 : 1, dtf = dt * sf;   // slow motion: the lightning itself runs ten times slower
+      const busy = S.flash > 0 || S.lead > 0;
       const ctx = cv.ctx, { w, h } = cv.size(0.62, 300, 420); ctx.clearRect(0, 0, w, h);
       // charge build-up (tens of coulombs over a few seconds, scaled)
-      if (S.run && !S.flash) S.Q = Math.min(Qmax, S.Q + Qmax * 0.035 * S.rate * dt);
+      if (S.run && !busy) S.Q = Math.min(Qmax, S.Q + Qmax * 0.035 * S.rate * dt);
       const E = S.Q / (e0 * A), dm = S.d * 1000, Cap = e0 * A / dm, V = E * dm, U = 0.5 * S.Q * V;
-      if (!S.flash && S.Q >= Qmax * 0.999) { S.flash = 1.0; S.lastQ = S.Q; S.count++; heardAt = performance.now() + S.d * 1000 / 340 * 1000; if (sound) thunder(S.d * 1000 / 340, S.d); }
+      if (!busy && S.Q >= Qmax * 0.999) { S.lead = 1e-4; S.lastQ = S.Q; }
       // sky
       const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#2B3445'); g.addColorStop(1, '#5D6B7D'); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
       const groundY = h - 46, top = 22, cloudBase = top + 50 + (1 - (S.d - 0.5) / 1.5) * (groundY - top - 140);
@@ -357,14 +360,24 @@ ${exercises('Exercise: RC circuits', [
       { const my = (groundY + cloudBase) / 2 + 22; ctx.fillStyle = 'rgba(29,43,31,.75)'; ctx.fillRect(6, my - 13, 104, 18); ctx.fillRect(w - 76, my - 13, 70, 18);
         text(ctx, 'air (dielectric)', 10, my, { fs: 11, c: '#DDE3EA', b: 1 }); text(ctx, 'd = ' + fmt(S.d, 1) + ' km', w - 10, my, { a: 'right', fs: 11, c: '#DDE3EA' }); }
       // lightning
-      if (S.flash > 0) {
+      // stepped leader: the ionised channel works its way down from the cloud
+      const drawPath = pts => { ctx.beginPath(); pts.forEach(([x, y], k) => k ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); };
+      if (S.lead > 0) {
         if (!S.bolt) S.bolt = makeBolt(w * (0.35 + Math.random() * 0.3), cloudBase, groundY);
+        S.lead = Math.min(1, S.lead + dtf / 0.35);
+        const n = S.bolt.pts.length - 1, upto = Math.max(1, Math.floor(S.lead * n));
+        ctx.strokeStyle = 'rgba(220,210,255,.9)'; ctx.lineWidth = 1.6; ctx.shadowColor = '#CFC6F7'; ctx.shadowBlur = 8; drawPath(S.bolt.pts.slice(0, upto + 1));
+        S.bolt.br.forEach(b => { const k0 = S.bolt.pts.findIndex(q => q[0] === b[0][0] && q[1] === b[0][1]); if (k0 >= 0 && k0 < upto) drawPath(b.slice(0, Math.min(b.length, upto - k0 + 1))); }); ctx.shadowBlur = 0;
+        text(ctx, 'stepped leader: the air starts to break down', w / 2, (groundY + cloudBase) / 2 - 34, { a: 'center', b: 1, fs: w < 480 ? 12 : 13, c: '#E4DDFF' });
+        if (S.lead >= 1) { S.lead = 0; S.flash = 1.0; S.count++; const delay = S.d * 1000 / 340 / sf; heardAt = performance.now() + delay * 1000; if (sound) thunder(delay, S.d); }
+      }
+      // return stroke: the capacitor discharges through the ionised air
+      if (S.flash > 0) {
         const a = Math.min(1, S.flash * 1.6);
         ctx.fillStyle = `rgba(255,255,255,${0.55 * a * (Math.random() < 0.7 ? 1 : 0.4)})`; ctx.fillRect(0, 0, w, h);
-        const drawPath = (pts, wd) => { ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); };
         ctx.strokeStyle = `rgba(255,250,200,${a})`; ctx.lineWidth = 4; ctx.shadowColor = '#FFF6B0'; ctx.shadowBlur = 18; drawPath(S.bolt.pts); ctx.lineWidth = 1.8; S.bolt.br.forEach(b => drawPath(b)); ctx.shadowBlur = 0;
-        S.flash -= dt * 1.2; S.Q = Math.max(0, S.Q - S.lastQ * dt * 4);
-        text(ctx, 'air breaks down: lightning!', w / 2, (groundY + cloudBase) / 2 - 34, { a: 'center', b: 1, fs: 15, c: '#FFF3A0' });
+        S.flash -= dtf * 1.2; S.Q = Math.max(0, S.Q - S.lastQ * dtf * 4);
+        text(ctx, S.slow ? 'return stroke: charge flows to the ground' : 'air breaks down: lightning!', w / 2, (groundY + cloudBase) / 2 - 34, { a: 'center', b: 1, fs: w < 480 ? 13 : 15, c: '#FFF3A0' });
         if (S.flash <= 0) { S.flash = 0; S.bolt = null; S.Q = 0; }
       }
       // field meter
