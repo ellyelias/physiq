@@ -168,3 +168,45 @@
 .ls-nuc{display:inline-flex;align-items:center;white-space:nowrap;}
 .ls-nuc-s{display:inline-flex;flex-direction:column;align-items:flex-end;font-size:.68em;line-height:1.05;margin-right:1px;}
 .ls-nuc-s sup,.ls-nuc-s sub{font-size:1em;vertical-align:baseline;position:static;line-height:1.05;}
+
+/* ---------- Real-World Physics card (current event + video + quick checks) ---------- */
+.ls-rw{background:#fff;border-radius:20px;margin:22px 0;box-shadow:var(--shadow);border:1px solid var(--line);overflow:hidden;}
+.ls-rw-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;background:var(--pg-dark);padding:12px 18px;}
+.ls-rw-tag{font-family:var(--head);font-weight:600;font-size:.86em;letter-spacing:.06em;text-transform:uppercase;color:var(--tagy-ink);background:var(--tagy);border-radius:999px;padding:3px 12px;}
+.ls-rw-meta{font-size:.8em;color:#D9DED0;}
+#notes-content .ls-rw-t{font-family:var(--head);font-weight:600;font-size:1.3em;line-height:1.25;color:var(--ink);margin:16px 18px 8px;padding:0;border:0;text-transform:none;letter-spacing:0;}
+.ls-rw-lead{margin:0 18px 14px;}
+#notes-content .ls-rw-lead p{margin:0 0 8px;}
+.ls-rw-vid{position:relative;margin:0 18px;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#111;}
+.ls-rw-vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+.ls-rw-play{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#111;cursor:pointer;display:block;}
+.ls-rw-play img{width:100%;height:100%;object-fit:cover;display:block;opacity:.88;transition:opacity .2s;}
+.ls-rw-play:hover img{opacity:1;}
+.ls-rw-pb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68px;height:68px;border-radius:50%;background:var(--orange-p);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.35);}
+.ls-rw-pb svg{width:34px;height:34px;margin-left:4px;}
+.ls-rw-len{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.75);color:#fff;font:600 12px var(--ui);border-radius:6px;padding:2px 7px;}
+.ls-rw-cap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;margin:8px 18px 0;font-size:.82em;color:var(--sub);}
+.ls-rw-cap a{color:var(--violet-d);font-weight:600;text-decoration:none;white-space:nowrap;}
+#notes-content .ls-rw-watch{margin:12px 18px 0;font-size:.92em;background:var(--amber-tint);border-radius:10px;padding:8px 12px;}
+.ls-rw-link{margin:16px 18px;background:var(--lilac-tint);border-radius:14px;padding:12px 16px;}
+.ls-rw-lh{font-family:var(--head);font-weight:600;color:var(--violet-d);font-size:1.05em;margin-bottom:4px;}
+.ls-rw-link .ls-steps > div{background:#fff;}
+.ls-rw-q{margin:14px 18px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;}
+.ls-rw-qh{display:inline-block;font-family:var(--head);font-weight:600;font-size:.82em;color:#fff;background:var(--orange-p);border-radius:999px;padding:2px 12px;margin-bottom:6px;}
+.ls-rw-qq{margin-bottom:8px;}
+.ls-rw-opts{display:grid;gap:8px;}
+.ls-rw-opt{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:12px;padding:9px 12px;font:inherit;font-size:.95em;color:var(--ink);cursor:pointer;line-height:1.5;}
+.ls-rw-opt b{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--lilac-tint);color:var(--violet-d);display:flex;align-items:center;justify-content:center;font-size:.85em;}
+.ls-rw-opt:hover:not(:disabled){border-color:var(--violet-b);}
+.ls-rw-opt:disabled{cursor:default;}
+.ls-rw-opt.ok{border-color:var(--green);background:var(--green-tint);}
+.ls-rw-opt.ok b{background:var(--green);color:#fff;}
+.ls-rw-opt.no{border-color:#C0392B;background:#FBE9E7;}
+.ls-rw-opt.no b{background:#C0392B;color:#fff;}
+.ls-rw-why{margin-top:10px;border-left:3px solid var(--lilac);padding-left:12px;}
+.ls-rw-res{font-weight:700;margin:0 0 4px;}
+.ls-rw-res.ok{color:var(--green);} .ls-rw-res.no{color:#C0392B;}
+#notes-content .ls-rw-src{margin:4px 18px 16px;font-size:.78em;color:var(--sub);line-height:1.5;}
+.ls-rw-src a{color:var(--sub);}
+@media (max-width:520px){.ls-rw-pb{width:56px;height:56px;}#notes-content .ls-rw-t{font-size:1.18em;}}
+@media print{.ls-rw-vid{display:none;}.ls-rw-why[hidden]{display:block !important;}.ls-rw{box-shadow:none;break-inside:avoid-page;}}

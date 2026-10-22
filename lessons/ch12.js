@@ -1,7 +1,7 @@
 /* Chapter 12 Heat Transfer: full notes by Cikgu Suhaili (from STPM_2027_UNIT_12_HEAT_TRANSFER_TEACHERS_VERSION.pptx). */
 (function () {
   'use strict';
-  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4 } = window.PhysiQLessons.H;
+  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, rw } = window.PhysiQLessons.H;
   const dQ = fr('d<i>Q</i>', 'd<i>t</i>'), dT = fr('dθ', 'd<i>x</i>');
 
   const F = {};
@@ -89,7 +89,26 @@ ${h4('Greenhouse gases and human activity')}
 ${ul([`The atmosphere is 78% nitrogen and 21% oxygen, which do not trap heat. The greenhouse gases make up less than 1%: <b>carbon dioxide, methane, nitrous oxide, ozone, water vapour and halocarbons</b>.`, `<b>Carbon dioxide</b>: burning fossil fuels (the largest source) and deforestation (fewer trees to absorb CO<sub>2</sub>).`, `<b>Methane</b>: livestock farming, flooded rice fields and decomposing rubbish in landfills; the amount has increased about two and a half times since the Industrial Revolution.`])}
 ${h4('Ways to reduce global warming')}
 ${ul([`Switch to renewable energy: solar, wind and hydroelectric power instead of fossil fuels.`, `Improve energy efficiency: energy-saving appliances, insulated buildings, less wasted electricity.`, `Reduce, reuse and recycle: less waste in landfills, so less methane.`, `Plant trees (reforestation and afforestation) to absorb carbon dioxide.`, `Use public transport and electric vehicles to cut emissions.`, `Support sustainable policies and international agreements to limit greenhouse gas emissions.`])}
-`)}`;
+`)}
+
+${sec('12-rw', 'Real-World Physics: warming and the Nepal glacier collapse', rw({
+  id: 'ls-12-rw-nepal',
+  meta: 'Langtang, Nepal · 26 August 2026',
+  title: 'Can a warmer Earth bring a mountain down?',
+  lead: `<p>On 26 August 2026 part of a glacier on Langtang Lirung, Nepal, collapsed and fell about 1200 m. The ice and rock turned into a debris flow and flash flood that travelled almost 100 km downstream and killed more than 1400 people. Six weeks later, on 11 October, a suspected landslide dam burst on the Budhi Gandaki river and swept away homes and bridges in Gorkha.</p><p>The exact cause of the glacier collapse is <b>still being investigated</b>, but scientists are studying the role of warming: the Langtang Lirung glacier retreated by roughly 460 m between 1990 and 2020, and unusually warm conditions were detected around the glacier in the days before it failed.</p>`,
+  video: { id: 'gowCz9olnhk', title: 'How a Mountain Collapse Became Nepal’s Catastrophic Flood', channel: 'Project Quantum', len: '5:45' },
+  watch: 'note how the collapse started high on the mountain, and listen for why scientists say risks in the Himalayas are growing.',
+  physics: ul([`The <b>enhanced greenhouse effect</b> traps more infrared radiation, so the average temperature of the Earth rises. High mountains are warming faster than the global average.`, `Warmer air melts more ice. Meltwater seeps into cracks in the glacier, and thawing <b>permafrost</b> (frozen ground that acts like glue on steep slopes) weakens the bond between ice and rock.`, `A weakened slope can fail suddenly. Gravitational potential energy is then converted into the kinetic energy of a fast debris flow (Chapter 4).`]),
+  qs: [
+    { q: `Which statement best explains why glaciers on steep mountains may become more likely to collapse as the Earth warms?`, opts: ['Meltwater seeps into cracks and thawing permafrost weakens the bond between the ice and the rock.', 'Greenhouse gases increase the weight of the ice on the slope.', 'Higher temperatures increase the gravitational field strength on mountain slopes.', 'Infrared radiation makes the ice denser so it slides more easily.'], ans: 0,
+      why: `<p>Warming adds liquid water and removes the frozen “glue” that holds ice and rock to steep slopes. The weight of the ice and <i>g</i> do not change.</p>` },
+    { q: `The Sun emits mostly visible light but the Earth emits mostly infrared radiation. This is because`, opts: ['the Earth has a higher emissivity than the Sun.', 'greenhouse gases convert visible light into infrared radiation.', 'the Earth’s surface temperature is much lower, so its peak wavelength is much longer.', 'the Earth is much smaller than the Sun.'], ans: 2,
+      why: `<p>Wien’s displacement law: λ<sub>max</sub><i>T</i> = <i>b</i>. A lower <i>T</i> gives a longer λ<sub>max</sub>. For the Earth (<i>T</i> ≈ 288 K), λ<sub>max</sub> = ${fr('2.898 × 10<sup>−3</sup>', '288')} ≈ 1.0 × 10<sup>−5</sup> m, which is in the infrared.</p>` },
+    { q: `Which action directly reduces the enhanced greenhouse effect?`, opts: ['Clearing forests to open new farmland.', 'Replacing coal-fired power stations with solar and wind power.', 'Sending more household rubbish to open landfills.', 'Using air-conditioners at a lower temperature setting.'], ans: 1,
+      why: `<p>Burning fossil fuels is the largest source of carbon dioxide. Renewable energy cuts CO<sub>2</sub> emissions. Deforestation and landfills increase greenhouse gases, and lower air-conditioner settings use more electricity.</p>` }
+  ],
+  src: `Sources: Reuters; BBC; Yale Environment 360; The Conversation; ICIMOD (reports from August–October 2026). Video by an independent channel: preview before use in class. <a href="https://www.youtube.com/watch?v=gowCz9olnhk" target="_blank" rel="noopener">youtube.com/watch?v=gowCz9olnhk</a>`
+}))}`;
 
   // ---------- simulation: conduction through a composite bar ----------
   window.PhysiQSims.add('conduct', function (root) {

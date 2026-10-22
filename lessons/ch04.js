@@ -1,7 +1,7 @@
 /* Chapter 4 Work, Energy and Power: full notes by Cikgu Suhaili (from chapter_4_work.ppt). */
 (function () {
   'use strict';
-  const { card, dim, fr, sq, vec, half, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4 } = window.PhysiQLessons.H;
+  const { card, dim, fr, sq, vec, half, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, rw } = window.PhysiQLessons.H;
 
   const F = {};
   F.work = () => svg(320, 150,
@@ -147,7 +147,28 @@ ${example('4.3.5', `A machine lifts a 10 kg load through 2.5 m. The machine need
 ${exercises('Exercises: efficiency', [
   { q: `The motor of an electric drill with an efficiency of 80% has a power input of 600 W. How much useful work is done by the drill in 30 s?`, a: `1.4 × 10<sup>4</sup> J` },
   { q: `A hoist lifts a 3000 kg load through 8.00 m in 20.0 s. The power supplied to the engine is 18.0 hp. Calculate (a) the work output, (b) the power output and power input, (c) the efficiency of the engine and hoist. (1 hp = 746 W)`, a: `(a) 235 kJ &nbsp; (b) 11.8 kW; 13.4 kW &nbsp; (c) 87.7%` }])}
-`)}`;
+`)}
+
+${sec('4-rw', 'Real-World Physics: the Nepal glacier collapse', rw({
+  id: 'ls-4-rw-nepal',
+  meta: 'Langtang, Nepal · 26 August 2026',
+  title: 'When a glacier falls 1200 m: energy on a mountain scale',
+  lead: `<p>On 26 August 2026 a large section of glacier ice and rock broke away from Langtang Lirung, north of Kathmandu, at about 5200 m and plunged about <b>1200 m</b> to the valley floor. It became a debris flow and flash flood that travelled almost 100 km down the Bhote Koshi–Trishuli valley, destroying roads, bridges and hydropower plants. More than 1400 people died.</p><p>The impact was so violent that seismometers recorded it like a magnitude 5.2 earthquake. Scientists estimate the falling mass at about <b>5 × 10<sup>8</sup> tonnes</b> of rock and ice.</p>`,
+  video: { id: 'Ss9fMd9C8os', title: 'Why Nepal’s 2026 Flood Was Too Big for Any Single Defense', channel: 'DT Terra', len: '19:04' },
+  watch: 'look for the moment the rock and ice accelerate down the slope, and notice how the debris carries enough energy and momentum to destroy bridges far downstream.',
+  physics: ul([`Falling through height <i>h</i>, the mass loses gravitational potential energy <i>mgh</i>. The <b>work done by gravity</b> is converted mostly into kinetic energy.`, `Work is also done <b>against friction</b> with the slope and the air, so part of the energy becomes internal energy (heat) and sound. This is why the real debris is slower than the “no friction” value.`, `<b>Power</b> = rate of energy transfer. Releasing an enormous amount of energy in only minutes gives an enormous power.`]) + note(`Data used below: <i>m</i> ≈ 5.0 × 10<sup>11</sup> kg, <i>h</i> ≈ 1200 m, <i>g</i> = 9.81 m s<sup>−2</sup>. These are reported estimates, rounded for calculation.`),
+  qs: [
+    { q: `Calculate the loss of gravitational potential energy of the falling rock and ice.`, opts: ['5.9 × 10<sup>12</sup> J', '5.9 × 10<sup>14</sup> J', '5.9 × 10<sup>15</sup> J', '7.1 × 10<sup>18</sup> J'], ans: 2,
+      why: steps([`Δ<i>U</i> = <i>mgh</i>`, `= (5.0 × 10<sup>11</sup>)(9.81)(1200)`, `= <b>5.9 × 10<sup>15</sup> J</b>`]) },
+    { q: `If all the potential energy lost became kinetic energy, what would be the speed of the debris at the valley floor?`, opts: ['49 m s<sup>−1</sup>', '110 m s<sup>−1</sup>', '153 m s<sup>−1</sup>', '2.35 × 10<sup>4</sup> m s<sup>−1</sup>'], ans: 2,
+      why: steps([`½<i>mv</i><sup>2</sup> = <i>mgh</i> &nbsp;⇒&nbsp; <i>v</i> = √(2<i>gh</i>) (the mass cancels)`, `= √(2 × 9.81 × 1200)`, `= <b>153 m s<sup>−1</sup></b>`]) },
+    { q: `The actual speed of the debris was much less than the value in Quick check 2. Which statement best explains this?`, opts: ['Work is done against friction and air resistance, so part of the potential energy is converted into internal energy and sound.', 'The total energy of the system decreases as the debris falls.', 'Gravitational potential energy depends on the speed of the falling object.', 'The kinetic energy of the debris is converted back into gravitational potential energy.'], ans: 0,
+      why: `<p>Energy is conserved: loss of potential energy = gain in kinetic energy + work done against friction (internal energy, sound, and energy transferred to the ground). Only part of <i>mgh</i> appears as kinetic energy.</p>` },
+    { q: `Assume the energy in Quick check 1 is released over 2.0 minutes. What is the average power?`, opts: ['4.9 × 10<sup>10</sup> W', '4.9 × 10<sup>13</sup> W', '2.9 × 10<sup>15</sup> W', '7.1 × 10<sup>17</sup> W'], ans: 1,
+      why: steps([`<i>P</i> = ${fr('<i>E</i>', '<i>t</i>')}`, `= ${fr('5.9 × 10<sup>15</sup>', '2.0 × 60')}`, `= <b>4.9 × 10<sup>13</sup> W</b>`]) }
+  ],
+  src: `Sources: Reuters; BBC Verify; Al Jazeera; USGS (reports from August–October 2026). Video by an independent channel: preview before use in class. <a href="https://www.youtube.com/watch?v=Ss9fMd9C8os" target="_blank" rel="noopener">youtube.com/watch?v=Ss9fMd9C8os</a>`
+}))}`;
 
   // ---------- simulation: energy on a track ----------
   window.PhysiQSims.add('energy', function (root) {

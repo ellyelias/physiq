@@ -51,7 +51,24 @@
   // a worked card with any title (e.g. "STPM Practice 1.1 · Question 1")
   const card = (title, q, sol, f, id) => `<div class="ls-ex"${id ? ` id="${id}"` : ''}><div class="ls-ex-h">${title}</div><div class="ls-ex-q">${q}</div>${f || ''}<details class="ls-sol"><summary>Show solution</summary><div class="ls-sol-b">${sol}</div></details></div>`;
   const dim = s => `<span class="ls-dim">${s.replace(/\^(−?-?\d+(?:\/\d+)?|[½])/g, (m, e) => `<sup>${e.replace('-', '−')}</sup>`)}</span>`;
-  const H = { card, dim, fr, sq, vec, avg, half, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, ms, ms2, svg, L, T, P, dot, axes, C, table, sec, h4, pq };
+  // Real-World Physics card: a current event, a YouTube video (loaded only when tapped), the physics link
+  // and quick self-check MCQs. Not counted as a worked example; nothing here touches the question bank.
+  const rw = o => {
+    const v = o.video, url = 'https://www.youtube.com/watch?v=' + v.id;
+    const qs = (o.qs || []).map((x, i) => `<div class="ls-rw-q" data-rw-ans="${x.ans}"><div class="ls-rw-qh">Quick check ${i + 1}</div><div class="ls-rw-qq">${x.q}</div><div class="ls-rw-opts">${x.opts.map((t, j) => `<button type="button" class="ls-rw-opt" data-rw-opt="${j}"><b>${'ABCD'[j]}</b><span>${t}</span></button>`).join('')}</div><div class="ls-rw-why" hidden><p class="ls-rw-res"></p>${x.why}</div></div>`).join('');
+    return `<div class="ls-rw"${o.id ? ` id="${o.id}"` : ''}>
+<div class="ls-rw-top"><span class="ls-rw-tag">Real-World Physics</span><span class="ls-rw-meta">${o.meta}</span></div>
+<h4 class="ls-rw-t">${o.title}</h4>
+<div class="ls-rw-lead">${o.lead}</div>
+<div class="ls-rw-vid"><button type="button" class="ls-rw-play" data-rw-play="${v.id}" aria-label="Play video: ${v.title.replace(/"/g, '&quot;')}"><img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="" loading="lazy"><span class="ls-rw-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span><span class="ls-rw-len">${v.len}</span></button></div>
+<div class="ls-rw-cap"><span>${v.title} · ${v.channel}</span><a href="${url}" target="_blank" rel="noopener">Open in YouTube ↗</a></div>
+${o.watch ? `<p class="ls-rw-watch"><b>While you watch:</b> ${o.watch}</p>` : ''}
+<div class="ls-rw-link"><div class="ls-rw-lh">The physics</div>${o.physics}</div>
+${qs}
+<p class="ls-rw-src">${o.src}</p>
+</div>`;
+  };
+  const H = { card, dim, fr, sq, vec, avg, half, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, ms, ms2, svg, L, T, P, dot, axes, C, table, sec, h4, pq, rw };
 
   // chapters with full notes. toc ids must exist in the chapter file.
   const LESSONS = {
@@ -60,7 +77,7 @@
     'LESSON-3': { sem: '1', chapter: 3, title: 'Dynamics', topics: ["3.1 Newton's Laws of Motion", '3.2 Linear Momentum', '3.3 Elastic and Inelastic Collisions', '3.4 Friction'], sims: 3,
       toc: [['ls-3-1', "3.1 Newton's laws"], ['ls-3-2', '3.2 Momentum and impulse'], ['ls-3-3', '3.3 Reaction and friction']] },
     'LESSON-4': { sem: '1', chapter: 4, title: 'Work, Energy and Power', topics: ['4.1 Work Done by a Force', '4.2 Conservation of Energy', '4.3 Power and Efficiency'], sims: 2,
-      toc: [['ls-4-1', '4.1 Work'], ['ls-4-2', '4.2 Conservation of energy'], ['ls-4-3', '4.3 Power and efficiency']] },
+      toc: [['ls-4-1', '4.1 Work'], ['ls-4-2', '4.2 Conservation of energy'], ['ls-4-3', '4.3 Power and efficiency'], ['ls-4-rw', 'Real-world: Nepal 2026']] },
     'LESSON-5': { sem: '1', chapter: 5, title: 'Circular Motion', topics: ['5.1 Angular Velocity and Centripetal Acceleration', '5.2 Centripetal Force'], sims: 2,
       toc: [['ls-5-1', '5.1 Angular velocity'], ['ls-5-2', '5.2 Centripetal acceleration'], ['ls-5-3', '5.3 Centripetal force']] },
     'LESSON-6': { sem: '1', chapter: 6, title: 'Gravitation', topics: ["6.1 Newton's Law of Gravitation", '6.2 Gravitational Field and Potential', '6.3 Satellite Motion'], sims: 2,
@@ -76,7 +93,7 @@
     'LESSON-11': { sem: '1', chapter: 11, title: 'Thermodynamics of Gases', topics: ['11.1 First Law of Thermodynamics', '11.2 Thermodynamic Processes'], sims: 1,
       toc: [['ls-11-1', '11.1 Molar heat capacity'], ['ls-11-2', '11.2 Work done by a gas'], ['ls-11-3', '11.3 First law'], ['ls-11-4', '11.4 Isothermal and adiabatic']] },
     'LESSON-12': { sem: '1', chapter: 12, title: 'Heat Transfer', topics: ['12.1 Conduction, Convection and Radiation'], sims: 2,
-      toc: [['ls-12-1', '12.1 Conduction'], ['ls-12-2', '12.2 Convection'], ['ls-12-3', '12.3 Radiation'], ['ls-12-4', '12.4 Global warming']] },
+      toc: [['ls-12-1', '12.1 Conduction'], ['ls-12-2', '12.2 Convection'], ['ls-12-3', '12.3 Radiation'], ['ls-12-4', '12.4 Global warming'], ['ls-12-rw', 'Real-world: Nepal 2026']] },
     'LESSON-S3-19': { sem: '3', chapter: 19, title: 'Oscillations', topics: ['S3-19.1 Characteristics of Simple Harmonic Motion', 'S3-19.2 Kinematics of Simple Harmonic Motion', 'S3-19.3 Energy in Simple Harmonic Motion', 'S3-19.4 Systems in Simple Harmonic Motion', 'S3-19.5 Damped Oscillation', 'S3-19.6 Forced Oscillation and Resonance'], sims: 4,
       toc: [['ls-19-1', '19.1 Characteristics'], ['ls-19-2', '19.2 Kinematics'], ['ls-19-3', '19.3 Energy'], ['ls-19-4', '19.4 Systems'], ['ls-19-5', '19.5 Damping'], ['ls-19-6', '19.6 Resonance'], ['ls-19-7', 'Summary']] },
     'LESSON-S3-20': { sem: '3', chapter: 20, title: 'Wave Motion', topics: ['S3-20.1 Progressive Waves', 'S3-20.2 Wave Intensity', 'S3-20.3 Principle of Superposition', 'S3-20.4 Standing Waves', 'S3-20.5 Electromagnetic Waves'], sims: 5,
@@ -110,7 +127,7 @@
   };
   Object.values(LESSONS).forEach(L0 => { L0.label = 'Full notes · Cikgu Suhaili'; });
   const BODY = {}, loading = {};
-  const VER = '20261022g';
+  const VER = '20261022h';
   function register(k, o) { BODY[k] = o; }
   function load(k, done) {
     if (BODY[k]) return done();
@@ -149,7 +166,23 @@
     root.addEventListener('click', e => {
       const g = e.target.closest('[data-ls-go]');
       if (g) { const t = document.getElementById(g.dataset.lsGo); if (t) { const bar = document.querySelector('.masthead'); const off = bar ? bar.offsetHeight + 10 : 10; window.scrollTo({ top: t.getBoundingClientRect().top + window.pageYOffset - off, behavior: 'smooth' }); } return; }
-      const s = e.target.closest('[data-ls-size]'); if (s) applySize(root, s.dataset.lsSize);
+      const s = e.target.closest('[data-ls-size]'); if (s) { applySize(root, s.dataset.lsSize); return; }
+      const pl = e.target.closest('[data-rw-play]');
+      if (pl) {
+        const id = pl.dataset.rwPlay, box = pl.parentNode, f = document.createElement('iframe');
+        f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+        f.title = pl.getAttribute('aria-label') || 'Video'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+        f.referrerPolicy = 'strict-origin-when-cross-origin';
+        box.innerHTML = ''; box.appendChild(f); box.classList.add('on'); return;
+      }
+      const op = e.target.closest('[data-rw-opt]');
+      if (op) {
+        const q = op.closest('.ls-rw-q'); if (!q || q.classList.contains('done')) return;
+        const ans = +q.dataset.rwAns, pick = +op.dataset.rwOpt, ok = pick === ans;
+        q.classList.add('done');
+        q.querySelectorAll('[data-rw-opt]').forEach(b => { const j = +b.dataset.rwOpt; b.disabled = true; if (j === ans) b.classList.add('ok'); else if (j === pick) b.classList.add('no'); });
+        const w = q.querySelector('.ls-rw-why'); if (w) { w.hidden = false; const r = w.querySelector('.ls-rw-res'); if (r) { r.textContent = ok ? 'Correct!' : 'Not quite. The answer is ' + 'ABCD'[ans] + '.'; r.className = 'ls-rw-res ' + (ok ? 'ok' : 'no'); } }
+      }
     });
     const count = () => { const n = root.querySelectorAll('.ls-body .ls-ex').length, c = root.querySelector('.ls-nex'); if (c && n) c.textContent = n + ' worked examples'; };
     const fill = () => { const b = root.querySelector('.ls-body'); if (!b || !root.isConnected) return; b.innerHTML = BODY[k].html(); count(); if (window.PhysiQSims) window.PhysiQSims.mountAll(root); };
