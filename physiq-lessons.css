@@ -164,3 +164,7 @@
 .ls-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0;text-align:center;}
 @media (max-width:640px){.ls-grid3{grid-template-columns:minmax(0,1fr);}}
 .ls-svg{overflow:hidden;}
+/* nuclide notation: mass number over proton number, left of the symbol */
+.ls-nuc{display:inline-flex;align-items:center;white-space:nowrap;}
+.ls-nuc-s{display:inline-flex;flex-direction:column;align-items:flex-end;font-size:.68em;line-height:1.05;margin-right:1px;}
+.ls-nuc-s sup,.ls-nuc-s sub{font-size:1em;vertical-align:baseline;position:static;line-height:1.05;}

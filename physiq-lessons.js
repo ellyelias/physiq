@@ -89,6 +89,8 @@
       toc: [['ls-23-1', '23.1 Huygens'], ['ls-23-2', '23.2 Interference'], ['ls-23-3', '23.3 Two slits'], ['ls-23-4', '23.4 Thin film'], ['ls-23-5', '23.5 Single slit'], ['ls-23-6', '23.6 Grating'], ['ls-23-7', '23.7 Polarisation'], ['ls-23-8', '23.8 Waveguides']] },
     'LESSON-S3-24': { sem: '3', chapter: 24, title: 'Quantum Physics', topics: ['S3-24.1 Photon', 'S3-24.2 Wave-Particle Duality', 'S3-24.3 Atomic Structure', 'S3-24.4 X-rays', 'S3-24.5 Nanoscience'], sims: 5,
       toc: [['ls-24-1', '24.1 Photons'], ['ls-24-2', '24.2 Wave–particle duality'], ['ls-24-3', '24.3 Atomic structure'], ['ls-24-4', '24.4 X-rays'], ['ls-24-5', '24.5 Nanoscience']] },
+    'LESSON-S3-25': { sem: '3', chapter: 25, title: 'Nuclear Physics', topics: ['S3-25.1 Nucleus', 'S3-25.2 Radioactivity', 'S3-25.3 Nuclear Reaction'], sims: 3,
+      toc: [['ls-25-1', '25.1 Nucleus'], ['ls-25-2', '25.2 Radioactivity'], ['ls-25-3', '25.3 Nuclear reactions'], ['ls-25-4', 'Summary']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
