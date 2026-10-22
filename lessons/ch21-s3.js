@@ -2,7 +2,7 @@
    App chapter 21 = STPM 2026 syllabus chapter 22. */
 (function () {
   'use strict';
-  const { fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq, ms } = window.PhysiQLessons.H;
+  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq, ms } = window.PhysiQLessons.H;
 
   // ---------- figures ----------
   const curve = (x0, y0, w, a, lam, ph = 0, n = 120) => { let d = ''; for (let i = 0; i <= n; i++) { const x = w * i / n; d += (i ? ' L' : 'M') + (x0 + x).toFixed(1) + ',' + (y0 - a * Math.sin(2 * Math.PI * x / lam + ph)).toFixed(1); } return d; };
@@ -14,7 +14,7 @@
     return svg(380, 310, dots + lines + T(8, 40, '(a)', { a: 'start', fs: 12, b: 1 }) +
       T(8, 120, '(b)', { a: 'start', fs: 12, b: 1 }) + axes(x0, 120, W + 10, 44, 'x', 'y', { noO: 1, yb: 165 }) + P(curve(x0, 120, W, 36, lam), 'v', { w: 2.4 }) + T(x0 - 4, 88, 'A', { a: 'end', fs: 11, it: 1 }) +
       T(8, 240, '(c)', { a: 'start', fs: 12, b: 1 }) + axes(x0, 240, W + 10, 52, 'x', 'p', { noO: 1, yb: 296 }) + P(curve(x0, 240, W, 36, lam, Math.PI / 2), 'r', { w: 2.4 }) + T(x0 - 4, 208, 'p₀', { a: 'end', fs: 11, it: 1 }) +
-      T(x0 + W + 14, 228, 'excess', { fs: 10, a: 'end', c: C.sub }) + T(x0 + W + 14, 260, 'pressure', { fs: 10, a: 'end', c: C.sub }), 400);
+      T(x0 + W + 14, 306, 'excess pressure', { fs: 10, a: 'end', c: C.sub }), 400);
   };
   const strMode = (n, kind, w = 280) => {
     // kind: 'str' (N..N), 'open' (A..A), 'closed' (N closed left .. A open right)
@@ -27,7 +27,7 @@
     else body = L(x0, 12, x0 + w, 12, 'k', '', { w: 1.6 }) + L(x0, 56, x0 + w, 56, 'k', '', { w: 1.6 }) + (kind === 'closed' ? L(x0, 12, x0, 56, 'k', '', { w: 3 }) : '') + body;
     return body;
   };
-  F.modes = (kind, ns, labs) => svg(400, 72 * ns.length, ns.map((n, i) => `<g transform="translate(0,${i * 72})">${strMode(n, kind)}${T(320, 30, labs[i][0], { a: 'start', fs: 11, b: 1 })}${T(320, 46, labs[i][1], { a: 'start', fs: 11 })}${T(320, 62, labs[i][2], { a: 'start', fs: 11, c: C.v })}</g>`).join(''), 420);
+  F.modes = (kind, ns, labs) => svg(410, 72 * ns.length, ns.map((n, i) => `<g transform="translate(0,${i * 72})">${strMode(n, kind, 230)}${T(276, 30, labs[i][0], { a: 'start', fs: 11, b: 1 })}${T(276, 46, labs[i][1], { a: 'start', fs: 11 })}${T(276, 62, labs[i][2], { a: 'start', fs: 11, c: C.v })}</g>`).join(''), 420);
   F.endc = () => two(svg(220, 120, T(110, 14, 'closed pipe', { b: 1, fs: 12 }) + `<g transform="translate(-10,30)">${(() => { const x0 = 30, w = 150, y0 = 34, a = 18; let d1 = '', d2 = ''; for (let i = 0; i <= 80; i++) { const u = i / 80, x = x0 + u * (w + 22), f = Math.sin(Math.PI / 2 * u); d1 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (y0 - a * f).toFixed(1); d2 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (y0 + a * f).toFixed(1); } return L(x0, 12, x0 + w, 12, 'k', '', { w: 1.6 }) + L(x0, 56, x0 + w, 56, 'k', '', { w: 1.6 }) + L(x0, 12, x0, 56, 'k', '', { w: 3 }) + P(d1, 'v', { w: 2 }) + P(d2, 'v', { w: 2, d: '4 3' }) + L(x0, 72, x0 + w, 72, 'k', 'b', { w: 1 }) + T(x0 + w / 2, 86, 'l', { it: 1, fs: 12 }) + L(x0 + w, 72, x0 + w + 22, 72, 'r', '', { w: 1.6 }) + T(x0 + w + 11, 86, 'c', { it: 1, fs: 12, c: C.r }); })()}</g>`, 220),
     svg(220, 120, T(110, 14, 'open pipe', { b: 1, fs: 12 }) + `<g transform="translate(0,30)">${(() => { const x0 = 32, w = 140, y0 = 34, a = 18; let d1 = '', d2 = ''; for (let i = 0; i <= 80; i++) { const u = i / 80, x = x0 - 18 + u * (w + 36), f = Math.cos(Math.PI * u); d1 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (y0 - a * f).toFixed(1); d2 += (i ? ' L' : 'M') + x.toFixed(1) + ',' + (y0 + a * f).toFixed(1); } return L(x0, 12, x0 + w, 12, 'k', '', { w: 1.6 }) + L(x0, 56, x0 + w, 56, 'k', '', { w: 1.6 }) + P(d1, 'v', { w: 2 }) + P(d2, 'v', { w: 2, d: '4 3' }) + L(x0, 72, x0 + w, 72, 'k', 'b', { w: 1 }) + T(x0 + w / 2, 86, 'l', { it: 1, fs: 12 }) + L(x0 - 18, 72, x0, 72, 'r', '', { w: 1.6 }) + L(x0 + w, 72, x0 + w + 18, 72, 'r', '', { w: 1.6 }) + T(x0 - 9, 86, 'c', { it: 1, fs: 12, c: C.r }) + T(x0 + w + 9, 86, 'c', { it: 1, fs: 12, c: C.r }); })()}</g>`, 220));
   F.Ir = () => two(svg(200, 150, axes(30, 125, 150, 105, 'r', 'I', { noO: 1 }) + P((() => { let d = ''; for (let i = 0; i <= 60; i++) { const r = 0.35 + i / 60 * 2.6; d += (i ? ' L' : 'M') + (30 + (r / 3) * 150).toFixed(1) + ',' + (125 - Math.min(105, 12 / (r * r))).toFixed(1); } return d; })(), 'v', { w: 2.4 }) + T(120, 60, 'I ∝ 1/r²', { fs: 12, it: 1 }), 200),
@@ -40,8 +40,8 @@
   F.doppler = () => { let c = ''; for (let i = 0; i < 6; i++) { const age = 6 - i, r = age * 18, cx = 120 + i * 9; c += `<circle cx="${cx}" cy="90" r="${r}" fill="none" stroke="${C.v}" stroke-width="1.3"/>`; }
     return svg(380, 190, c + dot(174, 90, 7, '#E7B54A') + L(182, 90, 214, 90, 'o', 'e', { w: 2 }) + T(196, 82, 'vₛ', { it: 1, c: C.o, fs: 12 }) + T(330, 60, 'ahead: waves', { fs: 11, a: 'middle' }) + T(330, 74, 'bunched, λ smaller,', { fs: 11 }) + T(330, 88, 'f′ higher', { fs: 11, b: 1, c: C.r }) +
       T(40, 160, 'behind: λ larger, f′ lower', { fs: 11, a: 'start', b: 1, c: C.v }) + T(300, 180, 'source moving to the right', { fs: 11, c: C.sub }), 400); };
-  F.dopG = () => svg(320, 160, axes(40, 140, 260, 120, 'r', 'f′', { noO: 1 }) + L(40, 80, 300, 80, 's', '', { d: '4 4', w: 1 }) + T(36, 84, 'fₛ', { a: 'end', it: 1, fs: 12 }) +
-    P('M50,48 L160,48 Q170,48 170,80 Q170,112 180,112 L290,112', 'r', { w: 2.6 }) + T(100, 40, 'approaching: fₜ > fₛ', { fs: 11 }) + T(236, 104, 'receding: fₐ < fₛ', { fs: 11 }) + T(170, 152, 'passes the observer', { fs: 11, c: C.sub }), 340);
+  F.dopG = () => svg(320, 160, axes(40, 140, 260, 120, 't', 'f′', { noO: 1 }) + L(40, 80, 300, 80, 's', '', { d: '4 4', w: 1 }) + T(36, 84, 'fₛ', { a: 'end', it: 1, fs: 12 }) +
+    P('M50,48 L160,48 Q170,48 170,80 Q170,112 180,112 L290,112', 'r', { w: 2.6 }) + T(100, 40, 'approaching: f′ > fₛ', { fs: 11 }) + T(236, 104, 'receding: f′ < fₛ', { fs: 11 }) + T(170, 152, 'passes the observer', { fs: 11, c: C.sub }), 340);
   F.wall = () => svg(380, 110, dot(40, 60, 7, C.ball) + T(40, 88, 'O', { b: 1 }) + T(40, 102, '(stationary)', { fs: 10, c: C.sub }) + dot(200, 60, 8, '#E7B54A') + T(200, 88, 'S', { b: 1 }) + T(200, 102, 'fₛ = 100 Hz', { fs: 10, c: C.sub }) + L(210, 60, 250, 60, 'o', 'e', { w: 2 }) + T(232, 50, '20 m s⁻¹', { fs: 11, c: C.o }) +
     L(340, 20, 340, 100, 'k', '', { w: 4 }) + T(356, 64, 'T', { b: 1 }) + T(356, 80, 'wall', { fs: 10, c: C.sub }), 400);
 
@@ -189,7 +189,7 @@ ${exercises('Exercise: Doppler effect and beats', [
       g(gy2, xe => Math.sin(om * S.t - k * xe + Math.PI / 2), COL.r, 'excess pressure p', 'x →');
       // mark compressions (p max) with dashed lines
       ctx.setLineDash([3, 4]); ctx.strokeStyle = COL.sub; ctx.lineWidth = 1;
-      for (let m = -3; m < 6; m++) { const xe = (om * S.t + Math.PI / 2 - Math.PI / 2 - TAU * m) / k; if (xe < 0 || xe > W) continue; ctx.beginPath(); ctx.moveTo(x0 + xe, top); ctx.lineTo(x0 + xe, gy2 + h * 0.1); ctx.stroke(); text(ctx, 'C', x0 + xe + 3, top + hh + 26, { fs: 11, b: 1, c: COL.r }); }
+      for (let m = -3; m < 6; m++) { const xe = (om * S.t + Math.PI / 2 - Math.PI / 2 - TAU * m) / k; if (xe < 0 || xe > W) continue; ctx.beginPath(); ctx.moveTo(x0 + xe, top); ctx.lineTo(x0 + xe, gy2 + h * 0.1); ctx.stroke(); text(ctx, 'C', x0 + xe + 3, top - 4, { fs: 11, b: 1, c: COL.r }); }
       ctx.setLineDash([]);
     }
     loop(cv, dt => { if (S.play) S.t += dt; draw(); });
@@ -268,7 +268,7 @@ ${exercises('Exercise: Doppler effect and beats', [
       const ys = h * 0.66; ctx.strokeStyle = 'rgba(192,57,43,.7)'; ctx.setLineDash([4, 3]); [1, -1].forEach(s => { ctx.beginPath(); for (let i = 0; i <= 300; i++) { const u = i / 300, e = Math.abs(2 * Math.cos(Math.PI * df * u * tm)); i ? ctx.lineTo(x0 + u * W, ys - s * e * a * 1.6) : ctx.moveTo(x0 + u * W, ys - s * e * a * 1.6); } ctx.stroke(); }); ctx.setLineDash([]);
       row(ys, u => y1(u) + y2(u), COL.gr, 'sum', a * 1.6);
       ctx.strokeStyle = COL.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, h - 26); ctx.lineTo(x0 + W, h - 26); ctx.stroke();
-      text(ctx, '0', x0, h - 12, { a: 'center', fs: 10, c: COL.sub }); text(ctx, fmt(tm, 2) + ' s', x0 + W, h - 12, { a: 'right', fs: 10, c: COL.sub }); text(ctx, df ? 'time (the individual waves are drawn slowed down)' : 'equal frequencies: no beats', x0 + W / 2, h - 12, { a: 'center', fs: 10, c: COL.sub });
+      text(ctx, '0', x0, h - 12, { a: 'center', fs: 10, c: COL.sub }); text(ctx, fmt(tm, 2) + ' s', x0 + W, h - 12, { a: 'right', fs: 10, c: COL.sub }); text(ctx, df ? 'time (waves drawn slowed down)' : 'equal frequencies: no beats', x0 + W / 2, h - 12, { a: 'center', fs: 10, c: COL.sub });
       ro([['beat frequency |f₁ − f₂|', df + ' Hz', 'hl'], ['beat period', df ? fmt(1 / df, 2) + ' s' : '—'], ['frequency heard (f₁ + f₂)/2', fmt((S.f1 + S.f2) / 2, 1) + ' Hz']]);
     }
     new ResizeObserver(() => draw()).observe(root);
