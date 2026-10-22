@@ -87,6 +87,8 @@
       toc: [['ls-22-1', '22.1 Spherical mirrors'], ['ls-22-2', '22.2 Refraction at spherical surfaces'], ['ls-22-3', '22.3 Thin lenses'], ['ls-22-4', 'Past-year questions']] },
     'LESSON-S3-23': { sem: '3', chapter: 23, title: 'Wave Optics', topics: ['S3-23.1 Huygens\'s Principle', 'S3-23.2 Interference', 'S3-23.3 Two-slit Interference Pattern', 'S3-23.4 Interference in A Thin Film', 'S3-23.5 Diffraction by A Single Slit', 'S3-23.6 Diffraction Gratings', 'S3-23.7 Polarisation', 'S3-23.8 Optical Waveguides'], sims: 6,
       toc: [['ls-23-1', '23.1 Huygens'], ['ls-23-2', '23.2 Interference'], ['ls-23-3', '23.3 Two slits'], ['ls-23-4', '23.4 Thin film'], ['ls-23-5', '23.5 Single slit'], ['ls-23-6', '23.6 Grating'], ['ls-23-7', '23.7 Polarisation'], ['ls-23-8', '23.8 Waveguides']] },
+    'LESSON-S3-24': { sem: '3', chapter: 24, title: 'Quantum Physics', topics: ['S3-24.1 Photon', 'S3-24.2 Wave-Particle Duality', 'S3-24.3 Atomic Structure', 'S3-24.4 X-rays', 'S3-24.5 Nanoscience'], sims: 5,
+      toc: [['ls-24-1', '24.1 Photons'], ['ls-24-2', '24.2 Wave–particle duality'], ['ls-24-3', '24.3 Atomic structure'], ['ls-24-4', '24.4 X-rays'], ['ls-24-5', '24.5 Nanoscience']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
