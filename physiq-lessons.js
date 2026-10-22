@@ -83,6 +83,8 @@
       toc: [['ls-20-1', '20.1 Progressive waves'], ['ls-20-2', '20.2 Intensity'], ['ls-20-3', '20.3 Superposition'], ['ls-20-4', '20.4 Standing waves'], ['ls-20-5', '20.5 EM waves'], ['ls-20-6', 'Summary']] },
     'LESSON-S3-21': { sem: '3', chapter: 21, title: 'Sound Waves', topics: ['S3-21.1 Propagation of Sound Waves', 'S3-21.2 Sources of Sound', 'S3-21.3 Intensity Level of Sound', 'S3-21.4 Beat', 'S3-21.5 Doppler Effect'], sims: 4,
       toc: [['ls-21-1', '21.1 Propagation'], ['ls-21-2', '21.2 Sources of sound'], ['ls-21-3', '21.3 Intensity level'], ['ls-21-4', '21.4 Beats'], ['ls-21-5', '21.5 Doppler effect']] },
+    'LESSON-S3-22': { sem: '3', chapter: 22, title: 'Geometrical Optics', topics: ['S3-22.1 Spherical Mirrors', 'S3-22.2 Refraction at Spherical Surfaces', 'S3-22.3 Thin Lenses'], sims: 4,
+      toc: [['ls-22-1', '22.1 Spherical mirrors'], ['ls-22-2', '22.2 Refraction at spherical surfaces'], ['ls-22-3', '22.3 Thin lenses'], ['ls-22-4', 'Past-year questions']] },
     'LESSON-2': { sem: '1', chapter: 2, title: 'Kinematics', topics: ['2.1 Linear Motion', '2.2 Projectiles'], examples: 21, sims: 3,
       toc: [['ls-2-0', '2.0 Introduction'], ['ls-2-1', '2.1 Linear motion'], ['ls-2-1-eq', 'Equations of motion'], ['ls-2-1-ff', 'Free fall'], ['ls-2-2', '2.2 Projectile motion'], ['ls-2-2-air', 'Air resistance']] }
   };
