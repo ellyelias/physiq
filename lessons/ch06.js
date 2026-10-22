@@ -112,6 +112,11 @@ ${example('6.4.2', `The Moon takes 27.3 days to orbit the Earth. Calculate its a
   steps([`<i>GM</i><sub>E</sub> = <i>gR</i><sub>E</sub><sup>2</sup>; <i>T</i> = 27.3 × 24 × 3600 = 2.36 × 10<sup>6</sup> s`, `<i>r</i><sup>3</sup> = ${fr('<i>gR</i><sub>E</sub><sup>2</sup><i>T</i><sup>2</sup>', '4π<sup>2</sup>')} ⇒ <b><i>r</i> = 3.8 × 10<sup>8</sup> m</b>`]))}
 ${example('6.4.3', `A satellite orbits 596 km above the Earth’s surface. Find (a) its speed, (b) its period, (c) its speed and period if it moves to an orbit 400 km above the surface. (<i>R</i><sub>E</sub> = 6.38 × 10<sup>6</sup> m, <i>M</i><sub>E</sub> = 5.98 × 10<sup>24</sup> kg)`,
   steps([`(a) <i>r</i> = 6.38 × 10<sup>6</sup> + 596 × 10<sup>3</sup> = 6.98 × 10<sup>6</sup> m; <i>v</i> = ${sq(fr('<i>GM</i>', '<i>r</i>'))} = <b>7.56 × 10<sup>3</sup> m s<sup>−1</sup></b>`, `(b) <i>T</i> = ${fr('2π<i>r</i>', '<i>v</i>')} = <b>5.80 × 10<sup>3</sup> s</b> (1.61 h)`, `(c) <i>v</i><sup>2</sup><i>r</i> = <i>GM</i> = constant ⇒ <i>v</i><sub>1</sub><sup>2</sup><i>r</i><sub>1</sub> = <i>v</i><sub>2</sub><sup>2</sup><i>r</i><sub>2</sub>, with <i>r</i><sub>2</sub> = 6.78 × 10<sup>6</sup> m`, `(7.56 × 10<sup>3</sup>)<sup>2</sup>(6.98 × 10<sup>6</sup>) = <i>v</i><sub>2</sub><sup>2</sup>(6.78 × 10<sup>6</sup>) ⇒ <b><i>v</i><sub>2</sub> = 7.67 × 10<sup>3</sup> m s<sup>−1</sup></b>; <i>T</i><sub>2</sub> = ${fr('2π<i>r</i><sub>2</sub>', '<i>v</i><sub>2</sub>')} = <b>5554 s (1.54 h)</b>`]))}
+${h4('Real satellites above Malaysia')}
+${ul([`<b>International Space Station (ISS):</b> a low orbit about 400 km up. It moves at almost 8 km s<sup>−1</sup> and goes round the Earth in about 93 minutes, about 15 times a day.`, `<b>GPS satellites:</b> about 20 200 km up, period 12 hours. The phone in your pocket uses signals from several of them to find your position.`, `<b>Geostationary satellites</b> (e.g. the MEASAT satellites used for satellite TV in Malaysia): a geosynchronous orbit about 35 800 km above the <b>equator</b>, moving west to east. They stay above the same point on the Earth, so a satellite dish can be fixed pointing at one spot in the sky.`, `The higher the orbit, the <b>slower</b> the satellite and the <b>longer</b> its period: <i>v</i> = √(<i>GM</i>/<i>r</i>) and <i>T</i><sup>2</sup> ∝ <i>r</i><sup>3</sup>.`])}
+${sim('satlife', 'The ISS, GPS and a geostationary satellite, drawn to scale', 'A view looking down on the North Pole, with the orbits drawn to the correct scale. Speed up time and watch: the ISS races round, a GPS satellite goes round twice a day, and the geostationary satellite stays above Malaysia as the Earth turns.')}
+${example('6.4.7', `The International Space Station orbits 400 km above the Earth's surface. Find (a) its orbital speed, (b) its period in minutes, (c) the number of orbits it makes in one day. (<i>R</i><sub>E</sub> = 6.4 × 10<sup>6</sup> m, <i>M</i><sub>E</sub> = 6.0 × 10<sup>24</sup> kg, <i>G</i> = 6.67 × 10<sup>−11</sup> N m<sup>2</sup> kg<sup>−2</sup>)`,
+  steps([`<i>r</i> = 6.4 × 10<sup>6</sup> + 0.4 × 10<sup>6</sup> = 6.8 × 10<sup>6</sup> m`, `(a) <i>v</i> = ${sq(fr('<i>GM</i><sub>E</sub>', '<i>r</i>'))} = ${sq(fr('(6.67 × 10<sup>−11</sup>)(6.0 × 10<sup>24</sup>)', '6.8 × 10<sup>6</sup>'))} = <b>7.67 × 10<sup>3</sup> m s<sup>−1</sup></b>`, `(b) <i>T</i> = ${fr('2π<i>r</i>', '<i>v</i>')} = ${fr('2π(6.8 × 10<sup>6</sup>)', '7.67 × 10<sup>3</sup>')} = 5.57 × 10<sup>3</sup> s = <b>92.8 min</b>`, `(c) ${fr('24 × 60', '92.8')} = <b>15.5 orbits a day</b>`]))}
 ${exercises('Exercises: orbits', [
   { q: `The Earth orbits the Sun (mass 2 × 10<sup>30</sup> kg) once a year. Find the distance of the Earth from the Sun.`, a: `1.50 × 10<sup>11</sup> m` },
   { q: `A satellite 36 000 km above the Earth’s surface orbits once in 24 h. Calculate the mass of the Earth.`, a: `6.02 × 10<sup>24</sup> kg` },
@@ -203,4 +208,75 @@ ${stpm('STPM 2023 · Section C Q19(c)', `The Juno satellite is launched from the
   });
 
   window.PhysiQLessons.register('LESSON-6', { html: () => S });
+  // ---------- real satellites to scale ----------
+  window.PhysiQSims.add('satlife', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const GM = 6.67e-11 * 6.0e24, RE = 6.4e6, DAY = 86400;
+    const SATS = {
+      iss: { n: 'ISS', h: 0.4e6, c: '#C0392B', a0: 2.0 },
+      gps: { n: 'GPS satellite', h: 20.2e6, c: '#6A63EC', a0: 4.0 },
+      geo: { n: 'Geostationary (MEASAT)', h: 35.9e6, c: '#3E8E1E' }
+    };
+    Object.values(SATS).forEach(s => { s.r = RE + s.h; s.v = Math.sqrt(GM / s.r); s.T = 2 * Math.PI * s.r / s.v; });
+    const MY = 102 * Math.PI / 180, GEO = 91.5 * Math.PI / 180;   // Malaysia ~102°E; MEASAT-3 at 91.5°E
+    const S = { sel: 'iss', rate: 10, t: 0, run: true, trail: { iss: [], gps: [] } };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const chips = Object.entries(SATS).map(([k, o]) => { const b = button(pre, o.n, 'sm-chip' + (k === S.sel ? ' on' : ''), () => { S.sel = k; chips.forEach(x => x.classList.toggle('on', x === b)); }); return b; });
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'time speed: 1 second =', 2, 120, 2, S.rate, 'min', x => { S.rate = x; });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    const pb = button(bar, '⏸ Pause', '', () => { S.run = !S.run; pb.textContent = S.run ? '⏸ Pause' : '▶ Play'; });
+    button(bar, 'Reset clock', '', () => { S.t = 0; S.trail = { iss: [], gps: [] }; });
+    const cv = canvas(root); const ro = readouts(root);
+    function frame(dt) {
+      if (dt < 0) dt = 0; dt = Math.min(dt, 0.1);
+      if (S.run) S.t += dt * S.rate * 60;
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(1.0, 340, 420) : cv.size(0.62, 340, 440); ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#0E1526'; ctx.fillRect(0, 0, w, h);
+      for (let i = 0; i < 70; i++) { const x = (i * 137.5) % w, y = (i * 61.7 + (i % 7) * 23) % h; ctx.fillStyle = 'rgba(255,255,255,' + (0.25 + (i % 3) * 0.2) + ')'; ctx.fillRect(x, y, 1.4, 1.4); }
+      const cx = narrow ? w / 2 : w * 0.42, cy = h / 2, sc = (Math.min(narrow ? w : w * 0.8, h) / 2 - 22) / SATS.geo.r, R = RE * sc;
+      const thE = 2 * Math.PI * S.t / DAY;   // Earth's rotation (anticlockwise seen from above the North Pole)
+      const P = (r, a) => [cx + r * sc * Math.cos(a), cy - r * sc * Math.sin(a)];
+      // orbits
+      Object.entries(SATS).forEach(([k, o]) => { ctx.strokeStyle = o.c; ctx.globalAlpha = k === S.sel ? 0.9 : 0.45; ctx.lineWidth = k === S.sel ? 1.6 : 1; ctx.setLineDash(k === 'gps' ? [5, 4] : []); ctx.beginPath(); ctx.arc(cx, cy, o.r * sc, 0, 7); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; });
+      // Earth: day side faces the Sun (to the right)
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fillStyle = '#2E6FB5'; ctx.fill();
+      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.clip();
+      [[0.4, 0.62, 0.30, 0.20, 0.5], [1.75, 0.70, 0.22, 0.13, 1.4], [2.6, 0.45, 0.18, 0.28, 0.2], [3.9, 0.66, 0.34, 0.17, 2.2], [5.2, 0.5, 0.16, 0.11, 0.9]].forEach(([a, d, rx, ry, rot]) => { const b = thE + a; ctx.fillStyle = '#4F8F4A'; ctx.beginPath(); ctx.ellipse(cx + R * d * Math.cos(b), cy - R * d * Math.sin(b), R * rx, R * ry, rot - thE, 0, 7); ctx.fill(); });
+      ctx.strokeStyle = 'rgba(255,210,63,.6)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + R * Math.cos(thE + MY), cy - R * Math.sin(thE + MY)); ctx.stroke();
+      ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(cx - R - 1, cy - R - 1, R + 1, 2 * R + 2); ctx.restore();
+      ctx.beginPath(); ctx.arc(cx, cy, R * 0.12, 0, 7); ctx.fillStyle = '#fff'; ctx.fill();
+      const my = [cx + R * Math.cos(thE + MY), cy - R * Math.sin(thE + MY)];
+      ctx.beginPath(); ctx.arc(my[0], my[1], 3.6, 0, 7); ctx.fillStyle = '#FFD23F'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.stroke();
+      // satellites
+      const pos = {
+        iss: P(SATS.iss.r, SATS.iss.a0 + 2 * Math.PI * S.t / SATS.iss.T),
+        gps: P(SATS.gps.r, SATS.gps.a0 + 2 * Math.PI * S.t / SATS.gps.T),
+        geo: P(SATS.geo.r, thE + GEO)
+      };
+      // line of sight from Malaysia to the geostationary satellite
+      ctx.strokeStyle = 'rgba(255,210,63,.55)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(my[0], my[1]); ctx.lineTo(pos.geo[0], pos.geo[1]); ctx.stroke(); ctx.setLineDash([]);
+      Object.entries(pos).forEach(([k, p]) => { const o = SATS[k], big = k === S.sel; ctx.fillStyle = o.c; ctx.fillRect(p[0] - (big ? 5 : 3.5), p[1] - (big ? 5 : 3.5), big ? 10 : 7, big ? 10 : 7); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(p[0] - (big ? 5 : 3.5), p[1] - (big ? 5 : 3.5), big ? 10 : 7, big ? 10 : 7); });
+      const lab = (s, p, dx, dy, c, a) => { ctx.font = '600 11.5px Inter, sans-serif'; const tw = ctx.measureText(s).width, x = a === 'right' ? p[0] + dx - tw : p[0] + dx; ctx.fillStyle = 'rgba(14,21,38,.8)'; ctx.fillRect(x - 3, p[1] + dy - 11, tw + 6, 15); text(ctx, s, x, p[1] + dy, { fs: 11.5, b: 1, c }); };
+      // ISS label sits outside the crowded inner area, with a leader line
+      const ia = Math.atan2(-(pos.iss[1] - cy), pos.iss[0] - cx), lp = [cx + (R + 34) * Math.cos(ia), cy - (R + 34) * Math.sin(ia)];
+      ctx.strokeStyle = SATS.iss.c; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pos.iss[0], pos.iss[1]); ctx.lineTo(lp[0], lp[1]); ctx.stroke();
+      lab('ISS', lp, Math.cos(ia) < 0 ? -4 : 4, 4, '#FF8A7A', Math.cos(ia) < 0 ? 'right' : 'left');
+      lab('GPS', pos.gps, 8, -6, '#B3AEFF'); lab('MEASAT', pos.geo, 8, -6, '#8FD67A');
+      lab('Malaysia', my, Math.cos(thE + MY) < 0 ? -8 : 8, Math.sin(thE + MY) > 0 ? -8 : 16, '#FFD23F', Math.cos(thE + MY) < 0 ? 'right' : 'left');
+      text(ctx, 'Sun →', w - 10, 18, { a: 'right', fs: 11.5, b: 1, c: '#FFD23F' });
+      text(ctx, 'seen from above the North Pole · to scale', 10, h - 10, { fs: 10.5, c: '#B8C0D0' });
+      const hh = Math.floor(S.t / 3600), mm = Math.floor((S.t % 3600) / 60);
+      text(ctx, `time: ${Math.floor(hh / 24)} d ${hh % 24} h ${String(mm).padStart(2, '0')} min`, 10, 18, { fs: 12, b: 1, c: '#fff' });
+      if (!narrow) {
+        const tx = w * 0.78, rows = Object.values(SATS);
+        text(ctx, 'height', tx, 60, { fs: 10.5, c: '#B8C0D0' }); text(ctx, 'period', tx + 80, 60, { fs: 10.5, c: '#B8C0D0' });
+        rows.forEach((o, i) => { const y = 84 + i * 44; text(ctx, o.n.replace(' (MEASAT)', ''), tx, y, { fs: 11.5, b: 1, c: o.c === '#6A63EC' ? '#B3AEFF' : o.c === '#C0392B' ? '#FF8A7A' : '#8FD67A' }); text(ctx, fmt(o.h / 1e3, 0) + ' km', tx, y + 17, { fs: 11, c: '#fff' }); text(ctx, o.T < 7200 ? fmt(o.T / 60, 0) + ' min' : fmt(o.T / 3600, 1) + ' h', tx + 80, y + 17, { fs: 11, c: '#fff' }); });
+      }
+      const o = SATS[S.sel];
+      ro([[o.n + ': height', fmt(o.h / 1e3, 0) + ' km', 'hl'], ['orbit radius r = R + h', fmt(o.r / 1e3, 0) + ' km'], ['speed v = √(GM/r)', fmt(o.v / 1e3, 2) + ' km s⁻¹', 'hl'], ['period T = 2πr/v', o.T < 7200 ? fmt(o.T / 60, 1) + ' min' : fmt(o.T / 3600, 1) + ' h'], ['orbits per day', fmt(DAY / o.T, 1)]]);
+    }
+    loop(cv, frame);
+  });
+
 })();

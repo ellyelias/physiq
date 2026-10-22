@@ -108,6 +108,11 @@ ${example('4.2.5', `A cricket ball of mass 0.156 kg is thrown upward with a kine
   steps([`Σ<i>E</i><sub>i</sub> = Σ<i>E</i><sub>f</sub>: <i>K</i><sub>i</sub> + <i>U</i><sub>i</sub> = <i>K</i><sub>f</sub> + <i>U</i><sub>f</sub> ⇒ 45 + 0 = 0 + <i>mgh</i>`, `<i>h</i> = ${fr('45', '(0.156)(9.81)')} = <b>29.4 m</b>`]))}
 ${example('4.2.6', `A 1.20 kg piece of cheese is placed on a vertical spring of negligible mass and force constant 1800 N m<sup>−1</sup> that is compressed 15.0 cm. When the spring is released, how high does the cheese rise from its initial position? (The cheese and spring are not attached; <i>g</i> = 9.81 m s<sup>−2</sup>.)`,
   steps([`<i>K</i><sub>i</sub> + <i>U</i><sub>i</sub> + <i>U</i><sub>si</sub> = <i>K</i><sub>f</sub> + <i>U</i><sub>f</sub> + <i>U</i><sub>sf</sub> ⇒ 0 + <i>mgh</i>₁ + ½<i>kx</i><sup>2</sup> = 0 + <i>mgh</i>₂ + 0`, `½<i>kx</i><sup>2</sup> = <i>mg</i>(<i>h</i>₂ − <i>h</i>₁) = <i>mg</i>Δ<i>h</i>`, `Δ<i>h</i> = ${fr('½(1800)(0.15)<sup>2</sup>', '(1.20)(9.81)')} = <b>1.72 m</b>`]))}
+${h4('A real example: the bungee jump')}
+${ul([`From the platform to the point where the cord becomes tight, the jumper falls freely: gravitational potential energy → kinetic energy.`, `After that, the cord stretches like a spring: kinetic and gravitational potential energy → <b>elastic potential energy</b> ½<i>kx</i><sup>2</sup>.`, `The jumper is fastest where the cord's pull equals the weight (<i>kx</i> = <i>mg</i>), not where the cord first tightens. At the lowest point the speed is zero and all the energy lost from gravitational PE is stored in the cord.`])}
+${sim('bungee', 'Bungee jump: where does the energy go?', 'Change the jumper\'s mass and the stiffness of the cord, then jump. Watch the energy bars: the total stays the same (apart from a little lost to air resistance) while it moves between gravitational, kinetic and elastic potential energy.')}
+${example('4.2.7', `A 60 kg jumper uses a bungee cord of unstretched length 20 m and force constant 200 N m<sup>−1</sup>. Ignoring air resistance, find (a) how far the cord stretches at the lowest point, (b) the jumper's greatest speed.`,
+  steps([`(a) Lowest point (speed zero): loss of GPE = elastic PE: <i>mg</i>(20 + <i>x</i>) = ½<i>kx</i><sup>2</sup> ⇒ (60)(9.81)(20 + <i>x</i>) = 100<i>x</i><sup>2</sup>`, `100<i>x</i><sup>2</sup> − 589<i>x</i> − 11 772 = 0 ⇒ <i>x</i> = <b>14.2 m</b> (total fall 34.2 m)`, `(b) Greatest speed where <i>kx</i> = <i>mg</i>: <i>x</i> = ${fr('(60)(9.81)', '200')} = 2.94 m`, `½<i>mv</i><sup>2</sup> = <i>mg</i>(20 + 2.94) − ½<i>kx</i><sup>2</sup> = 13 503 − 864 = 12 639 J ⇒ <i>v</i> = <b>20.5 m s<sup>−1</sup></b>`]))}
 ${exercises('Exercises: conservation of energy', [
   { q: `A body of mass 5 kg slides from rest down a smooth slope. Find its speed after it has fallen a vertical distance of 10 m.`, a: `14 m s<sup>−1</sup>` },
   { q: `A smooth wire is bent into a circle of radius <i>a</i> held in a vertical plane. A bead threaded on the wire is released from rest at the highest point. Find its speed at the lowest point.`, a: `${sq('4<i>ag</i>')}` },
@@ -214,4 +219,46 @@ ${exercises('Exercises: efficiency', [
   });
 
   window.PhysiQLessons.register('LESSON-4', { html: () => S });
+  // ---------- bungee jump ----------
+  window.PhysiQSims.add('bungee', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const g = 9.81, L0 = 20, H = 60;
+    const S = { m: 60, k: 200, y: 0, v: 0, run: false, t: 0, trail: [] };
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'mass of the jumper', 40, 100, 5, S.m, 'kg', x => { S.m = x; reset(); });
+    slider(ctl, 'stiffness of the cord k', 100, 400, 20, S.k, 'N m⁻¹', x => { S.k = x; reset(); });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    button(bar, '🪂 Jump', '', () => { reset(); S.run = true; });
+    button(bar, 'Reset', '', () => reset());
+    const cv = canvas(root); const ro = readouts(root);
+    function reset() { S.y = 0; S.v = 0; S.run = false; S.t = 0; S.trail = []; }
+    const xmax = () => { const a = S.k / 2, b = -S.m * g, c = -S.m * g * L0; return (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a); };
+    function frame(dt) {
+      if (dt < 0) dt = 0;
+      if (S.run) { const n = 8, h = Math.min(dt, 0.05) * 1.5 / n; for (let i = 0; i < n; i++) { const x = Math.max(0, S.y - L0), a = g - (S.k * x) / S.m - 0.02 * S.v * Math.abs(S.v) / S.m * 2; S.v += a * h; S.y += S.v * h; } S.t += dt; S.trail.push(S.y); if (S.trail.length > 300) S.trail.shift(); }
+      const x = Math.max(0, S.y - L0), Ug = S.m * g * (H - S.y), K = 0.5 * S.m * S.v * S.v, Ue = 0.5 * S.k * x * x, Etot = S.m * g * H;
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(1.45, 540, 620) : cv.size(0.55, 300, 380); ctx.clearRect(0, 0, w, h);
+      const sky = ctx.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#BFE0F5'); sky.addColorStop(1, '#EAF4E0'); ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+      const top = 30, bot = narrow ? h - 175 : h - 20, sc = (bot - top) / H, bx = narrow ? w * 0.3 : w * 0.22;
+      // bridge, river
+      ctx.fillStyle = '#8A6A4A'; ctx.fillRect(bx - 60, top - 10, 120, 10); ctx.fillStyle = '#4A90C2'; ctx.fillRect(0, bot - 6, w, 26);
+      // marks
+      ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(bx - 50, top + L0 * sc); ctx.lineTo(bx + 60, top + L0 * sc); ctx.stroke(); ctx.setLineDash([]); text(ctx, 'cord tight below here', bx + 62, top + L0 * sc + 4, { fs: 10, c: COL.sub });
+      const xm = xmax(); ctx.strokeStyle = 'rgba(192,57,43,.5)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(bx - 50, top + (L0 + xm) * sc); ctx.lineTo(bx + 60, top + (L0 + xm) * sc); ctx.stroke(); ctx.setLineDash([]); text(ctx, 'lowest point', bx + 62, top + (L0 + xm) * sc + 4, { fs: 10, c: COL.r });
+      // cord (wavy when slack) and jumper
+      const jy = top + S.y * sc;
+      ctx.strokeStyle = x > 0 ? '#C0392B' : '#E07B39'; ctx.lineWidth = x > 0 ? 2.2 : 1.6; ctx.beginPath(); ctx.moveTo(bx, top);
+      if (x > 0) ctx.lineTo(bx, jy - 10); else { const segs = 10; for (let i = 1; i <= segs; i++) { const yy = top + (jy - 10 - top) * i / segs; ctx.lineTo(bx + (i % 2 ? 6 : -6) * (1 - S.y / L0), yy); } }
+      ctx.stroke();
+      ctx.fillStyle = '#F1C27D'; ctx.beginPath(); ctx.arc(bx, jy + 14, 7, 0, 7); ctx.fill(); ctx.strokeStyle = '#2C6BB3'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(bx, jy - 10); ctx.lineTo(bx, jy + 6); ctx.stroke();
+      // energy bars
+      const ex = narrow ? 30 : w * 0.5, ew = narrow ? w - 60 : w * 0.45, eh = narrow ? 105 : h * 0.5, ey = narrow ? bot + 45 : top + 20;
+      if (!narrow || true) { const bars = [['GPE', Ug, '#6A63EC'], ['KE', K, '#F2661B'], ['elastic PE', Ue, '#3E8E1E'], ['total', Ug + K + Ue, '#1C2230']]; const bw = ew / bars.length;
+        ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillRect(ex - 8, ey - 18, ew + 16, eh + 40);
+        bars.forEach(([n, E, c], i) => { const hh = Math.max(0, E / Etot) * eh; ctx.fillStyle = c; ctx.fillRect(ex + i * bw + 8, ey + eh - hh, bw - 16, hh); text(ctx, n, ex + i * bw + bw / 2, ey + eh + 14, { a: 'center', fs: 10.5, b: 1, c }); });
+        text(ctx, 'energy (relative to the river)', ex, ey - 4, { fs: 11, b: 1 }); }
+      ro([['fallen so far', fmt(S.y, 1) + ' m', 'hl'], ['speed', fmt(Math.abs(S.v), 1) + ' m s⁻¹', 'hl'], ['cord stretch x', fmt(x, 1) + ' m'], ['lowest point: stretch from mg(L+x) = ½kx²', fmt(xm, 1) + ' m'], ['fastest where kx = mg, at stretch', fmt(S.m * g / S.k, 2) + ' m']]);
+    }
+    loop(cv, frame);
+  });
 })();

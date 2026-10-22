@@ -172,6 +172,12 @@ ${example('3.2.16', `A ball of mass 0.2 kg is dropped from a height of 20 m. It 
   steps([`Speed just before impact: <i>u</i> = ${sq('2<i>gh</i>')} = ${sq('2(9.81)(20)')} = 19.81 m s<sup>−1</sup> (downward)`, `Speed just after: <i>v</i> = ${sq('2(9.81)(10)')} = 14.01 m s<sup>−1</sup> (upward)`, `Taking upward as positive: impulse = <i>m</i>(<i>v</i> − <i>u</i>) = 0.2[14.01 − (−19.81)] = <b>6.76 N s</b> upward`]))}
 ${example('3.2.17', `The force acting on an object is shown below. Find the impulse at (a) <i>t</i> = 6 s, (b) <i>t</i> = 8 s.`,
   steps([`(a) Impulse = area = ½(4 + 6)(20) = <b>100 N s</b>`, `(b) No force acts after 6 s, so the total area is still 100 + 0 = <b>100 N s</b>`]), fig(F.ex3217()))}
+${h4('Seat belts, airbags and crumple zones')}
+<p>In a crash the passenger's momentum must fall from <i>mv</i> to zero: the <b>impulse</b> <i>F</i>Δ<i>t</i> = Δ<i>p</i> is fixed by the speed. What safety features change is the <b>time</b> Δ<i>t</i> over which it happens. A longer time means a <b>smaller force</b> on the body.</p>
+${ul([`<b>No seat belt:</b> the passenger keeps moving until they hit the dashboard or windscreen, and stop in about 0.01 s: an enormous force.`, `<b>Seat belt:</b> it stretches slightly and stops the passenger together with the car over about 0.1 s.`, `<b>Airbag:</b> a soft cushion that increases the stopping time further and spreads the force over a larger area.`, `<b>Crumple zone:</b> the front of the car is designed to fold up, so the car itself takes longer to stop.`])}
+${sim('crash', 'Crash test: why seat belts and airbags save lives', 'Choose the speed and the safety system, then crash the car (it is shown slowed down). The change of momentum, and so the area under the force–time graph, is the same each time; a longer stopping time gives a much smaller force.')}
+${example('3.2.18', `A 70 kg passenger is in a car travelling at 50 km h<sup>−1</sup> when it crashes. Find the average force on the passenger if they are stopped (a) by a seat belt in 0.10 s, (b) by hitting the dashboard in 0.010 s. Compare each with the passenger's weight.`,
+  steps([`<i>v</i> = 50 km h<sup>−1</sup> = 13.9 ${ms}; Δ<i>p</i> = <i>mv</i> = (70)(13.9) = 972 N s`, `(a) <i>F</i> = ${fr('Δ<i>p</i>', 'Δ<i>t</i>')} = ${fr('972', '0.10')} = <b>9.7 × 10<sup>3</sup> N</b>, about 14 times the weight (687 N)`, `(b) <i>F</i> = ${fr('972', '0.010')} = <b>9.7 × 10<sup>4</sup> N</b>, about 140 times the weight: enough to cause fatal injuries`]))}
 `)}
 
 ${sec('3-3', '3.3 Reaction and frictional force', `
@@ -338,4 +344,60 @@ ${exercises('Exercises: connected bodies with friction', [
   });
 
   window.PhysiQLessons.register('LESSON-3', { html: () => S });
+  // ---------- crash test ----------
+  window.PhysiQSims.add('crash', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, arrow, loop } = window.PhysiQSims.U;
+    const MODES = { none: { n: 'No seat belt', dt: 0.010, c: '#C0392B' }, belt: { n: 'Seat belt', dt: 0.10, c: '#F2661B' }, bag: { n: 'Seat belt + airbag', dt: 0.15, c: '#3E8E1E' } };
+    const S = { m: 'belt', v: 50, phase: 'ready', t: 0 };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const chips = Object.entries(MODES).map(([k, o]) => { const b = button(pre, o.n, 'sm-chip' + (k === S.m ? ' on' : ''), () => { S.m = k; S.phase = 'ready'; S.t = 0; chips.forEach(x => x.classList.toggle('on', x === b)); }); return b; });
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    slider(ctl, 'speed of the car', 20, 110, 10, S.v, 'km h⁻¹', x => { S.v = x; S.phase = 'ready'; S.t = 0; });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    button(bar, '💥 Crash!', '', () => { S.phase = 'drive'; S.t = 0; });
+    const cv = canvas(root); const ro = readouts(root);
+    const m = 70;
+    function frame(dt) {
+      if (dt < 0) dt = 0;
+      const M = MODES[S.m], v = S.v / 3.6, dp = m * v, F = dp / M.dt;
+      const ctx = cv.ctx, narrow = root.clientWidth < 520, { w, h } = narrow ? cv.size(1.0, 360, 440) : cv.size(0.5, 270, 330); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const roadY = narrow ? 150 : h * 0.55, wallX = narrow ? w - 30 : w * 0.55, carW = 150;
+      // timeline: drive (1.0 s) then impact shown 15x slower; tau = real time after impact
+      if (S.phase === 'drive') { S.t += dt; if (S.t >= 1.0) { S.phase = 'impact'; S.t = 0; } }
+      else if (S.phase === 'impact') { S.t += dt / 15; if (S.t > 0.25) S.phase = 'done'; }
+      const tau = S.phase === 'impact' ? S.t : S.phase === 'done' ? 0.25 : 0;
+      // car front stops over 0.08 s (crumple); passenger relative motion depends on the restraint
+      const tc = 0.08, crush = Math.min(1, tau / tc), carShift = v * (tau < tc ? tau - tau * tau / (2 * tc) : tc / 2);   // metres moved after contact
+      let xcar;
+      if (S.phase === 'ready') xcar = 20; else if (S.phase === 'drive') xcar = 20 + (wallX - carW - 20) * S.t; else xcar = wallX - carW;
+      const crushPx = 26 * crush;
+      // wall
+      ctx.fillStyle = '#8A8F99'; ctx.fillRect(wallX, roadY - 90, 18, 90); ctx.fillStyle = '#5A6170'; for (let y = roadY - 90; y < roadY; y += 15) ctx.fillRect(wallX, y, 18, 1.5);
+      ctx.fillStyle = '#B9BDB0'; ctx.fillRect(0, roadY, narrow ? w : wallX + 30, 6);
+      // car body (front squashes)
+      const cw = carW - crushPx, x0 = xcar + (S.phase === 'impact' || S.phase === 'done' ? crushPx : 0);
+      ctx.fillStyle = '#2C6BB3'; ctx.beginPath(); ctx.moveTo(x0, roadY - 14); ctx.lineTo(x0, roadY - 44); ctx.lineTo(x0 + cw * 0.28, roadY - 46); ctx.lineTo(x0 + cw * 0.42, roadY - 72); ctx.lineTo(x0 + cw * 0.72, roadY - 72); ctx.lineTo(x0 + cw * 0.86, roadY - 46); ctx.lineTo(x0 + cw, roadY - 40 + crushPx * 0.3); ctx.lineTo(x0 + cw, roadY - 14); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#CFE3F7'; ctx.fillRect(x0 + cw * 0.46, roadY - 68, cw * 0.22, 20);
+      [0.2, 0.78].forEach(f => { ctx.beginPath(); ctx.arc(x0 + cw * f, roadY - 12, 11, 0, 7); ctx.fillStyle = '#222'; ctx.fill(); });
+      // passenger: moves forward relative to the car while being stopped
+      const dash = x0 + cw * 0.74;
+      let rel = 0;   // forward displacement of the passenger relative to the car (px)
+      if (tau > 0) { if (S.m === 'none') { const tHit = 0.05; rel = tau < tHit ? 40 * (tau / tHit) * (tau / tHit) : 40; } else { const d = M.dt; rel = 18 * Math.min(1, tau / d); } }
+      const px = x0 + cw * 0.5 + rel, hy = roadY - 58;
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(px - 6, hy + 8); ctx.lineTo(px - 10, hy + 28); ctx.stroke(); ctx.beginPath(); ctx.arc(px, hy, 7, 0, 7); ctx.fillStyle = '#F1C27D'; ctx.fill();
+      if (S.m !== 'none') { ctx.strokeStyle = '#222'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px - 14, hy + 4); ctx.lineTo(px - 4, hy + 26); ctx.stroke(); }
+      if (S.m === 'bag' && tau > 0.01) { const r = Math.min(14, (tau - 0.01) * 600); ctx.beginPath(); ctx.arc(dash - 4, hy + 4, r, 0, 7); ctx.fillStyle = 'rgba(245,245,245,.95)'; ctx.fill(); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1; ctx.stroke(); }
+      if (S.m === 'none' && tau > 0.05) text(ctx, 'hits the dashboard!', px, hy - 16, { a: 'center', b: 1, fs: 12, c: COL.r });
+      if (S.phase === 'impact') text(ctx, 'impact shown 15× slower', 10, 18, { fs: 11, b: 1, c: COL.sub });
+      // force-time graph: same area for each restraint
+      const gx = narrow ? 44 : w * 0.62, gw = w - gx - 14, gy = narrow ? roadY + 40 : 30, gh = narrow ? h - roadY - 80 : h - 80;
+      ctx.fillStyle = '#fff'; ctx.fillRect(gx, gy, gw, gh); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx, gy + gh); ctx.lineTo(gx + gw, gy + gh); ctx.stroke();
+      text(ctx, 'force on the passenger', gx + 4, gy + 12, { fs: 11, b: 1 }); text(ctx, 't (0 to 0.2 s)', gx + gw, gy + gh + 14, { a: 'right', fs: 10, c: COL.sub });
+      const Fmax = dp / 0.010, Y = f => gy + gh - Math.min(1, f / Fmax) * (gh - 18), X = t => gx + gw * t / 0.2;
+      Object.entries(MODES).forEach(([k, o]) => { const f = dp / o.dt, on = k === S.m; ctx.strokeStyle = o.c; ctx.globalAlpha = on ? 1 : 0.3; ctx.lineWidth = on ? 2.6 : 1.4; ctx.strokeRect(X(0), Y(f), X(o.dt) - X(0), gy + gh - Y(f)); if (on) { ctx.fillStyle = o.c; ctx.globalAlpha = 0.15; ctx.fillRect(X(0), Y(f), X(o.dt) - X(0), gy + gh - Y(f)); } ctx.globalAlpha = 1; const lx = k === 'none' ? X(o.dt) + 4 : k === 'belt' ? X(0.05) : X(0.125), fs = f >= 1e4 ? fmt(f / 1000, 0) : fmt(f / 1000, 1); text(ctx, fs + ' kN', lx, Y(f) - 4 + (k === 'none' ? 12 : 0), { a: k === 'none' ? 'left' : 'center', fs: 10.5, b: on ? 1 : 0, c: o.c }); });
+      text(ctx, 'same area = Δp', gx + gw - 4, gy + gh * 0.45, { a: 'right', fs: 10.5, c: COL.sub });
+      ro([['change of momentum Δp = mv', fmt(dp, 0) + ' N s', 'hl'], ['stopping time Δt', fmt(M.dt * 1000, 0) + ' ms', 'hl'], ['average force F = Δp/Δt', F >= 1e4 ? fmt(F / 1000, 0) + ' kN' : fmt(F / 1000, 1) + ' kN'], ['force ÷ body weight', fmt(F / (m * 9.81), 0) + ' ×']]);
+    }
+    loop(cv, frame);
+  });
 })();
