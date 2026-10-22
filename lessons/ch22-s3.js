@@ -56,7 +56,7 @@
       return `<path d="M${x - 7},${top} L${x + 7},${top} Q${x + 1},${(top + bot) / 2} ${x + 7},${bot} L${x - 7},${bot} Q${x - 1},${(top + bot) / 2} ${x - 7},${top} Z" fill="#DCEBF7" stroke="${C.ink}" stroke-width="1.3"/>`;
     }
     if (el.type === 'mirror') { const b = el.f > 0 ? -9 : 9; return `<path d="M${x + b},${top} Q${x - b},${(top + bot) / 2} ${x + b},${bot}" fill="none" stroke="${C.ink}" stroke-width="2.6"/>` + [0, 1, 2, 3, 4, 5, 6].map(i => { const yy = top + (bot - top) * (i + 0.5) / 7; return L(x + 4 + (el.f > 0 ? 0 : 6), yy, x + 10 + (el.f > 0 ? 0 : 6), yy - 6, 's', '', { w: 1 }); }).join(''); }
-    const b = el.r > 0 ? -10 : 10; return `<path d="M${x + b},${top} Q${x - b},${(top + bot) / 2} ${x + b},${bot} L${X(1e9) > 0 ? x + 200 : x + 200},${bot} L${x + 200},${top} Z" fill="#E6F1FA" stroke="none"/><path d="M${x + b},${top} Q${x - b},${(top + bot) / 2} ${x + b},${bot}" fill="none" stroke="${C.ink}" stroke-width="1.6"/>`;
+    const b = el.r > 0 ? 10 : -10; return `<path d="M${x + b},${top} Q${x - b},${(top + bot) / 2} ${x + b},${bot} L${X(1e9) > 0 ? x + 200 : x + 200},${bot} L${x + 200},${top} Z" fill="#E6F1FA" stroke="none"/><path d="M${x + b},${top} Q${x - b},${(top + bot) / 2} ${x + b},${bot}" fill="none" stroke="${C.ink}" stroke-width="1.6"/>`;
   }
   const arrowSVG = (x1, y1, x2, y2, c, dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="2.6"${dash ? ' stroke-dasharray="4 3"' : ''}/>` + (() => { const s = y2 < y1 ? 1 : -1; return `<path d="M${x2},${y2} l-5,${7 * s} l10,0 z" fill="${c}"/>`; })();
   function rayFig(o) {
@@ -320,7 +320,7 @@ ${card('STPM 2015 · Paper 3 · Q19', `(a) An object is 30.0 cm in front of a co
       const ymax = 14, k = (w - 20) / (xmax - xmin), cy = h / 2, ky = (h / 2 - 22) / ymax, X = x => 10 + (x - xmin) * k, Y = y => cy - y * ky;
       const sol = solve(els, x0, S.h);
       // media for surface
-      if (mode === 'surface') { ctx.fillStyle = 'rgba(127,178,229,' + Math.min(0.5, (S.n2 - 1) * 0.6 + 0.05) + ')'; ctx.beginPath(); const b = Math.abs(S.r) > 1e8 ? 0 : (S.r > 0 ? -1 : 1) * 14; ctx.moveTo(X(0) + b, 0); ctx.quadraticCurveTo(X(0) - b, h / 2, X(0) + b, h); ctx.lineTo(w, h); ctx.lineTo(w, 0); ctx.closePath(); ctx.fill();
+      if (mode === 'surface') { ctx.fillStyle = 'rgba(127,178,229,' + Math.min(0.5, (S.n2 - 1) * 0.6 + 0.05) + ')'; ctx.beginPath(); const b = Math.abs(S.r) > 1e8 ? 0 : (S.r > 0 ? 1 : -1) * 14; ctx.moveTo(X(0) + b, 0); ctx.quadraticCurveTo(X(0) - b, h / 2, X(0) + b, h); ctx.lineTo(w, h); ctx.lineTo(w, 0); ctx.closePath(); ctx.fill();
         if (S.n1 > 1.01) { ctx.fillStyle = 'rgba(127,178,229,' + Math.min(0.5, (S.n1 - 1) * 0.6 + 0.05) + ')'; ctx.beginPath(); ctx.moveTo(X(0) + b, 0); ctx.quadraticCurveTo(X(0) - b, h / 2, X(0) + b, h); ctx.lineTo(0, h); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill(); }
         ctx.strokeStyle = COL.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X(0) + b, 4); ctx.quadraticCurveTo(X(0) - b, h / 2, X(0) + b, h - 4); ctx.stroke();
         text(ctx, 'n₁ = ' + fmt(S.n1, 2), 12, 18, { b: 1, fs: 12 }); text(ctx, 'n₂ = ' + fmt(S.n2, 2), w - 12, 18, { a: 'right', b: 1, fs: 12 }); }
