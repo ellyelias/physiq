@@ -6599,7 +6599,7 @@ const NOTES_EXTRA = (function(){
   }
 
   // Full notes (Cikgu Suhaili): PDFs of the chapter and of the whole semester, built by tools/build_fullnotes_pdf.js
-  const FULLNOTES_PDF_SEMS = ['1'];
+  const FULLNOTES_PDF_SEMS = ['1', '2'];
   function fullNotesDownloads(L){
     if (!L || !FULLNOTES_PDF_SEMS.includes(String(L.sem))) return;
     const c = document.getElementById('dl-chapter'), f = document.getElementById('dl-semester');

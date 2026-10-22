@@ -46,7 +46,7 @@ body{margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;p
 .pdf-cover{break-after:page;height:263mm;background:#1D2B1F;color:#fff;border-radius:18px;padding:22mm 18mm;box-sizing:border-box;position:relative;overflow:hidden;font-family:Inter,sans-serif;}
 .pdf-cover::after{content:"";position:absolute;right:-80mm;top:-62mm;width:125mm;height:95mm;border-radius:50%;border:12mm solid #D5DC3B;transform:rotate(-18deg);z-index:0;}
 .pdf-cover>*{position:relative;z-index:1;}
-.pdf-cover .k{color:#D5DC3B;font-weight:600;font-size:15px;letter-spacing:.04em;}
+.pdf-cover .k{color:#D5DC3B;font-weight:600;font-size:15px;letter-spacing:.04em;max-width:115mm;}
 .pdf-cover h1{color:#fff !important;font-family:Oswald,sans-serif;font-weight:600;text-transform:uppercase;font-size:52px;line-height:1.05;margin:10px 0 6px;position:relative;z-index:1;}
 .pdf-cover .by{font-family:'Dancing Script',cursive;font-size:34px;color:#D5DC3B;margin:0 0 12mm;}
 .pdf-cover ol{list-style:none;padding:0;margin:0;max-width:120mm;font-size:16px;}
@@ -122,7 +122,7 @@ body{margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;p
   }
   const pad = n => String(n).padStart(2, '0');
   for (const c of chapters) await print([c], `PhysiQ_FullNotes_Sem${SEM}_Ch${pad(c.ch)}.pdf`, `Semester ${SEM} · Chapter ${c.ch} ${c.title}`);
-  const cover = `<section class="pdf-cover"><div class="k">STPM Physics · Semester ${SEM} · ${semName}</div><h1>Full notes</h1><div class="by">Cikgu Suhaili</div>
+  const cover = `<section class="pdf-cover"><div class="k">STPM Physics · Semester ${SEM}<br>${semName}</div><h1>Full notes</h1><div class="by">Cikgu Suhaili</div>
     <ol>${chapters.map(c => `<li><b>${c.ch}</b><span>${c.title}</span></li>`).join('')}</ol>
     <div class="foot">PhysiQ · ellyelias.github.io/physiq · Worked examples, exercises with answers and the simulations from the app.</div></section>`;
   await print(chapters, `PhysiQ_FullNotes_Sem${SEM}.pdf`, `Semester ${SEM} full notes`, cover);
