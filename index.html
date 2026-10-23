@@ -1049,6 +1049,18 @@
       </div>
       <div id="rdash-summary" style="margin-top:14px;"></div>
       <div id="rdash-table" style="margin-top:14px;overflow-x:auto;"></div>
+      <h3 style="margin:26px 0 6px;color:var(--navy);">Practice and gain (for the research analysis)</h3>
+      <p class="status-msg" style="margin:0 0 8px;">For each student, how much retrieval practice they did <b>between their own Pretest and Posttest</b>: Section A practice answers plus chapter &amp; semester test answers. It is set beside their gain so you can see whether students who practised more gained more. The semester filter above applies (Semester 1 if none is chosen). With a small group this is descriptive evidence only; it does not prove that the practice caused the gain.</p>
+      <div class="btn-row" style="margin-top:0;flex-wrap:wrap;">
+        <select id="rpg-group" style="flex:1 1 150px;width:auto;"><option value="">All groups</option></select>
+        <button class="btn-ghost" id="rpg-export">Export practice &amp; gain CSV</button>
+      </div>
+      <p class="status-msg" id="rpg-note"></p>
+      <div id="rpg-summary" style="margin-top:10px;"></div>
+      <div id="rpg-table" style="margin-top:10px;overflow-x:auto;"></div>
+      <h4 style="margin:18px 0 6px;color:var(--navy);">By topic</h4>
+      <p class="status-msg" style="margin:0 0 8px;">Across the same students: total practice answers on each topic, and the share who answered that topic's item correctly in the Pretest and in the Posttest.</p>
+      <div id="rpg-topics" style="overflow-x:auto;"></div>
       <h3 style="margin:22px 0 6px;color:var(--navy);">Student checklist</h3>
       <p class="status-msg" style="margin:0 0 8px;">Pick a student to see every topic in their semester: whether the Pretest and Posttest have been taken, and whether each topic was answered correctly.</p>
       <select id="rdash-cl-pick"><option value="">Choose a student…</option></select>
@@ -5334,6 +5346,37 @@ const SEM3_BATCH3_CH25 = [
     catch(e){ console.error('Storage error saving history', e); }
   }
 
+  // ---------- practice log (for the research analysis) ----------
+  // quiz-history keeps only the last 20 sessions, so it cannot say how much a student practised over the
+  // intervention. This log keeps a running count of Section A practice answers per day and per topic:
+  // {v:1, start:<ISO time the log began>, days:{'2026-10-23': {'1.2': [answered, correct], ...}}}.
+  // It is small (one entry per day per topic) and travels to the Activity sheet with the student's summary.
+  const PLOG = (() => {
+    const KEY = 'physiq-practice-log';
+    const dayOf = d => { const x = new Date(d); return x.getFullYear() + '-' + String(x.getMonth()+1).padStart(2,'0') + '-' + String(x.getDate()).padStart(2,'0'); };
+    function get(){
+      let L = null;
+      try{ L = JSON.parse(localStorage.getItem(KEY) || 'null'); }catch(e){}
+      if (!L || typeof L !== 'object' || !L.days){ L = {v:1, start:new Date().toISOString(), days:{}}; try{ localStorage.setItem(KEY, JSON.stringify(L)); }catch(e){} }
+      return L;
+    }
+    function add(byTopic){
+      const L = get(), d = dayOf(Date.now()), day = L.days[d] = L.days[d] || {};
+      Object.keys(byTopic).forEach(t => {
+        const code = String(t).split(' ')[0], v = byTopic[t] || {};
+        const c = day[code] = day[code] || [0, 0];
+        c[0] += v.total || 0; c[1] += v.correct || 0;
+      });
+      try{ localStorage.setItem(KEY, JSON.stringify(L)); }catch(e){}
+    }
+    function totals(){
+      const L = get(); let n = 0, c = 0;
+      Object.values(L.days).forEach(day => Object.values(day).forEach(v => { n += v[0]; c += v[1]; }));
+      return {answered: n, correct: c, days: Object.keys(L.days).length};
+    }
+    return {get, add, totals, dayOf};
+  })();
+
   // ---------- tabs ----------
   $$('.tab').forEach(tab=>{
     tab.addEventListener('click', ()=>{
@@ -5628,6 +5671,7 @@ const SEM3_BATCH3_CH25 = [
 
     renderQuizReview();
 
+    PLOG.add(byTopic);
     const topicList = Object.keys(byTopic).map(t=>t.split(' ')[0]).join(', ');
     await appendHistory({topics: topicList, correct, total, date: new Date().toISOString()});
     await renderHistory();
@@ -6157,6 +6201,7 @@ const SEM3_BATCH3_CH25 = [
       window._rdashStudents = [];
       fillChecklistPicker([], semF, grpF);
       renderTestsDash(semF, grpF);
+      renderPracticeGain([], semF);
       return;
     }
 
@@ -6194,6 +6239,7 @@ const SEM3_BATCH3_CH25 = [
     window._rdashStudents = students;
     fillChecklistPicker(students, semF, grpF);
     renderTestsDash(semF, grpF);
+    renderPracticeGain(students, semF);
   }
 
   // ---------- per-student topic checklist ----------
@@ -6243,6 +6289,162 @@ const SEM3_BATCH3_CH25 = [
       <table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="text-align:left;border-bottom:2px solid var(--line);"><th style="padding:6px 8px;">Topic</th><th style="padding:6px 8px;">Pretest</th><th style="padding:6px 8px;">Posttest</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
   $('#rdash-cl-pick').addEventListener('change', renderChecklist);
+
+  // ---------- practice and gain (research analysis) ----------
+  // Practice is counted only inside each student's own window: from their Pretest to their Posttest
+  // (or to today if the Posttest is not taken yet). Sources: the practice log sent with each student's
+  // activity, older Section A sessions from the 20-session history (sessions before the log existed), and
+  // chapter & semester test attempts from the Tests sheet.
+  const SPEARMAN_CRIT05 = {5:1.000, 6:0.886, 7:0.786, 8:0.738, 9:0.700, 10:0.648, 11:0.618, 12:0.587, 13:0.560, 14:0.538, 15:0.521};
+  function rankAvg(a){
+    const idx = a.map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]), r = new Array(a.length);
+    for (let i=0;i<idx.length;){ let j=i; while (j+1<idx.length && idx[j+1][0]===idx[i][0]) j++; for (let k=i;k<=j;k++) r[idx[k][1]] = (i+j)/2 + 1; i=j+1; }
+    return r;
+  }
+  function pearson(x, y){
+    const n = x.length; if (n < 3) return null;
+    const mx = x.reduce((s,v)=>s+v,0)/n, my = y.reduce((s,v)=>s+v,0)/n;
+    let sxy=0, sxx=0, syy=0; for (let i=0;i<n;i++){ sxy+=(x[i]-mx)*(y[i]-my); sxx+=(x[i]-mx)**2; syy+=(y[i]-my)**2; }
+    return (sxx && syy) ? sxy/Math.sqrt(sxx*syy) : null;
+  }
+  const spearman = (x, y) => pearson(rankAvg(x), rankAvg(y));
+  const codeSem = code => /^S2-/.test(code) ? 2 : /^S3-/.test(code) ? 3 : 1;
+  let rpgRows = [], rpgTopicRows = [], rpgSem = 1;
+
+  async function renderPracticeGain(students, semF){
+    const box = $('#rpg-table'); if (!box) return;
+    const sem = semF ? parseInt(semF,10) : 1; rpgSem = sem;
+    const inSem = (students || []).filter(s => s.semester === sem && s.pretest);
+    const gSel = $('#rpg-group'), prevG = gSel.value;
+    const groups = Array.from(new Set(inSem.map(s=>s.group))).sort();
+    gSel.innerHTML = '<option value="">All groups (Main + Ulangan together)</option>' + groups.map(g=>`<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+    // Main and Ulangan students are analysed separately, so the first view shows the Main group when there is one.
+    if (!gSel.dataset.touched && groups.includes('Main')) gSel.value = 'Main';
+    else if (groups.includes(prevG)) gSel.value = prevG;
+    const list = inSem.filter(s => !gSel.value || s.group === gSel.value);
+    const note = $('#rpg-note'); note.textContent = '';
+    if (!list.length){ box.innerHTML = '<p class="empty">No Pretest taken yet for this semester.</p>'; $('#rpg-summary').innerHTML = ''; $('#rpg-topics').innerHTML = ''; rpgRows = []; rpgTopicRows = []; return; }
+    box.innerHTML = '<p class="status-msg">Loading…</p>';
+
+    let docs = [], tests = [], problems = [];
+    try{ docs = (await ACT.list()) || []; if (!docs.length) problems.push('no activity has reached the Google Sheet yet'); }catch(e){ problems.push('the Activity sheet could not be reached'); }
+    try{ const t = await ttLoadAll(); tests = t.rows || []; if (!t.remoteOk) problems.push('the Tests sheet could not be reached (only this device\'s tests are counted)'); }catch(e){}
+    docs = docs.map(renumDeep);
+    let approx = false;
+
+    const topics = topicsForSemester(String(sem)), codes = topics.map(t=>String(t).split(' ')[0]);
+    rpgRows = list.map(s => {
+      const start = new Date(s.pretest.timestamp), end = s.posttest ? new Date(s.posttest.timestamp) : new Date();
+      const d0 = PLOG.dayOf(start), d1 = PLOG.dayOf(end);
+      const inDay = d => d >= d0 && d <= d1, inTime = t => { const x = new Date(t); return x >= start && x <= end; };
+      const perTopic = {}, days = new Set();
+      let pa = 0, pc = 0, ta = 0, tc = 0, nTests = 0;
+      const addT = (code, n) => { perTopic[code] = (perTopic[code] || 0) + n; };
+      docs.filter(d => normName(d.name) === normName(s.name)).forEach(d => {
+        const L = d.plog && d.plog.days ? d.plog : null;
+        if (L) Object.keys(L.days).forEach(day => {
+          if (!inDay(day)) return;
+          Object.keys(L.days[day]).forEach(code => {
+            if (codeSem(code) !== sem) return;
+            const v = L.days[day][code]; pa += v[0]; pc += v[1]; addT(code, v[0]); days.add(day);
+          });
+        });
+        const logStart = L && L.start ? new Date(L.start) : null;
+        (Array.isArray(d.history) ? d.history : []).forEach(h => {
+          if (!h || !h.date || !inTime(h.date) || (logStart && new Date(h.date) >= logStart)) return;
+          const cs = String(h.topics || '').split(',').map(x=>x.trim()).filter(Boolean).filter(c => codeSem(c) === sem);
+          if (!cs.length) return;
+          approx = true;
+          pa += h.total || 0; pc += h.correct || 0; days.add(PLOG.dayOf(h.date));
+          cs.forEach(c => addT(c, (h.total || 0) / cs.length));
+        });
+      });
+      tests.filter(r => normName(r.name) === normName(s.name) && Number(r.semester) === sem && inTime(r.timestamp)).forEach(r => {
+        nTests++; ta += r.total || 0; tc += r.score || 0; days.add(PLOG.dayOf(r.timestamp));
+        Object.keys(r.byTopic || {}).forEach(t => { const code = String(t).split(' ')[0]; if (codeSem(code) === sem) addT(code, (r.byTopic[t].total || 0)); });
+      });
+      const pre = s.pretest.percentage, post = s.posttest ? s.posttest.percentage : null;
+      const gain = post === null ? null : post - pre;
+      const g = (post === null || pre >= 100) ? null : (post - pre) / (100 - pre);
+      return {name: s.name, group: s.group, pre, post, gain, g, ongoing: !s.posttest,
+        from: d0, to: d1, pa, pc, nTests, ta, tc, total: pa + ta, days: days.size, perTopic, s};
+    }).sort((a,b) => b.total - a.total || a.name.localeCompare(b.name));
+
+    if (problems.length) note.textContent = 'Note: ' + problems.join('; ') + '.';
+
+    const td = 'style="padding:6px 8px;vertical-align:top;white-space:nowrap;"';
+    const pct = (c,n) => n ? Math.round(c/n*100) + '%' : '—';
+    box.innerHTML = `<table style="width:100%;min-width:760px;border-collapse:collapse;font-size:13px;">
+      <thead><tr style="text-align:left;border-bottom:2px solid var(--line);">
+        <th ${td}>Student</th><th ${td}>Group</th><th ${td}>Window</th><th ${td}>Section A practice<br><span style="font-weight:400;color:var(--sub);">answered · % correct</span></th>
+        <th ${td}>Chapter/semester tests<br><span style="font-weight:400;color:var(--sub);">tests · answered</span></th><th ${td}>Total practice answers</th><th ${td}>Active days</th>
+        <th ${td}>Pretest</th><th ${td}>Posttest</th><th ${td}>Gain</th><th ${td}>Normalised gain</th></tr></thead>
+      <tbody>${rpgRows.map(r => `<tr style="border-bottom:1px solid var(--line);">
+        <td ${td}><b style="color:var(--navy);">${escapeHtml(r.name)}</b></td><td ${td}>${escapeHtml(r.group)}</td>
+        <td ${td}>${r.from} → ${r.ongoing ? 'today <span style="color:var(--sub);">(no Posttest yet)</span>' : r.to}</td>
+        <td ${td}>${Math.round(r.pa)} · ${pct(r.pc, r.pa)}</td><td ${td}>${r.nTests} · ${r.ta}</td>
+        <td ${td}><b>${Math.round(r.total)}</b></td><td ${td}>${r.days}</td>
+        <td ${td}>${r.pre}%</td><td ${td}>${r.post === null ? '—' : r.post + '%'}</td>
+        <td ${td}>${r.gain === null ? '—' : (r.gain >= 0 ? '+' : '') + r.gain}</td>
+        <td ${td}>${r.g === null ? '—' : r.g.toFixed(2)}</td></tr>`).join('')}</tbody></table>
+      ${approx ? '<p class="status-msg" style="margin:8px 0 0;">Some Section A sessions were done before practice tracking was added. Their totals are exact, but their split across topics in the By topic table is estimated (shared equally among the topics in that session).</p>' : ''}`;
+
+    // relationship between practice and gain (students with both tests)
+    const both = rpgRows.filter(r => r.gain !== null);
+    const n = both.length;
+    let sum = `<div style="font-weight:700;color:var(--navy);">Semester ${sem}${gSel.value ? ' · ' + escapeHtml(gSel.value) : ''}: students with both tests n = ${n}</div>`;
+    if (n >= 5){
+      const x = both.map(r=>r.total), rg = spearman(x, both.map(r=>r.gain)), bg = both.filter(r => r.g !== null), rn = bg.length >= 5 ? spearman(bg.map(r=>r.total), bg.map(r=>r.g)) : null;
+      const crit = SPEARMAN_CRIT05[n];
+      const fmt = v => v === null ? '— (no variation)' : v.toFixed(2);
+      sum += `<div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line);"><span>Spearman ρ: total practice answers vs gain</span><b>${fmt(rg)}</b></div>
+        <div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line);"><span>Spearman ρ: total practice answers vs normalised gain</span><b>${fmt(rn)}</b></div>
+        <p class="status-msg" style="margin:6px 0 0;">${crit ? `For n = ${n}, ρ must be at least ±${crit.toFixed(3)} to be significant at the 0.05 level (two-tailed).` : 'Check a table of critical values for this n.'} A positive ρ means students who practised more tended to gain more. It shows an association, not a cause.</p>`;
+    } else {
+      sum += `<p class="status-msg" style="margin:6px 0 0;">At least 5 students with both tests are needed before a rank correlation is shown. The table above can still be described student by student.</p>`;
+    }
+    $('#rpg-summary').innerHTML = sum;
+
+    // by topic (students with both tests)
+    const nb = both.length;
+    rpgTopicRows = topics.map((t, i) => {
+      const code = codes[i];
+      const prac = rpgRows.reduce((s0, r) => s0 + (r.perTopic[code] || 0), 0);
+      const ok = (rec) => rec && rec.byTopic && rec.byTopic[t] && rec.byTopic[t].correct >= rec.byTopic[t].total;
+      const preOk = both.filter(r => ok(r.s.pretest)).length, postOk = both.filter(r => ok(r.s.posttest)).length;
+      return {topic: stripSem(t), prac, pre: nb ? preOk/nb*100 : null, post: nb ? postOk/nb*100 : null};
+    });
+    const tt = rpgTopicRows.filter(r => r.pre !== null);
+    let tsum = '';
+    if (nb && tt.length >= 5){
+      const rho = spearman(tt.map(r=>r.prac), tt.map(r=>r.post - r.pre));
+      tsum = `<p class="status-msg" style="margin:8px 0 0;">Spearman ρ across ${tt.length} topics (practice answers vs change in % correct): <b>${rho === null ? '—' : rho.toFixed(2)}</b>. Each topic has one item per test, so with ${nb} student${nb===1?'':'s'} a topic's % can only move in steps of ${Math.round(100/nb)}%. Read this as a rough pattern.</p>`;
+    }
+    const f0 = v => v === null ? '—' : Math.round(v) + '%';
+    $('#rpg-topics').innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="text-align:left;border-bottom:2px solid var(--line);">
+      <th ${td}>Topic</th><th ${td}>Practice answers</th><th ${td}>Pretest correct</th><th ${td}>Posttest correct</th><th ${td}>Change</th></tr></thead>
+      <tbody>${rpgTopicRows.map(r => `<tr style="border-bottom:1px solid var(--line);"><td style="padding:6px 8px;">${escapeHtml(r.topic)}</td>
+        <td ${td}>${Math.round(r.prac)}</td><td ${td}>${f0(r.pre)}</td><td ${td}>${f0(r.post)}</td>
+        <td ${td}>${r.pre === null ? '—' : ((r.post - r.pre >= 0 ? '+' : '') + Math.round(r.post - r.pre) + '%')}</td></tr>`).join('')}</tbody></table>${tsum}`;
+  }
+  $('#rpg-group').addEventListener('change', () => { $('#rpg-group').dataset.touched = '1'; } );
+  $('#rpg-group').addEventListener('change', () => renderPracticeGain(window._rdashStudents || [], $('#rdash-f-sem').value));
+  $('#rpg-export').addEventListener('click', () => {
+    if (!rpgRows.length) return;
+    const q = v => { const x = String(v); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; };
+    const rows = [['Semester ' + rpgSem + ' - per student'],
+      ['Student','Group','From','To','Posttest taken','Section A answered','Section A correct','Tests taken','Test answers','Total practice answers','Active days','Pretest %','Posttest %','Gain','Normalised gain']];
+    rpgRows.forEach(r => rows.push([r.name, r.group, r.from, r.to, r.ongoing ? 'No' : 'Yes', Math.round(r.pa), r.pc, r.nTests, r.ta, Math.round(r.total), r.days, r.pre, r.post === null ? '' : r.post, r.gain === null ? '' : r.gain, r.g === null ? '' : r.g.toFixed(3)]));
+    rows.push([]); rows.push(['Semester ' + rpgSem + ' - per topic (students with both tests)']);
+    rows.push(['Topic','Practice answers','Pretest % correct','Posttest % correct','Change']);
+    rpgTopicRows.forEach(r => rows.push([r.topic, Math.round(r.prac), r.pre === null ? '' : Math.round(r.pre), r.post === null ? '' : Math.round(r.post), r.pre === null ? '' : Math.round(r.post - r.pre)]));
+    const csv = rows.map(r => r.map(q).join(',')).join('\n');
+    try{
+      const blob = new Blob(['﻿' + csv], {type: 'text/csv;charset=utf-8'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'physiq-practice-and-gain-sem' + rpgSem + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+    }catch(e){ $('#rdash-csv-text').value = csv; $('#rdash-csv-fallback').style.display = 'block'; }
+  });
 
   $('#rdash-f-sem').addEventListener('change', renderDashboard);
   $('#rdash-f-group').addEventListener('change', renderDashboard);
@@ -18264,12 +18466,12 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       const last = history[0];
       return {studentId: sid(), name: name(), batch: ls('physiq-tests-batch') || '', updatedAt: new Date().toISOString(),
         semester: (typeof currentSemester !== 'undefined' ? currentSemester : '1'),
-        history: history.slice(0, 20), structured, past, learn,
-        summary: {sessions: history.length, lastA: last ? `${last.correct}/${last.total}` : '', learnSteps: steps,
+        history: history.slice(0, 20), structured, past, learn, plog: PLOG.get(),
+        summary: {sessions: history.length, practiceAnswered: PLOG.totals().answered, practiceDays: PLOG.totals().days, lastA: last ? `${last.correct}/${last.total}` : '', learnSteps: steps,
           structuredTried: Object.keys(structured).length, structuredMarks: Object.keys(structured).length ? `${sGot}/${sTot}` : '',
           pastPapers: pastIds.length, pastAvgPct: pastAvg}};
     }
-    const empty = d => !d.history.length && !Object.keys(d.structured).length && !Object.keys(d.past).length && !Object.keys(d.learn).length;
+    const empty = d => !d.history.length && !Object.keys((d.plog && d.plog.days) || {}).length && !Object.keys(d.structured).length && !Object.keys(d.past).length && !Object.keys(d.learn).length;
     let timer = null;
     function schedule(ms){ clearTimeout(timer); timer = setTimeout(push, ms == null ? 3000 : ms); }
     async function push(){
