@@ -5749,7 +5749,7 @@ const SEM3_BATCH3_CH25 = [
   };
   // Teacher PIN: only its SHA-256 hash (of 'physiq-teacher:' + PIN) is kept here, so the PIN itself is not in the code.
   // To change it, make a new hash with the PIN hash tool and replace the value below.
-  const TEACHER_PIN_HASH = 'PASTE_NEW_HASH_HERE';
+  const TEACHER_PIN_HASH = '92d2d06ff601c1a08c00a5ad7b10d2f67b05b3aa7fc99d9e74cb7e23b5e15672';
   async function pinHash(pin){
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('physiq-teacher:' + pin));
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
