@@ -682,9 +682,7 @@
         </div>
       </div>
       <div class="learn-steps" id="learn-steps"></div>
-      <label for="learn-name" style="margin-top:14px;">Your full name (your teacher sees your progress under this name)</label>
-      <input type="text" id="learn-name" placeholder="Ahmad bin Ali">
-      <p class="status-msg" id="learn-name-saved" style="margin:4px 0 0;"></p>
+      <div class="who-box" id="who-learn" style="margin-top:14px;"></div>
     </div>
     <div class="card" id="learn-body"></div>
   </div>
@@ -695,6 +693,7 @@
 
     <div id="student-setup" class="card">
       <h2>Set up a practice session</h2>
+      <div class="who-box" id="who-practice"></div>
       <label>Topics to include</label>
       <div class="topic-grid" id="topic-grid"></div>
 
@@ -5567,6 +5566,12 @@ const SEM3_BATCH3_CH25 = [
     const count = parseInt($('#qcount').value,10);
     const status = $('#setup-status');
 
+    if (!WHO.ok()){
+      status.textContent = 'Choose your batch and your name at the top first, so your teacher can see your practice.';
+      status.style.color = 'var(--red)';
+      $('#who-practice').scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
     if (!chosenTopics.length){
       status.textContent = 'Select at least one topic to start.';
       status.style.color = 'var(--red)';
@@ -5855,6 +5860,58 @@ const SEM3_BATCH3_CH25 = [
   $('#rtest-batch').addEventListener('change', syncNameField);
   syncNameField();
 
+  // ---------- who is using this device (one name for practice, Learn, tests and the research tests) ----------
+  // Class students choose their name from the class list, so the same spelling is used everywhere and the
+  // Teacher Dashboard can match practice to Pretest/Posttest results. Guests type a name.
+  const WHO = (() => {
+    const lsGet = k => { try{ return localStorage.getItem(k) || ''; }catch(e){ return ''; } };
+    const lsSet = (k, v) => { try{ localStorage.setItem(k, v); }catch(e){} };
+    function get(){
+      const batch = lsGet('physiq-tests-batch'), name = lsGet('physiq-student-name') || lsGet('physiq-tests-name');
+      // a class student counts as identified only if the stored name is on that batch's class list
+      if (ROSTER[batch] && !ROSTER[batch].includes(name)) return {batch, name: ''};
+      return {batch, name};
+    }
+    function set(batch, name){
+      name = (name || '').trim();
+      lsSet('physiq-tests-batch', batch); lsSet('physiq-tests-name', name);
+      try{ ACT.setName(name); }catch(e){ lsSet('physiq-student-name', name); }
+      try{ ptSetName(name); }catch(e){}
+      document.querySelectorAll('.who-box').forEach(fill);
+      syncForms();
+    }
+    // keep the research-test and chapter-test name fields on the same student
+    function syncForms(){
+      const w = get(); if (!w.batch) return;
+      try{
+        if (Array.from($('#rtest-batch').options).some(o=>o.value===w.batch)){ $('#rtest-batch').value = w.batch; syncNameField();
+          if (w.batch === 'Guest') $('#rtest-name').value = w.name; else $('#rtest-pick').value = w.name; }
+      }catch(e){}
+      try{
+        if (Array.from($('#tt-batch').options).some(o=>o.value===w.batch)){ $('#tt-batch').value = w.batch; ttSyncNameField();
+          if (w.batch === 'Guest') $('#tt-name').value = w.name; else $('#tt-pick').value = w.name; populateTestsPanel(); }
+      }catch(e){}
+    }
+    const ok = () => { const w = get(); return !!w.batch && (w.batch === 'Guest' || !!w.name); };
+    function fill(box){
+      const w = get(), roster = ROSTER[w.batch];
+      box.innerHTML = `<label>Who is practising?</label>
+        <div class="row2">
+          <div><select class="who-batch"><option value="">Choose your batch…</option>${Object.keys(ROSTER).map(b=>`<option value="${escapeHtml(b)}">Batch ${escapeHtml(b)}</option>`).join('')}<option value="Guest">Guest</option></select></div>
+          <div>${roster ? `<select class="who-name"><option value="">Choose your name…</option>${roster.map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('')}</select>`
+            : w.batch === 'Guest' ? `<input type="text" class="who-guest" placeholder="Your name (optional)">` : ''}</div>
+        </div>
+        <p class="status-msg who-msg" style="margin:4px 0 0;">${ok() ? (w.name ? `Practising as <b>${escapeHtml(w.name)}</b>. Your teacher sees your work under this name.` : 'Practising as a guest.') : 'Choose your batch and your name so your teacher can see your practice.'}</p>`;
+      const bSel = box.querySelector('.who-batch'); bSel.value = w.batch;
+      bSel.addEventListener('change', () => { lsSet('physiq-tests-batch', bSel.value); set(bSel.value, ''); });
+      const nSel = box.querySelector('.who-name'); if (nSel){ nSel.value = w.name; nSel.addEventListener('change', () => set(w.batch, nSel.value)); }
+      const g = box.querySelector('.who-guest'); if (g){ g.value = w.name; g.addEventListener('change', () => set('Guest', g.value)); }
+    }
+    document.querySelectorAll('.who-box').forEach(fill);
+    return {get, set, ok, syncForms, refresh: () => document.querySelectorAll('.who-box').forEach(fill)};
+  })();
+  WHO.syncForms();   // the research tests start already set to this student
+
   async function startResearchTest(type){
     const name = getRName();
     const status = $('#rtest-status');
@@ -5870,6 +5927,7 @@ const SEM3_BATCH3_CH25 = [
     }
     const batch = $('#rtest-batch').value;
     const semester = parseInt($('#rtest-sem').value, 10);
+    try{ WHO.set(batch, name); }catch(e){}
     if (!batch){
       status.textContent = 'Please choose your batch (STPM 2026, STPM 2027 or Guest).';
       status.style.color = 'var(--red)';
@@ -6370,6 +6428,11 @@ const SEM3_BATCH3_CH25 = [
         from: d0, to: d1, pa, pc, nTests, ta, tc, total: pa + ta, days: days.size, perTopic, s};
     }).sort((a,b) => b.total - a.total || a.name.localeCompare(b.name));
 
+    // practice saved under a name that does not match any student here (e.g. typed before names came from the class list)
+    const known = new Set(inSem.map(x => normName(x.name)));
+    const stray = Array.from(new Set(docs.filter(d => (d.plog && Object.keys(d.plog.days || {}).length) || (d.history || []).length)
+      .map(d => (d.name || '').trim()).filter(nm => !known.has(normName(nm))))).map(nm => nm || '(no name)');
+    if (stray.length) problems.push('practice saved under ' + stray.length + ' other name' + (stray.length === 1 ? '' : 's') + ' is not counted here: ' + stray.join(', ') + '. These are guests, other semesters, or names typed differently before students chose their name from the class list');
     if (problems.length) note.textContent = 'Note: ' + problems.join('; ') + '.';
 
     const td = 'style="padding:6px 8px;vertical-align:top;white-space:nowrap;"';
@@ -7044,7 +7107,7 @@ const NOTES_EXTRA = (function(){
     const sn = localStorage.getItem('physiq-tests-name');
     if (sn){ if ($('#tt-batch').value === 'Guest') $('#tt-name').value = sn; else if (Array.from($('#tt-pick').options).some(o=>o.value===sn)) $('#tt-pick').value = sn; }
   }catch(e){}
-  const ttNameChanged = ()=>{ try{ localStorage.setItem('physiq-tests-name', ttGetName()); }catch(e){} try{ populateTestsPanel(); }catch(e){} };
+  const ttNameChanged = ()=>{ try{ localStorage.setItem('physiq-tests-name', ttGetName()); }catch(e){} try{ WHO.set($('#tt-batch').value, ttGetName()); }catch(e){} try{ populateTestsPanel(); }catch(e){} };
   $('#tt-pick').addEventListener('change', ttNameChanged);
   $('#tt-name').addEventListener('change', ttNameChanged);
 
@@ -18776,9 +18839,6 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     renderLearn();
   }
   function initLearn(){
-    const nameIn = $('#learn-name');
-    nameIn.value = PQ.studentName();
-    nameIn.addEventListener('change', () => { const v = nameIn.value.trim(); PQ.setName(v); try{ if (typeof ptSetName === 'function') ptSetName(v); }catch(e){} $('#learn-name-saved').textContent = v ? 'Saved. Your teacher will see your work under this name.' : ''; });
     learnPullRemote();
     const sel = $('#learn-ch');
     sel.innerHTML = learnChapters().map(ch => `<option value="${ch}">${escapeHtml(chapterGroupLabel(ch + '.0'))}</option>`).join('');
