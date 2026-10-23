@@ -113,5 +113,18 @@
     fillChapters();
   }
 
-  window.PhysiQSolutions = { add, init, loadSem, SOL };
+  // put the full solution under every exercise inside a rendered chapter (used for the teacher's PDF edition)
+  function inject(root, k) {
+    const sols = SOL[k] || [];
+    let n = 0, missing = 0;
+    root.querySelectorAll('.ls-exer').forEach((x, i) => {
+      x.querySelectorAll(':scope > ol > li').forEach((li, j) => {
+        const s = sols[i] && sols[i][j];
+        if (s) { li.insertAdjacentHTML('beforeend', solHTML(s)); n++; } else missing++;
+      });
+    });
+    return { n, missing, sets: root.querySelectorAll('.ls-exer').length, solSets: sols.length };
+  }
+
+  window.PhysiQSolutions = { add, init, loadSem, inject, SOL };
 })();

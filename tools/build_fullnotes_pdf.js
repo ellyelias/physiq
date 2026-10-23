@@ -1,11 +1,14 @@
 // Builds the "Full notes · Cikgu Suhaili" PDFs (one per chapter + the whole semester) from the lessons in the app.
 // The app is opened in a headless browser, each chapter is rendered exactly as students see it, then printed to A4:
 // solutions and answers are shown open, and each simulation becomes a still picture with a pointer to the app.
-// usage: (serve the repo folder's parent on :8766) node tools/build_fullnotes_pdf.js [sem=1]
+// usage: (serve the repo folder's parent on :8766) node tools/build_fullnotes_pdf.js [sem=1] [teacher]
+//   'teacher' builds the teacher's edition into downloads/teacher/: the same notes with the full worked solution
+//   (solutions/sN.js) under every exercise. These PDFs are linked only from the Teacher Dashboard.
 //   env FONTS = path to @fontsource (inter, oswald, newsreader, dancing-script)
 const fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
-const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, 'downloads', 'fullnotes');
+const TEACHER = process.argv[3] === 'teacher';
+const ROOT = path.join(__dirname, '..'), OUT = path.join(ROOT, 'downloads', TEACHER ? 'teacher' : 'fullnotes');
 const URL = process.env.PHYSIQ_URL || 'http://localhost:8766/physiq/index.html';
 const SEM = process.argv[2] || '1';
 const F = process.env.FONTS;
@@ -43,6 +46,7 @@ body{margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;p
 #pdf .sm-ro>div{flex:0 1 auto;min-width:110px;margin:0 !important;}
 #pdf .pdf-simnote{font-size:12px;color:#5A6170;margin:6px 0 0;text-align:center;}
 #pdf .ls-svg{max-height:340px;}
+#pdf .xs-sol{break-inside:auto;} #pdf .xs-line{break-inside:avoid;} #pdf .ls-exer li{break-inside:auto;}
 .pdf-cover{break-after:page;height:263mm;background:#1D2B1F;color:#fff;border-radius:18px;padding:22mm 18mm;box-sizing:border-box;position:relative;overflow:hidden;font-family:Inter,sans-serif;}
 .pdf-cover::after{content:"";position:absolute;right:-80mm;top:-62mm;width:125mm;height:95mm;border-radius:50%;border:12mm solid #D5DC3B;transform:rotate(-18deg);z-index:0;}
 .pdf-cover>*{position:relative;z-index:1;}
@@ -56,7 +60,7 @@ body{margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;p
 `;
 
 (async () => {
-  const b = await chromium.launch();
+  const b = await chromium.launch({ executablePath: process.env.CHROMIUM || '/opt/pw-browsers/chromium' });
   const ctx = await b.newContext({ viewport: { width: 760, height: 1000 }, deviceScaleFactor: 2 });
   await ctx.route(/script\.google\.com/, r => r.fulfill({ json: { ok: true, value: '', rows: [] } }));
   await ctx.route(/fonts\.googleapis\.com/, r => r.fulfill({ contentType: 'text/css', body: F ? FONT_CSS : '' }));
@@ -65,6 +69,7 @@ body{margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;p
   await p.goto(URL); await p.waitForTimeout(1200);
   if (SEM !== '1') { await p.selectOption('#semester-select', SEM); await p.waitForTimeout(1200); }
   await p.evaluate(() => document.querySelector('.tab[data-tab="notes"]').click());
+  if (TEACHER) await p.evaluate(sem => new Promise(r => window.PhysiQSolutions.loadSem(sem, r)), SEM);
 
   const keys = await p.evaluate(sem => Object.entries(window.PhysiQLessons.LESSONS).filter(([, L]) => L.sem === sem).sort((a, b) => a[1].chapter - b[1].chapter).map(([k, L]) => ({ k, ch: L.chapter, title: L.title })), SEM);
   const chapters = [];
@@ -79,7 +84,7 @@ body{margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;p
       const hasCanvas = await sims[i].evaluate(el => !!el.querySelector('canvas'));
       if (!hasCanvas) { await sims[i].scrollIntoViewIfNeeded(); simShots[i] = 'data:image/png;base64,' + (await sims[i].screenshot()).toString('base64'); }
     }
-    const html = await p.evaluate(({ shots, ch, sem }) => {
+    const html = await p.evaluate(({ shots, ch, sem, teacher, k }) => {
       const toJpg = c => { const w = document.createElement('canvas'); w.width = c.width; w.height = c.height; const x = w.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w.width, w.height); x.drawImage(c, 0, 0); return w.toDataURL('image/jpeg', 0.88); };
       const root = document.querySelector('#notes-content .ls');
       root.querySelectorAll('.ls-sim').forEach((s, i) => {
@@ -89,6 +94,7 @@ body{margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;p
           `<p class="pdf-simnote">This is a still picture. Open PhysiQ › Notes › Semester ${sem} › Chapter ${ch} to use the simulation.</p>`;
       });
       root.querySelectorAll('.ls-sim-tag').forEach(t => { t.textContent = 'Simulation'; });
+      if (teacher) window.__solStat = window.PhysiQSolutions.inject(root, k);
       root.querySelectorAll('details').forEach(d => {
         d.open = true; const s = d.querySelector('summary');
         if (s) s.textContent = /answer/i.test(s.textContent) ? 'Answer' : 'Solution';
@@ -97,7 +103,8 @@ body{margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;p
       c.querySelectorAll('.ls-toc,.ls-size,script').forEach(x => x.remove());
       c.removeAttribute('data-size');
       return c.outerHTML;
-    }, { shots: simShots, ch: c.ch, sem: SEM });
+    }, { shots: simShots, ch: c.ch, sem: SEM, teacher: TEACHER, k: c.k });
+    if (TEACHER) { const st = await p.evaluate(() => window.__solStat); console.log('  solutions', JSON.stringify(st)); if (st.missing || st.sets !== st.solSets) throw new Error('solutions do not match the exercises in ' + c.k); }
     chapters.push({ ...c, html });
     console.log('rendered', c.k, Math.round(html.length / 1024) + ' KB');
   }
@@ -121,10 +128,11 @@ body{margin:0 !important;padding:0 !important;-webkit-print-color-adjust:exact;p
     console.log('saved', file, Math.round(fs.statSync(path.join(OUT, file)).size / 1024) + ' KB');
   }
   const pad = n => String(n).padStart(2, '0');
-  for (const c of chapters) await print([c], `PhysiQ_FullNotes_Sem${SEM}_Ch${pad(c.ch)}.pdf`, `Semester ${SEM} · Chapter ${c.ch} ${c.title}`);
-  const cover = `<section class="pdf-cover"><div class="k">STPM Physics · Semester ${SEM}<br>${semName}</div><h1>Full notes</h1><div class="by">Cikgu Suhaili</div>
+  const ED = TEACHER ? 'Teacher' : 'FullNotes', ED_LABEL = TEACHER ? ' · Teacher\'s edition (with full solutions)' : '';
+  for (const c of chapters) await print([c], `PhysiQ_${ED}_Sem${SEM}_Ch${pad(c.ch)}.pdf`, `Semester ${SEM} · Chapter ${c.ch} ${c.title}${ED_LABEL}`);
+  const cover = `<section class="pdf-cover"><div class="k">STPM Physics · Semester ${SEM}<br>${semName}</div><h1>${TEACHER ? 'Full notes<br>Teacher’s edition' : 'Full notes'}</h1><div class="by">Cikgu Suhaili</div>
     <ol>${chapters.map(c => `<li><b>${c.ch}</b><span>${c.title}</span></li>`).join('')}</ol>
-    <div class="foot">PhysiQ · ellyelias.github.io/physiq · Worked examples, exercises with answers and the simulations from the app.</div></section>`;
-  await print(chapters, `PhysiQ_FullNotes_Sem${SEM}.pdf`, `Semester ${SEM} full notes`, cover);
+    <div class="foot">PhysiQ · ellyelias.github.io/physiq · ${TEACHER ? 'Every exercise with its full worked solution. For the teacher only.' : 'Worked examples, exercises with answers and the simulations from the app.'}</div></section>`;
+  await print(chapters, `PhysiQ_${ED}_Sem${SEM}.pdf`, `Semester ${SEM} full notes${ED_LABEL}`, cover);
   await b.close();
 })();
