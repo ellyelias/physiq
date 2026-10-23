@@ -194,7 +194,7 @@ function cover(sem) {
   <div class="sem"><div class="big">Semester ${sem} Notes</div>
     <div class="sub">${esc(S.title)} · Chapters ${S.range}</div></div>
   <div class="what"><b>${chs.length} chapters · ${ntopics} topics.</b> Definitions and laws, formula tables with symbols and units,
-    how to answer in MPM style, and the Section A traps and tricks that cost marks in the multiple-choice paper.</div>
+    tips to answer, and the Section A traps and tricks that cost marks in the multiple-choice paper.</div>
   <div class="foot"><span>ellyelias.github.io/physiq</span><span>${DATE}</span></div></div>`;
 }
 
