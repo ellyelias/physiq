@@ -1075,6 +1075,15 @@
       <div class="btn-row" style="margin-top:0;"><button class="btn-ghost" id="ract-refresh">Refresh activity</button><button class="btn-ghost" id="ract-export">Export activity CSV</button></div>
       <p class="status-msg" id="ract-note"></p>
       <div id="ract-table" style="margin-top:10px;overflow-x:auto;"></div>
+      <h3 style="margin:26px 0 6px;color:var(--navy);">Exercise solutions (teacher only)</h3>
+      <p class="status-msg" style="margin:0 0 8px;">Full worked solutions to the exercises in your chapter notes. Students only see the final answers in their notes; the solutions appear here, in the unlocked dashboard. Choose a semester and a chapter, or print a chapter (choose “Save as PDF” in the print window).</p>
+      <div class="btn-row" style="margin-top:0;flex-wrap:wrap;">
+        <select id="xsol-sem" style="flex:0 1 150px;width:auto;"><option value="1">Semester 1</option><option value="2">Semester 2</option><option value="3">Semester 3</option></select>
+        <select id="xsol-ch" style="flex:1 1 220px;width:auto;"></select>
+        <button class="btn-ghost" id="xsol-print">Print / Save as PDF</button>
+      </div>
+      <p class="status-msg" id="xsol-count" style="margin:6px 0 0;"></p>
+      <div id="xsol-body" style="margin-top:10px;"></div>
       <h3 style="margin:26px 0 6px;color:var(--navy);">Past year papers: questions and answers (PDF)</h3>
       <p class="status-msg" style="margin:0 0 8px;">Each paper with its questions, an Answer box with full working (and marks for Sections B and C) and an Explanation box after every question. Papers are added one at a time, Semester 1 first. Open a semester and tap a paper to download it.</p>
       <div id="qa-list"></div>
@@ -1133,6 +1142,7 @@
 <script src="diagrams.js" defer></script>
 <script src="physiq-sims.js?v=20261022b"></script>
 <script src="physiq-lessons.js?v=20261022p"></script>
+<script src="physiq-solutions.js?v=20261023a"></script>
 <script src="physiq-flashcards.js?v=20261022b"></script>
 <script src="physiq-realworld.js?v=20261022c"></script>
 <script>
@@ -18659,7 +18669,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   }
   function initActivity(){
     renderQaList();
-    $('#rteacher-unlock').addEventListener('click', () => setTimeout(() => { if ($('#rteacher-dash-card').style.display === 'block') renderActivity(); }, 50));
+    $('#rteacher-unlock').addEventListener('click', () => setTimeout(() => { if ($('#rteacher-dash-card').style.display === 'block'){ renderActivity(); try{ window.PhysiQSolutions.init(); }catch(e){ console.error(e); } } }, 50));
     $('#rdash-refresh').addEventListener('click', renderActivity);
     $('#ract-refresh').addEventListener('click', renderActivity);
     $('#ract-export').addEventListener('click', exportActivity);

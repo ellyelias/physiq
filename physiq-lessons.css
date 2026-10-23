@@ -211,3 +211,21 @@
 @media (max-width:520px){.ls-rw-pb{width:56px;height:56px;}#notes-content .ls-rw-t{font-size:1.18em;}}
 @media print{.ls-rw-vid{display:none;}.ls-rw-why[hidden]{display:block !important;}.ls-rw{box-shadow:none;break-inside:avoid-page;}}
 .ls-rw-also{margin:18px 18px 8px;font-family:var(--head);font-weight:600;font-size:.82em;letter-spacing:.06em;text-transform:uppercase;color:var(--violet-d);}
+
+/* teacher dashboard: exercise solutions (physiq-solutions.js) */
+.xs-doc{font-size:15.5px;line-height:1.6;color:var(--ink);}
+.xs-doc i{font-family:"Newsreader",Georgia,serif;font-size:1.08em;}
+.xs-title{font-family:var(--head);font-weight:700;font-size:1.25em;color:var(--navy);margin:4px 0 6px;}
+.xs-title span{display:block;font:600 13px var(--ui);color:var(--sub);}
+.xs-final{margin-top:6px;font-weight:700;color:#B4380C;}
+.xs-final span{font-weight:600;color:var(--sub);}
+.xs-sol{margin-top:8px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--g,#4F7A12);border-radius:10px;padding:10px 12px;}
+.xs-sol-h{font:700 12px var(--ui);text-transform:uppercase;letter-spacing:.04em;color:#4F7A12;margin-bottom:4px;}
+.xs-line{margin:3px 0;}
+.xs-gap{height:6px;}
+.xs-part{color:var(--violet-d);}
+.xs-ans{color:#B4380C;}
+.xs-todo{color:var(--sub);font-style:italic;border-left-color:var(--line);}
+.xs-warn{background:#FBEBEB;border-radius:8px;padding:8px 10px;color:#8A1C1C;font-weight:600;}
+.xs-doc .ls-svg{max-width:100%;height:auto;}
+.xs-doc img{max-width:100%;}
