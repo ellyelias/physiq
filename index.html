@@ -5747,7 +5747,13 @@ const SEM3_BATCH3_CH25 = [
     2: {label:'Semester 2', chapters:'13–19'},
     3: {label:'Semester 3', chapters:'20–26'}
   };
-  const TEACHER_PIN = '2026';
+  // Teacher PIN: only its SHA-256 hash (of 'physiq-teacher:' + PIN) is kept here, so the PIN itself is not in the code.
+  // To change it, make a new hash with the PIN hash tool and replace the value below.
+  const TEACHER_PIN_HASH = 'PASTE_NEW_HASH_HERE';
+  async function pinHash(pin){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('physiq-teacher:' + pin));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
   let rtestState = null;
   // Unfinished pretest/posttest is kept on this device so a student who leaves can continue from the same question.
   const rtProgKey = (name,type,sem) => 'physiq-rtest-progress:' + normName(name) + '|' + type + '|' + sem;
@@ -6179,7 +6185,9 @@ const SEM3_BATCH3_CH25 = [
   $('#rteacher-unlock').addEventListener('click', async ()=>{
     const pin = $('#rteacher-pin').value;
     const status = $('#rteacher-pin-status');
-    if (pin !== TEACHER_PIN){
+    let ok = false;
+    try{ ok = (await pinHash(pin)) === TEACHER_PIN_HASH; }catch(e){ console.error(e); }
+    if (!ok){
       status.textContent = 'Incorrect PIN.';
       status.style.color = 'var(--red)';
       return;
@@ -6187,6 +6195,8 @@ const SEM3_BATCH3_CH25 = [
     status.textContent = '';
     $('#rteacher-lock-card').style.display = 'none';
     $('#rteacher-dash-card').style.display = 'block';
+    $('#rteacher-pin').value = '';
+    document.dispatchEvent(new Event('physiq-teacher-unlocked'));
     await renderDashboard();
   });
 
@@ -18676,7 +18686,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   function initActivity(){
     renderQaList();
     renderTeacherNotes();
-    $('#rteacher-unlock').addEventListener('click', () => setTimeout(() => { if ($('#rteacher-dash-card').style.display === 'block'){ renderActivity(); try{ window.PhysiQSolutions.init(); }catch(e){ console.error(e); } } }, 50));
+    document.addEventListener('physiq-teacher-unlocked', () => { renderActivity(); try{ window.PhysiQSolutions.init(); }catch(e){ console.error(e); } });
     $('#rdash-refresh').addEventListener('click', renderActivity);
     $('#ract-refresh').addEventListener('click', renderActivity);
     $('#ract-export').addEventListener('click', exportActivity);
