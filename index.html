@@ -424,6 +424,12 @@
   .pt-note{font-size:14px;color:var(--ink);margin:6px 0 10px;}
   #pt-self-total{font-variant-numeric:tabular-nums;color:var(--navy);}
   .pt-fig.pfig{background:transparent;padding:4px 0;color:var(--ink);}
+  .ans-fmt{margin:.5em 0 .7em;}
+  .ans-part{display:flex;gap:.55em;margin:.55em 0;align-items:flex-start;}
+  .ans-lab{font-weight:700;flex:none;min-width:2.2em;line-height:1.6;margin-top:.12em;}
+  .ans-body{flex:1;min-width:0;}
+  .ans-l{margin:.12em 0;line-height:1.6;}
+  .ans-cont{padding-left:1.6em;}
   .pfig svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;overflow:visible;}
   .pt-optimg .pfig{display:block;width:100%;color:var(--ink);}
   .pt-optimg .pfig svg{max-width:240px;}
@@ -6828,6 +6834,64 @@ const NOTES_EXTRA = (function(){
   }
 
   // ---------- notes typography: real sub/superscripts, stacked fractions, bold infinity ----------
+  // Lay a one-line worked answer out MPM-style: each part on its own block,
+  // each step on its own line, and "A = B = C" chains written downwards.
+  function fmtAns(raw, mfy){
+    const splitTop = (s, sep) => {
+      const out = []; let d = 0, tag = 0, cur = '';
+      for (let i = 0; i < s.length; i++){
+        const c = s[i];
+        if (c === '<') tag++; else if (c === '>') tag = Math.max(0, tag - 1);
+        else if (!tag && (c === '(' || c === '[')) d++;
+        else if (!tag && (c === ')' || c === ']')) d = Math.max(0, d - 1);
+        if (!tag && !d && s.startsWith(sep, i)){ out.push(cur); cur = ''; i += sep.length - 1; continue; }
+        cur += c;
+      }
+      out.push(cur); return out;
+    };
+    const text = s => s.replace(/<[^>]*>/g, '');
+    const hasEq = s => splitTop(s, ' = ').length > 1;
+    const prose = s => /\b(?:[a-z]{4,}|and|the|for|but|is|are|so|of|to|at|by)\b/.test(text(s));
+    const LAB = /^\s*((?:\((?:[a-z]|[ivx]{1,4})\))+)\s*/;
+    const blocks = [];
+    raw = raw.replace(/\.\s+(?=\((?:[a-z]|[ivx]{1,4})\)(?:\([ivx]{1,4}\))?\s)/g, '.; ');
+    splitTop(raw, '; ').map(x => x.trim()).filter(Boolean).forEach(chunk => {
+      const m = chunk.match(LAB);
+      if (m || !blocks.length) blocks.push({lab: m ? m[1] : '', body: []});
+      blocks[blocks.length - 1].body.push(m ? chunk.slice(m[0].length) : chunk);
+    });
+    const lines = body => {
+      const out = [];
+      body.forEach(b => {
+        const segs = splitTop(b, ', ');
+        let cur = segs[0];
+        for (let k = 1; k < segs.length; k++){
+          const s = segs[k];
+          if (hasEq(cur) && (hasEq(s) || /^(so|hence|therefore|thus|giving|the|which|this)\b/.test(text(s).trim()))){ out.push(cur); cur = s; }
+          else cur += ', ' + s;
+        }
+        out.push(cur);
+      });
+      // chain A = B = C -> "A = B" / "= C"
+      const res = [];
+      out.forEach(l => {
+        const p = splitTop(l, ' = ');
+        if (p.length > 2 && !p.slice(1).some(prose)){
+          res.push({t: p[0] + ' = ' + p[1]});
+          p.slice(2).forEach(x => res.push({t: '= ' + x, cont: true}));
+        } else res.push({t: l});
+      });
+      return res;
+    };
+    const cap = s => {
+      const m = text(s).match(/^\s*([a-z]+)\b(.{0,30})/);
+      if (!m || /^(?:sin|cos|tan|ln|log|exp)$/.test(m[1]) || /^\s*=/.test(m[2])) return s;
+      if (!(/^(?:a|an|no|so|in|at|as|if|by|it|on)$/.test(m[1]) || m[1].length >= 3)) return s;
+      return s.replace(/^(\s*)([a-z])/, (_, w, c) => w + c.toUpperCase());
+    };
+    return '<div class="ans-fmt">' + blocks.map(b => `<div class="ans-part">${b.lab ? `<span class="ans-lab">${b.lab}</span>` : ''}<div class="ans-body">${
+      lines(b.body).map(l => `<div class="ans-l${l.cont ? ' ans-cont' : ''}">${mfy(l.cont ? l.t : cap(l.t))}</div>`).join('')}</div></div>`).join('') + '</div>';
+  }
   function mathify(html){
     const SUPMAP={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'−','⁺':'+','ⁿ':'n'};
     const SUBMAP={'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9','ₐ':'a','ₑ':'e','ₒ':'o','ₓ':'x','ₙ':'n','ₘ':'m','ₖ':'k','ₗ':'l','ₚ':'p','ₛ':'s','ₜ':'t','₊':'+','₋':'−'};
@@ -12083,13 +12147,13 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     // Q12 vertical wires, current up in P and down in Q
     o.q12 = svg(180, 155, L(60, 20, 60, 120) + L(120, 20, 120, 120) + A(60, 62, 60, 30) + A(120, 30, 120, 62) + I(50, 44, 'I', 'end') + I(130, 44, 'I', 'start') +
       AA(62, 82, 118, 82) + I(90, 75, 'x') + I(60, 140, 'P') + I(120, 140, 'Q'), 'Wire P carries current I upwards and wire Q carries current I downwards, x apart');
-    const bg = (body, lab) => svg(230, 170, axes(40, 140, 175, 125, {o: false}) + T(48, 22, 'Magnetic field', 'start', 'sm') + T(212, 160, 'Distance', 'end', 'sm') +
-      D(150, 140, 150, 40) + I(150, 158, 'x') + body, lab);
-    o.q12oA = bg(path([[40, 45], [95, 140], [150, 45]]), 'Falls linearly to zero midway, then rises linearly to x');
-    o.q12oB = bg(fn(t => 1 / t + 1 / (1 - t), 0.035, 0.965, (t, v) => [40 + 110 * t, 140 - 3.6 * v]), 'U-shaped: large near each wire, smallest (not zero) midway');
-    o.q12oC = bg(L(40, 62, 150, 62), 'Constant from P to x');
+    const bg = (body, lab, top = 40) => svg(230, 170, axes(40, 140, 175, 125, {o: false}) + T(48, 22, 'Magnetic field', 'start', 'sm') + T(212, 160, 'Distance', 'end', 'sm') +
+      D(150, 140, 150, top) + I(150, 158, 'x') + body, lab);
+    o.q12oA = bg(path([[40, 45], [95, 140], [150, 45]]), 'Falls linearly to zero midway, then rises linearly to x', 45);
+    o.q12oB = bg(fn(t => 1 / (t + 0.055) + 1 / (1.055 - t) - 1 / 0.555 - 1 / 0.555, 0, 1, (t, v) => [40 + 110 * t, 138.5 - 6.3 * v]), 'U-shaped: very large near each wire, falling to a minimum close to the axis midway', 41);
+    o.q12oC = bg(L(40, 62, 150, 62), 'Constant from P to x', 62);
     o.q12oD = bg(fn(t => Math.sqrt(Math.max(0, 1 - 4 * t * t)), 0, 0.5, (t, v) => [40 + 110 * t, 140 - 90 * v]) + fn(t => Math.sqrt(Math.max(0, 1 - 4 * (1 - t) * (1 - t))), 0.5, 1, (t, v) => [40 + 110 * t, 140 - 90 * v]),
-      'Falls to zero midway along curves and rises again to x');
+      'Falls to zero midway along curves and rises again to x', 50);
     // Q20 sine wave graphs (period 0.02 s)
     const wave = (yl, amp, f, ox = 50, lab) => svg(300, 170, A(ox, 160, ox, 12) + A(ox, 86, 290, 86) + T(ox - 6, 90, '0', 'end', 'sm') + T(ox - 6, 22, yl, 'end', 'sm') + T(290, 76, '<tspan class="it">t</tspan> / s', 'end', 'sm') +
       D(ox, 36, ox + 22, 36) + D(ox, 136, ox + 75, 136) + T(ox - 6, 40, amp, 'end', 'sm') + T(ox - 6, 140, '−' + amp, 'end', 'sm') +
@@ -13387,7 +13451,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     const answerBox = (n) => {
       const ans = ansFor(n), tip = tips[String(n)];
       if (!ans && !tip) return '';
-      return `<details class="pa-item pt-ans"><summary>Show answer for Question ${n}</summary>${ans ? `<p>${mathify(ans)}</p>` : ''}${tip ? `<div class="pa-tip"><b>${p.id === '2025u1' ? 'Common mistakes (from our class marking)' : "Examiners' comments: common mistakes"}</b><br>${mathify(tip)}</div>` : ''}</details>`;
+      return `<details class="pa-item pt-ans"><summary>Show answer for Question ${n}</summary>${ans ? fmtAns(ans, mathify) : ''}${tip ? `<div class="pa-tip"><b>${p.id === '2025u1' ? 'Common mistakes (from our class marking)' : "Examiners' comments: common mistakes"}</b><br>${mathify(tip)}</div>` : ''}</details>`;
     };
     const sec = (arr) => arr.map(x => { const ok = ptAnswerable(x.parts); return `<div class="pt-q"><div class="pt-qhead"><span class="pt-n">${x.n}</span><div class="pt-body">${x.stem ? `<p>${x.stem}</p>` : ''}${x.fig ? img(x.fig) : ''}${
       x.parts.map(([l, txt, m], j) => l === 'fig' ? img(txt) : `<div class="pt-part ${/^\(i/.test(l) ? 'pt-subpart' : ''}"><span class="pt-pl">${l}</span><span class="pt-pt">${txt}</span><span class="pt-pm">${m !== '' ? `[${m}]` : ''}</span></div>${
@@ -18146,7 +18210,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     const tips = PAST_TIPS[p.id] || {};
     const tipLabel = p.id === '2025u1' ? 'Common mistakes (from our class marking)' : "Examiners' comments: common mistakes";
     $('#past-answers').innerHTML = p.answers.map(([q,a]) => `
-      <details class="pa-item"><summary>Question ${q}</summary><p>${mathify(a)}</p>${tips[q] ? `<div class="pa-tip"><b>${tipLabel}</b><br>${mathify(tips[q])}</div>` : ''}</details>`).join('');
+      <details class="pa-item"><summary>Question ${q}</summary>${fmtAns(a, mathify)}${tips[q] ? `<div class="pa-tip"><b>${tipLabel}</b><br>${mathify(tips[q])}</div>` : ''}</details>`).join('');
     const scores = await loadPastScores();
     const s = scores[p.id];
     $('#past-best').textContent = s ? `Your best Section A score: ${s.best}/${s.total}` : '';
