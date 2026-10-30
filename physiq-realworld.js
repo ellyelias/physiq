@@ -15,7 +15,7 @@
     // a PhysiQ video hosted in the app itself (portrait), played with the built-in video player
     if (v.src) return `<div class="rl-vid rl-tall"><button type="button" class="rl-play" data-rl-src="${esc(v.src)}" aria-label="Play video: ${esc(v.title)}"><img src="${esc(v.poster)}" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button>
 <div class="rl-vcap">${v.type ? `<span class="rl-type">${esc(v.type)}</span>` : ''}<span>${esc(v.title)}${v.channel ? ' · ' + esc(v.channel) : ''}</span></div></div>`;
-    return `<div class="rl-vid${small ? ' sm' : ''}"><button type="button" class="rl-play" data-rl-play="${esc(v.id)}" aria-label="Play video: ${esc(v.title)}"><img src="https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button>
+    return `<div class="rl-vid${small ? ' sm' : ''}${v.tall ? ' rl-tall' : ''}"><button type="button" class="rl-play" data-rl-play="${esc(v.id)}" aria-label="Play video: ${esc(v.title)}"><img src="https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button>
 <div class="rl-vcap">${v.type ? `<span class="rl-type">${esc(v.type)}</span>` : ''}<span>${esc(v.title)}${v.channel ? ' · ' + esc(v.channel) : ''}</span><a href="${yt(esc(v.id))}" target="_blank" rel="noopener">Open in YouTube ↗</a></div></div>`;
   }
 
@@ -84,9 +84,9 @@
     { sem: '1', ch: 11, title: 'A diesel engine: ignition by adiabatic compression', physics: 'Air is compressed so quickly that little heat escapes (nearly adiabatic): work done on the gas raises its internal energy and temperature enough to ignite the fuel without a spark.',
       videos: [{ id: 'qeGQgPQsJJI', title: 'How a diesel engine works', type: 'Animation' }] },
     { sem: '1', ch: 12, title: 'Heat and radiation', physics: 'Heat is the energy transferred because of a temperature difference. Radiation transfers it as electromagnetic waves (mainly infrared) and needs no medium. Power radiated P = eσAT⁴; Wien’s law λmax T = b; a good absorber is a good emitter; net rate P_net = eσA(T₀⁴ − Tₛ⁴).',
-      videos: [{ id: 'physiq-heat-radiation', src: 'assets/videos/heat-radiation.mp4', poster: 'assets/videos/heat-radiation.jpg', title: 'Heat and Radiation', channel: 'PhysiQ', type: 'PhysiQ animation' }] },
+      videos: [{ id: 'nO6nVKyj6jY', tall: true, title: 'Heat and Radiation', channel: 'Cikgu Suhaili', type: 'PhysiQ animation' }] },
     { sem: '1', ch: 12, title: 'The greenhouse effect', physics: 'The Sun (≈ 5800 K) emits short-wavelength radiation that warms the Earth’s surface. The cooler surface (≈ 288 K) emits long-wavelength infrared, which greenhouse gases absorb and re-emit, partly back to the surface. More greenhouse gases from human activities give the enhanced greenhouse effect and global warming.',
-      videos: [{ id: 'physiq-greenhouse-effect', src: 'assets/videos/greenhouse-effect.mp4', poster: 'assets/videos/greenhouse-effect.jpg', title: 'The Greenhouse Effect', channel: 'PhysiQ', type: 'PhysiQ animation' }] },
+      videos: [{ id: '04zBwWK0wW8', tall: true, title: 'The Greenhouse Effect', channel: 'Cikgu Suhaili', type: 'PhysiQ animation' }] },
     { sem: '1', ch: 12, title: 'Can a warmer Earth bring a mountain down?', physics: 'The enhanced greenhouse effect, Wien’s law and melting permafrost behind the Nepal glacier collapse.',
       card: 'ls-12-rw-nepal', videos: [{ id: 'gowCz9olnhk', title: 'How a Mountain Collapse Became Nepal’s Catastrophic Flood', channel: 'Project Quantum', type: 'Current affairs' }] },
     { sem: '1', ch: 12, title: 'Inside a vacuum flask', physics: 'The vacuum stops conduction and convection, the silvered walls reduce radiation, and the stopper stops convection out of the top.',
