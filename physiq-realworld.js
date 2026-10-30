@@ -12,6 +12,9 @@
 
   // a video that loads only when tapped
   function player(v, small) {
+    // a PhysiQ video hosted in the app itself (portrait), played with the built-in video player
+    if (v.src) return `<div class="rl-vid rl-tall"><button type="button" class="rl-play" data-rl-src="${esc(v.src)}" aria-label="Play video: ${esc(v.title)}"><img src="${esc(v.poster)}" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button>
+<div class="rl-vcap">${v.type ? `<span class="rl-type">${esc(v.type)}</span>` : ''}<span>${esc(v.title)}${v.channel ? ' · ' + esc(v.channel) : ''}</span></div></div>`;
     return `<div class="rl-vid${small ? ' sm' : ''}"><button type="button" class="rl-play" data-rl-play="${esc(v.id)}" aria-label="Play video: ${esc(v.title)}"><img src="https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button>
 <div class="rl-vcap">${v.type ? `<span class="rl-type">${esc(v.type)}</span>` : ''}<span>${esc(v.title)}${v.channel ? ' · ' + esc(v.channel) : ''}</span><a href="${yt(esc(v.id))}" target="_blank" rel="noopener">Open in YouTube ↗</a></div></div>`;
   }
@@ -76,6 +79,8 @@
       videos: [{ id: 'jIxwVfTuK6Q', title: 'Tensile test: stress-strain diagram', channel: 'UPV', type: 'Laboratory demonstration' }] },
     { sem: '1', ch: 10, title: 'How a hot air balloon rises', physics: 'Heating the air raises the mean kinetic energy of its molecules; at the same pressure the hot air is less dense (pV = nRT), so the balloon is pushed up by the cooler, denser air around it.',
       videos: [{ id: 'dhIcNhwqebw', title: 'How does a hot air balloon fly?', type: 'Explainer' }] },
+    { sem: '1', ch: 10, title: 'The Cartesian diver', physics: 'Squeezing the bottle increases the water pressure. The trapped air pocket is compressed at constant temperature (Boyle’s law, pV = constant), so its volume decreases, the diver displaces less water and sinks. Release the bottle and the air expands again, so the diver rises. A submarine’s ballast tanks use the same idea.',
+      videos: [{ id: 'physiq-cartesian-diver', src: 'assets/videos/cartesian-diver.mp4', poster: 'assets/videos/cartesian-diver.jpg', title: 'The Cartesian Diver', channel: 'PhysiQ', type: 'PhysiQ animation' }] },
     { sem: '1', ch: 11, title: 'A diesel engine: ignition by adiabatic compression', physics: 'Air is compressed so quickly that little heat escapes (nearly adiabatic): work done on the gas raises its internal energy and temperature enough to ignite the fuel without a spark.',
       videos: [{ id: 'qeGQgPQsJJI', title: 'How a diesel engine works', type: 'Animation' }] },
     { sem: '1', ch: 12, title: 'Can a warmer Earth bring a mountain down?', physics: 'The enhanced greenhouse effect, Wien’s law and melting permafrost behind the Nepal glacier collapse.',
@@ -188,6 +193,12 @@ ${list.map(x => `<div class="rl-ls-item" id="${esc(x.anchor)}"><div class="rl-vi
       f.title = pl.getAttribute('aria-label') || 'Video'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
       f.referrerPolicy = 'strict-origin-when-cross-origin';
       const v = pl.parentNode; pl.remove(); v.insertBefore(f, v.firstChild); v.classList.add('on'); return;
+    }
+    const ps = e.target.closest && e.target.closest('[data-rl-src]');
+    if (ps) {
+      const f = document.createElement('video');
+      f.src = ps.dataset.rlSrc; f.controls = true; f.autoplay = true; f.playsInline = true; f.preload = 'auto';
+      const v = ps.parentNode; ps.remove(); v.insertBefore(f, v.firstChild); v.classList.add('on'); f.play().catch(() => {}); return;
     }
     const g = e.target.closest && e.target.closest('[data-rl-go]'); if (g) { openItem(ITEMS[+g.dataset.rlGo]); return; }
     const j = e.target.closest && e.target.closest('[data-rl-sem]');
