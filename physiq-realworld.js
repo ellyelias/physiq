@@ -75,6 +75,8 @@
       card: 'ls-8-rw-burj', videos: [{ id: 'N5i3UsiSoYY', title: 'The Physics Behind The Burj Khalifa And Why It Doesn’t Fall Over', channel: 'Quest TV', type: 'Documentary' }] },
     { sem: '1', ch: 8, title: 'How a tower crane stays upright', physics: 'The counterweight balances the moment of the load about the tower: for equilibrium the sum of clockwise moments equals the sum of anticlockwise moments, and the centre of gravity must stay over the base.',
       videos: [{ id: 'ROyVptssgOc', title: 'How Cranes Lift Heavy Loads Without Tipping Over', type: 'Engineering explainer' }] },
+    { sem: '1', ch: 8, title: 'Worked solution: a ladder against a smooth wall', physics: 'An STPM-style question solved step by step: sketch all the forces on the ladder, take moments about the foot using the perpendicular distance (12.0 m, not 15.0 m), find the forces from the wall and the floor, then use F = μR to find how far the boy can climb before the ladder slips.',
+      videos: [{ id: 'F4IeR5wNqYA', tall: true, title: 'STPM Q19(c): Ladder Against a Smooth Wall', channel: 'Cikgu Suhaili', type: 'Worked solution' }] },
     { sem: '1', ch: 9, title: 'A real tensile test', physics: 'A steel specimen is stretched to breaking: identify the elastic region, the yield point and plastic (permanent) deformation on the stress–strain graph.',
       videos: [{ id: 'jIxwVfTuK6Q', title: 'Tensile test: stress-strain diagram', channel: 'UPV', type: 'Laboratory demonstration' }] },
     { sem: '1', ch: 10, title: 'How a hot air balloon rises', physics: 'Heating the air raises the mean kinetic energy of its molecules; at the same pressure the hot air is less dense (pV = nRT), so the balloon is pushed up by the cooler, denser air around it.',
