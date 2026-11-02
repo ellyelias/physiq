@@ -134,11 +134,11 @@ function item(it) {
 let boxNo = 0;
 function page(id, ch) {
   boxNo = 0;
-  const nm = names[id], sem = id.startsWith('S2-') ? 2 : id.startsWith('S3-') ? 3 : 1;
+  const nm = names[id] || { num: '', title: ch.hubTitle }, sem = id.startsWith('S2-') ? 2 : id.startsWith('S3-') ? 3 : 1;
   const col = c => ch.boxes.filter(b => b.col === c);
   boxNo = 0; [...ch.boxes, ...(ch.rows || []).flatMap(r => r.boxes)].forEach(b => { if (b.n !== false) b._n = ++boxNo; });
   const boxN = b => { const n = b.n === false ? '' : `<span class="no">${b._n}</span>`; return `<section class="box" data-link="${b.link === false || b.col === 'W' ? 0 : 1}" style="--c:${COLORS[b.c] || b.c}${b.grow === false ? ';flex-grow:0' : ''}"><h3>${n}<span>${inl(b.t)}</span>${b.icon ? `<span class="ic">${b.icon}</span>` : ''}</h3><div class="bd">${b.body.map(item).join('')}</div></section>`; };
-  const colH = c => { const bs = col(c).map(boxN); if (c === 'M') bs.splice(ch.hubAt || 0, 0, `<section class="hub" id="hub"><div class="hubin"><div class="hc">Chapter ${nm.num}</div><h1>${inl(ch.hubTitle || nm.title)}</h1>${ch.hubIcon || ''}<p>${inl(ch.idea)}</p></div></section>`); return `<div class="col">${bs.join('')}</div>`; };
+  const colH = c => { const bs = col(c).map(boxN); if (c === 'M') bs.splice(ch.hubAt || 0, 0, `<section class="hub" id="hub"><div class="hubin"><div class="hc">${ch.kicker || 'Chapter ' + nm.num}</div><h1>${inl(ch.hubTitle || nm.title)}</h1>${ch.hubIcon || ''}<p>${inl(ch.idea)}</p></div></section>`); return `<div class="col">${bs.join('')}</div>`; };
   const rows = (ch.rows || []).map(r => `<div class="wrow" style="grid-template-columns:${(r.cols || r.boxes.map(() => '1fr').join(' ')).replace(/([\d.]+)fr/g, 'minmax(0,$1fr)')}">${r.boxes.map(boxN).join('')}</div>`).join('');
   const tips = ch.tips ? `<div class="tips"><div class="tl">EXAM TIPS</div>${ch.tips.map(t => `<div class="tp">${inl(t)}</div>`).join('')}</div>` : '';
   const css = `
@@ -200,7 +200,7 @@ ol.num li::before{content:counter(n);position:absolute;left:0;top:.05em;width:1.
 `;
   return `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="file://${KATEX}/katex.min.css"><style>${css}</style></head><body>
 <div class="pg" id="pg"><svg id="links"></svg>
-<div class="top"><span>PhysiQ <b>·</b> STPM Physics Semester ${sem}</span><span>Chapter ${nm.num} mind map</span></div>
+<div class="top"><span>PhysiQ <b>·</b> STPM Physics Semester ${sem}</span><span>${ch.topRight || 'Chapter ' + nm.num + ' mind map'}</span></div>
 <div class="grid">${['L', 'M', 'R'].map(colH).join('')}</div>
 ${rows}${tips}
 <div class="foot"><span><b>PhysiQ</b> by Cikgu Suhaili</span><span>ellyelias.github.io/physiq</span></div>
@@ -259,7 +259,7 @@ async function fit(pg) {
   }
   await browser.close();
   // list every chapter that has a poster in index.html so the Notes tab shows it
-  const have = fs.readdirSync(OUT_IMG).filter(f => f.endsWith('.webp')).map(f => f.slice(0, -5)).filter(i => DATA[i]);
+  const have = fs.readdirSync(OUT_IMG).filter(f => f.endsWith('.webp')).map(f => f.slice(0, -5)).filter(i => DATA[i] && /^(S\d-)?\d+$/.test(i));
   const ord = i => (i.startsWith('S2-') ? 200 : i.startsWith('S3-') ? 300 : 100) + +i.replace(/^S\d-/, '');
   have.sort((x, y) => ord(x) - ord(y));
   const ip = path.join(ROOT, 'index.html');

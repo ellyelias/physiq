@@ -1278,4 +1278,76 @@ module.exports = K => ({
   },
 
 
+
+  'S3-TECH': {
+    sem: 3,
+    kicker: 'Semester 3 · Sections B &amp; C',
+    topRight: 'Answering technique mind map',
+    hubTitle: 'Answering<br>Technique',
+    idea: '**Know it AND present it.** Most lost marks come from presentation, not from the physics.',
+    hubAt: 0,
+    boxes: [
+      { t: 'How marks are given', c: 'blue', col: 'L', body: [
+        ['num', ['**Specific formula** (signs chosen)', '**Substitution** with values', '**Answer + unit**, correct s.f.']],
+        ['sub', ['Example · Doppler', ['p', '✗ $f\' = \\dfrac{v \\pm u_o}{v \\mp u_s}f$ → no mark'], ['p', '✓ $f\' = \\dfrac{v + u_o}{v + u_s}f = \\dfrac{340 + 250}{340 + 200}(16\\,000)$'], ['p', '$= 17.5$ kHz']], 'blue'],
+        ['sub', ['Example · intensity level', ['p', '$\\beta = 10\\log_{10}\\dfrac{I}{I_0}$'], ['p', '$= 10\\log_{10}\\dfrac{2.0\\times10^{-6}}{1.0\\times10^{-12}} = 63$ dB']], 'blue'],
+      ] },
+      { t: 'Significant figures & π', c: 'green', col: 'L', body: [
+        ['b', ['Use the **least s.f. in the data** (STPM accepts up to 4 s.f.).', 'No answer **in terms of π** unless asked.']],
+        ['sub', ['Example · wave equation', ['p', 'λ = 10 cm, f = 400 Hz, A = 2.0 cm'], ['p', '✗ $y = 0.020\\sin(20\\pi x - 800\\pi t)$'], ['p', '✓ $y = 0.020\\sin(63x - 2.5\\times10^{3}t)$ m']], 'green'],
+      ] },
+      { t: 'Error carried forward', c: 'teal', col: 'L', body: [
+        ['p', 'A wrong answer from (a), used correctly in (b), still earns the marks in (b).'],
+        ['sub', ['Example', ['p', '(a) λ = 0.50 m ✗ (should be 0.40 m)'], ['p', '(b) $v = f\\lambda = 850 \\times 0.50 = 425$ m s⁻¹ ✓ ECF']], 'teal'],
+        ['note', 'Never leave (b) and (c) blank because (a) went wrong.'],
+      ] },
+      { t: 'State & define', c: 'pink', col: 'M', body: [
+        ['p', 'Write a **full sentence** with the key words. A formula alone scores 0.'],
+        ['sub', ['Intensity', ['p', '✗ $I = P/A$'], ['p', '✓ The **rate of energy transferred per unit cross-sectional area perpendicular** to the direction of wave propagation.']], 'pink'],
+        ['sub', ['Beats', ['p', '✗ $f = f_1 - f_2$'], ['p', '✓ **Periodic variation in intensity** caused by the superposition of two waves of **slightly different frequencies**.']], 'pink'],
+      ] },
+      { t: 'Explain in sequence', c: 'orange', col: 'M', body: [
+        ['p', 'Ask after each point: **"If this happens, what follows next?"** Right points in the wrong order may score 0.'],
+        ['sub', ['Propagation of sound', ['num', ['Air particles move **to and fro**.', '**Compressions** (high pressure) and **rarefactions** (low pressure) form.', 'Particles vibrate **parallel** to the propagation: a longitudinal wave travels.']]], 'orange'],
+        ['sub', ['Standing wave in a pipe', ['num', ['Air blown in: air particles vibrate.', 'Sound wave **reflected** at the end.', 'Incident and reflected waves **superpose**.', '**Standing wave** with nodes and antinodes.']]], 'orange'],
+      ] },
+      { t: 'Sketch graphs', c: 'purple', col: 'R', body: [
+        ['p', 'Label **both axes** with the quantity (units optional). Unlabelled = 0.'],
+        ['svg', K.svg(320, 170, K.arrow(36, 88, 312, 88) + K.arrow(36, 160, 36, 8) + K.text(312, 106, 't', { i: 1, a: 'end', s: 16 }) + K.text(44, 16, 'x', { i: 1, a: 'start', s: 16 }) + K.text(30, 32, 'A', { i: 1, a: 'end', s: 14 }) +
+          K.curve(36, 300, x => 88 - 60 * Math.cos(2 * Math.PI * (x - 36) / 66), '#94A3B8', 2, '5 4') +
+          K.curve(36, 300, x => 88 - 60 * Math.exp(-(x - 36) / 85) * Math.cos(2 * Math.PI * (x - 36) / 66), '#7C3AED', 2.6) +
+          K.curve(36, 300, x => 88 - 60 * (1 + (x - 36) / 16) * Math.exp(-(x - 36) / 16), '#DC2626', 2.6) +
+          K.curve(36, 300, x => 88 - 60 * Math.exp(-(x - 36) / 120), '#0369A1', 2.6) +
+          K.text(300, 150, 'free (dashed)', { a: 'end', s: 13, c: '#64748B', b: 1 }) + K.text(300, 132, 'light', { a: 'end', s: 13, c: '#7C3AED', b: 1 }) +
+          K.text(122, 80, 'critical', { a: 'start', s: 13, c: '#DC2626', b: 1 }) + K.text(300, 46, 'heavy', { a: 'end', s: 13, c: '#0369A1', b: 1 }), 320)],
+        ['note', 'Comparing damping: **all curves start from the amplitude** (released from A in an experiment).'],
+        ['sub', ['Example · sound wave', ['p', 'On a displacement–distance graph, midway from **+max to −max** displacement = **compression** (max pressure); from −max to +max = **rarefaction** (min pressure).']], 'purple'],
+      ] },
+      { t: 'No multiple answers', c: 'red', col: 'R', body: [
+        ['p', 'Two alternative formulae or answers = **0 marks**. Decide first.'],
+        ['sub', ['Example · beats', ['p', 'P: 256 Hz, 4 beats s⁻¹. Loading Q **lowers** the beat frequency.'], ['p', '✗ $f_2 = 256 + 4$ or $256 - 4$'], ['p', '✓ Loading lowers $f_2$ and $f_b$ drops, so $f_b = f_2 - f_1$:'], ['p', '$4 = f_2 - 256$, $f_2 = 260$ Hz']], 'red'],
+        ['note', 'Changed your mind? Cross out the wrong working so only **one** answer remains.'],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr 1fr', boxes: [
+        { t: 'Calculate safely', c: 'amber', col: 'W', body: [
+          ['p', '**Ionisation energy:** start from $E_\\infty - E_1$'],
+          ['f', 'E = 0 - (-13.6) = 13.6\\ \\text{eV}'],
+          ['p', '**Bohr energy:** key in steps (m ÷ 8 ÷ ε₀², × e⁴, ÷ h², ÷ n²) or the calculator shows 0.'],
+          ['p', 'Use **1 u = 931.5 MeV** only if given; else $E = \\Delta m c^2$ in kg.'],
+        ] },
+        { t: 'Read, then choose', c: 'sky', col: 'W', body: [
+          ['p', '**Thin film** in air, reflected light **appears red** → blue is cancelled (destructive):'],
+          ['f', 't_{min} = \\dfrac{\\lambda_b}{2n} = \\dfrac{465}{2(1.33)} = 175\\ \\text{nm}'],
+          ['p', 'Not always λ/4n. **Malus:** first polariser gives $I_0/2$, then $I = I_1\\cos^2\\theta$.'],
+        ] },
+        { t: 'Compare questions', c: 'navy', col: 'W', body: [
+          ['tbl', [['', 'Beats', 'Interference'], ['Waves', 'slightly different f', 'coherent'], ['Observer', 'stays still', 'must move']]],
+          ['tbl', [['', 'Progressive', 'Standing'], ['Profile', 'moves', 'does not move'], ['Energy', 'transferred', 'not transferred']]],
+        ] },
+      ] },
+    ],
+    tips: ['No repeat paper for Sem 3: prepare fully.', 'Analyse every diagram **before** the exam.', 'Sem 1 & 2 skills are fair game (cosine rule: $I\' = 3.7I_0$).', 'Change in mass = final − initial (keep the sign).'],
+  },
 });
