@@ -21,6 +21,7 @@
     f: '<path d="M5 6h14M5 12h9M5 18h6"/><path d="M17 15l3 3-3 3"/>',
     d: '<path d="M5 5h14v14H5z"/><path d="M8 9h8M8 13h8M8 17h5"/>',
     dv: '<path d="M4 18c4 0 4-12 8-12s4 12 8 12"/><path d="M4 6h3"/>',
+    cc: '<circle cx="12" cy="12" r="8"/><path d="M10 9l5 3-5 3z"/>',
     back: '<path d="M15 6l-6 6 6 6"/>', go: '<path d="M9 6l6 6-6 6"/>'
   };
   const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
@@ -56,6 +57,7 @@
     if (/^DERIV-/.test(v)) return 'Syllabus derivations';
     if (/^FLASH-/.test(v)) return 'Flashcards';
     if (v === 'REALWORLD') return 'Physics in Real Life';
+    if (/^CLINIC-/.test(v)) return 'Concept Clinic';
     const bc = bcGroup(); if (bc && bc.opts.some(o => o.v === v)) return 'Section B & C guide';
     return 'Chapters';
   }
@@ -70,7 +72,7 @@
   function render() {
     const inContent = view === 'content';
     // flashcards and Physics in Real Life have no topic to practise or PDF to download
-    extras.forEach(el => el.classList.toggle('nn-off', !inContent || /^FLASH-|^REALWORLD$/.test(sel.value)));
+    extras.forEach(el => el.classList.toggle('nn-off', !inContent || /^FLASH-|^REALWORLD$|^CLINIC-/.test(sel.value)));
     if (contentCard) contentCard.classList.toggle('nn-off', !inContent);
     nav.dataset.view = view;
     nav.innerHTML = markup(view, false);
@@ -113,7 +115,8 @@
         bc ? { k: 'bc', t: 'Section B & C guide', s: 'Exam technique and the definitions keyword bank', act: bc.opts.length > 1 ? 'bc' : null, v: bc.opts.length === 1 ? bc.opts[0].v : null, c: 'c3' } : null,
         { k: 'f', t: 'Formula list', s: 'Every formula with symbols and units', v: 'FORMULA-' + sem, c: 'c4' },
         { k: 'd', t: 'Definition list', s: 'Definitions and laws, key words in bold', v: 'DEFS-' + sem, c: 'c5' },
-        { k: 'dv', t: 'Syllabus derivations', s: 'The derivations STPM 2026 asks for', v: 'DERIV-' + sem, c: 'c6' }
+        { k: 'dv', t: 'Syllabus derivations', s: 'The derivations STPM 2026 asks for', v: 'DERIV-' + sem, c: 'c6' },
+        [...sel.options].some(o => o.value === 'CLINIC-' + sem) ? { k: 'cc', t: 'Concept Clinic', s: 'Animations that fix the concepts where marks are most often lost', v: 'CLINIC-' + sem, c: 'c7' } : null
       ].filter(Boolean);
       return head + `<h3 class="nn-title">${s.name} <span>${esc(s.sub)}</span></h3><div class="nn-menu">${items.map(i =>
         `<button type="button" class="nn-item ${i.c}" ${i.act ? `data-view="${i.act}"` : `data-pick="${esc(i.v)}"`}><span class="nn-ico">${svg(i.k)}</span><span class="nn-txt"><b>${i.t}</b><span>${i.s}</span></span>${svg('go')}</button>`).join('')}</div>`;

@@ -146,12 +146,12 @@ ${qs}
     return `<header class="ls-head"><div class="ls-head-k">Chapter ${L0.chapter} · Semester ${L0.sem}</div><h2 class="ls-title${L0.title.length > 18 ? ' long' : ''}">${L0.title}</h2>
 <div class="ls-head-by">Notes by Cikgu Suhaili</div>
 <div class="ls-head-m"><span class="ls-nex">${L0.examples ? L0.examples + ' worked examples' : ''}</span>${L0.sims ? `<span>${L0.sims} simulation${L0.sims > 1 ? 's' : ''}</span>` : ''}<span>Exercises with answers</span></div>
-<nav class="ls-toc">${L0.toc.map(([id, t]) => `<button type="button" data-ls-go="${id}">${t}</button>`).join('')}${window.PhysiQRealWorld && window.PhysiQRealWorld.hasLesson(k) ? '<button type="button" data-ls-go="ls-rl">Physics in Real Life</button>' : ''}</nav>
+<nav class="ls-toc">${L0.toc.map(([id, t]) => `<button type="button" data-ls-go="${id}">${t}</button>`).join('')}${window.PhysiQRealWorld && window.PhysiQRealWorld.hasLesson(k) ? '<button type="button" data-ls-go="ls-rl">Physics in Real Life</button>' : ''}${window.PhysiQClinic && window.PhysiQClinic.hasLesson(k) ? '<button type="button" data-ls-go="ls-cc">Concept Clinic</button>' : ''}</nav>
 <div class="ls-size" role="group" aria-label="Text size"><span>Text size</span><button type="button" data-ls-size="0">A</button><button type="button" data-ls-size="1">A</button><button type="button" data-ls-size="2">A</button></div>
 </header>`;
   }
   // Physics in Real Life videos for this chapter (physiq-realworld.js), at the end of the notes
-  const realLife = k => (window.PhysiQRealWorld ? window.PhysiQRealWorld.forLesson(k) : '');
+  const realLife = k => (window.PhysiQRealWorld ? window.PhysiQRealWorld.forLesson(k) : '') + (window.PhysiQClinic ? window.PhysiQClinic.forLesson(k) : '');
   function render(k) {
     if (!LESSONS[k]) return '';
     return `<div class="ls" data-lesson="${k}">${head(k)}<div class="ls-body">${BODY[k] ? BODY[k].html() + realLife(k) : '<p class="ls-loading">Loading the notes…</p>'}</div></div>`;
@@ -189,8 +189,8 @@ ${qs}
       }
     });
     const count = () => { const n = root.querySelectorAll('.ls-body .ls-ex').length, c = root.querySelector('.ls-nex'); if (c && n) c.textContent = n + ' worked examples'; };
-    const fill = () => { const b = root.querySelector('.ls-body'); if (!b || !root.isConnected) return; b.innerHTML = BODY[k].html() + realLife(k); count(); if (window.PhysiQSims) window.PhysiQSims.mountAll(root); };
-    if (BODY[k]) { count(); if (window.PhysiQSims) window.PhysiQSims.mountAll(root); } else load(k, fill);
+    const fill = () => { const b = root.querySelector('.ls-body'); if (!b || !root.isConnected) return; b.innerHTML = BODY[k].html() + realLife(k); count(); if (window.PhysiQSims) window.PhysiQSims.mountAll(root); if (window.PhysiQClinic) window.PhysiQClinic.mountAll(root); };
+    if (BODY[k]) { count(); if (window.PhysiQSims) window.PhysiQSims.mountAll(root); if (window.PhysiQClinic) window.PhysiQClinic.mountAll(root); } else load(k, fill);
   }
 
   window.PhysiQLessons = { LESSONS, H, register, render, init, has: k => !!LESSONS[k] };

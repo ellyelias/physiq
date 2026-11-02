@@ -548,6 +548,7 @@
 <link rel="stylesheet" href="physiq-poster.css?v=20261022d">
 <link rel="stylesheet" href="physiq-lessons.css?v=20261022d">
 <link rel="stylesheet" href="physiq-flashcards.css?v=20261030b">
+<link rel="stylesheet" href="physiq-clinic.css?v=20261102b">
 </head>
 <body>
 <div class="app">
@@ -1141,10 +1142,11 @@
 
 <script src="diagrams.js" defer></script>
 <script src="physiq-sims.js?v=20261022b"></script>
-<script src="physiq-lessons.js?v=20261022p"></script>
+<script src="physiq-lessons.js?v=20261102a"></script>
 <script src="physiq-solutions.js?v=20261023a"></script>
 <script src="physiq-flashcards.js?v=20261022b"></script>
 <script src="physiq-realworld.js?v=20261031c"></script>
+<script src="physiq-clinic.js?v=20261102b"></script>
 <script>
 (function(){
 
@@ -6819,6 +6821,7 @@ const NOTES_EXTRA = (function(){
     const extraKeys = Object.keys(EXTRA_NOTES).filter(t => (EXTRA_NOTES_SEM[t] || '1') === sem);
     if (extraKeys.length) html += `<optgroup label="Sections B &amp; C guides">${extraKeys.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('')}</optgroup>`;
     html += `<optgroup label="Quick lists · Semester ${sem}"><option value="FORMULA-${sem}">Formula list · Semester ${sem}</option><option value="DEFS-${sem}">Definition list · Semester ${sem}</option><option value="FLASH-${sem}">Flashcards · Semester ${sem}</option></optgroup><optgroup label="Physics in Real Life"><option value="REALWORLD">Physics in Real Life · all videos</option></optgroup>`;
+    if (String(sem) === '3' && window.PhysiQClinic) html += `<optgroup label="Concept Clinic"><option value="CLINIC-3">Concept Clinic · Semester 3</option></optgroup>`;
     html += `<optgroup label="Syllabus derivations (STPM 2026)"><option value="DERIV-${sem}">All derivations · Semester ${sem} (${derivCount(Number(sem))})</option></optgroup>`;
     const groups = {};
     TOPICS.forEach(t=>{
@@ -7049,6 +7052,7 @@ const NOTES_EXTRA = (function(){
       window.PhysiQFlashcards.mount($('#notes-content'), flashcardData(), {sem: key.split('-')[1], onSem: s => { if (window.PhysiQNotesNav) window.PhysiQNotesNav.open('FLASH-' + s, s); }});
       updateNotesDownloads('GUIDE-' + key.split('-')[1]); return;
     }
+    if (/^CLINIC-/.test(key) && window.PhysiQClinic){ window.PhysiQClinic.mount($('#notes-content'), key.split('-')[1]); updateNotesDownloads('GUIDE-' + key.split('-')[1]); return; }
     if (key === 'REALWORLD' && window.PhysiQRealWorld){ window.PhysiQRealWorld.mount($('#notes-content')); updateNotesDownloads('GUIDE-' + currentSemester); return; }
     if (key.indexOf('LESSON-') === 0 && window.PhysiQLessons && window.PhysiQLessons.has(key)){
       const LS = window.PhysiQLessons, box = $('#notes-content');
@@ -7074,7 +7078,7 @@ const NOTES_EXTRA = (function(){
     if (EXTRA_NOTES[key]){ $$('.tab').find(t=>t.dataset.tab==='structured').click(); window.scrollTo({top:0, behavior:'smooth'}); return; }
     let wanted;
     if (key.indexOf('LESSON-') === 0 && window.PhysiQLessons && window.PhysiQLessons.has(key)) wanted = window.PhysiQLessons.LESSONS[key].topics.slice();
-    else if (key.indexOf('GUIDE-') === 0 || key.indexOf('DERIV-') === 0 || /^(FORMULA|DEFS|FLASH)-/.test(key) || key === 'REALWORLD') wanted = TOPICS.slice();
+    else if (key.indexOf('GUIDE-') === 0 || key.indexOf('DERIV-') === 0 || /^(FORMULA|DEFS|FLASH|CLINIC)-/.test(key) || key === 'REALWORLD') wanted = TOPICS.slice();
     else wanted = [key];
     $$('.tab').forEach(t=>t.classList.remove('active'));
     const studentTab = $$('.tab').find(t=>t.dataset.tab==='student');
@@ -19107,7 +19111,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
 })();
 </script>
 <script src="physiq-v2-ui.js"></script>
-<script src="physiq-notes-nav.js?v=20261022e"></script>
+<script src="physiq-notes-nav.js?v=20261102a"></script>
 <script src="physiq-back.js?v=20261022c"></script>
 </body>
 </html>
