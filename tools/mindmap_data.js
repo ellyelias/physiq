@@ -1350,4 +1350,70 @@ module.exports = K => ({
     ],
     tips: ['No repeat paper for Sem 3: prepare fully.', 'Analyse every diagram **before** the exam.', 'Sem 1 & 2 skills are fair game (cosine rule: $I\' = 3.7I_0$).', 'Change in mass = final − initial (keep the sign).'],
   },
+
+  'S2-TECH': {
+    kicker: 'Semester 2 · B &amp; C',
+    topRight: 'Answering technique mind map',
+    hubTitle: 'Answering<br>Technique',
+    idea: '**Short question, complete answer.** State the condition you apply, then show every step.',
+    hubAt: 0,
+    boxes: [
+      { t: 'How marks are given', c: 'blue', col: 'L', body: [
+        ['num', ['**Formula** (marks even if substitution slips)', '**Substitution**', '**Answer + unit**, correct s.f.']],
+        ['sub', ['Example · capacitance', ['p', 'Discharge to 37% in 0.75 s through 1.8 MΩ:'], ['p', '$0.37 = e^{-t/RC}$ → $C = \\dfrac{0.75}{1.8\\times10^{6}\\times0.994}$'], ['p', '$= 4.19\\times10^{-7}$ F']], 'blue'],
+        ['sub', ['Example · drift velocity', ['p', '$I = nAev$ → $v = \\dfrac{I}{nAe} = 1.50\\times10^{-4}$ m s⁻¹']], 'blue'],
+        ['p', 'Use **ε₀ from the data list**, not k = 9 × 10⁹: a slightly different answer can be marked wrong.'],
+      ] },
+      { t: 'Sig. figs, π & ECF', c: 'green', col: 'L', body: [
+        ['b', ['Least s.f. in the data (STPM accepts up to 4 s.f.).', 'a.c. equations in **numbers**, not π.', '**ECF:** a wrong (a) used correctly in (b) still scores.']],
+        ['sub', ['Example · a.c. equation', ['p', '✗ $V = 325\\sin(100\\pi t)$'], ['p', '✓ $V = 325\\sin(314t)$ V']], 'green'],
+      ] },
+      { t: 'Signs: scalar vs vector', c: 'teal', col: 'L', body: [
+        ['p', '**F, E (vectors):** magnitudes only; direction from a **positive test charge**.'],
+        ['p', '**V, U (scalars):** substitute the **sign**, add algebraically.'],
+        ['sub', ['Example · two opposite charges', ['p', '−5 µC and +5 µC, midpoint: the two $E$ add (both towards −5 µC), but $V = 0$.']], 'teal'],
+      ] },
+      { t: 'Define & explain', c: 'pink', col: 'M', body: [
+        ['p', '**Define:** full sentence. **Explain:** how it happens, in order.'],
+        ['sub', ['Capacitance', ['p', '✗ $C = Q/V$'], ['p', '✓ Ratio of the **charge on either plate** to the **p.d. between the plates**, $C = Q/V$.']], 'pink'],
+        ['sub', ['Drift velocity', ['p', '✓ The **mean** velocity of the free electrons when a p.d. is applied. Missing "mean" = 0.']], 'pink'],
+      ] },
+      { t: 'Explain in sequence', c: 'orange', col: 'M', body: [
+        ['p', 'Ask: **"After this, what happens next?"** Point form is fine if the order is right.'],
+        ['sub', ['Dielectric increases C', ['num', ['Nuclei → negative plate, electrons → positive plate.', '**Dipoles** form; opposing field.', '**V decreases**, Q constant.', '$C = Q/V$ **increases**.']]], 'orange'],
+        ['sub', ['Mutual induction', ['num', ['Current in primary → **flux**.', 'Flux **links** the secondary.', 'Current changes → **flux linkage changes**.', '**E.m.f. induced** in the secondary.']]], 'orange'],
+      ] },
+      { t: 'State the condition', c: 'purple', col: 'R', body: [
+        ['p', 'Brief question ("derive e/m") = complete answer with the **condition**.'],
+        ['tbl', [['Situation', 'Condition'], ['Speed selector', '$qE = qvB$'], ['Accelerated', '$eV = \\tfrac12 mv^2$'], ['Circle in B', '$qvB = mv^2/r$'], ['Hall voltage', '$qE_H = qvB$'], ['Held still', '$qE = mg$']]],
+        ['sub', ['Example · held stationary', ['p', 'Sphere with the charge of 20 electrons: $qE = mg$, $q = 20(1.6\\times10^{-19})$ C']], 'purple'],
+        ['sub', ['Hall polarity', ['p', 'Metal → **electrons**; p-type → **holes**. Fleming’s left-hand rule; label faces on a diagram.']], 'purple'],
+      ] },
+      { t: 'Choose the formula', c: 'red', col: 'R', body: [
+        ['kv', [['V constant', '$U = \\tfrac12 CV^2$'], ['Q constant', '$U = \\dfrac{Q^2}{2C}$'], ['Heating', '$\\langle P \\rangle = I_{rms}^2R = \\tfrac12 I_0^2R$'], ['Fuse', 'just above $I_{rms}$']]],
+        ['sub', ['Potentiometer', ['p', 'Driver cell only: $V \\propto l$.'], ['p', 'With a resistance: find $I$ in the driver circuit **first**.']], 'red'],
+        ['note', 'Charged C connected to uncharged C = **parallel**; Q conserved.'],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr 1fr', boxes: [
+        { t: 'Simplify circuits', c: 'amber', col: 'W', body: [
+          ['num', ['Read the words given.', '**Redraw**, following the current.', 'Combine series/parallel.']],
+          ['p', 'Cannot simplify → **Kirchhoff** (any current directions; write both laws).'],
+          ['p', 'Max power: $R = r$. MCQ: look for a **short circuit** first.'],
+        ] },
+        { t: 'Explain with conductivity', c: 'sky', col: 'W', body: [
+          ['f', '\\sigma = \\dfrac{ne^2t}{m}'],
+          ['p', '**Metal heated:** larger vibrations → mean free time $t$ ↓ → σ ↓ → ρ ↑.'],
+          ['p', '**Semiconductor heated:** $n$ ↑ → σ ↑ → ρ ↓.'],
+          ['p', 'ρ does not depend on length: halve $l$ → $R$ halves, ρ same.'],
+        ] },
+        { t: 'Answer the question asked', c: 'navy', col: 'W', body: [
+          ['p', '"What external force…?" → give the **value**: $F = \\dfrac{B^2l^2v}{R}$, not just "push".'],
+          ['p', 'Section C is not split into steps: plan it yourself (resolve horizontally and vertically, then solve).'],
+        ] },
+      ] },
+    ],
+    tips: ['MCQ: 17/20 or more is A territory.', 'Use A-level reference books for definitions.', 'Topics repeat (Hall effect again).', 'Do not trust AI answers blindly: check the physics.'],
+  },
 });
