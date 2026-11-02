@@ -1146,7 +1146,8 @@
 <script src="physiq-solutions.js?v=20261023a"></script>
 <script src="physiq-flashcards.js?v=20261022b"></script>
 <script src="physiq-realworld.js?v=20261031c"></script>
-<script src="physiq-clinic.js?v=20261102b"></script>
+<script src="physiq-clinic.js?v=20261102c"></script>
+<script src="physiq-clinic-s1.js?v=20261102c"></script>
 <script>
 (function(){
 
@@ -6821,7 +6822,7 @@ const NOTES_EXTRA = (function(){
     const extraKeys = Object.keys(EXTRA_NOTES).filter(t => (EXTRA_NOTES_SEM[t] || '1') === sem);
     if (extraKeys.length) html += `<optgroup label="Sections B &amp; C guides">${extraKeys.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('')}</optgroup>`;
     html += `<optgroup label="Quick lists · Semester ${sem}"><option value="FORMULA-${sem}">Formula list · Semester ${sem}</option><option value="DEFS-${sem}">Definition list · Semester ${sem}</option><option value="FLASH-${sem}">Flashcards · Semester ${sem}</option></optgroup><optgroup label="Physics in Real Life"><option value="REALWORLD">Physics in Real Life · all videos</option></optgroup>`;
-    if (String(sem) === '3' && window.PhysiQClinic) html += `<optgroup label="Concept Clinic"><option value="CLINIC-3">Concept Clinic · Semester 3</option></optgroup>`;
+    if (window.PhysiQClinic && window.PhysiQClinic.has(sem)) html += `<optgroup label="Concept Clinic"><option value="CLINIC-${sem}">Concept Clinic · Semester ${sem}</option></optgroup>`;
     html += `<optgroup label="Syllabus derivations (STPM 2026)"><option value="DERIV-${sem}">All derivations · Semester ${sem} (${derivCount(Number(sem))})</option></optgroup>`;
     const groups = {};
     TOPICS.forEach(t=>{

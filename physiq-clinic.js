@@ -305,35 +305,36 @@
   /* ---------- topic content: title, chapter, key equation and teaching points ---------- */
   const FRAC = (a, b) => `<span class="cc-frac"><span>${a}</span><span>${b}</span></span>`;
   const TOPICS = {
-    shm: { title: 'SHM: choose the right equation', ch: 20, sub: 'The starting position decides sine or cosine, and the sign',
+    shm: { sem: '3', lesson: 'LESSON-S3-20', title: 'SHM: choose the right equation', ch: 20, sub: 'The starting position decides sine or cosine, and the sign',
       eq: 'x = −A cos ωt', eqn: 'Compressed, then released: x = −A at t = 0',
       pts: ['Ask first: where is the object at t = 0?', 'Released from <b>compression</b>: starts at x = −A, so x = −A cos ωt.', 'Released from <b>stretch</b>: starts at x = +A, so x = A cos ωt.',
         'Starts at equilibrium moving in the + direction: x = A sin ωt.', 'Check: put t = 0 into your equation. It must give the starting position.', 'v = dx/dt. For x = −A cos ωt, v = Aω sin ωt.',
         'ω is in rad s<sup>−1</sup>, so ωt is in <b>radians</b>. Set the calculator to RAD first.'],
       segs: [['mode', [['comp', 'Released from compression'], ['stretch', 'Released from stretch'], ['eq', 'Starts at 0, moving +'], ['trap', 'Radian trap']]]], toggles: [['cmp', 'Compare sin & cos']] },
-    intensity: { title: 'Wave intensity: W m⁻²', ch: 21, sub: 'Power spreads over a sphere', eq: 'I = ' + FRAC('P', '4πr<sup>2</sup>'), eqn: 'Point source radiating power P equally in all directions',
+    intensity: { sem: '3', lesson: 'LESSON-S3-21', title: 'Wave intensity: W m⁻²', ch: 21, sub: 'Power spreads over a sphere', eq: 'I = ' + FRAC('P', '4πr<sup>2</sup>'), eqn: 'Point source radiating power P equally in all directions',
       pts: ['Intensity is power per unit area. Its unit is <b>W m<sup>−2</sup></b>, not W m<sup>−1</sup>.', 'From a point source, the power spreads over a sphere of area 4πr<sup>2</sup>.', 'So I ∝ 1/r<sup>2</sup>: doubling r spreads the same power over 4 times the area, and I falls to ¼.'] },
-    doppler: { title: 'Doppler effect', ch: 22, sub: 'Explain each motion separately in Section C', eq: 'f′ = ' + FRAC('v + v<sub>o</sub>', 'v − v<sub>s</sub>') + ' f', eqn: 'Source and observer moving towards each other',
+    doppler: { sem: '3', lesson: 'LESSON-S3-22', title: 'Doppler effect', ch: 22, sub: 'Explain each motion separately in Section C', eq: 'f′ = ' + FRAC('v + v<sub>o</sub>', 'v − v<sub>s</sub>') + ' f', eqn: 'Source and observer moving towards each other',
       pts: ['<b>Moving source</b>: each new wavefront is emitted closer to the one before, so the wavefronts bunch up ahead.', 'The wavelength in front decreases: λ′ = (v − v<sub>s</sub>) / f.', 'The speed of sound in air does not change with the source’s motion.',
         '<b>Moving observer</b>: the wavelength is unchanged, but the waves pass the observer at relative speed v + v<sub>o</sub>.', 'So the observer meets more wavefronts per second: f′ = (v + v<sub>o</sub>) / λ.'],
       segs: [['mode', [['still', 'Both at rest'], ['source', 'Source moves'], ['observer', 'Observer moves'], ['both', 'Both move']], 'source']] },
-    xray: { title: 'Production of X-rays', ch: 25, sub: 'Continuous and characteristic spectra', eq: 'λ<sub>min</sub> = ' + FRAC('hc', 'eV'), eqn: 'One electron loses all its kinetic energy eV in a single collision',
+    xray: { sem: '3', lesson: 'LESSON-S3-25', title: 'Production of X-rays', ch: 25, sub: 'Continuous and characteristic spectra', eq: 'λ<sub>min</sub> = ' + FRAC('hc', 'eV'), eqn: 'One electron loses all its kinetic energy eV in a single collision',
       pts: ['Electrons leave the heated filament by thermionic emission.', 'A high p.d. V accelerates them across the vacuum, so each gains kinetic energy eV.', 'Electrons decelerate in the target and emit a <b>continuous spectrum</b> (bremsstrahlung).',
         'The shortest wavelength is λ<sub>min</sub>, when all of eV becomes one photon.', '<b>Characteristic lines</b>: an electron knocks out a K-shell electron, an outer electron drops into the gap and emits a photon of fixed energy.',
         'Increase V: λ<sub>min</sub> decreases and intensity increases. The lines do not move.', 'Change the target metal: the lines move. λ<sub>min</sub> stays the same.', 'About 99% of the energy becomes heat, so the anode must be cooled.'],
       segs: [['mode', [['tube', 'X-ray tube'], ['spectrum', 'Spectrum']]], ['target', [['W', 'Tungsten'], ['Mo', 'Molybdenum']]]], sliders: [['V', 'Tube p.d.', 20, 120, 1, 80, 'kV', 0]] },
-    stop: { title: 'Stopping potential: V, not eV', ch: 25, sub: 'Photoelectric effect', eq: 'eV<sub>s</sub> = K<sub>max</sub>', eqn: 'K<sub>max</sub> = 1.96 eV (energy) gives V<sub>s</sub> = 1.96 V (potential difference)',
+    stop: { sem: '3', lesson: 'LESSON-S3-25', title: 'Stopping potential: V, not eV', ch: 25, sub: 'Photoelectric effect', eq: 'eV<sub>s</sub> = K<sub>max</sub>', eqn: 'K<sub>max</sub> = 1.96 eV (energy) gives V<sub>s</sub> = 1.96 V (potential difference)',
       pts: ['Stopping potential is a potential difference. Its unit is <b>V</b>, never eV.', 'The electronvolt (eV) is a unit of energy: 1 eV = 1.60 × 10<sup>−19</sup> J.', 'At the stopping potential the fastest photoelectrons just fail to reach the collector, so the photocurrent is zero.', 'eV<sub>s</sub> = K<sub>max</sub>, so K<sub>max</sub> = 1.96 eV gives V<sub>s</sub> = 1.96 V.'],
       sliders: [['Va', 'Retarding p.d.', 0, 3, 0.01, 1, 'V', 2]] },
-    decay: { title: 'Radioactive decay', ch: 26, sub: 'The four marking points for the definition', eq: FRAC('dN', 'dt') + ' = −λN', eqn: 'Rate of decay is proportional to the number of undecayed nuclei',
+    decay: { sem: '3', lesson: 'LESSON-S3-26', title: 'Radioactive decay', ch: 26, sub: 'The four marking points for the definition', eq: FRAC('dN', 'dt') + ' = −λN', eqn: 'Rate of decay is proportional to the number of undecayed nuclei',
       pts: ['An unstable nucleus emits <b>α, β or γ radiation</b>.', 'It becomes a different, more stable <b>daughter nuclide</b>.', 'The decay is spontaneous: it is <b>not affected by physical conditions</b> such as temperature and pressure.',
         'The rate of decay is <b>proportional to the number of undecayed nuclei</b>.', 'The decay is random: we cannot predict which nucleus decays next, only the fraction that decays.'],
       toggles: [['heat', 'Raise temperature & pressure']] },
-    round: { title: 'Rounding: keep 4 s.f.', ch: 0, sub: 'Every chapter', eq: 'Working ≥ 4 s.f. · Final answer 3 s.f.', eqn: 'Early rounding changes the final answer',
+    round: { sem: '3', lesson: null, title: 'Rounding: keep 4 s.f.', ch: 0, sub: 'Every chapter', eq: 'Working ≥ 4 s.f. · Final answer 3 s.f.', eqn: 'Early rounding changes the final answer',
       pts: ['Keep at least <b>4 significant figures</b> in all working.', 'Carry the unrounded value from an earlier part into the next part (use the calculator memory).', 'Round only the final answer, normally to 3 s.f., and always give the unit.'] }
   };
-  const ORDER = ['shm', 'intensity', 'doppler', 'xray', 'stop', 'decay', 'round'];
-  const LESSON_TOPICS = { 'LESSON-S3-20': ['shm'], 'LESSON-S3-21': ['intensity'], 'LESSON-S3-22': ['doppler'], 'LESSON-S3-25': ['xray', 'stop'], 'LESSON-S3-26': ['decay'] };
+  // Semester 1 topics are added by physiq-clinic-s1.js through PhysiQClinic.add()
+  const order = sem => Object.keys(TOPICS).filter(k => TOPICS[k].sem === String(sem));
+  const lessonTopics = k => Object.keys(TOPICS).filter(t => TOPICS[t].lesson === k);
   const chLabel = t => t.ch ? `Chapter ${t.ch}` : 'All chapters';
 
   /* ---------- widget ---------- */
@@ -345,7 +346,7 @@
     const t = TOPICS[key], sc = SCENES[key](); if (sc.reset) sc.reset();
     const root = document.createElement('div'); root.className = 'cc-w'; root.dataset.topic = key;
     const segs = (t.segs || []).map(([k, opts, def]) => `<div class="cc-seg" role="group" data-k="${k}">${opts.map(([v, l], i) => `<button type="button" data-v="${v}" aria-pressed="${def ? v === def : i === 0}">${esc(l)}</button>`).join('')}</div>`).join('');
-    const sls = (t.sliders || []).map(([k, l, mn, mx, st, v, u, d]) => `<label class="cc-sl">${esc(l)} <input type="range" data-k="${k}" min="${mn}" max="${mx}" step="${st}" value="${v}"><output>${(+v).toFixed(d)} ${u}</output></label>`).join('');
+    const sls = (t.sliders || []).map(([k, l, mn, mx, st, v, u, d]) => `<label class="cc-sl">${esc(l)} <input type="range" data-k="${k}" min="${mn}" max="${mx}" step="${st}" value="${v}"><output>${(+v).toFixed(d)}${u === '°' ? '' : ' '}${u}</output></label>`).join('');
     const tgs = (t.toggles || []).map(([k, l]) => `<button type="button" class="cc-btn cc-tg" data-k="${k}" aria-pressed="false">${esc(l)}</button>`).join('');
     const fsOk = !!(document.fullscreenEnabled && root.requestFullscreen);
     root.innerHTML = `<div class="cc-top"><span class="cc-tag">Concept Clinic</span><span class="cc-ch">${chLabel(t)}</span></div>
@@ -372,7 +373,7 @@
     });
     root.querySelectorAll('.cc-sl input').forEach(inp => {
       const sl = t.sliders.find(s => s[0] === inp.dataset.k), out = inp.parentNode.querySelector('output');
-      inp.addEventListener('input', () => { out.textContent = (+inp.value).toFixed(sl[7]) + ' ' + sl[6]; sc.set(inp.dataset.k, +inp.value); });
+      inp.addEventListener('input', () => { out.textContent = (+inp.value).toFixed(sl[7]) + (sl[6] === '°' ? '' : ' ') + sl[6]; sc.set(inp.dataset.k, +inp.value); });
     });
     LIVE.add(inst); if (io) io.observe(root);
     return root;
@@ -404,9 +405,9 @@
 
   // Concept Clinic page in Notes
   function mount(box, sem) {
-    const s = String(sem || '3');
-    if (s !== '3') { box.innerHTML = '<p class="empty">The Concept Clinic is for Semester 3 for now.</p>'; return; }
-    box.innerHTML = `<div class="cc-page"><header class="cc-head"><div class="cc-k">Semester 3 · ${ORDER.length} animations</div><h2 class="cc-title">Concept Clinic</h2>
+    const s = String(sem || '3'), ORDER = order(s);
+    if (!ORDER.length) { box.innerHTML = '<p class="empty">The Concept Clinic is not ready for this semester yet.</p>'; return; }
+    box.innerHTML = `<div class="cc-page"><header class="cc-head"><div class="cc-k">Semester ${s} · ${ORDER.length} animations</div><h2 class="cc-title">Concept Clinic</h2>
 <p class="cc-sub">Animated fixes for the concepts where marks are most often lost. Pick a topic, watch the animation, then go through the points.</p>
 <nav class="cc-jump">${ORDER.map((k, i) => `<button type="button" data-cc-go="${k}" aria-pressed="${i === 0}"><span>${TOPICS[k].ch || 'All'}</span>${esc(TOPICS[k].title)}</button>`).join('')}</nav></header>
 <div class="cc-host"></div></div>`;
@@ -418,11 +419,14 @@
 
   // the chapter's animations at the end of its full notes
   function forLesson(k) {
-    const list = LESSON_TOPICS[k]; if (!list) return '';
+    const list = lessonTopics(k); if (!list.length) return '';
     return `<section class="ls-sec cc-lesson" id="ls-cc"><h3 class="ls-h">Concept Clinic</h3>
 <p class="cc-lsub">Animated fixes for the mistakes students make most often in this chapter.</p><div class="cc-mount" data-cc="${list.join(',')}"></div></section>`;
   }
-  const hasLesson = k => !!LESSON_TOPICS[k];
+  const hasLesson = k => lessonTopics(k).length > 0;
 
-  window.PhysiQClinic = { mount, mountAll, forLesson, hasLesson, topics: TOPICS };
+  const has = sem => order(sem).length > 0;
+  const add = (key, topic, scene) => { TOPICS[key] = topic; SCENES[key] = scene; };
+  const U = { C, DISP, BODY, clamp, rnd, rgba, FS, T, R, FR, arrow, darrow, line, dot, rrect, lead, wave };
+  window.PhysiQClinic = { mount, mountAll, forLesson, hasLesson, has, add, U, topics: TOPICS };
 })();
