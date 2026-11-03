@@ -2,7 +2,7 @@
    - mount(box, sem):   the Concept Clinic page in Notes (option CLINIC-3), one topic at a time
    - forLesson(k):      the chapter's clinic animations at the end of its full notes (mounted by mountAll)
    - mountAll(scope):   starts every <div class="cc-mount" data-cc="topic,topic"> inside scope
-   Topics: shm (Ch 20), intensity (Ch 21), doppler (Ch 22), xray + stop (Ch 25), decay (Ch 26), round (all chapters).
+   Topics: shm (Ch 20), intensity (Ch 21), doppler (Ch 22), film (Ch 24), xray + stop (Ch 25), decay (Ch 26), round (all chapters).
    Self-contained canvas animations; each pauses while off screen and stops when removed from the page. */
 (function () {
   'use strict';
@@ -254,6 +254,58 @@
       T(ctx, 'Same power over 4× the area,', w * 0.64, y - fs * 0.2, { size: fs * 1.05 }); T(ctx, 'so intensity falls to ¼.', w * 0.64, y + fs * 1.2, { size: fs * 1.05 });
     } });
 
+  SCENES.film = () => ({ mode: 'none', tt: 0,
+    reset() { this.tt = 0; },
+    set(k, v) { this[k] = v; this.tt = 0; },
+    draw(ctx, w, h, dt) {
+      this.tt += dt;
+      if (this.mode === 'inside' || this.mode === 'extra') this.lanes(ctx, w, h); else this.slits(ctx, w, h);
+    },
+    slits(ctx, w, h) {
+      const fs = FS(w), cy = h * 0.5, bx = w * 0.24, s1 = cy - h * 0.075, s2 = cy + h * 0.075, sx = w * 0.78, sw = w * 0.028, sp = h * 0.062;
+      const film = this.mode === 'shift', lam = Math.max(16, w * 0.032), t = this.tt;
+      for (let k = 0; k < 6; k++) { const x = w * 0.04 + ((t * lam * 1.4 + k * lam) % (bx - w * 0.06)); line(ctx, x, cy - h * 0.25, x, cy + h * 0.25, rgba(C.muted, .55), 1.4); }
+      if (w > 520) T(ctx, 'monochromatic light', w * 0.04, cy - h * 0.29, { size: fs * 0.8, c: C.muted });
+      ctx.save(); ctx.beginPath(); ctx.rect(bx + 3, h * 0.06, sx - bx - 3, h * 0.84); ctx.clip();
+      const ph = (t * lam * 1.4) % lam;
+      [[s1, C.gold, film ? lam * 0.5 : 0], [s2, C.cyan, 0]].forEach(([y, c, lag]) => { ctx.strokeStyle = rgba(c, .38); ctx.lineWidth = 1.4;
+        for (let r = ph - lag; r < w; r += lam) { if (r <= 2) continue; ctx.beginPath(); ctx.arc(bx, y, r, -1.15, 1.15); ctx.stroke(); } });
+      ctx.restore();
+      ctx.fillStyle = C.ink; ctx.fillRect(bx - 3, h * 0.06, 6, s1 - h * 0.03 - h * 0.06); ctx.fillRect(bx - 3, s1 + h * 0.03, 6, s2 - s1 - h * 0.06); ctx.fillRect(bx - 3, s2 + h * 0.03, 6, h * 0.9 - s2 - h * 0.03);
+      R(ctx, ['S', '_1'], bx - 10, s1 + fs * 0.35, { size: fs * 1.1, a: 'right', c: C.gold, w: 700 }); R(ctx, ['S', '_2'], bx - 10, s2 + fs * 0.35, { size: fs * 1.1, a: 'right', c: C.cyan, w: 700 });
+      let shift = 0;
+      if (film) { const p = clamp((t % 8 - 1) / 3, 0, 1); shift = 5 * (p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
+        ctx.fillStyle = rgba(C.green, .9); ctx.fillRect(bx + 4, s1 - h * 0.035, w * 0.012, h * 0.07); T(ctx, 'film', bx + w * 0.02, s1 - h * 0.075, { size: fs * 0.85, c: C.green, w: 700 }); }
+      const top = h * 0.06, bot = h * 0.9, centre = cy - shift * sp;
+      ctx.fillStyle = '#05080A'; ctx.fillRect(sx, top, sw, bot - top);
+      for (let y = top; y < bot; y++) { const I = Math.pow(Math.cos(Math.PI * (y - centre) / sp), 2); ctx.fillStyle = rgba(C.gold, I * .95); ctx.fillRect(sx, y, sw, 1); }
+      const P5 = cy - 5 * sp;
+      for (let m = 1; m <= 5; m++) line(ctx, sx + sw, cy - m * sp, sx + sw + 6, cy - m * sp, C.muted, 1.5);
+      T(ctx, 'O', sx + sw + 10, cy + fs * 0.35, { size: fs, w: 700 }); R(ctx, w > 600 ? ['P', '_5', '  (old 5th bright)'] : ['P', '_5'], sx + sw + 10, P5 + fs * 0.35, { size: fs * 0.85, w: 700 });
+      const yP = film ? centre : cy; line(ctx, bx, s1, sx, yP, C.gold, 2); line(ctx, bx, s2, sx, yP, C.cyan, 2);
+      ctx.fillStyle = C.ink; ctx.beginPath(); ctx.moveTo(sx - 4, centre); ctx.lineTo(sx - 16, centre - 7); ctx.lineTo(sx - 16, centre + 7); ctx.fill();
+      T(ctx, 'central', sx - 20, centre - 10, { size: fs * 0.8, a: 'right', c: C.ink });
+      const cap = film ? (shift > 4.95 ? 'Central fringe now at P₅:  (n − 1)t = 5λ' : 'Film delays S₁ by (n − 1)t → pattern slides towards S₁')
+                       : 'S₁O = S₂O → path difference 0 → O is the central bright fringe';
+      T(ctx, cap, (bx + sx) / 2, h * 0.96, { size: fs * 1.0, a: 'center', c: film && shift > 4.95 ? C.gold : C.ink, w: 700 });
+    },
+    lanes(ctx, w, h) {
+      const fs = FS(w), x0 = w * 0.1, L = w * 0.6, amp = h * 0.085, t = this.tt, ext = this.mode === 'extra';
+      [[h * 0.3, 'Through AIR', L / 3, '3 waves  (t / λ)', C.muted], [h * 0.68, 'Through FILM  (n = 1.50)', L / 4.5, '4.5 waves  (nt / λ)', C.green]].forEach(([y, nm, lam, cnt, col], i) => {
+        if (i) { ctx.fillStyle = rgba(C.green, .14); ctx.fillRect(x0, y - amp * 1.5, L, amp * 3); }
+        if (i && ext) { ctx.fillStyle = rgba(C.gold, .28); ctx.fillRect(x0 + L * 2 / 3, y - amp * 1.5, L / 3, amp * 3); T(ctx, '1.5 extra waves', x0 + L * 5 / 6, y - amp * 1.75, { size: fs * 0.9, a: 'center', c: C.gold, w: 700 }); }
+        line(ctx, x0, y - amp * 1.5, x0, y + amp * 1.5, C.ink, 2); line(ctx, x0 + L, y - amp * 1.5, x0 + L, y + amp * 1.5, C.ink, 2);
+        T(ctx, nm, x0, y - amp * 1.75, { size: fs, c: i ? C.green : C.ink, w: 700 });
+        ctx.strokeStyle = C.red; ctx.lineWidth = 2.5; ctx.beginPath();
+        for (let x = 0; x <= L; x += 2) { const yy = y - amp * Math.sin(2 * Math.PI * (x / lam - t * 0.6)); x ? ctx.lineTo(x0 + x, yy) : ctx.moveTo(x0 + x, yy); } ctx.stroke();
+        for (let x = 0; x <= L + 0.1; x += lam) line(ctx, x0 + x, y + amp * 1.2, x0 + x, y + amp * 1.45, C.ink, 2);
+        T(ctx, cnt, x0 + L + fs, y + fs * 0.35, { size: fs, w: 700, c: i ? C.green : C.ink });
+      });
+      darrow(ctx, x0, h * 0.92, x0 + L, C.muted, 1.6, 9); T(ctx, 'same thickness t', x0 + L / 2, h * 0.9, { size: fs * 0.9, a: 'center', c: C.muted });
+      if (ext) { const x = x0 + L + fs, y = h * 0.5; R(ctx, ['extra = nt − t'], x, y - fs * 0.6, { size: fs * 1.1, w: 700, c: C.gold }); R(ctx, ['= (n − 1)t'], x, y + fs * 1.0, { size: fs * 1.5, w: 700, f: DISP, c: C.gold }); }
+      else T(ctx, 'λ in film = λ / n', x0 + L + fs, h * 0.5, { size: fs * 1.05, w: 700, c: C.green });
+    } });
+
   SCENES.round = () => ({ rt: 0,
     reset() { this.rt = 0; }, set() {},
     draw(ctx, w, h, dt) {
@@ -317,6 +369,13 @@
       pts: ['<b>Moving source</b>: each new wavefront is emitted closer to the one before, so the wavefronts bunch up ahead.', 'The wavelength in front decreases: λ′ = (v − v<sub>s</sub>) / f.', 'The speed of sound in air does not change with the source’s motion.',
         '<b>Moving observer</b>: the wavelength is unchanged, but the waves pass the observer at relative speed v + v<sub>o</sub>.', 'So the observer meets more wavefronts per second: f′ = (v + v<sub>o</sub>) / λ.'],
       segs: [['mode', [['still', 'Both at rest'], ['source', 'Source moves'], ['observer', 'Observer moves'], ['both', 'Both move']], 'source']] },
+    film: { sem: '3', lesson: 'LESSON-S3-24', title: 'Film over one slit: why (n − 1)t', ch: 24, sub: 'Young’s double slit with a thin film over one slit', eq: '(n − 1)t = Nλ', eqn: 'The pattern moves N fringes towards the covered slit',
+      pts: ['Without the film, S<sub>1</sub>O = S<sub>2</sub>O, so O is the central bright fringe (path difference 0). The 5th bright fringe P<sub>5</sub> is where S<sub>2</sub>P − S<sub>1</sub>P = 5λ.',
+        'In the film, light slows to c/n but its frequency does not change, so its wavelength shrinks to λ/n.', 'More waves fit into the thickness t: t/λ waves in air, but nt/λ waves in the film. Optical path = n × thickness.',
+        'The film <b>replaces</b> a layer of air of the same thickness. Extra optical path = nt − t = <b>(n − 1)t</b>, not nt. Check: n = 1 gives no change.',
+        'The central fringe still needs zero total path difference, so it moves towards the <b>covered slit</b>, to where S<sub>2</sub>P − S<sub>1</sub>P = (n − 1)t. The fringe separation does not change.',
+        'It lands on the old 5th bright fringe: (n − 1)t = 5λ, so t = 5(590 × 10<sup>−9</sup>) / (1.50 − 1) = <b>5.90 × 10<sup>−6</sup> m</b>.'],
+      segs: [['mode', [['none', 'No film'], ['inside', 'Inside the film'], ['extra', 'Why n − 1'], ['shift', 'Fringes move']]]] },
     xray: { sem: '3', lesson: 'LESSON-S3-25', title: 'Production of X-rays', ch: 25, sub: 'Continuous and characteristic spectra', eq: 'λ<sub>min</sub> = ' + FRAC('hc', 'eV'), eqn: 'One electron loses all its kinetic energy eV in a single collision',
       pts: ['Electrons leave the heated filament by thermionic emission.', 'A high p.d. V accelerates them across the vacuum, so each gains kinetic energy eV.', 'Electrons decelerate in the target and emit a <b>continuous spectrum</b> (bremsstrahlung).',
         'The shortest wavelength is λ<sub>min</sub>, when all of eV becomes one photon.', '<b>Characteristic lines</b>: an electron knocks out a K-shell electron, an outer electron drops into the gap and emits a photon of fixed energy.',
