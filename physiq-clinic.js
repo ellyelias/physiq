@@ -2,7 +2,7 @@
    - mount(box, sem):   the Concept Clinic page in Notes (option CLINIC-3), one topic at a time
    - forLesson(k):      the chapter's clinic animations at the end of its full notes (mounted by mountAll)
    - mountAll(scope):   starts every <div class="cc-mount" data-cc="topic,topic"> inside scope
-   Topics: shm (Ch 20), intensity (Ch 21), doppler (Ch 22), film (Ch 24), xray + stop (Ch 25), decay (Ch 26), round (all chapters).
+   Topics: shm (Ch 20), intensity + emdir (Ch 21), doppler (Ch 22), film (Ch 24), xray + stop (Ch 25), decay (Ch 26), round (all chapters).
    Self-contained canvas animations; each pauses while off screen and stops when removed from the page. */
 (function () {
   'use strict';
@@ -254,6 +254,85 @@
       T(ctx, 'Same power over 4× the area,', w * 0.64, y - fs * 0.2, { size: fs * 1.05 }); T(ctx, 'so intensity falls to ¼.', w * 0.64, y + fs * 1.2, { size: fs * 1.05 });
     } });
 
+  SCENES.emdir = () => ({ mode: 'wave', spin: false, t: 0,
+    reset() { this.t = 0; },
+    set(k, v) { this[k] = v; if (k === 'mode') this.t = 0; },
+    draw(ctx, w, h, dt) {
+      this.t += dt;
+      const fs = FS(w), m = this.mode, t = this.t;
+      const OR = '#FF9A4D', EC = OR, BC = C.violet, VC = C.green;
+      // 3D view: x = along the wave, y = up, z = towards you
+      // textbook (oblique) view by default: x across, y up, z drawn down-left; 'Rotate the view' turns it about the vertical
+      const rot = (this.spin && m !== 'curl') || m === 'fingers', a = 0.5 + 0.8 * Math.sin(t * 0.45), p = 0.32;
+      const P = (cx, cy, S) => (x, y, z) => {
+        if (!rot) return [cx + S * (x - 0.48 * z), cy - S * (y - 0.34 * z)];
+        const x1 = x * Math.cos(a) - z * Math.sin(a), z1 = x * Math.sin(a) + z * Math.cos(a); return [cx + S * x1, cy - S * (y * Math.cos(p) - z1 * Math.sin(p))]; };
+      const ar3 = (pr, f, to, col, lw, hd) => { const A = pr(...f), B = pr(...to); arrow(ctx, A[0], A[1], B[0], B[1], col, lw, hd); return B; };
+      const ease = v => { v = clamp(v, 0, 1); return v * v * (3 - 2 * v); };
+      const tag = (s, x, y, col, al = 'center') => T(ctx, s, x, y, { size: fs * 1.15, w: 700, c: col, a: al, b: 'middle', f: DISP });
+
+      if (m === 'wave' || m === 'swap') {
+        const sw = m === 'swap', dir = sw ? -1 : 1, S = Math.min(w * 0.27, h * 0.42), pr = P(w * 0.47, h * 0.5, S);
+        const L = 1.55, k = 2 * Math.PI / 1.5, om = 2.2, A0 = 0.5;
+        const ph = x => Math.sin(k * x - dir * om * t);
+        const ax = pr(-L, 0, 0), bx = pr(L, 0, 0); line(ctx, ax[0], ax[1], bx[0], bx[1], C.muted, 2);
+        // fields: E and B in phase; in 'swap' E is along z and B along y
+        const fE = x => sw ? [x, 0, A0 * ph(x)] : [x, A0 * ph(x), 0], fB = x => sw ? [x, A0 * ph(x), 0] : [x, 0, A0 * ph(x)];
+        [[fB, BC], [fE, EC]].forEach(([f, col]) => {
+          for (let x = -L + 0.05; x <= L; x += 0.1) { const o = pr(x, 0, 0), q = pr(...f(x)); if (Math.hypot(q[0] - o[0], q[1] - o[1]) > 6) arrow(ctx, o[0], o[1], q[0], q[1], rgba(col, .55), 1.6, 6); }
+          ctx.beginPath(); for (let x = -L; x <= L + 1e-6; x += 0.02) { const q = pr(...f(x)); x === -L ? ctx.moveTo(...q) : ctx.lineTo(...q); } ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.stroke();
+        });
+        // labels at the left end of each field
+                [[EC, 'E', 'electric field'], [BC, 'B', 'magnetic field']].forEach(([col, n, s2], i) => { const yy = fs * 3.6 + i * fs * 1.6; line(ctx, w * 0.03, yy - fs * 0.35, w * 0.03 + fs * 1.6, yy - fs * 0.35, col, 4); T(ctx, n, w * 0.03 + fs * 2.2, yy, { size: fs * 1.1, w: 700, c: col, f: DISP }); T(ctx, s2, w * 0.03 + fs * 3.4, yy, { size: fs * 0.9, c: C.muted }); });
+        // direction of propagation
+        const py = A0 * 1.65, p0 = pr(-0.55 * dir, py, 0), p1 = pr(0.55 * dir, py, 0);
+        arrow(ctx, p0[0], p0[1], p1[0], p1[1], VC, 4, 14);
+        T(ctx, 'Direction of propagation', (p0[0] + p1[0]) / 2, Math.min(p0[1], p1[1]) - fs * 0.8, { size: fs, a: 'center', c: VC, w: 700 });
+        // check box (bottom left)
+        const bx0 = w * 0.03, by0 = h * 0.8;
+        R(ctx, sw ? ['E towards you,  B up'] : ['E up,  B towards you'], bx0, by0, { size: fs * 1.05, w: 700 });
+        R(ctx, ['E × B points to the ', sw ? 'LEFT' : 'RIGHT', '  →  the wave travels ', sw ? 'left' : 'right'], bx0, by0 + fs * 1.6, { size: fs * 0.95, c: C.gold, w: 600 });
+        if (sw) T(ctx, 'Swap E and B and the wave reverses.', bx0, by0 + fs * 3.1, { size: fs * 0.9, c: C.red });
+        else T(ctx, 'E and B reach their maxima together (in phase).', bx0, by0 + fs * 3.1, { size: fs * 0.9, c: C.muted });
+        // mini axes (top right)
+        const mr = P(w * 0.9, h * 0.2, Math.min(w, h) * 0.075);
+        ar3(mr, [0, 0, 0], [1, 0, 0], C.muted, 1.5, 6); ar3(mr, [0, 0, 0], [0, 1, 0], C.muted, 1.5, 6); ar3(mr, [0, 0, 0], [0, 0, 1], C.muted, 1.5, 6);
+        const q = mr(0, 0, 1.45); T(ctx, 'towards you', q[0], q[1] + fs * 0.6, { size: fs * 0.75, a: 'center', c: C.muted });
+      } else if (m === 'curl') {
+        const tt = t % 8, S = Math.min(w * 0.26, h * 0.4), pr = P(w * 0.25, h * 0.55, S);
+        const gE = ease(tt / 0.9), gB = ease((tt - 1) / 0.9), gC = ease((tt - 2.1) / 1.6), gV = ease((tt - 3.9) / 0.9);
+        ar3(pr, [0, 0, 0], [0, 1, 0], rgba(C.muted, .25), 1, 0); // faint guide
+        if (gE > 0) { const q = ar3(pr, [0, 0, 0], [0, 0.95 * gE, 0], EC, 5, 16); if (gE > 0.9) tag('E', q[0] + fs, q[1], EC, 'left'); }
+        if (gB > 0) { const q = ar3(pr, [0, 0, 0], [0, 0, 0.95 * gB], BC, 5, 16); if (gB > 0.9) tag('B', q[0] - fs * 0.6, q[1] + fs * 0.6, BC, 'right'); }
+        if (gC > 0) {
+          const r = 0.5, n = 40, pts = []; for (let i = 0; i <= n * gC; i++) { const th = (Math.PI / 2) * i / n; pts.push(pr(0, r * Math.cos(th), r * Math.sin(th))); }
+          ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(...q) : ctx.moveTo(...q)); ctx.strokeStyle = C.gold; ctx.lineWidth = 4; ctx.stroke();
+          if (pts.length > 2) { const A = pts[pts.length - 3], B = pts[pts.length - 1]; arrow(ctx, A[0], A[1], B[0], B[1], C.gold, 4, 14); }
+        }
+        if (gV > 0) { const q = ar3(pr, [0, 0, 0], [1.05 * gV, 0, 0], VC, 6, 18); if (gV > 0.9) T(ctx, 'Propagation', (q[0] + pr(0, 0, 0)[0]) / 2, q[1] + fs * 1.6, { size: fs * 1.05, a: 'center', c: VC, w: 700 }); }
+        dot(ctx, ...pr(0, 0, 0), 5, C.ink);
+        const lx = w * 0.56; let ly = h * 0.22;
+        const step = (on, n, a1, a2) => { T(ctx, n, lx, ly, { size: fs * 1.6, f: DISP, w: 700, c: on ? C.gold : rgba(C.muted, .5) }); [a1, a2].forEach((s2, i) => T(ctx, s2, lx + fs * 2, ly - fs * 0.15 + i * fs * 1.3, { size: fs * 0.95, c: on ? C.ink : rgba(C.muted, .5), w: 600 })); ly += fs * 3.4; };
+        step(gE > 0, '1', 'Point the fingers of your', 'right hand along E.');
+        step(gC > 0, '2', 'Curl them towards B', '(through 90°).');
+        step(gV > 0, '3', 'Your thumb points the way', 'the wave travels.');
+        if (gV > 0.9) { T(ctx, 'Direction of propagation', lx, ly, { size: fs * 0.95, c: VC, w: 700 }); T(ctx, '= direction of E × B', lx, ly + fs * 1.3, { size: fs * 0.95, c: VC, w: 700 }); }
+      } else if (m === 'fingers') {
+        const S = Math.min(w * 0.24, h * 0.36), pr = P(w * 0.33, h * 0.58, S), o = pr(0, 0, 0);
+        // stylised right hand: palm and three straight fingers along E, B and v
+        const fing = (to, col, lw) => { const q = pr(...to); ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = rgba(col, .28); ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(...o); ctx.lineTo(...q); ctx.stroke(); ctx.restore(); arrow(ctx, o[0], o[1], q[0], q[1], col, 4, 15); return q; };
+        ctx.fillStyle = 'rgba(232,196,160,.18)'; ctx.beginPath(); ctx.arc(o[0], o[1], S * 0.2, 0, 7); ctx.fill();
+        const qB = fing([0, 0, 1.0], BC, S * 0.12), qE = fing([0, 1.0, 0], EC, S * 0.13), qV = fing([1.0, 0, 0], VC, S * 0.12);
+        const lab = (q, s2, col) => { const dx = q[0] - o[0], dy = q[1] - o[1], d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d; ctx.font = `700 ${fs * 1.05}px ${BODY}`; const tw = ctx.measureText(s2).width, al = ux > 0.35 ? 'left' : ux < -0.35 ? 'right' : 'center';
+          let x = q[0] + ux * fs * 1.6; const x0 = al === 'left' ? x : al === 'right' ? x - tw : x - tw / 2, sh = clamp(x0, 8, w * 0.62 - tw) - x0;
+          T(ctx, s2, x + sh, q[1] + uy * fs * 1.6 + (sh ? fs * 1.2 : 0), { size: fs * 1.05, a: al, b: 'middle', c: col, w: 700 }); };
+        lab(qE, 'Thumb: E', EC); lab(qB, 'First finger: B', BC); lab(qV, 'Second finger: propagation', VC);
+        const lx = w * 0.66; let ly = h * 0.22;
+        ['Right hand. Hold thumb, first and', 'second fingers at 90° to each other.', '', 'Thumb → E', 'First finger → B', 'Second finger → direction of travel', '', 'Same answer as the curl rule:', 'propagation along E × B.'].forEach(s => { T(ctx, s, lx, ly, { size: fs * 0.95, c: s.includes('→') ? C.gold : C.ink, w: s.includes('→') ? 700 : 500 }); ly += fs * 1.45; });
+      }
+      T(ctx, { wave: 'EM wave: E and B in phase, both ⊥ to the direction of travel', swap: 'Same picture, E and B swapped', curl: 'The curl rule', fingers: 'The three-finger rule' }[m], w * 0.03, fs * 1.8, { size: fs * 1.15, w: 700, c: C.gold });
+    } });
+
   SCENES.film = () => ({ mode: 'none', tt: 0,
     reset() { this.tt = 0; },
     set(k, v) { this[k] = v; this.tt = 0; },
@@ -365,6 +444,14 @@
       segs: [['mode', [['comp', 'Released from compression'], ['stretch', 'Released from stretch'], ['eq', 'Starts at 0, moving +'], ['trap', 'Radian trap']]]], toggles: [['cmp', 'Compare sin & cos']] },
     intensity: { sem: '3', lesson: 'LESSON-S3-21', title: 'Wave intensity: W m⁻²', ch: 21, sub: 'Power spreads over a sphere', eq: 'I = ' + FRAC('P', '4πr<sup>2</sup>'), eqn: 'Point source radiating power P equally in all directions',
       pts: ['Intensity is power per unit area. Its unit is <b>W m<sup>−2</sup></b>, not W m<sup>−1</sup>.', 'From a point source, the power spreads over a sphere of area 4πr<sup>2</sup>.', 'So I ∝ 1/r<sup>2</sup>: doubling r spreads the same power over 4 times the area, and I falls to ¼.'] },
+    emdir: { sem: '3', lesson: 'LESSON-S3-21', title: 'EM waves: which way do they travel?', ch: 21, sub: 'Use the right-hand rule on E and B', eq: 'Propagation ∥ <b>E</b> × <b>B</b>', eqn: 'E, B and the direction of propagation are mutually perpendicular',
+      pts: ['In an EM wave, the electric field <b>E</b> and the magnetic field <b>B</b> oscillate in phase, perpendicular to each other and to the direction of propagation.',
+        'The wave travels <b>along its axis</b>, the line both fields oscillate about. An arrow pointing up or down the page (perpendicular to the axis) cannot be the direction of propagation.',
+        'The direction of propagation is the direction of <b>E × B</b>.', '<b>Curl rule</b>: point the fingers of your right hand along E, curl them towards B. Your thumb gives the direction of propagation.',
+        '<b>Three-finger rule</b> (right hand): thumb along E, first finger along B, second finger gives the direction of propagation.',
+        'Swap E and B and the wave travels the opposite way. So read the labels first: which field is E and which is B?',
+        'In an MCQ: for each option, find E and B, apply the rule, and compare with the arrow given. Reject any arrow not along the axis.'],
+      segs: [['mode', [['wave', 'EM wave'], ['curl', 'Curl rule'], ['fingers', 'Three-finger rule'], ['swap', 'Swap E and B']]]], toggles: [['spin', 'Rotate the view']] },
     doppler: { sem: '3', lesson: 'LESSON-S3-22', title: 'Doppler effect', ch: 22, sub: 'Explain each motion separately in Section C', eq: 'f′ = ' + FRAC('v + v<sub>o</sub>', 'v − v<sub>s</sub>') + ' f', eqn: 'Source and observer moving towards each other',
       pts: ['<b>Moving source</b>: each new wavefront is emitted closer to the one before, so the wavefronts bunch up ahead.', 'The wavelength in front decreases: λ′ = (v − v<sub>s</sub>) / f.', 'The speed of sound in air does not change with the source’s motion.',
         '<b>Moving observer</b>: the wavelength is unchanged, but the waves pass the observer at relative speed v + v<sub>o</sub>.', 'So the observer meets more wavefronts per second: f′ = (v + v<sub>o</sub>) / λ.'],
