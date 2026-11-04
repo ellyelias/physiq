@@ -318,6 +318,42 @@
         step(gC > 0, '2', 'Curl them towards B', '(through 90°).');
         step(gV > 0, '3', 'Your thumb points the way', 'the wave travels.');
         if (gV > 0.9) { T(ctx, 'Direction of propagation', lx, ly, { size: fs * 0.95, c: VC, w: 700 }); T(ctx, '= direction of E × B', lx, ly + fs * 1.3, { size: fs * 0.95, c: VC, w: 700 }); }
+      } else if (m === 'check') {
+        // the four options of the MCQ, redrawn: which field is vertical, and which way the given arrow points
+        const OPT = [['A', 'B', 'right'], ['B', 'E', 'down'], ['C', 'E', 'right'], ['D', 'B', 'up']];
+        const top = fs * 2.6, pw = w / 2, ph = (h - top) / 2, tt = t % 14;
+        OPT.forEach(([lab, vert, given], i) => {
+          const ox = (i % 2) * pw, oy = top + Math.floor(i / 2) * ph, sh = i === 2;
+          const reveal = tt > 1.2 + i * 2.6, Eup = vert === 'E', dir = Eup ? 1 : -1; // E x B: +x when E is vertical, -x when B is vertical
+          ctx.save(); rrect(ctx, ox + 5, oy + 4, pw - 10, ph - 8, 10); ctx.fillStyle = reveal && sh ? rgba(VC, .1) : 'rgba(255,255,255,.025)'; ctx.fill(); ctx.strokeStyle = reveal ? (sh ? VC : rgba(C.red, .55)) : C.line; ctx.lineWidth = reveal && sh ? 2.5 : 1.5; ctx.stroke(); ctx.restore();
+          T(ctx, lab, ox + fs * 0.8, oy + fs * 1.7, { size: fs * 1.6, f: DISP, w: 700, c: C.gold });
+          const S = Math.min(pw * 0.2, ph * 0.3), cx = ox + pw * 0.44, cy = oy + ph * 0.55, L = 1.55, A0 = 0.55, k = 2 * Math.PI / 1.5;
+          const pr = (x, y, z) => [cx + S * (x - 0.48 * z), cy - S * (y - 0.34 * z)];
+          const ph2 = x => Math.sin(k * x - (reveal ? dir * 2.2 * t : 0));
+          const ax = pr(-L, 0, 0), bx = pr(L, 0, 0); line(ctx, ax[0], ax[1], bx[0], bx[1], C.muted, 1.5);
+          const fV = x => [x, A0 * ph2(x), 0], fZ = x => [x, 0, A0 * ph2(x)];
+          [[fZ, Eup ? BC : EC], [fV, Eup ? EC : BC]].forEach(([f, col]) => {
+            for (let x = -L + 0.06; x <= L; x += 0.13) { const o2 = pr(x, 0, 0), q = pr(...f(x)); line(ctx, o2[0], o2[1], q[0], q[1], rgba(col, .45), 1.2); }
+            ctx.beginPath(); for (let x = -L; x <= L + 1e-6; x += 0.03) { const q = pr(...f(x)); x === -L ? ctx.moveTo(...q) : ctx.lineTo(...q); } ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.stroke();
+          });
+          const lv = pr(-L + 0.1, A0 * 1.35, 0), lz = pr(-L - 0.25, 0, A0 * 1.6);
+          T(ctx, vert, lv[0], lv[1], { size: fs * 1.05, w: 700, c: Eup ? EC : BC, a: 'center', f: DISP }); T(ctx, Eup ? 'B' : 'E', Math.max(lz[0], ox + fs * 0.9), lz[1], { size: fs * 1.05, w: 700, c: Eup ? BC : EC, a: 'center', f: DISP });
+          // the arrow the option gives (white)
+          let g0, g1;
+          if (given === 'right') { g0 = pr(-0.5, A0 * 1.75, 0); g1 = pr(0.5, A0 * 1.75, 0); }
+          else if (given === 'down') { g0 = pr(L * 0.55, -0.2, 0); g1 = pr(L * 0.55, -1.15, 0); g0[0] = g1[0] = cx + S * L * 0.98; g0[1] = cy - S * 0.1; g1[1] = cy + S * 1.1; }
+          else { g0 = [cx + S * 0.15, cy - S * 0.2]; g1 = [cx + S * 0.15, cy - S * 1.35]; }
+          arrow(ctx, g0[0], g0[1], g1[0], g1[1], C.ink, 2.5, 10);
+          const vx = ox + pw - fs * 0.9, RA = { a: 'right' };
+          T(ctx, 'Given:  ' + { right: '→ right', down: '↓ down', up: '↑ up' }[given], vx, oy + fs * 1.6, { size: fs * 0.85, c: C.ink, w: 700, ...RA });
+          if (reveal) {
+            const r0 = pr(-0.6 * dir, -A0 * 1.75, 0), r1 = pr(0.6 * dir, -A0 * 1.75, 0); arrow(ctx, r0[0], r0[1], r1[0], r1[1], VC, 3.5, 12);
+            R(ctx, ['E × B → ', dir > 0 ? 'right' : 'left'], vx, oy + fs * 3.1, { size: fs * 0.85, c: VC, w: 700, ...RA });
+            const why = given === 'right' ? (sh ? 'Matches' : 'Wrong way') : 'Not along the axis';
+            T(ctx, why, vx, oy + fs * 4.5, { size: fs * 0.85, c: sh ? VC : C.red, w: 700, ...RA });
+            T(ctx, sh ? '✓' : '✗', ox + pw - fs * 1.3, oy + ph - fs * 0.9, { size: fs * 2.2, w: 700, c: sh ? VC : C.red, a: 'center' });
+          }
+        });
       } else if (m === 'fingers') {
         // a real photo of a right hand: thumb up (E), index finger left (B), middle finger bent towards you (propagation)
         const img = HAND.img, tt = t % 9, ar = 856 / 900;
@@ -345,7 +381,7 @@
         row(g3 > 0, 'Middle finger → propagation', 'direction the wave travels', VC);
         if (g3 > 0.95) { T(ctx, 'Here: E up, B to the left, so the', lx, ly + fs * 0.4, { size: fs * 0.9, c: C.muted }); T(ctx, 'wave travels out of the page ( ⊙ ).', lx, ly + fs * 1.75, { size: fs * 0.9, c: C.muted }); }
       }
-      T(ctx, { wave: 'EM wave: E and B in phase, both ⊥ to the direction of travel', swap: 'Same picture, E and B swapped', curl: 'The curl rule', fingers: 'The three-finger rule' }[m], w * 0.03, fs * 1.8, { size: fs * 1.15, w: 700, c: C.gold });
+      T(ctx, { wave: 'EM wave: E and B in phase, both ⊥ to the direction of travel', swap: 'Same picture, E and B swapped', curl: 'The curl rule', fingers: 'The three-finger rule', check: 'Apply the rule to the four options' }[m], w * 0.03, fs * 1.8, { size: fs * 1.15, w: 700, c: C.gold });
     } });
 
   SCENES.film = () => ({ mode: 'none', tt: 0,
@@ -466,7 +502,7 @@
         '<b>Three-finger rule</b> (right hand, fingers at 90°): thumb along E, index finger along B, middle finger gives the direction of propagation.',
         'Swap E and B and the wave travels the opposite way. So read the labels first: which field is E and which is B?',
         'In an MCQ: for each option, find E and B, apply the rule, and compare with the arrow given. Reject any arrow not along the axis.'],
-      segs: [['mode', [['wave', 'EM wave'], ['curl', 'Curl rule'], ['fingers', 'Three-finger rule'], ['swap', 'Swap E and B']]]], toggles: [['spin', 'Rotate the view']] },
+      segs: [['mode', [['wave', 'EM wave'], ['curl', 'Curl rule'], ['fingers', 'Three-finger rule'], ['swap', 'Swap E and B'], ['check', 'Check options A–D']]]], toggles: [['spin', 'Rotate the view']] },
     doppler: { sem: '3', lesson: 'LESSON-S3-22', title: 'Doppler effect', ch: 22, sub: 'Explain each motion separately in Section C', eq: 'f′ = ' + FRAC('v + v<sub>o</sub>', 'v − v<sub>s</sub>') + ' f', eqn: 'Source and observer moving towards each other',
       pts: ['<b>Moving source</b>: each new wavefront is emitted closer to the one before, so the wavefronts bunch up ahead.', 'The wavelength in front decreases: λ′ = (v − v<sub>s</sub>) / f.', 'The speed of sound in air does not change with the source’s motion.',
         '<b>Moving observer</b>: the wavelength is unchanged, but the waves pass the observer at relative speed v + v<sub>o</sub>.', 'So the observer meets more wavefronts per second: f′ = (v + v<sub>o</sub>) / λ.'],
