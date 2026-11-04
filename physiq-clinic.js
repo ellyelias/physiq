@@ -254,6 +254,7 @@
       T(ctx, 'Same power over 4× the area,', w * 0.64, y - fs * 0.2, { size: fs * 1.05 }); T(ctx, 'so intensity falls to ¼.', w * 0.64, y + fs * 1.2, { size: fs * 1.05 });
     } });
 
+  const HAND = { get img() { if (!this._i) { this._i = new Image(); this._i.decoding = 'async'; this._i.src = 'assets/clinic/em-hand.webp?v=20261104'; } return this._i; } };
   SCENES.emdir = () => ({ mode: 'wave', spin: false, t: 0,
     reset() { this.t = 0; },
     set(k, v) { this[k] = v; if (k === 'mode') this.t = 0; },
@@ -263,7 +264,7 @@
       const OR = '#FF9A4D', EC = OR, BC = C.violet, VC = C.green;
       // 3D view: x = along the wave, y = up, z = towards you
       // textbook (oblique) view by default: x across, y up, z drawn down-left; 'Rotate the view' turns it about the vertical
-      const rot = (this.spin && m !== 'curl') || m === 'fingers', a = 0.5 + 0.8 * Math.sin(t * 0.45), p = 0.32;
+      const rot = this.spin && (m === 'wave' || m === 'swap'), a = 0.5 + 0.8 * Math.sin(t * 0.45), p = 0.32;
       const P = (cx, cy, S) => (x, y, z) => {
         if (!rot) return [cx + S * (x - 0.48 * z), cy - S * (y - 0.34 * z)];
         const x1 = x * Math.cos(a) - z * Math.sin(a), z1 = x * Math.sin(a) + z * Math.cos(a); return [cx + S * x1, cy - S * (y * Math.cos(p) - z1 * Math.sin(p))]; };
@@ -318,17 +319,31 @@
         step(gV > 0, '3', 'Your thumb points the way', 'the wave travels.');
         if (gV > 0.9) { T(ctx, 'Direction of propagation', lx, ly, { size: fs * 0.95, c: VC, w: 700 }); T(ctx, '= direction of E × B', lx, ly + fs * 1.3, { size: fs * 0.95, c: VC, w: 700 }); }
       } else if (m === 'fingers') {
-        const S = Math.min(w * 0.24, h * 0.36), pr = P(w * 0.33, h * 0.58, S), o = pr(0, 0, 0);
-        // stylised right hand: palm and three straight fingers along E, B and v
-        const fing = (to, col, lw) => { const q = pr(...to); ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = rgba(col, .28); ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(...o); ctx.lineTo(...q); ctx.stroke(); ctx.restore(); arrow(ctx, o[0], o[1], q[0], q[1], col, 4, 15); return q; };
-        ctx.fillStyle = 'rgba(232,196,160,.18)'; ctx.beginPath(); ctx.arc(o[0], o[1], S * 0.2, 0, 7); ctx.fill();
-        const qB = fing([0, 0, 1.0], BC, S * 0.12), qE = fing([0, 1.0, 0], EC, S * 0.13), qV = fing([1.0, 0, 0], VC, S * 0.12);
-        const lab = (q, s2, col) => { const dx = q[0] - o[0], dy = q[1] - o[1], d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d; ctx.font = `700 ${fs * 1.05}px ${BODY}`; const tw = ctx.measureText(s2).width, al = ux > 0.35 ? 'left' : ux < -0.35 ? 'right' : 'center';
-          let x = q[0] + ux * fs * 1.6; const x0 = al === 'left' ? x : al === 'right' ? x - tw : x - tw / 2, sh = clamp(x0, 8, w * 0.62 - tw) - x0;
-          T(ctx, s2, x + sh, q[1] + uy * fs * 1.6 + (sh ? fs * 1.2 : 0), { size: fs * 1.05, a: al, b: 'middle', c: col, w: 700 }); };
-        lab(qE, 'Thumb: E', EC); lab(qB, 'First finger: B', BC); lab(qV, 'Second finger: propagation', VC);
-        const lx = w * 0.66; let ly = h * 0.22;
-        ['Right hand. Hold thumb, first and', 'second fingers at 90° to each other.', '', 'Thumb → E', 'First finger → B', 'Second finger → direction of travel', '', 'Same answer as the curl rule:', 'propagation along E × B.'].forEach(s => { T(ctx, s, lx, ly, { size: fs * 0.95, c: s.includes('→') ? C.gold : C.ink, w: s.includes('→') ? 700 : 500 }); ly += fs * 1.45; });
+        // a real photo of a right hand: thumb up (E), index finger left (B), middle finger bent towards you (propagation)
+        const img = HAND.img, tt = t % 9, ar = 856 / 900;
+        let ih = h * 0.8, iw = ih * ar; if (iw > w * 0.5) { iw = w * 0.5; ih = iw / ar; }
+        const ix = w * 0.04, iy = h * 0.15, Q = (nx, ny) => [ix + nx * iw, iy + ny * ih];
+        if (img.complete && img.naturalWidth) ctx.drawImage(img, ix, iy, iw, ih); else T(ctx, 'Loading the photo…', ix + iw / 2, iy + ih / 2, { size: fs, a: 'center', c: C.muted });
+        const g1 = ease(tt / 1.1), g2 = ease((tt - 1.4) / 1.1), g3 = ease((tt - 2.8) / 1.1);
+        // arrow along a finger, from its base out past its tip, with a dark edge so it reads on skin
+        const fa = (b, tip, k, g, col) => { if (g <= 0) return null; const A = Q(...b), Bp = Q(...tip), E2 = [A[0] + (Bp[0] - A[0]) * k * g, A[1] + (Bp[1] - A[1]) * k * g];
+          arrow(ctx, A[0], A[1], E2[0], E2[1], 'rgba(20,28,20,.75)', 9, 22); arrow(ctx, A[0], A[1], E2[0], E2[1], col, 5, 18); return E2; };
+        const pE = fa([0.759, 0.36], [0.752, 0.03], 1.35, g1, EC), pB = fa([0.38, 0.37], [0.035, 0.056], 1.22, g2, BC), pV = fa([0.36, 0.53], [0.164, 0.767], 1.32, g3, VC);
+        const pill = (p, s2, col, dx, dy, al) => { if (!p || p === 0) return; ctx.font = `700 ${fs * 1.05}px ${BODY}`; const tw = ctx.measureText(s2).width, x = clamp(al === 'right' ? p[0] + dx - tw : al === 'center' ? p[0] + dx - tw / 2 : p[0] + dx, 6, w - tw - 6), y = clamp(p[1] + dy, fs, h - fs * 0.6);
+          ctx.fillStyle = 'rgba(20,30,22,.82)'; rrect(ctx, x - fs * 0.45, y - fs * 0.8, tw + fs * 0.9, fs * 1.6, fs * 0.5); ctx.fill(); T(ctx, s2, x, y, { size: fs * 1.05, c: col, w: 700, b: 'middle' }); };
+        if (g1 > 0.95) pill(pE, 'Thumb: E', EC, fs * 0.9, fs * 0.6, 'left');
+        if (g2 > 0.95) pill(pB, 'Index finger: B', BC, fs * 1.2, fs * 1.0, 'left');
+        if (g3 > 0.95) {
+          const sym = Q(0.164, 0.767), r = fs * 0.75; dot(ctx, sym[0], sym[1], r, 'rgba(20,30,22,.85)'); ctx.strokeStyle = VC; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(sym[0], sym[1], r, 0, 7); ctx.stroke(); dot(ctx, sym[0], sym[1], r * 0.28, VC);
+          pill(pV, 'Middle finger: propagation', VC, 0, fs * 1.3, 'left');
+        }
+        const lx = w * 0.58; let ly = h * 0.24;
+        const row = (on, a1, a2, col) => { T(ctx, a1, lx, ly, { size: fs * 1.05, c: on ? col : rgba(C.muted, .45), w: 700 }); if (a2) T(ctx, a2, lx, ly + fs * 1.35, { size: fs * 0.9, c: on ? C.ink : rgba(C.muted, .45), w: 500 }); ly += fs * (a2 ? 3.1 : 1.9); };
+        row(true, 'Right hand, three fingers at 90°', '', C.gold);
+        row(g1 > 0, 'Thumb → E', 'electric field', EC);
+        row(g2 > 0, 'Index finger → B', 'magnetic field', BC);
+        row(g3 > 0, 'Middle finger → propagation', 'direction the wave travels', VC);
+        if (g3 > 0.95) { T(ctx, 'Here: E up, B to the left, so the', lx, ly + fs * 0.4, { size: fs * 0.9, c: C.muted }); T(ctx, 'wave travels out of the page ( ⊙ ).', lx, ly + fs * 1.75, { size: fs * 0.9, c: C.muted }); }
       }
       T(ctx, { wave: 'EM wave: E and B in phase, both ⊥ to the direction of travel', swap: 'Same picture, E and B swapped', curl: 'The curl rule', fingers: 'The three-finger rule' }[m], w * 0.03, fs * 1.8, { size: fs * 1.15, w: 700, c: C.gold });
     } });
@@ -448,7 +463,7 @@
       pts: ['In an EM wave, the electric field <b>E</b> and the magnetic field <b>B</b> oscillate in phase, perpendicular to each other and to the direction of propagation.',
         'The wave travels <b>along its axis</b>, the line both fields oscillate about. An arrow pointing up or down the page (perpendicular to the axis) cannot be the direction of propagation.',
         'The direction of propagation is the direction of <b>E × B</b>.', '<b>Curl rule</b>: point the fingers of your right hand along E, curl them towards B. Your thumb gives the direction of propagation.',
-        '<b>Three-finger rule</b> (right hand): thumb along E, first finger along B, second finger gives the direction of propagation.',
+        '<b>Three-finger rule</b> (right hand, fingers at 90°): thumb along E, index finger along B, middle finger gives the direction of propagation.',
         'Swap E and B and the wave travels the opposite way. So read the labels first: which field is E and which is B?',
         'In an MCQ: for each option, find E and B, apply the rule, and compare with the arrow given. Reject any arrow not along the axis.'],
       segs: [['mode', [['wave', 'EM wave'], ['curl', 'Curl rule'], ['fingers', 'Three-finger rule'], ['swap', 'Swap E and B']]]], toggles: [['spin', 'Rotate the view']] },
