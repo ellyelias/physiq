@@ -1031,7 +1031,13 @@
       <h2>Teacher dashboard</h2>
       <p class="sub" style="margin-top:-6px;">For Cikgu Suhaili — view every student's pretest/posttest results, gain scores, and export to CSV for analysis.</p>
       <label>Teacher PIN</label>
-      <input type="password" id="rteacher-pin" placeholder="Enter PIN">
+      <div class="pin-wrap" style="position:relative;">
+        <input type="password" id="rteacher-pin" name="teacher-pin" autocomplete="current-password" placeholder="Enter PIN" style="padding-right:52px;width:100%;box-sizing:border-box;">
+        <button type="button" id="rteacher-pin-eye" aria-label="Show PIN" aria-pressed="false" title="Show PIN" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:0;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sub,#555);padding:0;">
+          <svg class="eye-open" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="eye-off" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-11-7-11-7a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
       <div class="btn-row" style="margin-top:14px;">
         <button class="btn-primary" id="rteacher-unlock">Unlock dashboard</button>
       </div>
@@ -6011,6 +6017,20 @@ const SEM3_BATCH3_CH25 = [
     $('#rtest-status').textContent = '';
     window.scrollTo(0,0);
   });
+  // Show/hide toggle for the Teacher PIN (lets the teacher check a PIN filled in by the phone's password manager).
+  (function(){
+    const pin = document.getElementById('rteacher-pin'), eye = document.getElementById('rteacher-pin-eye');
+    if (!pin || !eye) return;
+    eye.addEventListener('click', ()=>{
+      const show = pin.type === 'password';
+      pin.type = show ? 'text' : 'password';
+      eye.setAttribute('aria-pressed', show ? 'true' : 'false');
+      eye.setAttribute('aria-label', show ? 'Hide PIN' : 'Show PIN');
+      eye.title = show ? 'Hide PIN' : 'Show PIN';
+      eye.querySelector('.eye-open').style.display = show ? 'none' : '';
+      eye.querySelector('.eye-off').style.display = show ? '' : 'none';
+    });
+  })();
   $('#rtest-start-pre').addEventListener('click', ()=>startResearchTest('pretest'));
   $('#rtest-start-post').addEventListener('click', ()=>startResearchTest('posttest'));
 
@@ -6204,7 +6224,7 @@ const SEM3_BATCH3_CH25 = [
     status.textContent = '';
     $('#rteacher-lock-card').style.display = 'none';
     $('#rteacher-dash-card').style.display = 'block';
-    $('#rteacher-pin').value = '';
+    $('#rteacher-pin').value = ''; $('#rteacher-pin').type = 'password';
     document.dispatchEvent(new Event('physiq-teacher-unlocked'));
     await renderDashboard();
   });
