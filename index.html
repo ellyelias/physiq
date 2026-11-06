@@ -970,6 +970,7 @@
         <div class="score-num"><span id="tt-score-got"></span><span> / <span id="tt-score-total">20</span></span></div>
         <p class="score-label" id="tt-score-label"></p>
       </div>
+      <div id="tt-grid"></div>
       <h3 style="margin:14px 0 6px;color:var(--navy);">By difficulty</h3>
       <div class="breakdown" id="tt-diff-breakdown"></div>
       <h3 style="margin:14px 0 6px;color:var(--navy);">By topic</h3>
@@ -7244,7 +7245,7 @@ const NOTES_EXTRA = (function(){
       const s = stats[key] = stats[key] || {n:0, best:null, last:null, secs:0};
       s.n++; s.secs += Number(r.durationSec) || 0;
       if (!s.best || r.score > s.best.score) s.best = {score:r.score, total:r.total};
-      s.last = {score:r.score, total:r.total, ts:r.timestamp};
+      s.last = {score:r.score, total:r.total, ts:r.timestamp}; s.lastRow = r;
     });
     let research = [];
     try{ research = (await loadTestResults()).filter(r => normName(r.name) === normName(who)); }catch(e){}
@@ -7542,7 +7543,8 @@ const NOTES_EXTRA = (function(){
       const b = best[devKey];
       return b ? `<br><span style="font-weight:400;font-size:12px;color:var(--sub);">Best: ${b.score}/${b.total}</span>` : '';
     };
-    const btn = (kind, key, mk) => `<button class="btn-primary tt-start" data-kind="${kind}" data-key="${key}" style="padding:6px 14px;font-size:13px;">${m && m.stats[mk] ? 'Try again' : 'Start test'}</button>`;
+    const rvBtn = (kind, key, mk) => m && m.stats[mk] && m.stats[mk].lastRow && Array.isArray(m.stats[mk].lastRow.perQuestion) && m.stats[mk].lastRow.perQuestion.length ? `<button class="btn-ghost tt-review-btn" data-kind="${kind}" data-key="${key}" data-mk="${escapeHtml(mk)}" style="padding:6px 14px;font-size:13px;">Review my answers</button>` : '';
+    const btn = (kind, key, mk) => rvBtn(kind, key, mk) + `<button class="btn-primary tt-start" data-kind="${kind}" data-key="${key}" style="padding:6px 14px;font-size:13px;">${m && m.stats[mk] ? 'Try again' : 'Start test'}</button>`;
     const keys = Object.keys(TEST_SETS.chapters).filter(k=>k.split(':')[0] === sem).sort((a,b)=>parseInt(a.split(':')[1],10)-parseInt(b.split(':')[1],10));
     $('#tt-chapter-list').innerHTML = keys.map(k=>{
       const first = bank.find(q=>q.id === TEST_SETS.chapters[k][0]);
@@ -7567,10 +7569,12 @@ const NOTES_EXTRA = (function(){
         <div style="font-size:12.5px;color:var(--sub);margin:4px 0 6px;">${escapeHtml(p.blurb)}</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
           <button class="btn-primary tt-start" data-kind="r" data-key="${k}" style="padding:6px 14px;font-size:13px;">${m && m.stats[mk] ? 'Section A · try again' : 'Section A · start test'}</button>
+          ${rvBtn('r', k, mk)}
           <button class="btn-ghost tt-written" data-key="${k}" style="padding:6px 14px;font-size:13px;">Sections B &amp; C</button></div></div>`;
     }).join('');
     $$('#panel-tests .tt-start').forEach(b=>b.addEventListener('click', ()=>startTest(b.dataset.kind, b.dataset.key)));
     $$('#panel-tests .tt-written').forEach(b=>b.addEventListener('click', ()=>openRevWritten(b.dataset.key)));
+    $$('#panel-tests .tt-review-btn').forEach(b=>b.addEventListener('click', ()=>{ const s = m && m.stats[b.dataset.mk]; if (s && s.lastRow) ttOpenPastReview(b.dataset.kind, b.dataset.key, s.lastRow); }));
   }
 
   function renderMyChecklist(m){
@@ -7709,6 +7713,76 @@ const NOTES_EXTRA = (function(){
     window.scrollTo(0,0);
   });
 
+  // ----- answer review (used after a test and when reopening an earlier attempt) -----
+  function ttReviewHTML(answers){
+    const grid = answers.map((a,i)=>`<button type="button" class="tt-jump" data-i="${i}" title="Question ${i+1}: ${a.correct?'correct':'wrong'}" style="min-width:44px;padding:6px 4px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;border:1.5px solid ${a.correct?'#2e7d32':'#c62828'};background:${a.correct?'#e6f4ea':'#fdeaea'};color:${a.correct?'#1b5e20':'#b71c1c'};">${i+1} ${a.correct?'✓':'✗'}</button>`).join('');
+    const wrong = answers.map((a,i)=>a.correct?null:i+1).filter(n=>n);
+    const rows = answers.map((a,i)=>{
+      const q = a.q, ok = a.correct, known = typeof a.selected === 'number';
+      const opts = q.options.map((o,k)=>{
+        const isC = k === q.correctIndex, isS = known && k === a.selected;
+        const style = isC ? 'background:#e6f4ea;border-color:#2e7d32;' : (isS ? 'background:#fdeaea;border-color:#c62828;' : '');
+        const tag = isC ? (isS ? ' ✓ your answer (correct)' : ' ✓ correct answer') : (isS ? ' ✗ your answer' : '');
+        return `<div style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:4px 0;${style}">${String.fromCharCode(65+k)}. ${mathify(escapeHtml(o))}<b style="font-size:12px;">${tag}</b></div>`;
+      }).join('');
+      let notes = '';
+      if (Array.isArray(q.optionNotes)) q.optionNotes.forEach((n,k)=>{ if (k !== q.correctIndex && n) notes += `<div style="margin-top:6px;"><b>${String.fromCharCode(65+k)}.</b> ${mathify(escapeHtml(n))}</div>`; });
+      const exp = mathify(escapeHtml(q.explanation||'').replace(/^(Given|Formula|Working|Answer|Key point|Reason|Note|Check):/gm,'<b>$1:</b>'));
+      const dg = (window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
+      return `<details id="tt-rq-${i}" style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;scroll-margin-top:70px;"${ok?'':' open'}>
+        <summary style="cursor:pointer;font-weight:700;color:${ok?'#2e7d32':'#c62828'};">Q${i+1} · ${ok?'Correct ✓':'Wrong ✗'} · ${escapeHtml(q.difficulty)} · ${escapeHtml(stripSem(q.topic))}${q.source ? ' · ' + escapeHtml(q.source) : ''}</summary>
+        <div style="margin-top:8px;white-space:pre-wrap;">${mathify(escapeHtml(q.question))}</div>
+        ${dg ? `<div style="margin:8px 0;">${dg}</div>` : ''}
+        <div style="margin-top:8px;">${opts}</div>
+        ${known ? '' : '<div style="font-size:12px;color:var(--sub);margin-top:4px;">The option you chose was not saved for this attempt, only whether it was right or wrong.</div>'}
+        <div style="margin-top:10px;white-space:pre-wrap;"><b>Solution:</b> ${exp}</div>
+        ${notes ? `<div style="margin-top:10px;font-weight:700;color:var(--navy);">Why the other options are wrong:</div>${notes}` : ''}
+      </details>`;
+    }).join('');
+    return `<div class="tt-grid-sec"><h3 style="margin:6px 0 6px;color:var(--navy);">Your answers</h3>
+      <p class="status-msg" style="margin:0 0 8px;">${wrong.length ? `Wrong: <b style="color:#c62828;">Q${wrong.join(', Q')}</b>. ` : 'All correct. '}Tap a number to go to that question.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">${grid}</div></div>
+      <h3 style="margin:18px 0 6px;color:var(--navy);">Full review</h3><p class="status-msg" style="margin:0 0 4px;">Wrong answers are opened for you. Tap any question for the worked solution.</p>${rows}`;
+  }
+  function ttWireReview(){
+    const g = $('#tt-review .tt-grid-sec'), box = $('#tt-grid');
+    if (box){ box.innerHTML = ''; if (g) box.appendChild(g); }
+    $$('#tt-summary-card .tt-jump').forEach(b=>b.addEventListener('click', ()=>{
+      const d = document.getElementById('tt-rq-' + b.dataset.i); if (!d) return;
+      d.open = true; d.scrollIntoView({behavior:'smooth', block:'start'});
+    }));
+  }
+  // Reopen the review of an earlier attempt (from the synced results, so it works on any device).
+  function ttOpenPastReview(kind, key, row){
+    let questions, rp = null;
+    if (kind === 'r'){
+      rp = revPaper(key); questions = rp ? rp.mcq.slice() : [];
+      if (rp){ window.PHYSIQ_DIAGRAMS = window.PHYSIQ_DIAGRAMS || {}; questions.forEach(q=>{ if (q.fig) window.PHYSIQ_DIAGRAMS[q.id] = rp.figures[q.fig]; }); }
+    } else {
+      const ids = kind === 'c' ? TEST_SETS.chapters[key] : TEST_SETS.sets[key.split(':')[0]][key.split(':')[1]];
+      questions = ttIdsToQuestions(ids || []);
+    }
+    const pq = Array.isArray(row && row.perQuestion) ? row.perQuestion : [];
+    const byId = {}; pq.forEach(p=>{ byId[p.id] = p; });
+    const answers = questions.filter(q=>byId[q.id]).map(q=>{ const p = byId[q.id]; return {q, correct: !!Number(p.ok), selected: (typeof p.a === 'number') ? p.a : null, secs: p.s||0}; });
+    if (!answers.length){ alert('The answers for this attempt are not available.'); return; }
+    const got = answers.filter(a=>a.correct).length;
+    $('#tt-home').style.display = 'none';
+    $('#tt-quiz-card').style.display = 'none';
+    $('#tt-summary-card').style.display = 'block';
+    $('#tt-score-got').textContent = row.score != null ? row.score : got;
+    $('#tt-score-total').textContent = row.total || answers.length;
+    $('#tt-score-label').textContent = `${row.percentage != null ? row.percentage : Math.round(got/answers.length*100)}% correct — ${row.title || ''} · attempt on ${ttDay(row.timestamp)}`;
+    const bar = (name, v) => `<div class="bd-row"><span class="bd-topic">${name}</span><div class="bd-bar"><div class="bd-fill" style="width:${v.total ? v.correct/v.total*100 : 0}%"></div></div><span class="bd-frac">${v.correct}/${v.total}</span></div>`;
+    const byD = {}, byT = {};
+    answers.forEach(a=>{ const d = byD[a.q.difficulty] = byD[a.q.difficulty] || {correct:0,total:0}; d.total++; if (a.correct) d.correct++; const t = byT[a.q.topic] = byT[a.q.topic] || {correct:0,total:0}; t.total++; if (a.correct) t.correct++; });
+    $('#tt-diff-breakdown').innerHTML = ['easy','medium','hard'].filter(d=>byD[d]).map(d=>bar(d.charAt(0).toUpperCase()+d.slice(1), byD[d])).join('');
+    $('#tt-topic-breakdown').innerHTML = Object.keys(byT).sort().map(t=>bar(escapeHtml(stripSem(t)), byT[t])).join('');
+    $('#tt-review').innerHTML = ttReviewHTML(answers);
+    ttWireReview();
+    window.scrollTo(0,0);
+  }
+
   function finishTest(){
     const st = ttState, total = st.answers.length, got = st.correct;
     ttClearProgress(st);
@@ -7733,7 +7807,7 @@ const NOTES_EXTRA = (function(){
       title: st.title, score: got, total, percentage: Math.round(got/total*100),
       durationSec: answerSecs, elapsedSec: elapsed,
       easy: dcount('easy'), medium: dcount('medium'), hard: dcount('hard'),
-      byTopic: tkey, perQuestion: st.answers.map(a=>({id:a.q.id, ok:a.correct?1:0, s:a.secs||0}))
+      byTopic: tkey, perQuestion: st.answers.map(a=>({id:a.q.id, ok:a.correct?1:0, s:a.secs||0, a:a.selected}))
     };
     if (!isAdmin){ const loc = ttLocal(); loc.push({row, synced:false}); ttLocalSave(loc); ttSync(); }
 
@@ -7749,30 +7823,9 @@ const NOTES_EXTRA = (function(){
     $('#tt-diff-breakdown').innerHTML = ['easy','medium','hard'].filter(d=>byD[d].total).map(d=>bar(d.charAt(0).toUpperCase()+d.slice(1), byD[d])).join('');
     $('#tt-topic-breakdown').innerHTML = Object.keys(byT).sort().map(t=>bar(escapeHtml(stripSem(t)), byT[t])).join('');
 
-    const rows = st.answers.map((a,i)=>{
-      const q = a.q, ok = a.correct;
-      const opts = q.options.map((o,k)=>{
-        const isC = k === q.correctIndex, isS = k === a.selected;
-        const style = isC ? 'background:#e6f4ea;border-color:#2e7d32;' : (isS ? 'background:#fdeaea;border-color:#c62828;' : '');
-        const tag = isC ? ' ✓ correct answer' : (isS ? ' ✗ your answer' : '');
-        return `<div style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:4px 0;${style}">${String.fromCharCode(65+k)}. ${mathify(escapeHtml(o))}<b style="font-size:12px;">${tag}</b></div>`;
-      }).join('');
-      let notes = '';
-      if (Array.isArray(q.optionNotes)) q.optionNotes.forEach((n,k)=>{ if (k !== q.correctIndex && n) notes += `<div style="margin-top:6px;"><b>${String.fromCharCode(65+k)}.</b> ${mathify(escapeHtml(n))}</div>`; });
-      const exp = mathify(escapeHtml(q.explanation||'').replace(/^(Given|Formula|Working|Answer|Key point|Reason|Note|Check):/gm,'<b>$1:</b>'));
-      const dg = (window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
-      return `<details style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;"${ok?'':' open'}>
-        <summary style="cursor:pointer;font-weight:700;color:${ok?'#2e7d32':'#c62828'};">Q${i+1} · ${ok?'Correct':'Wrong'} · ${escapeHtml(q.difficulty)} · ${escapeHtml(stripSem(q.topic))}${q.source ? ' · ' + escapeHtml(q.source) : ''}</summary>
-        <div style="margin-top:8px;white-space:pre-wrap;">${mathify(escapeHtml(q.question))}</div>
-        ${dg ? `<div style="margin:8px 0;">${dg}</div>` : ''}
-        <div style="margin-top:8px;">${opts}</div>
-        <div style="margin-top:10px;white-space:pre-wrap;"><b>Solution:</b> ${exp}</div>
-        ${notes ? `<div style="margin-top:10px;font-weight:700;color:var(--navy);">Why the other options are wrong:</div>${notes}` : ''}
-      </details>`;
-    }).join('');
     const adminNote = isAdmin ? '<p class="status-msg" style="margin:4px 0;color:var(--red);">Admin preview: this is exactly what students see. Your attempt was not recorded.</p>' : '';
-    $('#tt-review').innerHTML = (st.kind === 'r' ? `<p class="status-msg" style="margin:18px 0 4px;">Your score has been sent to your teacher.</p>` : '') + adminNote +
-      `<h3 style="margin:18px 0 6px;color:var(--navy);">Full review</h3><p class="status-msg" style="margin:0 0 4px;">Wrong answers are opened for you. Tap any question for the worked solution.</p>${rows}`;
+    $('#tt-review').innerHTML = (st.kind === 'r' ? `<p class="status-msg" style="margin:18px 0 4px;">Your score has been sent to your teacher.</p>` : '') + adminNote + ttReviewHTML(st.answers);
+    ttWireReview();
     window.scrollTo(0,0);
   }
 
