@@ -1169,7 +1169,7 @@
 <script src="physiq-realworld.js?v=20261031c"></script>
 <script src="physiq-clinic.js?v=20261104c"></script>
 <script src="physiq-clinic-s1.js?v=20261102c"></script>
-<script src="physiq-revision.js?v=20261106b"></script>
+<script src="physiq-revision.js?v=20261106c"></script>
 <script>
 (function(){
 
@@ -5734,7 +5734,7 @@ const SEM3_BATCH3_CH25 = [
         const tag = k === q.correctIndex ? (k === a.selected ? ' <b>✓ your answer · correct</b>' : ' <b>✓ correct answer</b>') : (k === a.selected ? ' <b>✗ your answer</b>' : '');
         return `<div class="rv-opt${cls}">${L[k]}. ${mathify(escapeHtml(o))}${tag}</div>`;
       }).join('');
-      const exp = mathify(escapeHtml(q.explanation || '').replace(/^(Formula|Working|Answer|Key point|Reason|Note):/gm, '<b>$1:</b>'));
+      const exp = mathify(escapeHtml(q.explanation || '').replace(/^(Given|Formula|Working|Answer|Key point|Reason|Note|Check):/gm, '<b>$1:</b>'));
       const notes = Array.isArray(q.optionNotes) ? q.optionNotes.map((n, k) => (k !== q.correctIndex && n) ? `<div class="rv-why"><b>Why ${L[k]} is wrong:</b> ${mathify(escapeHtml(n))}</div>` : '').join('') : '';
       const fig = (window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
       return `<div class="rv-item${a.correct ? ' ok' : ' bad'}"><div class="rv-sum"><span class="rv-n">Q${i + 1}</span><span class="rv-mark">${a.correct ? '✓ Correct' : '✗ Wrong'}</span><span class="rv-t">${escapeHtml(q.topic.replace(/^S[23]-/, ''))}</span></div>
@@ -6167,7 +6167,7 @@ const SEM3_BATCH3_CH25 = [
       }).join('');
       let notes = '';
       if (Array.isArray(q.optionNotes)) q.optionNotes.forEach((n,k)=>{ if (k !== q.correctIndex && n) notes += `<div style="margin-top:6px;"><b>${String.fromCharCode(65+k)}.</b> ${rich(escapeHtml(n))}</div>`; });
-      const exp = rich(escapeHtml(q.explanation||'').replace(/^(Formula|Working|Answer|Key point|Reason|Note):/gm,'<b>$1:</b>'));
+      const exp = rich(escapeHtml(q.explanation||'').replace(/^(Given|Formula|Working|Answer|Key point|Reason|Note|Check):/gm,'<b>$1:</b>'));
       const dg = (st.semester > 1 && window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
       return `<details style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;"${ok?'':' open'}>
         <summary style="cursor:pointer;font-weight:700;color:${ok?'#2e7d32':'#c62828'};">Q${i+1} · ${ok?'Correct':'Wrong'} · ${escapeHtml(stripSem(q.topic))}</summary>
@@ -7496,7 +7496,7 @@ const NOTES_EXTRA = (function(){
       return `<div style="margin:12px 0;padding-top:10px;border-top:1px solid var(--line);">
         <div style="line-height:1.6;"><b>Question ${i+1}.</b> ${revText(q.question)}</div>${revFig(p, q.fig)}
         <div style="margin:6px 0;">${opts}</div>
-        <div style="margin:6px 0;line-height:1.6;color:#c62828;"><b>Answer: ${L[q.correctIndex]}.</b><br>${revText(q.explanation)}</div>
+        <div style="margin:6px 0;line-height:1.6;color:#c62828;"><b>Answer: ${L[q.correctIndex]}.</b><br>${revText(q.explanation).replace(/(^|<br>)(Given|Formula|Working|Answer|Key point|Check):/g,'$1<b>$2:</b>')}</div>
         <div style="margin:6px 0 0;"><b style="color:#1e3a8a;">Why the other options are wrong</b>${notes}</div></div>`;
     }).join('');
     const key = p.mcq.map((q,i)=>`<td style="padding:4px 6px;text-align:center;border:1px solid var(--line);"><b>${i+1}</b><br>${'ABCD'[q.correctIndex]}</td>`).join('');
@@ -7759,7 +7759,7 @@ const NOTES_EXTRA = (function(){
       }).join('');
       let notes = '';
       if (Array.isArray(q.optionNotes)) q.optionNotes.forEach((n,k)=>{ if (k !== q.correctIndex && n) notes += `<div style="margin-top:6px;"><b>${String.fromCharCode(65+k)}.</b> ${mathify(escapeHtml(n))}</div>`; });
-      const exp = mathify(escapeHtml(q.explanation||'').replace(/^(Formula|Working|Answer|Key point|Reason|Note):/gm,'<b>$1:</b>'));
+      const exp = mathify(escapeHtml(q.explanation||'').replace(/^(Given|Formula|Working|Answer|Key point|Reason|Note|Check):/gm,'<b>$1:</b>'));
       const dg = (window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
       return `<details style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;"${ok?'':' open'}>
         <summary style="cursor:pointer;font-weight:700;color:${ok?'#2e7d32':'#c62828'};">Q${i+1} · ${ok?'Correct':'Wrong'} · ${escapeHtml(q.difficulty)} · ${escapeHtml(stripSem(q.topic))}${q.source ? ' · ' + escapeHtml(q.source) : ''}</summary>
