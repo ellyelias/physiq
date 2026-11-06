@@ -938,7 +938,7 @@
       <div id="tt-sem-list"></div>
       <div id="tt-rev-wrap" style="display:none;">
         <h3 style="margin:22px 0 6px;color:var(--navy);">Revision papers — <span id="tt-sem-label3"></span></h3>
-        <p class="status-msg" style="margin:0 0 6px;">Full papers in the STPM 2026 format. Section A is a timed online test (your score goes to your teacher). Sections B and C are answered on paper and marked by your teacher.</p>
+        <p class="status-msg" style="margin:0 0 6px;">Full papers in the STPM 2026 format. Section A is a timed online test (your score goes to your teacher). For Sections B and C, type your answers in the app or write on paper and snap a photo, then send the PDF to your teacher.</p>
         <div id="tt-rev-list"></div>
       </div>
     </div>
@@ -1169,7 +1169,7 @@
 <script src="physiq-realworld.js?v=20261031c"></script>
 <script src="physiq-clinic.js?v=20261104c"></script>
 <script src="physiq-clinic-s1.js?v=20261102c"></script>
-<script src="physiq-revision.js?v=20261106a"></script>
+<script src="physiq-revision.js?v=20261106b"></script>
 <script>
 (function(){
 
@@ -7274,14 +7274,213 @@ const NOTES_EXTRA = (function(){
       return '';
     }).join('');
   }
+  // ----- Sections B & C answer sheet: type in the app or write on paper and snap; one PDF for the teacher -----
+  // Same tools as the past year papers, kept separate (rv-* names, own storage) so the two pages never mix.
+  const RV_LS = 'physiq-rv-';
+  let rvState = null;   // {key, paper, data:{mode, ans}, photos:{q:[dataURL]}, last:{}, timer}
+  const rvMem = {};
+  const rvAdmin = () => { try{ return localStorage.getItem('physiq-teacher-device') === '1' && localStorage.getItem('physiq-admin-preview') === '1'; }catch(e){ return false; } };
+  function rvLoad(k){ if (rvAdmin()) return rvMem[k] ? JSON.parse(rvMem[k]) : null; try{ return JSON.parse(localStorage.getItem(RV_LS + k) || 'null'); }catch(e){ return null; } }
+  function rvStore(k, v){ const s = JSON.stringify(v); if (rvAdmin()){ rvMem[k] = s; return true; } try{ localStorage.setItem(RV_LS + k, s); return true; }catch(e){ return false; } }
+  // the answerable parts of Sections B and C: {q, j (block index), label, text, m}
+  function rvParts(p){
+    const out = []; let q = null, main = '';
+    p.written.forEach((b, j) => {
+      if (b.h){ q = parseInt(b.h, 10); main = ''; return; }
+      const t = b.sub || b.p;
+      if (!t) return;
+      const lab = (t.match(/^\(([a-h]|i{1,3}|iv|v)\)/) || [])[0] || '';
+      if (/^\([a-h]\)$/.test(lab)) main = lab;
+      if (b.sub) out.push({q, j, label: /^\((i{1,3}|iv|v)\)$/.test(lab) && main ? main + lab : lab, text: t.replace(/^\([a-z]+\)\s*/, ''), m: b.m});
+    });
+    return out;
+  }
+  function rvSymbolBar(q){
+    return `<div class="sp-symbols pt-symbols" role="toolbar" aria-label="Insert symbol into your answer for Question ${q}">${SYMBOLS.map(([s,nm]) =>
+      `<button type="button" class="sym-btn rv-sym" data-rq="${q}" data-s="${s}" title="${nm}" aria-label="Insert ${nm}">${SYM_FACE[s] || s}</button>`).join('')}
+      <button type="button" class="sym-btn sym-edit rv-sym" data-rq="${q}" data-act="back" aria-label="Backspace">⌫ Delete</button>
+      <button type="button" class="sym-btn sym-edit rv-sym" data-rq="${q}" data-act="clear" aria-label="Clear this box">Clear</button></div>`;
+  }
+  function rvPhotoRow(q){
+    return `<div class="sp-photo-row"><label class="sp-photo-btn"><span class="pt-when-type">Add photo of handwritten working</span><span class="pt-when-paper rv-snap-l" data-rq="${q}">Snap my answer to Question ${q}</span><input type="file" accept="image/*" multiple class="rv-photo-in" data-rq="${q}" hidden></label>
+      <span class="sp-photo-hint pt-when-type">For sketches, graphs and diagrams. The photos go into your PDF.</span>
+      <span class="sp-photo-hint pt-when-paper">Write all parts of Question ${q} on paper, then snap it. Add another photo for each extra page.</span></div>
+      <div class="pt-photos rv-photos" data-rq="${q}"></div>`;
+  }
+  function rvSheetHTML(p){
+    let html = '', q = null;
+    const closeQ = () => { if (q != null) html += rvSymbolBar(q) + rvPhotoRow(q) + '</div>'; q = null; };
+    p.written.forEach((b, j) => {
+      if (b.sec){ closeQ(); html += `<h3 class="pt-sec">${escapeHtml(b.sec)} <span>${escapeHtml(b.note || '')}</span></h3>`; return; }
+      if (b.h){ closeQ(); q = parseInt(b.h, 10); html += `<div class="rv-q" data-rq="${q}"><div style="margin:16px 0 6px;font-weight:700;color:var(--navy);">${escapeHtml(b.h)}</div>`; return; }
+      if (b.fig){ html += revFig(p, b.fig); return; }
+      if (b.p){ html += `<div style="margin:6px 0;line-height:1.6;">${revText(b.p)}</div>`; return; }
+      if (b.sub){
+        const sub = /^\((i{1,3}|iv|v)\)/.test(b.sub);
+        html += `<div style="margin:8px 0 2px;line-height:1.6;">${revText(b.sub)} <b style="white-space:nowrap;">[${b.m} mark${b.m > 1 ? 's' : ''}]</b></div>
+          <textarea class="pt-box${sub ? ' pt-box-sub' : ''} rv-box" data-rk="${q}|${j}" data-rq="${q}" rows="3" maxlength="4000" placeholder="Type your answer and working here" aria-label="Your answer for Question ${q}"></textarea>`;
+      }
+    });
+    closeQ();
+    return html;
+  }
   function openRevWritten(key){
     const p = revPaper(key); if (!p) return;
-    $('#tt-written-body').innerHTML = `<h2 style="margin-bottom:2px;">${escapeHtml(p.title)}</h2>
-      <p class="sub" style="margin-top:0;">Sections B and C · answer on paper and hand in to your teacher. Show all working, with units in every final answer.</p>
-      <p class="status-msg" style="margin:0 0 6px;"><b>Data:</b> ${revText(p.data)}</p>${revWrittenHTML(p, false)}`;
+    const d = rvLoad(key) || {}; d.ans = d.ans || {};
+    rvState = {key, paper: p, data: d, photos: rvLoad(key + '-photos') || {}, last: {}, timer: null};
+    const box = $('#tt-written-body');
+    box.innerHTML = `<h2 style="margin-bottom:2px;">${escapeHtml(p.title)}</h2>
+      <p class="sub" style="margin-top:0;">Sections B and C. Show all working, with units in every final answer.</p>
+      <p class="status-msg" style="margin:0 0 6px;"><b>Data:</b> ${revText(p.data)}</p>
+      <div class="pt-paper rv-paper">
+        <div class="pt-mode" role="radiogroup" aria-labelledby="rv-mode-q">
+          <p class="pt-mode-q" id="rv-mode-q">How will you answer Sections B and C?</p>
+          <label class="pt-mode-opt"><input type="radio" name="rv-mode" value="type"><span><b>Type in the app</b><br>Type your answers in the boxes. You can still add a photo for a sketch or graph.</span></label>
+          <label class="pt-mode-opt"><input type="radio" name="rv-mode" value="paper"><span><b>Write on paper and snap</b><br>Write your answers on paper, then snap a photo under each question.</span></label>
+          <p class="pt-mode-hint">You can change this at any time. Your typed answers and photos are kept.</p>
+        </div>
+        ${rvSheetHTML(p)}
+        <div class="pt-submit">
+          <h3 class="pt-sec">Send your answers to your teacher</h3>
+          <p class="pt-note">For each question you can type your answer, take a photo of your handwritten answer, or do both.</p>
+          <ol class="pt-steps"><li>Type your name.</li><li>Tap <b>Download my answers (PDF)</b>. The PDF has your typed answers and your photos.</li><li>Send the PDF to your teacher on WhatsApp (attach it as a Document).</li></ol>
+          <p class="pt-note pt-warn" id="rv-photo-note" hidden>Your photos are too big to keep on this device. Download your PDF before you close this page.</p>
+          <label for="rv-name">Your name</label>
+          <input type="text" id="rv-name" maxlength="80" autocomplete="name" placeholder="Full name">
+          <div class="btn-row" style="flex-wrap:wrap;"><button type="button" class="btn-primary" id="rv-pdf">Download my answers (PDF)</button><button type="button" class="btn-ghost" id="rv-copy">Copy all my answers</button></div>
+          <p class="status-msg" id="rv-send-status" role="status"></p>
+          <textarea id="rv-copy-fallback" class="pt-box" rows="6" readonly hidden aria-label="All your answers as text"></textarea>
+        </div>
+      </div>`;
+    rvWire(box);
     $('#tt-home').style.display = 'none';
     $('#tt-written-card').style.display = 'block';
     window.scrollTo(0,0);
+  }
+  function rvSave(){ clearTimeout(rvState.timer); const s = rvState; s.timer = setTimeout(() => rvStore(s.key, s.data), 400); }
+  function rvQueue(el){ const a = rvState.data.ans; if (el.value) a[el.dataset.rk] = el.value; else delete a[el.dataset.rk]; rvSave(); }
+  function rvSetMode(box, mode){
+    const w = box.querySelector('.rv-paper');
+    w.classList.toggle('mode-type', mode === 'type'); w.classList.toggle('mode-paper', mode === 'paper');
+    box.querySelectorAll('input[name="rv-mode"]').forEach(r => { r.checked = r.value === mode; });
+  }
+  function rvRenderPhotos(box, q){
+    const el = box.querySelector(`.rv-photos[data-rq="${q}"]`); if (!el) return;
+    const list = rvState.photos[q] || [];
+    el.innerHTML = list.map((src, i) => `<figure class="pt-photo"><figcaption>Page ${i + 1}</figcaption><img src="${src}" alt="Page ${i + 1} of your working for Question ${q}">
+      <button type="button" class="btn-ghost rv-photo-rm" data-i="${i}">Remove page ${i + 1}</button></figure>`).join('');
+    const lab = box.querySelector(`.rv-snap-l[data-rq="${q}"]`);
+    if (lab) lab.textContent = list.length ? `+ Snap the next page (page ${list.length + 1})` : `Snap my answer to Question ${q}`;
+    el.querySelectorAll('.rv-photo-rm').forEach(b => b.addEventListener('click', () => {
+      rvState.photos[q].splice(+b.dataset.i, 1); if (!rvState.photos[q].length) delete rvState.photos[q];
+      rvPhotosChanged(); rvRenderPhotos(box, q);
+    }));
+  }
+  function rvPhotosChanged(){ const ok = rvStore(rvState.key + '-photos', rvState.photos); const n = document.getElementById('rv-photo-note'); if (n) n.hidden = ok; }
+  function rvWire(box){
+    const d = rvState.data;
+    box.querySelectorAll('.rv-box').forEach(el => {
+      el.value = d.ans[el.dataset.rk] || '';
+      el.addEventListener('focus', () => { rvState.last[el.dataset.rq] = el; });
+      el.addEventListener('input', () => {
+        const before = el.value, pos = el.selectionStart, after = autoFormat(before);
+        if (after !== before){ const diff = before.length - after.length; el.value = after; try{ el.setSelectionRange(Math.max(0, pos - diff), Math.max(0, pos - diff)); }catch(e){} }
+        rvQueue(el);
+      });
+      el.addEventListener('blur', () => { el.value = autoFormat(el.value, true); rvQueue(el); });
+    });
+    box.querySelectorAll('.rv-sym').forEach(b => {
+      b.addEventListener('mousedown', e => e.preventDefault());
+      b.addEventListener('click', () => {
+        const q = b.dataset.rq, el = rvState.last[q] || box.querySelector(`.rv-box[data-rq="${q}"]`); if (!el) return;
+        if (b.dataset.act === 'back'){
+          const a = el.selectionStart ?? el.value.length, z = el.selectionEnd ?? el.value.length;
+          let from = a; if (a === z && a > 0) from = a - ([...el.value.slice(0, a)].pop() || '').length;
+          el.value = el.value.slice(0, from) + el.value.slice(z); el.focus(); try{ el.setSelectionRange(from, from); }catch(e){}
+        } else if (b.dataset.act === 'clear'){ el.value = ''; el.focus(); }
+        else if (b.dataset.s === '√( )'){ insertAt(el, '√()'); const pos = el.selectionStart - 1; try{ el.setSelectionRange(pos, pos); }catch(e){} }
+        else insertAt(el, b.dataset.s);
+        rvState.last[q] = el; rvQueue(el);
+      });
+    });
+    box.querySelectorAll('.rv-photo-in').forEach(inp => inp.addEventListener('change', async () => {
+      const q = inp.dataset.rq, files = [...(inp.files || [])]; inp.value = '';
+      for (const f of files){ try{ (rvState.photos[q] = rvState.photos[q] || []).push(await ptShrink(f)); }catch(e){ console.error('photo', e); } }
+      rvPhotosChanged(); rvRenderPhotos(box, q);
+    }));
+    Object.keys(rvState.photos).forEach(q => rvRenderPhotos(box, q));
+    rvSetMode(box, d.mode || '');
+    box.querySelectorAll('input[name="rv-mode"]').forEach(r => r.addEventListener('change', () => { d.mode = r.value; rvStore(rvState.key, d); rvSetMode(box, r.value); }));
+    const nm = $('#rv-name'); nm.value = ptGetName();
+    nm.addEventListener('change', () => ptSetName(nm.value.trim()));
+    $('#rv-pdf').addEventListener('click', rvDownload);
+    $('#rv-copy').addEventListener('click', rvCopy);
+  }
+  function rvFlush(){
+    $$('#tt-written-body .rv-box').forEach(el => { el.value = autoFormat(el.value, true); rvQueue(el); });
+    clearTimeout(rvState.timer); rvStore(rvState.key, rvState.data);
+  }
+  function rvSectionALine(){
+    const b = ttBest()['r:' + rvState.key];
+    return b ? `Section A (online test in PhysiQ): best score on this device ${b.score} / ${b.total}` : 'Section A: answered as an online test in PhysiQ (the score goes to the teacher automatically)';
+  }
+  function rvText(name){
+    const p = rvState.paper, lines = [name, p.title + ' · Sections B and C', rvSectionALine()];
+    rvParts(p).forEach(z => { const a = rvState.data.ans[`${z.q}|${z.j}`]; if (a) lines.push('', `Q${z.q} ${z.label}`.trim(), a); });
+    return lines.join('\n');
+  }
+  function rvCopy(){
+    rvFlush();
+    const text = rvText($('#rv-name').value.trim() || '(no name)'), st = $('#rv-send-status'), fb = $('#rv-copy-fallback');
+    const showFallback = () => { fb.value = text; fb.hidden = false; fb.focus(); fb.select(); st.textContent = 'Select all the text in the box below and copy it.'; };
+    try{ navigator.clipboard.writeText(text).then(() => { st.textContent = 'All your typed answers are copied (photos are only in the PDF). Paste them into WhatsApp.'; fb.hidden = true; }, showFallback); }catch(e){ showFallback(); }
+  }
+  async function rvBuildPdf(name){
+    const p = rvState.paper, w = ptPdfWriter(), NAVY = '#1F3A68', GREY = '#5b6676';
+    w.text('PhysiQ · Revision paper answers', {size: 22, weight: '700', color: '#E8671B', gap: 4});
+    w.text(name, {size: 40, weight: '700', gap: 4});
+    w.text(p.title + ' · Sections B and C', {size: 28, weight: '700', color: NAVY, gap: 2});
+    w.text('Saved ' + new Date().toLocaleString(), {size: 22, color: GREY, gap: 14});
+    w.text(rvSectionALine(), {size: 22, color: GREY, gap: 10});
+    const parts = rvParts(p), qs = [...new Set(parts.map(z => z.q))], skipped = [];
+    for (const q of qs){
+      const mine = parts.filter(z => z.q === q), ph = rvState.photos[q] || [];
+      const tot = mine.reduce((s, z) => s + (+z.m || 0), 0);
+      if (!mine.some(z => rvState.data.ans[`${q}|${z.j}`]) && !ph.length){ skipped.push(q); continue; }
+      w.rule();
+      w.text(`Question ${q}   [${tot} marks]`, {size: 30, weight: '700', color: NAVY, gap: 10});
+      for (const z of mine){
+        w.text(`${z.label} ${z.text}  [${z.m}]`.trim(), {size: 21, color: GREY, gap: 4});
+        const a = rvState.data.ans[`${q}|${z.j}`];
+        w.text(a || (ph.length ? '(see handwritten working below)' : '(no answer)'), {size: 26, color: a ? '#1b2433' : '#9aa3b0', style: a ? '' : 'italic', indent: 20, gap: 14});
+      }
+      if (ph.length){ w.text('Handwritten working', {size: 22, weight: '700', color: GREY, gap: 6}); for (const src of ph){ try{ w.image(await ptLoadImg(src)); }catch(e){} } }
+    }
+    w.rule();
+    if (skipped.length) w.text(`Not attempted: Question ${skipped.join(', ')}`, {size: 22, color: GREY});
+    const total = w.pages.length;
+    w.pages.forEach((c, i) => { const g = c.getContext('2d'); g.font = '20px Calibri, "Segoe UI", Arial, sans-serif'; g.fillStyle = '#8a94a3'; g.textBaseline = 'alphabetic';
+      g.fillText(`${name} · ${p.title} · page ${i + 1} of ${total}`, PG.M, PG.H - 40); });
+    return ptMakePdf(w.pages.map(c => ({jpg: ptJpegBytes(c), w: c.width, h: c.height})));
+  }
+  async function rvDownload(){
+    const st = $('#rv-send-status'), nameEl = $('#rv-name'), name = nameEl.value.trim();
+    if (!name){ st.textContent = 'Type your name first so your teacher knows whose answers these are.'; nameEl.focus(); return; }
+    ptSetName(name); rvFlush();
+    const dl = await ptCap('downloads');
+    if (!dl){ st.textContent = 'Downloading is not available here. Use "Copy all my answers" and paste the text into WhatsApp instead.'; return; }
+    const btn = $('#rv-pdf'); btn.disabled = true; st.textContent = 'Preparing your PDF…';
+    try{
+      const blob = await rvBuildPdf(name);
+      const safe = name.replace(/[^\p{L}\p{N} _-]+/gu, '').trim().slice(0, 40) || 'answers';
+      await dl.save({filename: `${safe} - Revision ${rvState.paper.code} B and C answers.pdf`, data: blob});
+      st.textContent = 'PDF saved. Now send it to your teacher on WhatsApp: attach it as a Document.';
+    }catch(e){
+      const code = e && e.code;
+      if (code === 'declined') st.textContent = 'Download cancelled.';
+      else if (code === 'rate_limited') st.textContent = 'A download is already waiting for you to confirm. Finish that first.';
+      else { console.error('PDF', e); st.textContent = 'Could not make the PDF. Try again, or use "Copy all my answers".'; }
+    }finally{ btn.disabled = false; }
   }
   $('#tt-written-back').addEventListener('click', ()=>{
     $('#tt-written-card').style.display = 'none';
