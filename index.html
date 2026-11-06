@@ -830,6 +830,7 @@
           <select id="past-year"></select>
         </div>
       </div>
+      <label class="admin-only" style="display:none;gap:8px;align-items:flex-start;margin:10px 0 0;font-weight:600;color:var(--navy);cursor:pointer;"><input type="checkbox" class="admin-preview-cb" style="width:auto;margin-top:3px;"> Admin preview: see exactly what students see after answering. Nothing is saved or sent to the Google Sheet.</label>
       <p class="status-msg" id="past-source"></p>
       <p class="note-trap" id="past-note" style="white-space:pre-line" hidden></p>
     </div>
@@ -922,7 +923,6 @@
         <option value="STPM 2026">Batch STPM 2026</option>
         <option value="STPM 2027">Batch STPM 2027</option>
         <option value="Guest">Guest</option>
-        <option value="Admin">Admin (preview, not recorded)</option>
       </select>
       <p class="status-msg" id="tt-admin-note" style="display:none;margin:8px 0 0;">Admin preview: you see exactly what students see. Your answers are not sent to the Google Sheet or the Teacher Dashboard.</p>
       <div id="tt-name-wrap" style="display:none;margin-top:8px;">
@@ -18410,9 +18410,12 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   let pastState = {paperId: null, picks: [], marked: false};
   // Section A choices are kept per paper in this browser, so they survive closing the app.
   const PP_LS = 'physiq-past-picks-';
-  function loadPicks(id){ try{ return JSON.parse(localStorage.getItem(PP_LS + id) || 'null'); }catch(e){ return null; } }
-  function savePicks(){ try{ localStorage.setItem(PP_LS + pastState.paperId, JSON.stringify({picks: pastState.picks, marked: pastState.marked})); }catch(e){} }
-  function clearPast(){ try{ localStorage.removeItem(PP_LS + pastState.paperId); }catch(e){} renderPastPaper(); }
+  // admin preview (teacher device only): picks live in memory, so the paper starts blank and nothing is kept
+  function ppAdmin(){ try{ return localStorage.getItem('physiq-teacher-device') === '1' && localStorage.getItem('physiq-admin-preview') === '1'; }catch(e){ return false; } }
+  const ppMem = {};
+  function loadPicks(id){ if (ppAdmin()) return ppMem[id] || null; try{ return JSON.parse(localStorage.getItem(PP_LS + id) || 'null'); }catch(e){ return null; } }
+  function savePicks(){ const v = {picks: pastState.picks, marked: pastState.marked}; if (ppAdmin()){ ppMem[pastState.paperId] = JSON.parse(JSON.stringify(v)); return; } try{ localStorage.setItem(PP_LS + pastState.paperId, JSON.stringify(v)); }catch(e){} }
+  function clearPast(){ if (ppAdmin()) delete ppMem[pastState.paperId]; else { try{ localStorage.removeItem(PP_LS + pastState.paperId); }catch(e){} } renderPastPaper(); }
 
   async function loadPastScores(){
     try{ const r = await window.storage.get('past-paper-scores', false); return r && r.value ? JSON.parse(r.value) : {}; }
@@ -18877,6 +18880,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     function schedule(ms){ clearTimeout(timer); timer = setTimeout(push, ms == null ? 3000 : ms); }
     async function push(){
       if (!GAS_READY) return;
+      try{ if (localStorage.getItem('physiq-admin-preview') === '1') return; }catch(e){}   // admin preview: nothing is sent
       const doc = await snapshot();
       if (empty(doc)) return;
       const value = JSON.stringify(doc);
@@ -18898,6 +18902,47 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     return {sid, name, list, push, schedule,
       setName(n){ try{ localStorage.setItem(NAME, n); }catch(e){} schedule(500); }};
   })();
+  // ---------- Admin preview: the teacher sees exactly what a new student sees; nothing is saved or sent ----------
+  const ADMIN = (() => {
+    const K = 'physiq-admin-preview', TD = 'physiq-teacher-device', mem = {};
+    const KEYS = new Set(['quiz-history', 'structured-progress', 'past-paper-scores', 'learn-progress']);
+    // only a device where the teacher PIN has been entered can use admin preview
+    const teacher = () => { try{ return localStorage.getItem(TD) === '1'; }catch(e){ return false; } };
+    const on = () => { try{ return teacher() && localStorage.getItem(K) === '1'; }catch(e){ return false; } };
+    const g = window.storage.get, s = window.storage.set;
+    window.storage.get = async function(k, shared){ if (on() && KEYS.has(k)) return {value: k in mem ? mem[k] : null}; return g.call(window.storage, k, shared); };
+    window.storage.set = async function(k, v, shared){ if (on() && KEYS.has(k)){ mem[k] = v; return {success:true}; } return s.call(window.storage, k, v, shared); };
+    const banner = document.createElement('div');
+    banner.id = 'admin-banner';
+    banner.style.cssText = 'display:none;position:sticky;top:0;z-index:9999;background:#b91c1c;color:#fff;padding:8px 14px;font-weight:700;font-size:14px;align-items:center;justify-content:space-between;gap:10px;';
+    banner.innerHTML = '<span>Admin preview is ON: you see what students see. Nothing is saved or sent.</span><button type="button" style="background:#fff;color:#b91c1c;border:0;border-radius:6px;padding:4px 10px;font-weight:700;cursor:pointer;">Turn off</button>';
+    document.body.prepend(banner);
+    function render(){
+      const v = on(), t = teacher();
+      banner.style.display = v ? 'flex' : 'none';
+      document.querySelectorAll('.admin-preview-cb').forEach(cb => { cb.checked = v; });
+      document.querySelectorAll('.admin-only').forEach(el => { el.style.display = t ? 'flex' : 'none'; });
+      const bs = document.getElementById('tt-batch');   // the Tests tab "Admin" batch, teacher devices only
+      if (bs){
+        const opt = Array.from(bs.options).find(o => o.value === 'Admin');
+        if (t && !opt){ const o = document.createElement('option'); o.value = 'Admin'; o.textContent = 'Admin (preview, not recorded)'; bs.appendChild(o); }
+        if (!t && opt){ if (bs.value === 'Admin'){ bs.value = ''; bs.dispatchEvent(new Event('change')); } opt.remove(); }
+      }
+    }
+    // entering the teacher PIN marks this device as the teacher's
+    document.addEventListener('physiq-teacher-unlocked', () => { try{ localStorage.setItem(TD, '1'); }catch(e){} render(); });
+    function set(v){
+      try{ v ? localStorage.setItem(K, '1') : localStorage.removeItem(K); }catch(e){}
+      Object.keys(mem).forEach(k => delete mem[k]);
+      render();
+      try{ renderPastPaper(); }catch(e){}   // reopen the paper so the view matches
+    }
+    banner.querySelector('button').addEventListener('click', () => set(false));
+    document.querySelectorAll('.admin-preview-cb').forEach(cb => cb.addEventListener('change', () => set(cb.checked)));
+    render();
+    return {on, set};
+  })();
+
   // learn.js asks PQ for the student's name
   const PQ = {studentName: () => ACT.name(), setName: n => ACT.setName(n)};
 
