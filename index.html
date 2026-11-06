@@ -934,6 +934,16 @@
       <h3 style="margin:22px 0 6px;color:var(--navy);">Semester tests — <span id="tt-sem-label2"></span></h3>
       <p class="status-msg" style="margin:0 0 6px;">Three different sets covering every chapter of the semester. Use Set A first, then B and C for revision.</p>
       <div id="tt-sem-list"></div>
+      <div id="tt-rev-wrap" style="display:none;">
+        <h3 style="margin:22px 0 6px;color:var(--navy);">Revision papers — <span id="tt-sem-label3"></span></h3>
+        <p class="status-msg" style="margin:0 0 6px;">Full papers in the STPM 2026 format. Section A is a timed online test (your score goes to your teacher). Sections B and C are answered on paper and marked by your teacher.</p>
+        <div id="tt-rev-list"></div>
+      </div>
+    </div>
+
+    <div class="card" id="tt-written-card" style="display:none;">
+      <div id="tt-written-body"></div>
+      <div class="btn-row" style="margin-top:14px;"><button class="btn-primary" id="tt-written-back">Back to tests</button></div>
     </div>
 
     <div class="card" id="tt-quiz-card" style="display:none;">
@@ -1094,6 +1104,9 @@
       <h3 style="margin:26px 0 6px;color:var(--navy);">Past year papers: questions and answers (PDF)</h3>
       <p class="status-msg" style="margin:0 0 8px;">Each paper with its questions, an Answer box with full working (and marks for Sections B and C) and an Explanation box after every question. Papers are added one at a time, Semester 1 first. Open a semester and tap a paper to download it.</p>
       <div id="qa-list"></div>
+      <h3 style="margin:26px 0 6px;color:var(--navy);">Revision papers: marking schemes (question and answer)</h3>
+      <p class="status-msg" style="margin:0 0 8px;">The full marking scheme for each revision paper in the Tests tab: every question with its figure, then the answer. Section A explains why each wrong option is wrong; Sections B and C use MPM mark points. Students do not see this: after Section A they get their score only.</p>
+      <div id="rev-scheme-list"></div>
       <div id="rdash-csv-fallback" style="display:none;margin-top:14px;">
         <label>Download isn't available in this view — select all the text below (tap it, then "Select all") and copy it into Excel/Google Sheets as CSV.</label>
         <textarea id="rdash-csv-text" readonly style="width:100%;height:160px;font-family:Consolas,monospace;font-size:12px;" onclick="this.select()"></textarea>
@@ -1154,6 +1167,7 @@
 <script src="physiq-realworld.js?v=20261031c"></script>
 <script src="physiq-clinic.js?v=20261104c"></script>
 <script src="physiq-clinic-s1.js?v=20261102c"></script>
+<script src="physiq-revision.js?v=20261106a"></script>
 <script>
 (function(){
 
@@ -7223,7 +7237,7 @@ const NOTES_EXTRA = (function(){
     const stats = {};
     mine.slice().sort((a,b)=>String(a.timestamp).localeCompare(String(b.timestamp))).forEach(r=>{
       const t = String(r.test || '');
-      const key = r.kind === 'chapter' ? 'c:' + r.semester + ':' + t.replace(/^Ch\s*/,'') : 's:' + r.semester + ':' + t.replace(/^Set\s*/,'');
+      const key = r.kind === 'chapter' ? 'c:' + r.semester + ':' + t.replace(/^Ch\s*/,'') : r.kind === 'revision' ? 'r:' + r.semester + ':' + t : 's:' + r.semester + ':' + t.replace(/^Set\s*/,'');
       const s = stats[key] = stats[key] || {n:0, best:null, last:null, secs:0};
       s.n++; s.secs += Number(r.durationSec) || 0;
       if (!s.best || r.score > s.best.score) s.best = {score:r.score, total:r.total};
@@ -7235,6 +7249,81 @@ const NOTES_EXTRA = (function(){
   }
   const ttDay = ts => { try{ return new Date(ts).toLocaleDateString('en-GB',{day:'numeric', month:'short'}); }catch(e){ return ''; } };
   const ttTone = pct => pct >= 70 ? '#15803d' : pct >= 50 ? '#b45309' : '#b91c1c';
+
+  // ----- revision papers (full STPM-format papers; data in physiq-revision.js) -----
+  const revPapers = sem => ((window.PHYSIQ_REVISION && window.PHYSIQ_REVISION.papers) || []).filter(p => sem == null || String(p.sem) === String(sem));
+  const revPaper = key => revPapers(null).find(p => String(p.sem) + ':' + p.id === key) || null;
+  const revTestName = p => 'Rev ' + p.code;
+  const revFig = (p, f) => f && p.figures[f] ? `<div class="dgfig">${p.figures[f]}</div>` : '';
+  const revText = s => mathify(escapeHtml(s)).replace(/\n/g, '<br>');
+  // Sections B and C. withScheme = true adds the MPM answer points (teacher only).
+  function revWrittenHTML(p, withScheme){
+    return p.written.map(b=>{
+      if (b.sec) return `<h3 style="margin:20px 0 4px;color:var(--navy);">${escapeHtml(b.sec)}</h3><p class="status-msg" style="margin:0 0 6px;">${escapeHtml(b.note||'')}</p>`;
+      if (b.h) return `<div style="margin:16px 0 6px;font-weight:700;color:var(--navy);">${escapeHtml(b.h)}</div>`;
+      if (b.fig) return revFig(p, b.fig);
+      if (b.p) return `<div style="margin:6px 0;line-height:1.6;">${revText(b.p)}</div>`;
+      if (b.sub){
+        let h = `<div style="margin:8px 0 4px;line-height:1.6;">${revText(b.sub)} <b style="white-space:nowrap;">[${b.m} mark${b.m > 1 ? 's' : ''}]</b></div>`;
+        if (withScheme) h += `<div style="margin:4px 0 10px 14px;padding:8px 12px;border-left:3px solid #c62828;background:#fff7f7;border-radius:4px;"><b style="color:#c62828;">Answer</b>${b.ansFig ? revFig(p, b.ansFig) : ''}${b.ans.map(a=>`<div style="margin:3px 0;line-height:1.6;">${revText(a)}</div>`).join('')}</div>`;
+        return h;
+      }
+      return '';
+    }).join('');
+  }
+  function openRevWritten(key){
+    const p = revPaper(key); if (!p) return;
+    $('#tt-written-body').innerHTML = `<h2 style="margin-bottom:2px;">${escapeHtml(p.title)}</h2>
+      <p class="sub" style="margin-top:0;">Sections B and C · answer on paper and hand in to your teacher. Show all working, with units in every final answer.</p>
+      <p class="status-msg" style="margin:0 0 6px;"><b>Data:</b> ${revText(p.data)}</p>${revWrittenHTML(p, false)}`;
+    $('#tt-home').style.display = 'none';
+    $('#tt-written-card').style.display = 'block';
+    window.scrollTo(0,0);
+  }
+  $('#tt-written-back').addEventListener('click', ()=>{
+    $('#tt-written-card').style.display = 'none';
+    $('#tt-home').style.display = '';
+    window.scrollTo(0,0);
+  });
+  // Teacher dashboard: full marking scheme, question and answer
+  function revSchemeHTML(p){
+    const A = p.mcq.map((q,i)=>{
+      const L = 'ABCD';
+      const opts = q.options.map((o,k)=>`<div style="margin:2px 0;${k === q.correctIndex ? 'font-weight:700;color:#c62828;' : ''}">${L[k]}. ${revText(o)}</div>`).join('');
+      const notes = q.options.map((o,k)=> k === q.correctIndex ? '' : `<div style="margin:2px 0;color:#1e3a8a;"><b>${L[k]}:</b> ${revText(q.optionNotes[k]||'')}</div>`).join('');
+      return `<div style="margin:12px 0;padding-top:10px;border-top:1px solid var(--line);">
+        <div style="line-height:1.6;"><b>Question ${i+1}.</b> ${revText(q.question)}</div>${revFig(p, q.fig)}
+        <div style="margin:6px 0;">${opts}</div>
+        <div style="margin:6px 0;line-height:1.6;color:#c62828;"><b>Answer: ${L[q.correctIndex]}.</b><br>${revText(q.explanation)}</div>
+        <div style="margin:6px 0 0;"><b style="color:#1e3a8a;">Why the other options are wrong</b>${notes}</div></div>`;
+    }).join('');
+    const key = p.mcq.map((q,i)=>`<td style="padding:4px 6px;text-align:center;border:1px solid var(--line);"><b>${i+1}</b><br>${'ABCD'[q.correctIndex]}</td>`).join('');
+    return `<p class="status-msg" style="margin:6px 0;"><b>Data:</b> ${revText(p.data)}</p>
+      <h3 style="margin:14px 0 6px;color:var(--navy);">Section A · answer key</h3>
+      <div style="overflow-x:auto;"><table style="border-collapse:collapse;font-size:13px;"><tr>${key}</tr></table></div>${A}
+      ${revWrittenHTML(p, true)}`;
+  }
+  function renderRevSchemes(){
+    const box = $('#rev-scheme-list'); if (!box) return;
+    const ps = revPapers(null);
+    box.innerHTML = ps.length ? ps.map(p=>`<details style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;">
+      <summary style="cursor:pointer;font-weight:700;color:var(--navy);">Semester ${p.sem} · ${escapeHtml(p.title)}</summary>
+      <div class="btn-row" style="margin:8px 0 0;"><button class="btn-ghost rev-print" data-key="${p.sem}:${p.id}">Print marking scheme</button></div>
+      <div class="rev-scheme-body" data-key="${p.sem}:${p.id}"></div></details>`).join('') : '<p class="empty">No revision papers yet.</p>';
+    box.querySelectorAll('details').forEach(d=>d.addEventListener('toggle', ()=>{
+      const body = d.querySelector('.rev-scheme-body');
+      if (d.open && !body.innerHTML) body.innerHTML = revSchemeHTML(revPaper(body.dataset.key));
+    }));
+    box.querySelectorAll('.rev-print').forEach(b=>b.addEventListener('click', ()=>{
+      const p = revPaper(b.dataset.key); if (!p) return;
+      const css = Array.from(document.querySelectorAll('style')).map(s=>s.outerHTML).join('');
+      const w = window.open('', '_blank');
+      if (!w){ alert('Please allow pop-ups to print.'); return; }
+      w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(p.title)} · Marking scheme</title>${css}<style>body{background:#fff;padding:24px;max-width:820px;margin:auto;font-family:Calibri,Candara,"Segoe UI",sans-serif;}details{border:0}</style></head><body><h1 style="font-size:22px;margin:0;">${escapeHtml(p.title)}</h1><p style="margin:2px 0 12px;">Marking scheme (question and answer) · Physics 960/1 · Prepared by Cikgu Suhaili</p>${revSchemeHTML(p)}</body></html>`);
+      w.document.close(); setTimeout(()=>{ try{ w.focus(); w.print(); }catch(e){} }, 600);
+    }));
+  }
+  try{ renderRevSchemes(); }catch(e){ console.error('renderRevSchemes failed', e); }
 
   function renderTestLists(m){
     const sem = String(currentSemester || '1');
@@ -7265,7 +7354,20 @@ const NOTES_EXTRA = (function(){
         <span style="flex:1 1 200px;font-weight:700;color:var(--navy);">Semester ${sem} — Set ${n}${line('s:'+sem+':'+n, 's:'+sem+':'+n)}</span>
         ${btn('s', sem+':'+n, 's:'+sem+':'+n)}</div>`;
     }).join('');
+    const rps = revPapers(sem);
+    $('#tt-rev-wrap').style.display = rps.length ? '' : 'none';
+    $('#tt-sem-label3').textContent = 'Semester ' + sem;
+    $('#tt-rev-list').innerHTML = rps.map(p=>{
+      const k = sem + ':' + p.id, mk = 'r:' + sem + ':' + revTestName(p);
+      return `<div style="padding:8px 0;border-top:1px solid var(--line);">
+        <div style="font-weight:700;color:var(--navy);">${escapeHtml(p.title)}${line(mk, 'r:'+k)}</div>
+        <div style="font-size:12.5px;color:var(--sub);margin:4px 0 6px;">${escapeHtml(p.blurb)}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <button class="btn-primary tt-start" data-kind="r" data-key="${k}" style="padding:6px 14px;font-size:13px;">${m && m.stats[mk] ? 'Section A · try again' : 'Section A · start test'}</button>
+          <button class="btn-ghost tt-written" data-key="${k}" style="padding:6px 14px;font-size:13px;">Sections B &amp; C</button></div></div>`;
+    }).join('');
     $$('#panel-tests .tt-start').forEach(b=>b.addEventListener('click', ()=>startTest(b.dataset.kind, b.dataset.key)));
+    $$('#panel-tests .tt-written').forEach(b=>b.addEventListener('click', ()=>openRevWritten(b.dataset.key)));
   }
 
   function renderMyChecklist(m){
@@ -7306,8 +7408,15 @@ const NOTES_EXTRA = (function(){
   }
 
   function startTest(kind, key){
-    const ids = kind === 'c' ? TEST_SETS.chapters[key] : TEST_SETS.sets[key.split(':')[0]][key.split(':')[1]];
-    const questions = ttIdsToQuestions(ids || []);
+    let questions, rp = null;
+    if (kind === 'r'){
+      rp = revPaper(key);
+      questions = rp ? rp.mcq.slice() : [];
+      if (rp){ window.PHYSIQ_DIAGRAMS = window.PHYSIQ_DIAGRAMS || {}; questions.forEach(q=>{ if (q.fig) window.PHYSIQ_DIAGRAMS[q.id] = rp.figures[q.fig]; }); }
+    } else {
+      const ids = kind === 'c' ? TEST_SETS.chapters[key] : TEST_SETS.sets[key.split(':')[0]][key.split(':')[1]];
+      questions = ttIdsToQuestions(ids || []);
+    }
     if (!questions.length){ alert('This test is not available right now.'); return; }
     const who = ttGetName(), batch = $('#tt-batch').value;
     if (!batch || !who){
@@ -7318,7 +7427,7 @@ const NOTES_EXTRA = (function(){
     }
     $('#tt-status').textContent = '';
     const sem = key.split(':')[0];
-    const title = kind === 'c' ? ('Chapter ' + key.split(':')[1] + ' test') : ('Semester ' + sem + ' · Set ' + key.split(':')[1]);
+    const title = kind === 'c' ? ('Chapter ' + key.split(':')[1] + ' test') : kind === 'r' ? (rp.title + ' · Section A') : ('Semester ' + sem + ' · Set ' + key.split(':')[1]);
     ttState = {kind, key, sem:parseInt(sem,10), title, questions, index:0, correct:0, answers:[], who, batch, startedAt:Date.now(), qShownAt:0};
     const saved = ttLoadProgress(who, kind, key);
     if (saved && Array.isArray(saved.answers) && saved.answers.length > 0 && saved.ids.length === questions.length &&
@@ -7405,7 +7514,8 @@ const NOTES_EXTRA = (function(){
     $('#tt-score-got').textContent = got;
     $('#tt-score-total').textContent = total;
     $('#tt-score-label').textContent = `${Math.round(got/total*100)}% correct — ${st.title}`;
-    ttSaveBest((st.kind === 'c' ? 'c:' : 's:') + st.key, got, total);
+    ttSaveBest((st.kind === 'c' ? 'c:' : st.kind === 'r' ? 'r:' : 's:') + st.key, got, total);
+    const stRp = st.kind === 'r' ? revPaper(st.key) : null;
     const answerSecs = st.answers.reduce((n,a)=>n+(a.secs||0),0), elapsed = Math.round((Date.now()-st.startedAt)/1000);
     $('#tt-score-label').textContent += ` · time ${fmtDur(answerSecs)}`;
     const dcount = d => { const x = st.answers.filter(a=>a.q.difficulty===d); return x.filter(a=>a.correct).length + '/' + x.length; };
@@ -7414,8 +7524,8 @@ const NOTES_EXTRA = (function(){
       id: Date.now().toString(36) + Math.random().toString(36).slice(2,8),
       timestamp: new Date().toISOString(), name: st.who, batch: st.batch,
       group: st.batch === 'Guest' ? 'Guest' : 'Batch ' + st.batch,
-      semester: st.sem, kind: st.kind === 'c' ? 'chapter' : 'semester',
-      test: st.kind === 'c' ? 'Ch ' + st.key.split(':')[1] : 'Set ' + st.key.split(':')[1],
+      semester: st.sem, kind: st.kind === 'c' ? 'chapter' : st.kind === 'r' ? 'revision' : 'semester',
+      test: st.kind === 'c' ? 'Ch ' + st.key.split(':')[1] : stRp ? revTestName(stRp) : 'Set ' + st.key.split(':')[1],
       title: st.title, score: got, total, percentage: Math.round(got/total*100),
       durationSec: answerSecs, elapsedSec: elapsed,
       easy: dcount('easy'), medium: dcount('medium'), hard: dcount('hard'),
@@ -7457,7 +7567,9 @@ const NOTES_EXTRA = (function(){
         ${notes ? `<div style="margin-top:10px;font-weight:700;color:var(--navy);">Why the other options are wrong:</div>${notes}` : ''}
       </details>`;
     }).join('');
-    $('#tt-review').innerHTML = `<h3 style="margin:18px 0 6px;color:var(--navy);">Full review</h3><p class="status-msg" style="margin:0 0 4px;">Wrong answers are opened for you. Tap any question for the worked solution.</p>${rows}`;
+    $('#tt-review').innerHTML = st.kind === 'r'
+      ? `<p class="status-msg" style="margin:18px 0 4px;">Your score has been sent to your teacher. The answers for this revision paper will be discussed in class.</p>`
+      : `<h3 style="margin:18px 0 6px;color:var(--navy);">Full review</h3><p class="status-msg" style="margin:0 0 4px;">Wrong answers are opened for you. Tap any question for the worked solution.</p>${rows}`;
     window.scrollTo(0,0);
   }
 
@@ -7485,7 +7597,8 @@ const NOTES_EXTRA = (function(){
       const list = Object.values(st).sort((a,b)=>a.group.localeCompare(b.group) || a.name.localeCompare(b.name));
       if (!list.length) return;
       const chKeys = Object.keys(TEST_SETS.chapters).filter(k=>k.split(':')[0] === String(sem)).sort((a,b)=>parseInt(a.split(':')[1],10)-parseInt(b.split(':')[1],10));
-      const cols = chKeys.map(k=>({label:'Ch '+k.split(':')[1], test:'Ch '+k.split(':')[1], kind:'chapter'})).concat(['A','B','C'].map(n=>({label:'Set '+n, test:'Set '+n, kind:'semester'})));
+      const cols = chKeys.map(k=>({label:'Ch '+k.split(':')[1], test:'Ch '+k.split(':')[1], kind:'chapter'})).concat(['A','B','C'].map(n=>({label:'Set '+n, test:'Set '+n, kind:'semester'})))
+        .concat(revPapers(sem).map(p=>({label:revTestName(p), test:revTestName(p), kind:'revision'})));
       const th = (t)=>`<th style="padding:6px 6px;text-align:center;white-space:nowrap;">${t}</th>`;
       const body = list.map(s=>{
         const cells = cols.map(c=>{
