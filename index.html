@@ -1107,7 +1107,7 @@
       <p class="status-msg" style="margin:0 0 8px;">Each paper with its questions, an Answer box with full working (and marks for Sections B and C) and an Explanation box after every question. Papers are added one at a time, Semester 1 first. Open a semester and tap a paper to download it.</p>
       <div id="qa-list"></div>
       <h3 style="margin:26px 0 6px;color:var(--navy);">Revision papers: marking schemes (question and answer)</h3>
-      <p class="status-msg" style="margin:0 0 8px;">The full marking scheme for each revision paper in the Tests tab: every question with its figure, then the answer. Section A explains why each wrong option is wrong; Sections B and C use MPM mark points. Students do not see this: after Section A they get their score only.</p>
+      <p class="status-msg" style="margin:0 0 8px;">The full marking scheme for each revision paper in the Tests tab: every question with its figure, then the answer. Section A explains why each wrong option is wrong; Sections B and C use MPM mark points. After Section A, students get their score and the full worked solutions for Section A; the Section B and C answers are only here.</p>
       <div id="rev-scheme-list"></div>
       <div id="rdash-csv-fallback" style="display:none;margin-top:14px;">
         <label>Download isn't available in this view — select all the text below (tap it, then "Select all") and copy it into Excel/Google Sheets as CSV.</label>
@@ -7571,9 +7571,9 @@ const NOTES_EXTRA = (function(){
         ${notes ? `<div style="margin-top:10px;font-weight:700;color:var(--navy);">Why the other options are wrong:</div>${notes}` : ''}
       </details>`;
     }).join('');
-    $('#tt-review').innerHTML = st.kind === 'r'
-      ? `<p class="status-msg" style="margin:18px 0 4px;">Your score has been sent to your teacher. The answers for this revision paper will be discussed in class.</p>${isAdmin ? '<p class="status-msg" style="margin:4px 0;color:var(--red);">Admin preview: this is exactly what students see. Your attempt was not recorded.</p>' : ''}`
-      : `<h3 style="margin:18px 0 6px;color:var(--navy);">Full review</h3><p class="status-msg" style="margin:0 0 4px;">Wrong answers are opened for you. Tap any question for the worked solution.</p>${rows}`;
+    const adminNote = isAdmin ? '<p class="status-msg" style="margin:4px 0;color:var(--red);">Admin preview: this is exactly what students see. Your attempt was not recorded.</p>' : '';
+    $('#tt-review').innerHTML = (st.kind === 'r' ? `<p class="status-msg" style="margin:18px 0 4px;">Your score has been sent to your teacher.</p>` : '') + adminNote +
+      `<h3 style="margin:18px 0 6px;color:var(--navy);">Full review</h3><p class="status-msg" style="margin:0 0 4px;">Wrong answers are opened for you. Tap any question for the worked solution.</p>${rows}`;
     window.scrollTo(0,0);
   }
 
