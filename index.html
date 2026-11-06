@@ -922,7 +922,9 @@
         <option value="STPM 2026">Batch STPM 2026</option>
         <option value="STPM 2027">Batch STPM 2027</option>
         <option value="Guest">Guest</option>
+        <option value="Admin">Admin (preview, not recorded)</option>
       </select>
+      <p class="status-msg" id="tt-admin-note" style="display:none;margin:8px 0 0;">Admin preview: you see exactly what students see. Your answers are not sent to the Google Sheet or the Teacher Dashboard.</p>
       <div id="tt-name-wrap" style="display:none;margin-top:8px;">
         <select id="tt-pick"></select>
         <input type="text" id="tt-name" placeholder="Type your full name" style="display:none;">
@@ -7206,7 +7208,8 @@ const NOTES_EXTRA = (function(){
   // ----- who is taking the test -----
   function ttSyncNameField(){
     const b = $('#tt-batch').value, wrap = $('#tt-name-wrap');
-    if (!b){ wrap.style.display = 'none'; return; }
+    $('#tt-admin-note').style.display = b === 'Admin' ? 'block' : 'none';
+    if (!b || b === 'Admin'){ wrap.style.display = 'none'; return; }
     wrap.style.display = 'block';
     if (b === 'Guest'){ $('#tt-pick').style.display = 'none'; $('#tt-name').style.display = ''; }
     else {
@@ -7214,12 +7217,12 @@ const NOTES_EXTRA = (function(){
       $('#tt-pick').innerHTML = '<option value="">Choose your name…</option>' + ROSTER[b].map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
     }
   }
-  const ttGetName = () => ($('#tt-batch').value === 'Guest' ? $('#tt-name').value : $('#tt-pick').value).trim();
+  const ttGetName = () => $('#tt-batch').value === 'Admin' ? 'Admin (preview)' : ($('#tt-batch').value === 'Guest' ? $('#tt-name').value : $('#tt-pick').value).trim();
   try{
     const sb = localStorage.getItem('physiq-tests-batch');
     if (sb && Array.from($('#tt-batch').options).some(o=>o.value===sb)) $('#tt-batch').value = sb;
   }catch(e){}
-  $('#tt-batch').addEventListener('change', ()=>{ try{ localStorage.setItem('physiq-tests-batch', $('#tt-batch').value); }catch(e){} ttSyncNameField(); try{ populateTestsPanel(); }catch(e){} });
+  $('#tt-batch').addEventListener('change', ()=>{ try{ if ($('#tt-batch').value !== 'Admin') localStorage.setItem('physiq-tests-batch', $('#tt-batch').value); }catch(e){} ttSyncNameField(); try{ populateTestsPanel(); }catch(e){} });
   ttSyncNameField();
   try{   // remember the last name chosen on this device (a shared phone can simply pick another name)
     const sn = localStorage.getItem('physiq-tests-name');
@@ -7354,13 +7357,14 @@ const NOTES_EXTRA = (function(){
         <span style="flex:1 1 200px;font-weight:700;color:var(--navy);">Semester ${sem} — Set ${n}${line('s:'+sem+':'+n, 's:'+sem+':'+n)}</span>
         ${btn('s', sem+':'+n, 's:'+sem+':'+n)}</div>`;
     }).join('');
-    const rps = revPapers(sem);
+    // revision papers are listed in every semester view (repeat students may have the app on another semester)
+    const rps = revPapers(null).slice().sort((a,b)=> (String(a.sem) === sem ? -1 : 0) - (String(b.sem) === sem ? -1 : 0));
     $('#tt-rev-wrap').style.display = rps.length ? '' : 'none';
-    $('#tt-sem-label3').textContent = 'Semester ' + sem;
+    $('#tt-sem-label3').textContent = 'all semesters';
     $('#tt-rev-list').innerHTML = rps.map(p=>{
-      const k = sem + ':' + p.id, mk = 'r:' + sem + ':' + revTestName(p);
+      const k = p.sem + ':' + p.id, mk = 'r:' + p.sem + ':' + revTestName(p);
       return `<div style="padding:8px 0;border-top:1px solid var(--line);">
-        <div style="font-weight:700;color:var(--navy);">${escapeHtml(p.title)}${line(mk, 'r:'+k)}</div>
+        <div style="font-weight:700;color:var(--navy);">Semester ${escapeHtml(String(p.sem))} · ${escapeHtml(p.title)}${line(mk, 'r:'+k)}</div>
         <div style="font-size:12.5px;color:var(--sub);margin:4px 0 6px;">${escapeHtml(p.blurb)}</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
           <button class="btn-primary tt-start" data-kind="r" data-key="${k}" style="padding:6px 14px;font-size:13px;">${m && m.stats[mk] ? 'Section A · try again' : 'Section A · start test'}</button>
@@ -7514,7 +7518,8 @@ const NOTES_EXTRA = (function(){
     $('#tt-score-got').textContent = got;
     $('#tt-score-total').textContent = total;
     $('#tt-score-label').textContent = `${Math.round(got/total*100)}% correct — ${st.title}`;
-    ttSaveBest((st.kind === 'c' ? 'c:' : st.kind === 'r' ? 'r:' : 's:') + st.key, got, total);
+    const isAdmin = st.batch === 'Admin';   // preview only: nothing is saved or sent
+    if (!isAdmin) ttSaveBest((st.kind === 'c' ? 'c:' : st.kind === 'r' ? 'r:' : 's:') + st.key, got, total);
     const stRp = st.kind === 'r' ? revPaper(st.key) : null;
     const answerSecs = st.answers.reduce((n,a)=>n+(a.secs||0),0), elapsed = Math.round((Date.now()-st.startedAt)/1000);
     $('#tt-score-label').textContent += ` · time ${fmtDur(answerSecs)}`;
@@ -7531,8 +7536,7 @@ const NOTES_EXTRA = (function(){
       easy: dcount('easy'), medium: dcount('medium'), hard: dcount('hard'),
       byTopic: tkey, perQuestion: st.answers.map(a=>({id:a.q.id, ok:a.correct?1:0, s:a.secs||0}))
     };
-    const loc = ttLocal(); loc.push({row, synced:false}); ttLocalSave(loc);
-    ttSync();
+    if (!isAdmin){ const loc = ttLocal(); loc.push({row, synced:false}); ttLocalSave(loc); ttSync(); }
 
     const bar = (name, v) => `<div class="bd-row"><span class="bd-topic">${name}</span><div class="bd-bar"><div class="bd-fill" style="width:${v.total ? v.correct/v.total*100 : 0}%"></div></div><span class="bd-frac">${v.correct}/${v.total}</span></div>`;
     const byD = {easy:{correct:0,total:0}, medium:{correct:0,total:0}, hard:{correct:0,total:0}};
@@ -7543,7 +7547,7 @@ const NOTES_EXTRA = (function(){
       const t = byT[a.q.topic] = byT[a.q.topic] || {correct:0,total:0};
       t.total++; if (a.correct) t.correct++;
     });
-    $('#tt-diff-breakdown').innerHTML = ['easy','medium','hard'].map(d=>bar(d.charAt(0).toUpperCase()+d.slice(1), byD[d])).join('');
+    $('#tt-diff-breakdown').innerHTML = ['easy','medium','hard'].filter(d=>byD[d].total).map(d=>bar(d.charAt(0).toUpperCase()+d.slice(1), byD[d])).join('');
     $('#tt-topic-breakdown').innerHTML = Object.keys(byT).sort().map(t=>bar(escapeHtml(stripSem(t)), byT[t])).join('');
 
     const rows = st.answers.map((a,i)=>{
@@ -7568,7 +7572,7 @@ const NOTES_EXTRA = (function(){
       </details>`;
     }).join('');
     $('#tt-review').innerHTML = st.kind === 'r'
-      ? `<p class="status-msg" style="margin:18px 0 4px;">Your score has been sent to your teacher. The answers for this revision paper will be discussed in class.</p>`
+      ? `<p class="status-msg" style="margin:18px 0 4px;">Your score has been sent to your teacher. The answers for this revision paper will be discussed in class.</p>${isAdmin ? '<p class="status-msg" style="margin:4px 0;color:var(--red);">Admin preview: this is exactly what students see. Your attempt was not recorded.</p>' : ''}`
       : `<h3 style="margin:18px 0 6px;color:var(--navy);">Full review</h3><p class="status-msg" style="margin:0 0 4px;">Wrong answers are opened for you. Tap any question for the worked solution.</p>${rows}`;
     window.scrollTo(0,0);
   }
