@@ -201,6 +201,7 @@ ${ul([`<b>Ray 1</b>: a ray parallel to the axis passes through F on the other si
 ${table(['Object position (converging lens)', 'Image', 'Everyday use'], [['beyond 2F', 'between F and 2F; real, inverted, diminished', 'camera, phone camera, the eye'], ['at 2F', 'at 2F; real, inverted, same size', 'photocopier at 1 : 1'], ['between F and 2F', 'beyond 2F; real, inverted, magnified', 'projector, enlarger'], ['at F', 'at infinity', 'spotlight, searchlight'], ['between F and the lens', 'on the same side; virtual, upright, magnified', 'magnifying glass']])}
 ${two(fig(lens(15, 40, 6), 'Converging lens, object beyond 2F.'), fig(lens(15, 8, 3, { xmin: -40, xmax: 40 }), 'Converging lens, object inside F: magnifying glass.'))}
 ${fig(lens(-15, 30, 6, { xmin: -45, xmax: 30, twoF: false }), 'Diverging lens: the image is always virtual, upright and diminished, between the lens and F (door viewer, spectacles for short sight).')}
+${sim('lensanim', 'Animation: how the three rays find the image', 'Press <b>Draw the rays</b> to watch Ray 1, Ray 2 and Ray 3 leave the top of the object one at a time and find the image, or use <b>One step at a time</b> to go at your own pace. Press <b>Move the object</b> to slide the object from beyond 2F towards the lens: it pauses at 2F and at F, and the orange dots trace where the image goes.')}
 ${h4('Thin lens formula and lensmaker’s equation')}
 <p>Apply ${fr('<i>n</i><sub>1</sub>', '<i>u</i>')} + ${fr('<i>n</i><sub>2</sub>', '<i>v</i>')} = ${fr('<i>n</i><sub>2</sub> − <i>n</i><sub>1</sub>', '<i>r</i>')} to each surface of a thin lens of refractive index <i>n</i><sub>l</sub> in a medium of index <i>n</i><sub>m</sub>.</p>
 ${steps([`Surface 1 (medium → lens): ${fr('<i>n</i><sub>m</sub>', '<i>u</i>')} + ${fr('<i>n</i><sub>l</sub>', '<i>v</i><sub>1</sub>')} = ${fr('<i>n</i><sub>l</sub> − <i>n</i><sub>m</sub>', '<i>r</i><sub>1</sub>')} &nbsp; … (1)`, `The image of surface 1 is the object for surface 2. For a thin lens it is a distance <i>v</i><sub>1</sub> beyond surface 2, i.e. a virtual object: <i>u</i><sub>2</sub> = −<i>v</i><sub>1</sub>.`, `Surface 2 (lens → medium): ${fr('<i>n</i><sub>l</sub>', '−<i>v</i><sub>1</sub>')} + ${fr('<i>n</i><sub>m</sub>', '<i>v</i>')} = ${fr('<i>n</i><sub>m</sub> − <i>n</i><sub>l</sub>', '<i>r</i><sub>2</sub>')} &nbsp; … (2)`, `(1) + (2): <i>n</i><sub>m</sub>(${inv('<i>u</i>')} + ${inv('<i>v</i>')}) = (<i>n</i><sub>l</sub> − <i>n</i><sub>m</sub>)(${inv('<i>r</i><sub>1</sub>')} − ${inv('<i>r</i><sub>2</sub>')})`, `For an object at infinity, <i>v</i> = <i>f</i>. So the right-hand side divided by <i>n</i><sub>m</sub> is 1/<i>f</i>, giving both results:`])}
@@ -210,6 +211,7 @@ ${fig(F.lensSign(), 'Figure 23.6: radius signs for a biconvex lens. r is positiv
 ${table(['Quantity', 'Positive (+)', 'Negative (−)'], [['<i>f</i>', 'converging lens', 'diverging lens'], ['<i>u</i>', 'real object (in front of the lens)', 'virtual object (behind the lens)'], ['<i>v</i>', 'real image (behind the lens)', 'virtual image (in front of the lens)'], ['<i>r</i>', 'centre of curvature on the outgoing side', 'centre of curvature on the incoming side'], ['<i>m</i>', 'upright image', 'inverted image']])}
 ${note(`Biconvex: <i>r</i><sub>1</sub> = +, <i>r</i><sub>2</sub> = −. Biconcave: <i>r</i><sub>1</sub> = −, <i>r</i><sub>2</sub> = +. Flat face: <i>r</i> = ∞. Some books write (1/<i>r</i><sub>1</sub> + 1/<i>r</i><sub>2</sub>) with both radii as magnitudes for a biconvex lens; it is the same physics with a different convention. These notes use signed radii and the minus form throughout.`)}
 ${sim('lens', 'Ray diagram for a thin lens', 'Choose a converging or diverging lens and move the object. The three principal rays find the image. Put the object at 2F, between F and 2F, and inside F, and compare with the table.')}
+${sim('lensapps', 'Animation: lenses in everyday life', 'Choose an application. See how a magnifying glass, a camera and a projector use the object positions in the table, and how spectacles correct short sight and long sight. Move the sliders and switch the spectacles on and off.')}
 ${example('23.3.1', `An object is 10 cm from a converging lens of focal length 15 cm. Find the image position and its characteristics.`,
   steps([`${inv('<i>v</i>')} = ${inv('15')} − ${inv('10')} ⇒ <i>v</i> = <b>−30 cm</b> (virtual, on the same side as the object)`, `<i>m</i> = −(−30)/10 = <b>+3.0</b>: upright, three times as large (a magnifying glass)`]))}
 ${example('23.3.2', `Where must a small insect be placed if a diverging lens of focal length 25 cm is to form a virtual image 20 cm in front of the lens?`,
@@ -236,6 +238,7 @@ ${example('23.3.8', `A plano-convex lens of glass (<i>n</i> = 1.5) is to have a 
   steps([`Flat face first: <i>r</i><sub>1</sub> = ∞. ${inv('40')} = (1.5 − 1)(0 − ${inv('<i>r</i><sub>2</sub>')}) ⇒ <i>r</i><sub>2</sub> = −20 cm`, `radius of the curved surface = <b>20 cm</b>`]))}
 ${card('STPM 2015 (repeat) · Paper 3', `A thin biconvex lens (<i>n</i> = 1.5, both radii 10.0 cm) is immersed in a liquid of refractive index 1.65. Find the focal length and state how the lens behaves.`,
   steps([`${inv('<i>f</i>')} = (${fr('1.5', '1.65')} − 1)(${inv('10.0')} + ${inv('10.0')}) = (−0.0909)(0.200) ⇒ <i>f</i> = <b>−55 cm</b>`, `<i>f</i> is negative: in this liquid the lens <b>diverges</b> a parallel beam.`]))}
+${sim('lensmaker', 'Animation: lensmaker’s equation, shape and medium', 'Choose a lens shape and the liquid around it, or set r₁, r₂ and the refractive indices yourself. A parallel beam passes through the lens and F moves as the focal length changes. Put a glass lens (n = 1.50) into carbon disulfide (n = 1.63) and watch a converging lens become diverging.')}
 ${h4('Power of a lens')}
 ${def('Power of a lens', `${red('the reciprocal of its focal length in metres')}. Unit: dioptre (D) = m<sup>−1</sup>. Converging lenses have positive power; diverging lenses have negative power.`)}
 ${key(`<i>P</i> = ${inv('<i>f</i>')}`)}
@@ -357,5 +360,320 @@ ${card('STPM 2015 · Paper 3 · Q19', `(a) An object is 30.0 cm in front of a co
     new ResizeObserver(() => draw()).observe(root);
     draw();
   }
+  // ===================== lens animations: step-by-step rays, lens applications, lensmaker =====================
+  const RCOL = ['#C0392B', '#2F6FE0', '#3E8E1E'];
+  function capBox(root) { const d = document.createElement('div'); d.style.cssText = 'background:#FBF7C9;border-radius:10px;padding:9px 13px;margin:10px 0 0;font-size:14.5px;line-height:1.45;color:#1C2230;min-height:3em;'; root.appendChild(d); return h => { if (d.innerHTML !== h) d.innerHTML = h; }; }
+  function drawLensShape(ctx, x, top, bot, f, cy) {
+    ctx.fillStyle = 'rgba(160,200,236,.65)'; ctx.strokeStyle = '#1C2230'; ctx.lineWidth = 1.4; ctx.beginPath();
+    if (f > 0) { ctx.moveTo(x, top); ctx.quadraticCurveTo(x + 16, cy, x, bot); ctx.quadraticCurveTo(x - 16, cy, x, top); }
+    else { ctx.moveTo(x - 9, top); ctx.lineTo(x + 9, top); ctx.quadraticCurveTo(x + 1, cy, x + 9, bot); ctx.lineTo(x - 9, bot); ctx.quadraticCurveTo(x - 1, cy, x - 9, top); }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  function vArrow(ctx, px, py0, py1, col, dash, lw) {
+    if (Math.abs(py1 - py0) < 2) return;
+    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 3; ctx.setLineDash(dash ? [5, 4] : []);
+    ctx.beginPath(); ctx.moveTo(px, py0); ctx.lineTo(px, py1); ctx.stroke(); ctx.setLineDash([]);
+    const s = py1 < py0 ? 1 : -1; ctx.beginPath(); ctx.moveTo(px, py1); ctx.lineTo(px - 6, py1 + 10 * s); ctx.lineTo(px + 6, py1 + 10 * s); ctx.closePath(); ctx.fill();
+  }
+  const segLen = P => { let L = 0; for (let i = 1; i < P.length; i++) L += Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); return L; };
+  function pointAt(P, d) {
+    for (let i = 1; i < P.length; i++) { const l = Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); if (d <= l) { const t = l ? d / l : 0; return [P[i - 1][0] + t * (P[i][0] - P[i - 1][0]), P[i - 1][1] + t * (P[i][1] - P[i - 1][1])]; } d -= l; }
+    return P[P.length - 1];
+  }
+  function strokePartial(ctx, P, frac) {
+    const L = segLen(P) * Math.max(0, Math.min(1, frac)); let acc = 0; ctx.beginPath(); ctx.moveTo(P[0][0], P[0][1]);
+    for (let i = 1; i < P.length; i++) { const l = Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); if (acc + l >= L) { const t = l ? (L - acc) / l : 0; const e = [P[i - 1][0] + t * (P[i][0] - P[i - 1][0]), P[i - 1][1] + t * (P[i][1] - P[i - 1][1])]; ctx.lineTo(e[0], e[1]); ctx.stroke(); return e; } acc += l; ctx.lineTo(P[i][0], P[i][1]); }
+    ctx.stroke(); return P[P.length - 1];
+  }
+  // travelling light pulses along a screen polyline
+  function pulses(ctx, P, clock, col, gap) {
+    const L = segLen(P); if (L < 5) return; gap = gap || 70; const off = (clock * 90) % gap;
+    ctx.fillStyle = col; for (let d = off; d < L; d += gap) { const p = pointAt(P, d); ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(p[0], p[1], 3.6, 0, 7); ctx.fill(); ctx.globalAlpha = 0.25; ctx.beginPath(); ctx.arc(p[0], p[1], 7, 0, 7); ctx.fill(); }
+    ctx.globalAlpha = 1;
+  }
+  const natureOf = (v, m) => !isFinite(v) ? 'image at infinity' : (v > 0 ? 'real' : 'virtual') + ', ' + (m < 0 ? 'inverted' : 'upright') + ', ' + (Math.abs(Math.abs(m) - 1) < 0.03 ? 'same size' : Math.abs(m) > 1 ? 'magnified' : 'diminished');
+
+  // ---------- 1. step-by-step ray animation ----------
+  function lensAnim(root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const S = { sgn: 1, f: 15, u: 40, h: 5, mode: 'idle', step: 4, t: 0, auto: true, hold: 0, trail: [], clock: 0 };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const bs = ['converging lens', 'diverging lens'].map((n, i) => button(pre, n, 'sm-chip' + (i ? '' : ' on'), () => { S.sgn = i ? -1 : 1; bs.forEach((b, j) => b.classList.toggle('on', j === i)); S.trail = []; startRays(true); }));
+    const pre2 = el('div', 'sm-row sm-pre'); root.appendChild(pre2);
+    [['beyond 2F', 2.6], ['at 2F', 2], ['between F and 2F', 1.5], ['at F', 1], ['inside F', 0.6]].forEach(([n, k]) => button(pre2, n, 'sm-chip', () => { S.u = k * S.f; slU.set(S.u); S.trail = []; startRays(true); }));
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    const slU = slider(ctl, 'object distance <i>u</i>', 3, 70, 0.5, S.u, 'cm', v => { S.u = v; if (S.mode === 'sweep') bSweep.textContent = '▶ Move the object'; S.mode = 'idle'; S.step = 4; draw(); });
+    slider(ctl, 'focal length |<i>f</i>|', 8, 22, 0.5, S.f, 'cm', v => { S.f = v; S.trail = []; if (S.mode !== 'sweep') { S.mode = 'idle'; S.step = 4; } draw(); });
+    const bar = el('div', 'sm-row sm-bar'); root.appendChild(bar);
+    button(bar, '▶ Draw the rays', 'sm-main', () => startRays(true));
+    button(bar, 'One step at a time ›', '', () => {
+      if (S.mode === 'rays') { S.t = 1; return; }
+      if (S.mode === 'hold') { S.step++; S.t = 0; S.mode = 'rays'; return; }
+      startRays(false);
+    });
+    const bSweep = button(bar, '▶ Move the object', '', () => { if (S.mode === 'sweep') { S.mode = 'idle'; S.step = 4; bSweep.textContent = '▶ Move the object'; draw(); return; } S.mode = 'sweep'; S.step = 4; S.u = 2.8 * S.f; S.trail = []; S.hold = 0; S.passed = {}; bSweep.textContent = '❚❚ Stop'; });
+    const cv = canvas(root); const cap = capBox(root); const ro = readouts(root);
+    function startRays(auto) { if (S.mode === 'sweep') bSweep.textContent = '▶ Move the object'; S.mode = 'rays'; S.step = 0; S.t = 0; S.auto = auto; S.hold = 0; }
+    const f = () => S.sgn * S.f;
+    function rayList() {
+      const h = S.h, u = S.u, ff = f(), out = [{ s: 0, n: 1 }];
+      const den = u - ff; out.push(Math.abs(den) > 0.4 ? { s: -h / den, n: 2 } : { s: null, n: 2 });
+      out.push({ s: -h / u, n: 3 }); return out;
+    }
+    function rayCaption(i) {
+      const conv = S.sgn > 0, inside = S.u < S.f;
+      if (i === 0) return conv ? '<b style="color:#C0392B">Ray 1</b>: comes in <b>parallel to the principal axis</b>. After the lens it is refracted <b>through the focal point F</b> on the other side.' : '<b style="color:#C0392B">Ray 1</b>: comes in <b>parallel to the principal axis</b>. After the lens it spreads out as if it came <b>from F on the same side</b> as the object (dashed line).';
+      if (i === 1) { if (rayList()[1].s === null) return '<b style="color:#2F6FE0">Ray 2</b> cannot be drawn here: the object is at F, so a ray through F lies along the object itself.'; return conv ? (inside ? '<b style="color:#2F6FE0">Ray 2</b>: travels along the line <b>from F through the top of the object</b>. After the lens it travels <b>parallel to the axis</b>.' : '<b style="color:#2F6FE0">Ray 2</b>: passes <b>through the focal point F</b> in front of the lens. After the lens it travels <b>parallel to the axis</b>.') : '<b style="color:#2F6FE0">Ray 2</b>: heads <b>towards F on the far side</b> of the lens. After the lens it travels <b>parallel to the axis</b>.'; }
+      if (i === 2) return '<b style="color:#3E8E1E">Ray 3</b>: passes through the <b>optical centre</b> of the lens and goes <b>straight on</b> without bending.';
+      const sol = solve([{ type: 'lens', x: 0, f: f() }], -S.u, S.h);
+      if (!isFinite(sol.v)) return 'The refracted rays are <b>parallel</b>: they never meet, so the image is <b>at infinity</b>.';
+      return sol.real ? `The refracted rays <b>meet at one point</b>: a <b>real image</b> is formed. It can be caught on a screen. Image: <b>${natureOf(sol.v, sol.m)}</b>.` : `The refracted rays <b>spread out</b> and never meet. Extend them <b>backwards</b> (dashed lines): they appear to come from one point, a <b>virtual image</b> on the same side as the object. Image: <b>${natureOf(sol.v, sol.m)}</b>.`;
+    }
+    function regionCaption() {
+      if (S.sgn < 0) return '<b>Diverging lens</b>: wherever the object is, the image is <b>virtual, upright, diminished</b> and lies between F and the lens (door viewer, spectacles for short sight).';
+      const u = S.u, F = S.f, e = 0.03 * F;
+      if (Math.abs(u - 2 * F) < e) return 'Object <b>at 2F</b> → image <b>at 2F</b> on the other side: real, inverted, <b>same size</b>. Use: photocopier at 1 : 1.';
+      if (Math.abs(u - F) < e) return 'Object <b>at F</b> → the refracted rays are parallel, image <b>at infinity</b>. Use: spotlight, searchlight.';
+      if (u > 2 * F) return 'Object <b>beyond 2F</b> → image <b>between F and 2F</b> on the other side: real, inverted, <b>diminished</b>. Use: camera, the eye.';
+      if (u > F) return 'Object <b>between F and 2F</b> → image <b>beyond 2F</b>: real, inverted, <b>magnified</b>. Use: projector.';
+      return 'Object <b>between F and the lens</b> → image on the <b>same side</b> as the object: <b>virtual, upright, magnified</b>. Use: magnifying glass.';
+    }
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 270, 420); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const xmin = -75, xmax = 75, ymax = 14, k = (w - 20) / (xmax - xmin), cy = h / 2, ky = (h / 2 - 24) / ymax, X = x => 10 + (x - xmin) * k, Y = y => cy - y * ky;
+      const ff = f(), lensEl = { type: 'lens', x: 0, f: ff }, x0 = -S.u, sol = solve([lensEl], x0, S.h);
+      ctx.strokeStyle = COL.sub; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+      [[S.f, 'F'], [-S.f, 'F'], [2 * S.f, '2F'], [-2 * S.f, '2F']].forEach(([x, lab]) => { if (x > xmin && x < xmax) { ctx.fillStyle = COL.ink; ctx.beginPath(); ctx.arc(X(x), cy, 3.2, 0, 7); ctx.fill(); text(ctx, lab, X(x), cy + 18, { a: 'center', fs: 13, b: 1, c: COL.sub }); } });
+      drawLensShape(ctx, X(0), Y(ymax * 0.92), Y(-ymax * 0.92), ff, cy);
+      // trail of image tips during the sweep
+      ctx.fillStyle = 'rgba(242,102,27,.45)'; S.trail.forEach(([x, y]) => { if (x > xmin && x < xmax && Math.abs(y) < ymax * 1.2) { ctx.beginPath(); ctx.arc(X(x), Y(y), 2.4, 0, 7); ctx.fill(); } });
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
+      const rl = rayList(), all = S.mode === 'idle' || S.mode === 'sweep';
+      const prog = i => all ? 1 : i < S.step ? 1 : i === S.step ? (S.mode === 'hold' ? 1 : S.t) : 0;
+      rl.forEach((r, i) => {
+        const p = prog(i); if (p <= 0 || r.s === null) return;
+        const tr = trace([lensEl], x0, S.h, r.s, xmin, xmax), P = tr.pts.map(q => [X(q[0]), Y(q[1])]);
+        ctx.strokeStyle = RCOL[i]; ctx.lineWidth = i === S.step && !all ? 2.6 : 2; const tip = strokePartial(ctx, P, p);
+        if (p < 1) { ctx.fillStyle = RCOL[i]; ctx.beginPath(); ctx.arc(tip[0], tip[1], 5, 0, 7); ctx.fill(); }
+        else if (all || S.step >= 3) pulses(ctx, P, S.clock, RCOL[i], 80);
+        // diverging ray 1: show where it seems to come from, during its own stage
+        if (i === 0 && ff < 0 && p >= 1 && !all && S.step <= 2) { const [xh, yh] = tr.hit; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(X(xh), Y(yh)); ctx.lineTo(X(ff), Y(0)); ctx.stroke(); ctx.setLineDash([]); }
+      });
+      // image stage: virtual extensions then the image
+      const pImg = all ? 1 : S.step > 3 ? 1 : S.step === 3 ? (S.mode === 'hold' ? 1 : S.t) : 0;
+      if (pImg > 0 && isFinite(sol.xi)) {
+        if (!sol.real) rl.forEach((r, i) => { if (r.s === null) return; const tr = trace([lensEl], x0, S.h, r.s, xmin, xmax), [xh, yh] = tr.hit, yi = yh + tr.s * (sol.xi - xh); ctx.strokeStyle = RCOL[i]; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]); strokePartial(ctx, [[X(xh), Y(yh)], [X(sol.xi), Y(yi)]], Math.min(1, pImg * 1.6)); ctx.setLineDash([]); });
+        if (pImg > 0.55) { ctx.globalAlpha = Math.min(1, (pImg - 0.55) / 0.35); vArrow(ctx, X(sol.xi), cy, Y(sol.hi), COL.o, !sol.real, 3.2); text(ctx, sol.real ? 'I (real)' : 'I (virtual)', X(sol.xi) + 8, Y(sol.hi) + (sol.hi > 0 ? -4 : 14), { b: 1, fs: 13, c: COL.o }); ctx.globalAlpha = 1; }
+      }
+      ctx.restore();
+      vArrow(ctx, X(x0), cy, Y(S.h), COL.ink, false, 3.2); text(ctx, 'O', X(x0), Y(S.h) - 10, { a: 'center', b: 1, fs: 14 });
+      // stage label
+      if (!all) text(ctx, S.step < 3 ? `Ray ${S.step + 1} of 3` : 'Image', 14, 22, { b: 1, fs: 14, c: S.step < 3 ? RCOL[S.step] : COL.o });
+      else if (S.mode === 'sweep') text(ctx, 'Moving the object towards the lens…', 14, 22, { b: 1, fs: 14, c: COL.o });
+      cap(all ? regionCaption() : S.step < 3 ? rayCaption(S.step) : rayCaption(3));
+      ro([['object distance u', fmt(S.u, 1) + ' cm'], ['focal length f', fmt(ff, 1) + ' cm'], ['1/v = 1/f − 1/u  ⇒  v', isFinite(sol.v) ? fmt(sol.v, 1) + ' cm' : '∞', 'hl'], ['m = −v/u', isFinite(sol.v) ? fmt(sol.m, 2) : '∞', 'hl'], ['image', natureOf(sol.v, sol.m)]]);
+    }
+    loop(cv, dt => {
+      S.clock += dt;
+      if (S.mode === 'rays') {
+        if (S.hold > 0) { S.hold -= dt; if (S.hold <= 0) { S.step++; S.t = 0; } }
+        else { S.t = Math.min(1, S.t + dt / (S.step === 3 ? 1.2 : 1.6)); if (rayList()[S.step] && rayList()[S.step].s === null && S.step < 3) S.t = 1;
+          if (S.t >= 1) { if (S.step >= 3) { S.mode = 'idle'; S.step = 4; } else if (S.auto) S.hold = 0.7; else S.mode = 'hold'; } }
+      } else if (S.mode === 'sweep') {
+        if (S.hold > 0) S.hold -= dt;
+        else {
+          const nu = S.u - dt * S.f * 0.22;
+          for (const [mark, key] of [[2 * S.f, 'a'], [S.f, 'b']]) if (S.u > mark && nu <= mark && !S.passed[key]) { S.passed[key] = 1; S.u = mark; S.hold = 1.8; break; }
+          if (S.hold <= 0) S.u = nu;
+          if (S.u <= 0.35 * S.f) { S.u = 0.35 * S.f; S.mode = 'idle'; S.step = 4; bSweep.textContent = '▶ Move the object'; }
+          slU.set(S.u);
+          const sl = solve([{ type: 'lens', x: 0, f: f() }], -S.u, S.h); if (isFinite(sl.xi)) S.trail.push([sl.xi, sl.hi]); if (S.trail.length > 600) S.trail.shift();
+        }
+      }
+      draw();
+    });
+    new ResizeObserver(() => draw()).observe(root);
+    startRays(true);
+  }
+
+  // ---------- 2. lens applications ----------
+  function lensApps(root) {
+    const { COL, fmt, el, slider, toggle, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const TABS = ['Magnifying glass', 'Camera', 'Projector', 'Short sight', 'Long sight'];
+    const S = { tab: 0, clock: 0, mag: { u: 6 }, cam: { u: 30, d: 8 * 30 / 22, af: true }, pro: { u: 15, scr: 30 }, my: { fp: 200, on: false, a: 0 }, hy: { np: 50, on: false, a: 0 } };
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const tbs = TABS.map((n, i) => button(pre, n, 'sm-chip' + (i ? '' : ' on'), () => { S.tab = i; tbs.forEach((b, j) => b.classList.toggle('on', j === i)); build(); }));
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    const cv = canvas(root); const cap = capBox(root); const ro = readouts(root);
+    function build() {
+      ctl.innerHTML = '';
+      if (S.tab === 0) slider(ctl, 'object distance <i>u</i>', 3, 8, 0.1, S.mag.u, 'cm', v => { S.mag.u = v; });
+      if (S.tab === 1) { slider(ctl, 'object distance <i>u</i>', 18, 60, 0.5, S.cam.u, 'cm', v => { S.cam.u = v; }); toggle(ctl, 'Auto-focus', S.cam.af, v => { S.cam.af = v; }); }
+      if (S.tab === 2) slider(ctl, 'slide distance <i>u</i>', 12.5, 19, 0.1, S.pro.u, 'cm', v => { S.pro.u = v; });
+      if (S.tab === 3) { slider(ctl, 'far point of the eye', 50, 500, 10, S.my.fp, 'cm', v => { S.my.fp = v; }); toggle(ctl, 'Put on spectacles', S.my.on, v => { S.my.on = v; }); }
+      if (S.tab === 4) { slider(ctl, 'near point of the eye', 30, 150, 5, S.hy.np, 'cm', v => { S.hy.np = v; }); toggle(ctl, 'Put on spectacles', S.hy.on, v => { S.hy.on = v; }); }
+    }
+    // draws an eye (lens at x = 2, retina at x = 24) in world units
+    function eye(ctx, X, Y, k) {
+      const cx = X(12), cy = Y(0), r = 12 * k;
+      ctx.fillStyle = '#FFFFFF'; ctx.strokeStyle = '#1C2230'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#D9534F'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(cx, cy, r - 2, -0.9, 0.9); ctx.stroke();
+      ctx.fillStyle = '#5A4632'; ctx.fillRect(X(1.2), Y(6), 3, (6 - 3.2) * k); ctx.fillRect(X(1.2), Y(-3.2), 3, (6 - 3.2) * k);
+      ctx.fillStyle = 'rgba(160,200,236,.75)'; ctx.strokeStyle = '#1C2230'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(X(2), cy, 1.5 * k, 3.6 * k, 0, 0, 7); ctx.fill(); ctx.stroke();
+      text(ctx, 'retina', X(24) + 8, Y(7), { fs: 12, b: 1, c: '#B03A36' }); text(ctx, 'eye lens', X(2), Y(-12.6) + 16, { a: 'center', fs: 12, c: COL.sub });
+    }
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 280, 420); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      const V = [{ xmin: -48, xmax: 24 }, { xmin: -52, xmax: 30 }, { xmin: -30, xmax: 56 }, { xmin: -58, xmax: 32 }, { xmin: -58, xmax: 32 }][S.tab];
+      const k = (w - 20) / (V.xmax - V.xmin), cy = h / 2 + (S.tab === 1 ? 10 : 0), X = x => 10 + (x - V.xmin) * k, Y = y => cy - y * k;
+      ctx.strokeStyle = COL.sub; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+      const ray = (pts, col, dashBack) => { const P = pts.map(q => [X(q[0]), Y(q[1])]); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); P.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); pulses(ctx, P, S.clock, col, 64); };
+      const dashed = (a, b, col) => { ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(X(a[0]), Y(a[1])); ctx.lineTo(X(b[0]), Y(b[1])); ctx.stroke(); ctx.setLineDash([]); };
+      const fpt = (x, lab) => { ctx.fillStyle = COL.ink; ctx.beginPath(); ctx.arc(X(x), cy, 3, 0, 7); ctx.fill(); text(ctx, lab, X(x), cy + 17, { a: 'center', fs: 12, b: 1, c: COL.sub }); };
+      // straight-line helper: from (x0,y0) to lens at x=L with slope s, refracted by lens f, to xe
+      const path = (els, x0, y0, s, xe) => { const t = trace(els, x0, y0, s, -1e4, xe); return t; };
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
+      if (S.tab === 0) {
+        const F = 10, u = S.mag.u, hO = 1.6, L = { type: 'lens', x: 0, f: F }, sol = solve([L], -u, hO);
+        fpt(F, 'F'); fpt(-F, 'F'); drawLensShape(ctx, X(0), Y(9), Y(-9), F, cy);
+        // eye
+        ctx.fillStyle = '#fff'; ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X(17), Y(2.2)); ctx.quadraticCurveTo(X(12.5), Y(0), X(17), Y(-2.2)); ctx.quadraticCurveTo(X(21), Y(0), X(17), Y(2.2)); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#3A6EA5'; ctx.beginPath(); ctx.arc(X(15.4), cy, 0.9 * k, 0, 7); ctx.fill(); text(ctx, 'eye', X(17), Y(-3.4), { a: 'center', fs: 12, c: COL.sub });
+        [0, -hO / u].forEach((s, i) => { const t = path([L], -u, hO, s, 24); ray(t.pts, RCOL[i ? 2 : 0]); const [xh, yh] = t.hit; dashed([xh, yh], [sol.xi, yh + t.s * (sol.xi - xh)], RCOL[i ? 2 : 0]); });
+        vArrow(ctx, X(sol.xi), cy, Y(sol.hi), COL.o, true, 3); text(ctx, 'virtual image', X(sol.xi), Y(sol.hi) - 10, { a: 'center', fs: 13, b: 1, c: COL.o });
+        ctx.restore(); vArrow(ctx, X(-u), cy, Y(hO), COL.ink, false, 3); text(ctx, 'object', X(-u), cy + 32, { a: 'center', fs: 12, b: 1 });
+        cap('A <b>magnifying glass</b> is a converging lens with the object placed <b>between F and the lens</b>. The rays leaving the lens spread out, and the eye traces them back to a <b>virtual, upright, magnified</b> image on the same side as the object. Move the object closer to F: the image becomes larger and moves further away.');
+        ro([['f', '+10.0 cm'], ['u', fmt(u, 1) + ' cm'], ['v', fmt(sol.v, 1) + ' cm (virtual)', 'hl'], ['m = −v/u', '+' + fmt(sol.m, 2), 'hl'], ['image', natureOf(sol.v, sol.m)]]);
+      } else if (S.tab === 1) {
+        const F = 8, C = S.cam, v = F * C.u / (C.u - F), sx = 22, lx = sx - C.d, L = { type: 'lens', x: lx, f: F }, hO = 5;
+        // body
+        ctx.fillStyle = 'rgba(28,34,48,.10)'; ctx.strokeStyle = '#1C2230'; ctx.lineWidth = 2; ctx.beginPath(); ctx.rect(X(1.5), Y(7.5), X(sx + 3) - X(1.5), 15 * k); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#1C2230'; ctx.fillRect(X(sx), Y(6.2), 4, 12.4 * k); text(ctx, 'sensor', X(sx) + 2, Y(7.5) - 8, { a: 'center', fs: 12, b: 1 }); text(ctx, 'camera', X(10), Y(-7.5) + 16, { a: 'center', fs: 12, c: COL.sub });
+        drawLensShape(ctx, X(lx), Y(6.3), Y(-6.3), F, cy); fpt(lx - F, 'F');
+        const ox = lx - C.u, ys = [];
+        [0, (-4 - hO) / C.u, -hO / C.u].forEach((s, i) => { const t = path([L], ox, hO, s, sx); ray(t.pts, RCOL[i]); ys.push(t.pts[t.pts.length - 1][1]); });
+        const sharp = Math.abs(C.d - v) < 0.12;
+        if (sharp) vArrow(ctx, X(sx) - 4, cy, Y(ys[2]), COL.o, false, 3);
+        else { const a = Math.min(...ys), b = Math.max(...ys); ctx.fillStyle = 'rgba(242,102,27,.45)'; ctx.fillRect(X(sx) - 7, Y(b), 7, Math.max(3, (b - a) * k)); }
+        ctx.restore(); vArrow(ctx, X(ox), cy, Y(hO), COL.ink, false, 3); text(ctx, 'object', X(ox), Y(hO) - 10, { a: 'center', fs: 12, b: 1 });
+        text(ctx, sharp ? 'sharp image' : 'blurred: rays do not meet on the sensor', X(sx) - 10, Y(-7.5) + 34, { a: 'right', fs: 13, b: 1, c: sharp ? COL.gr : COL.r });
+        cap('A <b>camera</b> lens forms a <b>real, inverted, diminished</b> image on the sensor (object beyond 2F). For a <b>nearer</b> object the image distance <i>v</i> is <b>larger</b>, so the lens moves <b>further from the sensor</b> to focus. Turn auto-focus off and move the object: the picture goes blurred.');
+        ro([['f', '+8.0 cm'], ['u', fmt(C.u, 1) + ' cm'], ['v needed', fmt(v, 2) + ' cm', 'hl'], ['lens to sensor', fmt(C.d, 2) + ' cm', 'hl'], ['m = −v/u', fmt(-v / C.u, 3)], ['image', 'real, inverted, diminished']]);
+      } else if (S.tab === 2) {
+        const F = 10, P = S.pro, v = F * P.u / (P.u - F), hO = -2.2, L = { type: 'lens', x: 0, f: F }, m = -v / P.u, sx = P.scr;
+        fpt(F, 'F'); fpt(-F, 'F'); fpt(-2 * F, '2F'); fpt(2 * F, '2F');
+        const g = ctx.createRadialGradient(X(-P.u - 6), cy, 2, X(-P.u - 6), cy, 4 * k); g.addColorStop(0, 'rgba(255,214,90,1)'); g.addColorStop(1, 'rgba(255,214,90,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X(-P.u - 6), cy, 4 * k, 0, 7); ctx.fill(); text(ctx, 'lamp', X(-P.u - 6), cy - 4.4 * k, { a: 'center', fs: 12, c: COL.sub });
+        drawLensShape(ctx, X(0), Y(6), Y(-6), F, cy);
+        ctx.fillStyle = '#E5E7DD'; ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.5; ctx.fillRect(X(sx), Y(13), 6, 26 * k); ctx.strokeRect(X(sx), Y(13), 6, 26 * k); text(ctx, 'screen', X(sx) + 3, Y(13) - 8, { a: 'center', fs: 12, b: 1 });
+        const ys = []; [0, (4 - hO) / P.u, -hO / P.u].forEach((s, i) => { const t = path([L], -P.u, hO, s, sx); ray(t.pts, RCOL[i]); ys.push(t.pts[t.pts.length - 1][1]); });
+        if (Math.abs(sx - v) < 0.3) vArrow(ctx, X(sx) - 2, cy, Y(m * hO), COL.o, false, 3.4);
+        else { const a = Math.min(...ys), b = Math.max(...ys); ctx.fillStyle = 'rgba(242,102,27,.45)'; ctx.fillRect(X(sx) - 6, Y(b), 6, Math.max(3, (b - a) * k)); }
+        ctx.restore(); vArrow(ctx, X(-P.u), cy, Y(hO), COL.ink, false, 3); text(ctx, 'slide (upside down)', X(-P.u), Y(-6.5), { a: 'center', fs: 12, b: 1 });
+        cap('In a <b>projector</b> the slide is placed <b>between F and 2F</b>, so the image on the screen is <b>real, inverted and magnified</b>. The slide is put in <b>upside down</b> so the picture on the screen is the right way up. Move the slide closer to F: the screen must move further away and the picture becomes larger.');
+        ro([['f', '+10.0 cm'], ['u', fmt(P.u, 1) + ' cm'], ['v (screen distance)', fmt(v, 1) + ' cm', 'hl'], ['m = −v/u', fmt(m, 2), 'hl'], ['image', 'real, inverted, magnified']]);
+      } else {
+        const my = S.tab === 3, E = my ? S.my : S.hy, R = 24, eyeL = { type: 'lens', x: 2, f: 1 / (1 / 50 + 1 / 22) }, sxS = -5;
+        eye(ctx, X, Y, k);
+        const specX = sxS + (1 - E.a) * (V.xmin - 12 - sxS), specF = my ? -43 : 1 / (1 / 18 - 1 / 43), spec = { type: 'lens', x: specX, f: specF };
+        const els = E.a >= 1 ? [spec, eyeL] : [eyeL];
+        if (E.a > 0) { drawLensShape(ctx, X(specX), Y(7), Y(-7), specF, cy); text(ctx, my ? 'diverging lens' : 'converging lens', X(specX), Y(7) - 8, { a: 'center', fs: 12, b: 1, c: COL.v }); }
+        const nearX = 2 - 50, objX = 2 - 25, hs = [-2.4, -1.2, 1.2, 2.4], ends = [];
+        if (my) { hs.forEach((y0, i) => { const t = trace(els, V.xmin, y0, 0, -1e4, R); const P = t.pts.slice(0, -1); P.push(t.pts[t.pts.length - 1]); ray(P, i % 2 ? '#2F6FE0' : '#C0392B'); ends.push(P[P.length - 1][1]); if (E.a >= 1) { const q = P[1]; const s1 = (P[2][1] - q[1]) / (P[2][0] - q[0]); dashed(q, [nearX, q[1] + s1 * (nearX - q[0])], 'rgba(106,99,236,.8)'); } }); }
+        else { ctx.fillStyle = COL.ink; ctx.beginPath(); ctx.arc(X(objX), cy, 4, 0, 7); ctx.fill(); text(ctx, 'object at 25 cm', X(objX), Y(-3) + 14, { a: 'center', fs: 12, b: 1 });
+          hs.forEach((y0, i) => { const t = trace(els, objX, 0, y0 / 25 * (E.a >= 1 ? 0.72 : 1), -1e4, R); ray(t.pts, i % 2 ? '#2F6FE0' : '#C0392B'); ends.push(t.pts[t.pts.length - 1][1]); if (E.a >= 1) { const q = t.pts[1], q2 = t.pts[2], s1 = (q2[1] - q[1]) / (q2[0] - q[0]); dashed(q, [nearX, q[1] + s1 * (nearX - q[0])], 'rgba(106,99,236,.8)'); } }); }
+        ctx.strokeStyle = COL.v; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(X(nearX), Y(4.5)); ctx.lineTo(X(nearX), Y(-4.5)); ctx.stroke(); ctx.setLineDash([]); text(ctx, my ? 'far point' : 'near point', X(nearX), Y(4.5) - 6, { a: 'center', fs: 12, b: 1, c: COL.v });
+        const a = Math.min(...ends), b = Math.max(...ends), focused = b - a < 0.25;
+        ctx.fillStyle = focused ? 'rgba(62,142,30,.9)' : 'rgba(242,102,27,.55)'; ctx.fillRect(X(R) - 5, Y(b) - 3, 7, Math.max(6, (b - a) * k + 6));
+        ctx.restore();
+        // where the rays meet without spectacles
+        const sh = E.a >= 1 ? null : my ? 2 + eyeL.f : 2 + 1 / (1 / eyeL.f - 1 / 25);
+        text(ctx, focused ? 'sharp image on the retina' : (my ? 'rays meet in front of the retina: blurred' : 'rays would meet behind the retina: blurred'), 14, 22, { b: 1, fs: 14, c: focused ? COL.gr : COL.r });
+        if (sh && !my) { ctx.strokeStyle = 'rgba(192,57,43,.5)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.2; hs.forEach(y0 => { const t = trace([eyeL], objX, 0, y0 / 25, -1e4, R); const [xh, yh] = t.hit; ctx.beginPath(); ctx.moveTo(X(R), Y(yh + t.s * (R - xh))); ctx.lineTo(X(sh), cy); ctx.stroke(); }); ctx.setLineDash([]); }
+        text(ctx, 'diagram not to scale', w - 12, h - 10, { a: 'right', fs: 11, c: COL.sub });
+        if (my) {
+          const fS = -E.fp; cap('<b>Short sight</b> (myopia): the eye cannot see distant objects clearly. Parallel rays from a distant object meet <b>in front of the retina</b>. A <b>diverging lens</b> spreads the rays out so they seem to come from the eye\'s <b>far point</b>; the eye can focus those on the retina. Ignoring the small gap between spectacles and eye, the lens must form a virtual image of an object at infinity at the far point: <i>f</i> = −(far point).');
+          ro([['far point', fmt(E.fp, 0) + ' cm'], ['distant object (u = ∞)', 'image at far point: v = −' + fmt(E.fp, 0) + ' cm'], ['f of spectacles', fmt(fS, 0) + ' cm', 'hl'], ['power P = 1/f', fmt(100 / fS, 2) + ' D', 'hl'], ['lens', 'diverging']]);
+        } else {
+          const fS = 25 * E.np / (E.np - 25); cap('<b>Long sight</b> (hypermetropia): the eye cannot see near objects clearly because its near point is further than 25 cm. Rays from a near object would meet <b>behind the retina</b>. A <b>converging lens</b> makes the rays less divergent so they seem to come from the eye\'s <b>near point</b>. With the object at 25 cm and a virtual image at the near point: 1/<i>f</i> = 1/25 + 1/(−near point).');
+          ro([['near point', fmt(E.np, 0) + ' cm'], ['object at u = 25 cm', 'image at near point: v = −' + fmt(E.np, 0) + ' cm'], ['f of spectacles', '+' + fmt(fS, 1) + ' cm', 'hl'], ['power P = 1/f', '+' + fmt(100 / fS, 2) + ' D', 'hl'], ['lens', 'converging']]);
+        }
+      }
+    }
+    loop(cv, dt => {
+      S.clock += dt;
+      const C = S.cam; if (C.af) { const v = 8 * C.u / (C.u - 8); C.d += (v - C.d) * Math.min(1, dt * 3); }
+      const P = S.pro, pv = 10 * P.u / (P.u - 10); P.scr += (pv - P.scr) * Math.min(1, dt * 2.5);
+      [S.my, S.hy].forEach(E => { E.a = Math.max(0, Math.min(1, E.a + (E.on ? dt : -dt) * 1.4)); });
+      draw();
+    });
+    new ResizeObserver(() => draw()).observe(root);
+    build();
+  }
+
+  // ---------- 3. lensmaker: shape, refractive index and medium ----------
+  function lensMaker(root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const S = { r1: 15, r2: -15, nl: 1.5, nm: 1.0, clock: 0 };
+    const FLAT = 6, rv = r => (Math.abs(r) < FLAT ? Infinity : r);
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const SH = [['biconvex', 15, -15], ['plano-convex', 0, -15], ['converging meniscus', 12, 25], ['biconcave', -15, 15], ['plano-concave', 0, 15], ['diverging meniscus', 25, 12]];
+    const shb = SH.map(([n, a, b], i) => button(pre, n, 'sm-chip' + (i ? '' : ' on'), () => { S.r1 = a; S.r2 = b; s1.set(a); s2.set(b); lab(); shb.forEach((x, j) => x.classList.toggle('on', j === i)); }));
+    const pre2 = el('div', 'sm-row sm-pre'); root.appendChild(pre2);
+    const MD = [['in air', 1.0], ['in water', 1.33], ['in glycerine', 1.47], ['in carbon disulfide', 1.63]];
+    const mdb = MD.map(([n, v], i) => button(pre2, n, 'sm-chip' + (i ? '' : ' on'), () => { S.nm = v; sm.set(v); mdb.forEach((x, j) => x.classList.toggle('on', j === i)); }));
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    const s1 = slider(ctl, '<i>r</i>₁ (first face)', -40, 40, 1, S.r1, 'cm', v => { S.r1 = v; lab(); shb.forEach(x => x.classList.remove('on')); });
+    const o1 = ctl.lastChild.querySelector('output');
+    const s2 = slider(ctl, '<i>r</i>₂ (second face)', -40, 40, 1, S.r2, 'cm', v => { S.r2 = v; lab(); shb.forEach(x => x.classList.remove('on')); });
+    const o2 = ctl.lastChild.querySelector('output');
+    slider(ctl, '<i>n</i> of lens', 1.3, 1.9, 0.01, S.nl, '', v => { S.nl = v; });
+    const sm = slider(ctl, '<i>n</i> of medium', 1.0, 1.8, 0.01, S.nm, '', v => { S.nm = v; mdb.forEach((x, j) => x.classList.toggle('on', Math.abs(MD[j][1] - v) < 0.005)); });
+    function lab() { [[o1, S.r1], [o2, S.r2]].forEach(([o, r]) => { o.innerHTML = Math.abs(r) < FLAT ? 'flat (∞)' : (r > 0 ? '+' : '−') + Math.abs(r) + ' cm'; }); }
+    const cv = canvas(root); const cap = capBox(root); const ro = readouts(root);
+    const sag = (r, y) => (isFinite(r) ? r - Math.sign(r) * Math.sqrt(Math.max(0, r * r - y * y)) : 0);
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.5, 280, 420);
+      const xmin = -32, xmax = 62, k = (w - 20) / (xmax - xmin), cy = h / 2, X = x => 10 + (x - xmin) * k, Y = y => cy - y * k;
+      const r1 = rv(S.r1), r2 = rv(S.r2), K = (isFinite(r1) ? 1 / r1 : 0) - (isFinite(r2) ? 1 / r2 : 0), q = S.nl / S.nm - 1, P = q * K, f = Math.abs(P) < 1e-6 ? Infinity : 1 / P;
+      ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#F7F8F0'; ctx.fillRect(0, 0, w, h);
+      if (S.nm > 1.005) { ctx.fillStyle = `rgba(90,150,215,${Math.min(0.42, (S.nm - 1) * 0.55)})`; ctx.fillRect(0, 0, w, h); text(ctx, 'medium n = ' + fmt(S.nm, 2), 14, h - 12, { fs: 13, b: 1, c: '#1F4E7A' }); }
+      ctx.strokeStyle = COL.sub; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+      // lens outline from real radii
+      const fin = [r1, r2].filter(isFinite).map(Math.abs), a = Math.min(8, fin.length ? 0.92 * Math.min(...fin) : 8);
+      const e1 = sag(r1, a), e2 = sag(r2, a), t = Math.max(0.8, 0.8 + e1 - e2), v1 = -t / 2, v2 = t / 2;
+      ctx.beginPath(); const N = 40;
+      for (let i = 0; i <= N; i++) { const y = a - 2 * a * i / N; const x = v1 + sag(r1, y); i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y)); }
+      for (let i = 0; i <= N; i++) { const y = -a + 2 * a * i / N; ctx.lineTo(X(v2 + sag(r2, y)), Y(y)); }
+      ctx.closePath(); ctx.fillStyle = `rgba(120,175,230,${Math.min(0.85, 0.2 + (S.nl - 1.2) * 0.9)})`; ctx.fill(); ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.6; ctx.stroke();
+      text(ctx, 'n = ' + fmt(S.nl, 2), X(0), Y(a) - 10, { a: 'center', fs: 13, b: 1 });
+      // centres of curvature
+      [[r1, v1, 'C₁'], [r2, v2, 'C₂']].forEach(([r, v, l]) => { if (isFinite(r)) { const x = v + r; if (x > xmin && x < xmax) { ctx.strokeStyle = COL.v; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(X(x) - 4, cy - 4); ctx.lineTo(X(x) + 4, cy + 4); ctx.moveTo(X(x) + 4, cy - 4); ctx.lineTo(X(x) - 4, cy + 4); ctx.stroke(); text(ctx, l, X(x), cy - 9, { a: 'center', fs: 12, b: 1, c: COL.v }); } } });
+      // parallel beam (thin-lens refraction at x = 0)
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
+      const hs = [-0.8, -0.4, 0.4, 0.8].map(z => z * a);
+      hs.forEach((y0, i) => {
+        const s = isFinite(f) ? -y0 / f : 0, Pp = [[X(xmin), Y(y0)], [X(0), Y(y0)], [X(xmax), Y(y0 + s * xmax)]], col = i % 2 ? '#2F6FE0' : '#C0392B';
+        ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); Pp.forEach((p, j) => j ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); pulses(ctx, Pp, S.clock, col, 60);
+        if (isFinite(f) && f < 0) { ctx.strokeStyle = col; ctx.globalAlpha = 0.7; ctx.lineWidth = 1.3; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(X(0), Y(y0)); ctx.lineTo(X(f), cy); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; }
+      });
+      ctx.restore();
+      if (isFinite(f)) { if (f > xmin && f < xmax) { ctx.fillStyle = COL.o; ctx.beginPath(); ctx.arc(X(f), cy, 5, 0, 7); ctx.fill(); text(ctx, 'F', X(f), cy + 20, { a: 'center', fs: 14, b: 1, c: COL.o }); } else text(ctx, (f > 0 ? 'F is off the screen to the right →' : '← F is off the screen to the left'), f > 0 ? w - 12 : 14, 22, { a: f > 0 ? 'right' : 'left', fs: 13, b: 1, c: COL.o }); }
+      const rs = r => (isFinite(r) ? (r > 0 ? '+' : '−') + Math.abs(r) + ' cm' : '∞');
+      ro([['r₁', rs(r1)], ['r₂', rs(r2)], ['n(lens) / n(medium)', fmt(S.nl / S.nm, 3)], ['1/f = (nₗ/nₘ − 1)(1/r₁ − 1/r₂)', isFinite(f) ? fmt(P, 4) + ' cm⁻¹' : '0'], ['focal length f', isFinite(f) ? (f > 0 ? '+' : '') + fmt(f, 1) + ' cm' : '∞', 'hl'], ['lens behaves as', !isFinite(f) ? 'no focusing' : f > 0 ? 'converging' : 'diverging', 'hl']].concat(S.nm < 1.005 && isFinite(f) ? [['power P = 1/f (in air)', (f > 0 ? '+' : '') + fmt(100 / f, 2) + ' D']] : []));
+      const thick = K > 0 ? 'thicker at the centre' : K < 0 ? 'thinner at the centre' : 'the same thickness everywhere';
+      let c;
+      if (Math.abs(q) < 0.004) c = '<b>n of lens = n of medium</b>: light does not bend at either face, so the lens has <b>no focusing effect</b> (it becomes invisible).';
+      else if (K === 0) c = 'Both faces are flat or the faces have equal curvature in the same direction, so 1/<i>r</i>₁ − 1/<i>r</i>₂ = 0: <b>no focusing effect</b>.';
+      else if (q > 0) c = `The lens is <b>optically denser</b> than the medium, so (<i>n</i><sub>l</sub>/<i>n</i><sub>m</sub> − 1) is positive. This lens is <b>${thick}</b>, so it is <b>${K > 0 ? 'converging' : 'diverging'}</b>. More curved faces (smaller <i>r</i>) or a larger <i>n</i><sub>l</sub>/<i>n</i><sub>m</sub> give a shorter focal length.`;
+      else c = `The <b>medium is optically denser</b> than the lens, so (<i>n</i><sub>l</sub>/<i>n</i><sub>m</sub> − 1) is <b>negative</b> and the behaviour <b>reverses</b>: this lens is ${thick}, yet it is <b>${K > 0 ? 'diverging' : 'converging'}</b>.`;
+      cap(c);
+    }
+    loop(cv, dt => { S.clock += dt; draw(); });
+    new ResizeObserver(() => draw()).observe(root);
+    lab();
+  }
+  window.PhysiQSims.add('lensanim', lensAnim);
+  window.PhysiQSims.add('lensapps', lensApps);
+  window.PhysiQSims.add('lensmaker', lensMaker);
+
   ['mirror', 'lens', 'surface', 'twolens'].forEach(m => window.PhysiQSims.add(m, root => optSim(root, m)));
 })();
