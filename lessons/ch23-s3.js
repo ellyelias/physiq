@@ -385,11 +385,14 @@ ${card('STPM 2015 · Paper 3 · Q19', `(a) An object is 30.0 cm in front of a co
     for (let i = 1; i < P.length; i++) { const l = Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); if (acc + l >= L) { const t = l ? (L - acc) / l : 0; const e = [P[i - 1][0] + t * (P[i][0] - P[i - 1][0]), P[i - 1][1] + t * (P[i][1] - P[i - 1][1])]; ctx.lineTo(e[0], e[1]); ctx.stroke(); return e; } acc += l; ctx.lineTo(P[i][0], P[i][1]); }
     ctx.stroke(); return P[P.length - 1];
   }
-  // travelling light pulses along a screen polyline
-  function pulses(ctx, P, clock, col, gap) {
-    const L = segLen(P); if (L < 5) return; gap = gap || 70; const off = (clock * 90) % gap;
-    ctx.fillStyle = col; for (let d = off; d < L; d += gap) { const p = pointAt(P, d); ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(p[0], p[1], 3.6, 0, 7); ctx.fill(); ctx.globalAlpha = 0.25; ctx.beginPath(); ctx.arc(p[0], p[1], 7, 0, 7); ctx.fill(); }
-    ctx.globalAlpha = 1;
+  // small arrowheads on each straight part of a ray (textbook style) to show the direction of travel
+  function headAt(ctx, x, y, ux, uy, col, sz) { sz = sz || 8; ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x + ux * sz * 0.6, y + uy * sz * 0.6); ctx.lineTo(x - ux * sz * 0.6 - uy * sz * 0.5, y - uy * sz * 0.6 + ux * sz * 0.5); ctx.lineTo(x - ux * sz * 0.6 + uy * sz * 0.5, y - uy * sz * 0.6 - ux * sz * 0.5); ctx.closePath(); ctx.fill(); }
+  function pulses(ctx, P, clock, col) {
+    for (let i = 1; i < P.length; i++) {
+      const dx = P[i][0] - P[i - 1][0], dy = P[i][1] - P[i - 1][1], l = Math.hypot(dx, dy); if (l < 34) continue;
+      const ux = dx / l, uy = dy / l, at = l > 320 ? [0.3, 0.7] : [0.5];
+      at.forEach(t => headAt(ctx, P[i - 1][0] + dx * t, P[i - 1][1] + dy * t, ux, uy, col));
+    }
   }
   const natureOf = (v, m) => !isFinite(v) ? 'image at infinity' : (v > 0 ? 'real' : 'virtual') + ', ' + (m < 0 ? 'inverted' : 'upright') + ', ' + (Math.abs(Math.abs(m) - 1) < 0.03 ? 'same size' : Math.abs(m) > 1 ? 'magnified' : 'diminished');
 
@@ -454,8 +457,8 @@ ${card('STPM 2015 · Paper 3 · Q19', `(a) An object is 30.0 cm in front of a co
         const p = prog(i); if (p <= 0 || r.s === null) return;
         const tr = trace([lensEl], x0, S.h, r.s, xmin, xmax), P = tr.pts.map(q => [X(q[0]), Y(q[1])]);
         ctx.strokeStyle = RCOL[i]; ctx.lineWidth = i === S.step && !all ? 2.6 : 2; const tip = strokePartial(ctx, P, p);
-        if (p < 1) { ctx.fillStyle = RCOL[i]; ctx.beginPath(); ctx.arc(tip[0], tip[1], 5, 0, 7); ctx.fill(); }
-        else if (all || S.step >= 3) pulses(ctx, P, S.clock, RCOL[i], 80);
+        if (p < 1) { const L = segLen(P) * p, b = pointAt(P, Math.max(0, L - 6)), d = Math.hypot(tip[0] - b[0], tip[1] - b[1]) || 1; headAt(ctx, tip[0], tip[1], (tip[0] - b[0]) / d, (tip[1] - b[1]) / d, RCOL[i], 11); }
+        else pulses(ctx, P, S.clock, RCOL[i]);
         // diverging ray 1: show where it seems to come from, during its own stage
         if (i === 0 && ff < 0 && p >= 1 && !all && S.step <= 2) { const [xh, yh] = tr.hit; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(X(xh), Y(yh)); ctx.lineTo(X(ff), Y(0)); ctx.stroke(); ctx.setLineDash([]); }
       });
@@ -561,7 +564,7 @@ ${card('STPM 2015 · Paper 3 · Q19', `(a) An object is 30.0 cm in front of a co
       } else if (S.tab === 2) {
         const F = 10, P = S.pro, v = F * P.u / (P.u - F), hO = -2.2, L = { type: 'lens', x: 0, f: F }, m = -v / P.u, sx = P.scr;
         fpt(F, 'F'); fpt(-F, 'F'); fpt(-2 * F, '2F'); fpt(2 * F, '2F');
-        const g = ctx.createRadialGradient(X(-P.u - 6), cy, 2, X(-P.u - 6), cy, 4 * k); g.addColorStop(0, 'rgba(255,214,90,1)'); g.addColorStop(1, 'rgba(255,214,90,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X(-P.u - 6), cy, 4 * k, 0, 7); ctx.fill(); text(ctx, 'lamp', X(-P.u - 6), cy - 4.4 * k, { a: 'center', fs: 12, c: COL.sub });
+        const g = ctx.createRadialGradient(X(-P.u - 8), cy, 2, X(-P.u - 8), cy, 4 * k); g.addColorStop(0, 'rgba(255,214,90,1)'); g.addColorStop(1, 'rgba(255,214,90,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X(-P.u - 8), cy, 4 * k, 0, 7); ctx.fill(); text(ctx, 'lamp', X(-P.u - 8), cy - 4.4 * k, { a: 'center', fs: 12, c: COL.sub });
         drawLensShape(ctx, X(0), Y(6), Y(-6), F, cy);
         ctx.fillStyle = '#E5E7DD'; ctx.strokeStyle = COL.ink; ctx.lineWidth = 1.5; ctx.fillRect(X(sx), Y(13), 6, 26 * k); ctx.strokeRect(X(sx), Y(13), 6, 26 * k); text(ctx, 'screen', X(sx) + 3, Y(13) - 8, { a: 'center', fs: 12, b: 1 });
         const ys = []; [0, (4 - hO) / P.u, -hO / P.u].forEach((s, i) => { const t = path([L], -P.u, hO, s, sx); ray(t.pts, RCOL[i]); ys.push(t.pts[t.pts.length - 1][1]); });
