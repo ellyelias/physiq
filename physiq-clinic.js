@@ -2,7 +2,7 @@
    - mount(box, sem):   the Concept Clinic page in Notes (option CLINIC-3), one topic at a time
    - forLesson(k):      the chapter's clinic animations at the end of its full notes (mounted by mountAll)
    - mountAll(scope):   starts every <div class="cc-mount" data-cc="topic,topic"> inside scope
-   Topics: shm (Ch 20), intensity + emdir (Ch 21), doppler (Ch 22), film (Ch 24), xray + stop (Ch 25), decay (Ch 26), round (all chapters).
+   Topics: shm (Ch 20), intensity + emdir (Ch 21), doppler (Ch 22), film + fringes (Ch 24), xray + stop (Ch 25), decay (Ch 26), round (all chapters).
    Self-contained canvas animations; each pauses while off screen and stops when removed from the page. */
 (function () {
   'use strict';
@@ -485,6 +485,64 @@
     } });
 
   /* ---------- topic content: title, chapter, key equation and teaching points ---------- */
+  // Counting fringes: distance between two fringes (STPM 2024 Q10)
+  SCENES.fringes = () => ({ mode: 'count', tt: 0,
+    reset() { this.tt = 0; },
+    set(k, v) { this[k] = v; this.tt = 0; },
+    draw(ctx, w, h, dt) {
+      this.tt += dt;
+      const t = this.tt, fs = Math.max(FS(w), 11.5), m = this.mode, narrow = w < 560;
+      const left = m === 'opp' ? 4 : 1, right = 10, sp = (w * 0.9) / (left + right), x0 = w * 0.05 + left * sp, X = p => x0 + p * sp;
+      const sy = h * 0.2, sh = h * 0.15, ry = sy + sh + fs * 2.3;
+      const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+      const DX = 0.986;
+      R(ctx, ['Δx = λD/a = (460 × 10', '^−9', ')(3.0) / (1.4 × 10', '^−3', ') = 0.986 mm'], w * 0.05, h * 0.07, { size: fs * 0.85, c: C.muted, w: 500 });
+      // the fringe pattern on the screen
+      for (let x = Math.floor(X(-left)); x < X(right); x++) { const p = (x - x0) / sp, I = Math.pow(Math.cos(Math.PI * p), 2); ctx.fillStyle = rgba(C.gold, 0.06 + 0.9 * I); ctx.fillRect(x, sy, 1, sh); }
+      // fringe numbers: bright above (gold), dark below (violet)
+      for (let n = m === 'opp' ? -left : 0; n <= right; n++) T(ctx, n === 0 ? 'O' : String(Math.abs(n)), X(n), sy - fs * 0.45, { size: fs * (n === 0 ? 0.95 : 0.78), a: 'center', c: C.gold, w: 700 });
+      for (let k = 1; k <= right; k++) { T(ctx, String(k), X(k - 0.5), sy + sh + fs * 1.0, { size: fs * 0.72, a: 'center', c: C.violet, w: 700 }); if (m === 'opp' && k <= left) T(ctx, String(k), X(-(k - 0.5)), sy + sh + fs * 1.0, { size: fs * 0.72, a: 'center', c: C.violet, w: 700 }); }
+      if (!narrow && m !== 'opp') { T(ctx, 'bright', X(m === 'opp' ? -left : -0.5) - 4, sy - fs * 0.45, { size: fs * 0.7, a: 'right', c: C.gold }); T(ctx, 'dark', X(m === 'opp' ? -left : -0.5) - 4, sy + sh + fs * 1.0, { size: fs * 0.7, a: 'right', c: C.violet }); }
+      // ruler: distance from O in units of Δx
+      line(ctx, X(m === 'opp' ? -left : 0), ry, X(right), ry, C.muted, 1.5);
+      for (let q = m === 'opp' ? -2 * left : 0; q <= 2 * right; q++) { const p = q / 2, big = q % 2 === 0; line(ctx, X(p), ry, X(p), ry + (big ? 9 : 5), C.muted, 1.3);
+        if (big && (!narrow || q % 4 === 0)) T(ctx, p === 0 ? '0' : (Math.abs(p) === 1 ? '' : Math.abs(p)) + 'Δx', X(p), ry + 9 + fs * 0.95, { size: fs * 0.66, a: 'center', c: C.muted, w: 500 }); }
+      const mark = (p, col) => { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.strokeRect(X(p) - sp * 0.24, sy - 3, sp * 0.48, sh + 6); ctx.restore(); line(ctx, X(p), sy + sh + 3, X(p), h * 0.83, rgba(col, .55), 1.4, [4, 4]); };
+      const bar = (p1, p2, y, col, lab, prog = 1) => { if (prog <= 0) return; const pe = p1 + (p2 - p1) * clamp(prog, 0, 1); if (Math.abs(pe - p1) > 0.05) arrow(ctx, X(p1), y, X(pe), y, col, 3, 11); dot(ctx, X(p1), y, 3.5, col); if (prog >= 1 && lab) T(ctx, lab, (X(p1) + X(p2)) / 2, y - fs * 0.45, { size: fs * 0.88, a: 'center', c: col, w: 700 }); };
+      const dbar = (p1, p2, y, col, lab, prog = 1) => { if (prog <= 0) return; const a = X(p1), b = X(p1) + (X(p2) - X(p1)) * clamp(prog, 0, 1); if (b - a > 6) darrow(ctx, a, y, b, col, 3, 11); if (prog >= 1) T(ctx, lab, (a + b) / 2, y - fs * 0.45, { size: fs * 0.95, a: 'center', c: col, w: 700 }); };
+      const cap = (s, col) => T(ctx, s, w / 2, h * 0.95, { size: fs * (narrow ? 0.85 : 1.0), a: 'center', c: col || C.ink, w: 700 });
+      const y1 = h * 0.63, y2 = h * 0.72, y3 = h * 0.83;
+      if (m === 'count') {
+        const pc = Math.min(9, Math.floor((t % 13) * 2) / 2);
+        mark(pc, pc % 1 ? C.violet : C.gold);
+        bar(0, pc, y1, pc % 1 ? C.violet : C.gold, pc ? (pc % 1 ? '' : '') : '', 1);
+        if (pc === 0) cap('O = central bright fringe = the 0th bright fringe (distance 0)', C.gold);
+        else if (pc % 1 === 0) cap(`${ord(pc)} bright fringe: ${pc === 1 ? '' : pc}Δx from O`, C.gold);
+        else { const k = pc + 0.5; cap(`${ord(k)} dark fringe: (${k} − ½)Δx = ${pc}Δx from O`, C.violet); }
+        T(ctx, 'Dark fringes lie halfway between bright fringes.', w / 2, y3, { size: fs * 0.85, a: 'center', c: C.muted });
+      } else if (m === 'same' || m === 'opp') {
+        const pd = m === 'same' ? 2.5 : -2.5, tl = t % 12;
+        const a1 = clamp(tl / 1.4, 0, 1), a2 = clamp((tl - 1.8) / 1.6, 0, 1), a3 = clamp((tl - 4) / 1.5, 0, 1);
+        if (a1 > 0) mark(pd, C.violet); if (a2 > 0) mark(9, C.gold);
+        bar(0, pd, y1, C.violet, '3rd dark: 2.5Δx', a1);
+        bar(0, 9, y2, C.gold, '9th bright: 9Δx', a2);
+        dbar(Math.min(pd, 9), 9, y3, C.green, m === 'same' ? '9Δx − 2.5Δx = 6.5Δx' : '9Δx + 2.5Δx = 11.5Δx', a3);
+        if (tl < 1.8) cap('Step 1: distance of the 3rd dark fringe from O = (3 − ½)Δx = 2.5Δx', C.violet);
+        else if (tl < 4) cap('Step 2: distance of the 9th bright fringe from O = 9Δx', C.gold);
+        else if (tl < 6) cap(m === 'same' ? 'Step 3: same side of O, so subtract' : 'Step 3: opposite sides of O, so add', C.green);
+        else cap(m === 'same' ? '6.5 × 0.986 mm = 6.4 mm   →   answer A' : '11.5 × 0.986 mm = 11.3 mm  (only if the question says opposite sides)', C.green);
+      } else {
+        const tl = t % 12, a1 = clamp(tl / 1.3, 0, 1), a2 = clamp((tl - 3.5) / 1.3, 0, 1), a3 = clamp((tl - 7) / 1.3, 0, 1);
+        mark(2.5, C.violet); mark(9, C.gold);
+        bar(0, 9, y1, C.red, narrow ? '✗ 9Δx (that is from O)' : '✗ 9Δx: measured from O, not from the 3rd dark fringe', a1);
+        if (a2 > 0) { mark(3, rgba(C.red, .9)); }
+        dbar(3, 9, y2, C.red, narrow ? '✗ (9 − 3)Δx = 6Δx' : '✗ (9 − 3)Δx = 6Δx: the 3rd dark fringe is not at 3Δx', a2);
+        dbar(2.5, 9, y3, C.green, '✓ 9Δx − 2.5Δx = 6.5Δx = 6.4 mm', a3);
+        cap(tl < 3.5 ? 'Mistake 1: 9Δx = 8.9 mm is not even an option' : tl < 7 ? 'Mistake 2: 6Δx = 5.9 mm is option B, a trap' : 'Correct: 6.5Δx = 6.4 mm, option A', tl < 7 ? C.red : C.green);
+      }
+    }
+  });
+
   const FRAC = (a, b) => `<span class="cc-frac"><span>${a}</span><span>${b}</span></span>`;
   const TOPICS = {
     shm: { sem: '3', lesson: 'LESSON-S3-20', title: 'SHM: choose the right equation', ch: 20, sub: 'The starting position decides sine or cosine, and the sign',
@@ -514,6 +572,13 @@
         'The central fringe still needs zero total path difference, so it moves towards the <b>covered slit</b>, to where S<sub>2</sub>P − S<sub>1</sub>P = (n − 1)t. The fringe separation does not change.',
         'It lands on the old 5th bright fringe: (n − 1)t = 5λ, so t = 5(590 × 10<sup>−9</sup>) / (1.50 − 1) = <b>5.90 × 10<sup>−6</sup> m</b>.'],
       segs: [['mode', [['none', 'No film'], ['inside', 'Inside the film'], ['extra', 'Why n − 1'], ['shift', 'Fringes move']]]] },
+    fringes: { sem: '3', lesson: 'LESSON-S3-24', title: 'Distance between two fringes', ch: 24, sub: 'Young’s double slit: measure every fringe from the central bright fringe O', eq: 'bright: <i>n</i>Δ<i>x</i> &nbsp;·&nbsp; dark: (<i>n</i> − ½)Δ<i>x</i>', eqn: 'Distance from O, the central bright fringe. Δx = λD/a',
+      pts: ['Count from the <b>central bright fringe O</b>. O is the <b>0th</b> bright fringe, not the 1st.', 'The <i>n</i>th <b>bright</b> fringe is <b><i>n</i>Δ<i>x</i></b> from O.', 'The <i>n</i>th <b>dark</b> fringe is <b>(<i>n</i> − ½)Δ<i>x</i></b> from O. The 1st dark fringe is only ½Δ<i>x</i> from O.',
+        'Find the distance of <b>each</b> fringe from O first. Same side of O: <b>subtract</b>. Opposite sides: <b>add</b>.',
+        'STPM 2024 Q10: Δ<i>x</i> = (460 × 10<sup>−9</sup>)(3.0)/(1.4 × 10<sup>−3</sup>) = 0.986 mm. 9th bright at 9Δ<i>x</i>, 3rd dark at 2.5Δ<i>x</i>: distance = 9Δ<i>x</i> − 2.5Δ<i>x</i> = <b>6.5Δ<i>x</i> = 6.4 mm</b>.',
+        'Traps: 9Δ<i>x</i> is the distance from O, not from the dark fringe. (9 − 3)Δ<i>x</i> = 6Δ<i>x</i> forgets that dark fringes lie <b>halfway</b> between bright fringes.',
+        'If the question does not say “opposite sides”, take both fringes on the <b>same side</b> of O.'],
+      segs: [['mode', [['count', 'Positions from O'], ['same', 'STPM 2024 Q10'], ['opp', 'Opposite sides'], ['trap', 'Common mistakes']]]] },
     xray: { sem: '3', lesson: 'LESSON-S3-25', title: 'Production of X-rays', ch: 25, sub: 'Continuous and characteristic spectra', eq: 'λ<sub>min</sub> = ' + FRAC('hc', 'eV'), eqn: 'One electron loses all its kinetic energy eV in a single collision',
       pts: ['Electrons leave the heated filament by thermionic emission.', 'A high p.d. V accelerates them across the vacuum, so each gains kinetic energy eV.', 'Electrons decelerate in the target and emit a <b>continuous spectrum</b> (bremsstrahlung).',
         'The shortest wavelength is λ<sub>min</sub>, when all of eV becomes one photon.', '<b>Characteristic lines</b>: an electron knocks out a K-shell electron, an outer electron drops into the gap and emits a photon of fixed energy.',

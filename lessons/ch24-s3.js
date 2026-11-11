@@ -2,7 +2,7 @@
    App chapter 23 = STPM 2026 syllabus chapter 24. The syllabus writes the two-slit separation as a (x = λD/a); the slides use d. */
 (function () {
   'use strict';
-  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq } = window.PhysiQLessons.H;
+  const { card, fr, sq, eq, key, def, red, note, tip, ul, steps, fig, two, example, exercises, sim, svg, L, T, P, dot, axes, C, table, sec, h4, pq, rw } = window.PhysiQLessons.H;
   const lD = fr('λ<i>D</i>', '<i>a</i>');
 
   // ---------- figures ----------
@@ -78,6 +78,24 @@ ${key(`Δ<i>x</i> = ${lD}`, 'Δ<i>x</i> = fringe separation; λ = wavelength; <i
 ${fig(F.pattern('two'), 'Figure 24.4: the two-slit pattern. All the bright fringes are about equally bright and equally spaced.')}
 ${table(['Change', 'Effect on Δ<i>x</i> = λ<i>D</i>/<i>a</i>'], [['longer wavelength (red instead of blue)', 'fringes further apart'], ['screen further away (larger <i>D</i>)', 'fringes further apart'], ['slits further apart (larger <i>a</i>)', 'fringes closer together'], ['apparatus in water', 'λ becomes λ/<i>n</i>: fringes closer together, more fringes seen'], ['white light', 'central fringe white; other fringes coloured (violet inside, red outside)'], ['light from one slit delayed by λ/2', 'bright and dark fringes swap places; the separation does not change'], ['thin transparent film over one slit', 'the whole pattern shifts towards that slit by (<i>n</i> − 1)<i>t</i>/λ fringes']])}
 ${sim('young', 'Young’s two-slit experiment', 'Change the wavelength, the slit separation and the screen distance, and measure the fringe separation. Then cover one slit, put the apparatus in water, or place a thin glass film over one slit and watch the pattern move.')}
+${rw({
+  id: 'ls-24-rw-laser',
+  meta: 'Laser on a wall · STPM 2024 Paper 3 Q10',
+  title: 'How far apart are two fringes on the wall?',
+  lead: `<p>Shine a laser through a double slit onto a wall a few metres away and you see a row of bright fringes separated by dark gaps. This is how the wavelength of light is measured in the laboratory: measure the fringe separation Δ<i>x</i> with a metre rule, then λ = Δ<i>x</i><i>a</i>/<i>D</i>.</p><p>Exam questions often ask for the distance between two particular fringes, for example the <b>3rd dark</b> fringe and the <b>9th bright</b> fringe (STPM 2024). On a real wall you would measure each fringe from the central bright fringe O, and then subtract.</p>`,
+  video: { id: 'CxS8cfqg1a0', title: 'Wave Optics: Diffraction and Interference Experiment' },
+  watch: 'find the bright central fringe of the double-slit pattern, then count the bright fringes outwards on one side.',
+  physics: ul([`The central bright fringe O is the <b>0th</b> bright fringe.`, `The <i>n</i>th bright fringe is <i>n</i>Δ<i>x</i> from O; the <i>n</i>th dark fringe is (<i>n</i> − ½)Δ<i>x</i> from O.`, `Same side of O: subtract the two distances. Opposite sides: add them.`]) + sim('laserwall', 'Laser on a wall: measure between two fringes', 'Choose a laser, the slit separation and the distance to the wall. Pick any two fringes A and B and read their distance on the ruler. Press <b>Load STPM 2024 Q10</b> to see the exam question on a real wall.'),
+  qs: [
+    { q: `A red laser (λ = 650 nm) passes through two slits 0.50 mm apart onto a wall 2.0 m away. What is the distance between the 2nd dark fringe and the 5th bright fringe on the same side of the central fringe?`, opts: ['9.1 mm', '7.8 mm', '13.0 mm', '3.9 mm'], ans: 0,
+      why: `<p>Δ<i>x</i> = ${fr('(650 × 10<sup>−9</sup>)(2.0)', '0.50 × 10<sup>−3</sup>')} = 2.6 mm. 5th bright: 5Δ<i>x</i>; 2nd dark: 1.5Δ<i>x</i>. Distance = 3.5Δ<i>x</i> = <b>9.1 mm</b>. 7.8 mm is (5 − 2)Δ<i>x</i>, the trap.</p>` },
+    { q: `On a wall, the 1st bright fringes on the two sides of the central fringe are 4.0 mm apart. What is the fringe separation?`, opts: ['1.0 mm', '2.0 mm', '4.0 mm', '8.0 mm'], ans: 1,
+      why: `<p>Each 1st bright fringe is Δ<i>x</i> from O, on opposite sides: Δ<i>x</i> + Δ<i>x</i> = 4.0 mm, so Δ<i>x</i> = <b>2.0 mm</b>.</p>` },
+    { q: `The 3rd dark fringe and the 9th bright fringe are on <b>opposite</b> sides of the central bright fringe. The fringe separation is Δ<i>x</i>. What is the distance between them?`, opts: ['6.5Δ<i>x</i>', '9Δ<i>x</i>', '11.5Δ<i>x</i>', '12Δ<i>x</i>'], ans: 2,
+      why: `<p>3rd dark: 2.5Δ<i>x</i> from O; 9th bright: 9Δ<i>x</i> from O. Opposite sides, so add: 2.5Δ<i>x</i> + 9Δ<i>x</i> = <b>11.5Δ<i>x</i></b>. On the same side it would be 6.5Δ<i>x</i>.</p>` }
+  ],
+  src: `Video: laboratory demonstration from an independent channel; preview before use in class. <a href="https://www.youtube.com/watch?v=CxS8cfqg1a0" target="_blank" rel="noopener">youtube.com/watch?v=CxS8cfqg1a0</a>`
+})}
 ${example('24.3.1', `Light of wavelength 550 nm falls on two slits 50 μm apart. The second-order bright fringe is 4.5 cm from the central maximum. How far is the screen from the slits?`,
   steps([`<i>x</i><sub>2</sub> = ${fr('2λ<i>D</i>', '<i>a</i>')} ⇒ 4.5 × 10<sup>−2</sup> = ${fr('2(550 × 10<sup>−9</sup>)<i>D</i>', '50 × 10<sup>−6</sup>')} ⇒ <i>D</i> = <b>2.0 m</b>`]))}
 ${example('24.3.2', `Light passes through two slits 0.050 mm apart. On a wall 1.0 m away, the second-order bright fringe is 2.4 cm from the central maximum. Find (a) the wavelength, (b) the distance between the second- and third-order bright fringes.`,
@@ -288,6 +306,69 @@ ${exercises('Exercises', [
   });
 
   // ---------- 3. thin film colours ----------
+  // ---------- simulation: a laser on a wall, distance between any two fringes ----------
+  window.PhysiQSims.add('laserwall', function (root) {
+    const { COL, fmt, el, slider, button, canvas, text, readouts, loop } = window.PhysiQSims.U;
+    const LAS = [['red laser 650 nm', 650], ['green laser 532 nm', 532], ['blue 460 nm (STPM 2024)', 460], ['violet laser 405 nm', 405]];
+    const S = { lam: 650, a: 0.5, D: 2.0, f1: { b: 0, n: 3 }, f2: { b: 1, n: 9 }, opp: false, t: 0 };
+    const colOf = l => l >= 620 ? [255, 40, 30] : l >= 570 ? [255, 200, 0] : l >= 495 ? [40, 255, 60] : l >= 450 ? [40, 110, 255] : [150, 60, 255];
+    const pre = el('div', 'sm-row sm-pre'); root.appendChild(pre);
+    const lb = LAS.map(([n, l], i) => button(pre, n, 'sm-chip' + (i ? '' : ' on'), () => { S.lam = l; lb.forEach((b, j) => b.classList.toggle('on', j === i)); }));
+    const ctl = el('div', 'sm-row'); root.appendChild(ctl);
+    const sa = slider(ctl, 'slit separation <i>a</i>', 0.2, 1.5, 0.05, S.a, 'mm', v => { S.a = v; });
+    const sD = slider(ctl, 'slits to wall <i>D</i>', 1, 4, 0.1, S.D, 'm', v => { S.D = v; });
+    const pick = el('div', 'sm-row'); root.appendChild(pick);
+    const sel = (lab, f) => {
+      const w = el('label', 'sm-sl'); w.innerHTML = `<span class="sm-sl-l">${lab}</span>`;
+      const s1 = document.createElement('select'), s2 = document.createElement('select');
+      [s1, s2].forEach(s => { s.style.cssText = 'font:600 14px var(--ui, sans-serif);padding:5px 8px;border-radius:9px;border:1px solid #CFD3C2;background:#fff;color:#1C2230;'; });
+      for (let n = 0; n <= 10; n++) s1.add(new Option(n === 0 ? 'central (0th)' : n + (n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'), n));
+      s2.add(new Option('bright', 1)); s2.add(new Option('dark', 0));
+      const sync = () => { s1.value = f.n; s2.value = f.b; s1.options[0].disabled = !f.b; };
+      s1.addEventListener('change', () => { f.n = +s1.value; }); s2.addEventListener('change', () => { f.b = +s2.value; if (!f.b && f.n === 0) f.n = 1; sync(); });
+      w.appendChild(s1); w.appendChild(s2); pick.appendChild(w); sync(); return sync;
+    };
+    const sync1 = sel('fringe A', S.f1), sync2 = sel('fringe B', S.f2);
+    const bar = el('div', 'sm-row sm-pre'); root.appendChild(bar);
+    const sideB = [['same side of O', false], ['opposite sides of O', true]].map(([n, v], i) => button(bar, n, 'sm-chip' + (i ? '' : ' on'), () => { S.opp = v; sideB.forEach((b, j) => b.classList.toggle('on', j === i)); }));
+    button(bar, 'Load STPM 2024 Q10', 'sm-main', () => { S.lam = 460; S.a = 1.4; S.D = 3.0; sa.set(1.4); sD.set(3.0); Object.assign(S.f1, { b: 0, n: 3 }); Object.assign(S.f2, { b: 1, n: 9 }); sync1(); sync2(); S.opp = false; sideB.forEach((b, j) => b.classList.toggle('on', j === 0)); lb.forEach((b, j) => b.classList.toggle('on', j === 2)); });
+    const cv = canvas(root); const ro = readouts(root);
+    const pos = f => f.b ? f.n : f.n - 0.5; // distance from O in fringe separations
+    const name = f => f.b ? (f.n === 0 ? 'central bright fringe' : `${f.n}${f.n === 1 ? 'st' : f.n === 2 ? 'nd' : f.n === 3 ? 'rd' : 'th'} bright`) : `${f.n}${f.n === 1 ? 'st' : f.n === 2 ? 'nd' : f.n === 3 ? 'rd' : 'th'} dark`;
+    function draw() {
+      const ctx = cv.ctx, { w, h } = cv.size(0.46, 280, 400); ctx.clearRect(0, 0, w, h);
+      const dx = S.lam * 1e-9 * S.D / (S.a * 1e-3) * 1e3; // mm
+      const pA = (S.opp ? -1 : 1) * pos(S.f1), pB = pos(S.f2), span = 11.5, cx = S.opp ? w * 0.5 : w * 0.16, k = (w - (S.opp ? w * 0.5 : w * 0.16) - 18) / span; // px per fringe separation
+      const X = p => cx + p * k, wy = h * 0.14, wh = h * 0.42, my = wy + wh / 2;
+      // wall
+      ctx.fillStyle = '#16191F'; ctx.fillRect(0, 0, w, h); ctx.fillStyle = '#20242C'; ctx.fillRect(0, wy - 16, w, wh + 32);
+      const [r, g, b] = colOf(S.lam), env = p => { const be = Math.PI * p / 18; return Math.abs(be) < 1e-6 ? 1 : Math.pow(Math.sin(be) / be, 2); };
+      for (let x = 0; x < w; x++) {
+        const p = (x - cx) / k, I = Math.pow(Math.cos(Math.PI * p), 2) * env(p); if (I < 0.01) continue;
+        const gr = ctx.createLinearGradient(0, my - wh / 2, 0, my + wh / 2);
+        gr.addColorStop(0, `rgba(${r},${g},${b},0)`); gr.addColorStop(0.5, `rgba(${Math.min(255, r + 120 * I)},${Math.min(255, g + 120 * I)},${Math.min(255, b + 120 * I)},${0.95 * I})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = gr; ctx.fillRect(x, my - wh / 2, 1, wh);
+      }
+      if (w > 520) text(ctx, 'laser fringes on the wall (zoomed in)', 12, 20, { fs: 12.5, c: '#B9C4AE', b: 1 });
+      // ruler in mm
+      const ry = wy + wh + 30, mmPx = k / dx; ctx.fillStyle = '#E9DFB8'; ctx.fillRect(0, ry - 2, w, 34); ctx.strokeStyle = '#3B3220'; ctx.lineWidth = 1;
+      const step = mmPx > 9 ? 1 : mmPx > 4 ? 2 : 5;
+      for (let mm = -Math.ceil(cx / mmPx); mm * mmPx + cx < w; mm++) { if (mm % step) continue; const x = cx + mm * mmPx, big = mm % (step * 5) === 0; ctx.beginPath(); ctx.moveTo(x, ry - 2); ctx.lineTo(x, ry + (big ? 14 : 7)); ctx.stroke(); if (big) text(ctx, String(mm), x, ry + 27, { a: 'center', fs: 11, c: '#3B3220', b: 1 }); }
+      text(ctx, 'mm', w - 8, ry + 27, { a: 'right', fs: 11, c: '#3B3220', b: 1 });
+      // O and the two chosen fringes
+      const tag = (p, lab, col, up) => { const x = X(p); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.strokeRect(x - k * 0.22, wy - 6, k * 0.44, wh + 12); ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(x, wy + wh + 6); ctx.lineTo(x, ry - 2); ctx.stroke(); ctx.setLineDash([]); text(ctx, lab, x, up ? wy - 12 : wy + wh + 22, { a: 'center', fs: 12.5, b: 1, c: col }); };
+      tag(0, 'O', '#FFFFFF', true);
+      tag(pA, 'A', '#B7A2F0', !(pA === 0)); tag(pB, 'B', '#D5DC3B', !(pB === 0) && Math.abs(pB - pA) > 0.6);
+      const y2 = h - 22, xa = X(pA), xb = X(pB);
+      if (Math.abs(xb - xa) > 8) { ctx.strokeStyle = '#A6D64A'; ctx.fillStyle = '#A6D64A'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(xa, y2); ctx.lineTo(xb, y2); ctx.stroke(); [[xa, xb], [xb, xa]].forEach(([p, q]) => { const s = Math.sign(q - p); ctx.beginPath(); ctx.moveTo(p, y2); ctx.lineTo(p + 10 * s, y2 - 6); ctx.lineTo(p + 10 * s, y2 + 6); ctx.closePath(); ctx.fill(); }); }
+      const dist = Math.abs(pB - pA);
+      text(ctx, `${fmt(dist, 1)}Δx = ${fmt(dist * dx, 2)} mm`, (xa + xb) / 2, y2 - 9, { a: 'center', fs: 14, b: 1, c: '#A6D64A' });
+      const sgn = (S.opp ? 'opposite sides: add' : 'same side: subtract');
+      ro([['Δx = λD/a', fmt(dx, 3) + ' mm', 'hl'], ['A: ' + name(S.f1), (S.f1.b ? S.f1.n : '(' + S.f1.n + ' − ½)') + 'Δx = ' + fmt(pos(S.f1), 1) + 'Δx from O'], ['B: ' + name(S.f2), (S.f2.b ? S.f2.n : '(' + S.f2.n + ' − ½)') + 'Δx = ' + fmt(pos(S.f2), 1) + 'Δx from O'], ['distance AB (' + sgn + ')', fmt(dist, 1) + 'Δx = ' + fmt(dist * dx, 2) + ' mm', 'hl']]);
+    }
+    loop(cv, () => draw());
+  });
+
   window.PhysiQSims.add('thinfilm', function (root) {
     const { COL, fmt, el, slider, button, canvas, text, readouts } = window.PhysiQSims.U;
     const S = { t: 300, n: 1.33, two: false };

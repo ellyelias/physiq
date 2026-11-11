@@ -129,7 +129,7 @@
     { sem: '3', ch: 23, title: 'The undersea cables that carry the internet', physics: 'Light travels along optical fibres by total internal reflection; undersea fibre-optic cables link Malaysia with the rest of Asia.',
       videos: [{ id: 'tYIht5M3T2A', title: 'The Undersea Lifeline: The Hidden Network Powering Asia', type: 'Regional documentary' },
         { id: '95rQjA9n270', title: 'Fibre optics explained', type: 'Explainer' }] },
-    { sem: '3', ch: 24, title: 'Diffraction and interference with a laser', physics: 'A laser through slits gives bright and dark fringes: constructive interference where the path difference is nλ, destructive where it is (n + ½)λ.',
+    { sem: '3', ch: 24, title: 'Diffraction and interference with a laser', card: 'ls-24-rw-laser', physics: 'A laser through slits gives bright and dark fringes: constructive interference where the path difference is nλ, destructive where it is (n + ½)λ.',
       videos: [{ id: 'CxS8cfqg1a0', title: 'Wave Optics: Diffraction and Interference Experiment', type: 'Optics experiment' }] },
     { sem: '3', ch: 25, title: 'X-rays in medicine and industry', physics: 'Fast electrons hitting a metal target produce X-rays; higher-energy (hard) X-rays are more penetrating than soft X-rays, which is used in radiography and industrial inspection.',
       videos: [{ id: 'epw17hrE0lw', title: 'X-ray Production', channel: 'Radiology Series', type: 'Medical technology' },
