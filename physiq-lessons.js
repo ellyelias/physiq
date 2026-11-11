@@ -103,7 +103,7 @@ ${qs}
     'LESSON-S3-22': { sem: '3', chapter: 22, title: 'Sound Waves', topics: ['S3-22.1 Propagation of Sound Waves', 'S3-22.2 Sources of Sound', 'S3-22.3 Intensity Level of Sound', 'S3-22.4 Beat', 'S3-22.5 Doppler Effect'], sims: 5,
       toc: [['ls-21-1', '22.1 Propagation'], ['ls-21-2', '22.2 Sources of sound'], ['ls-21-3', '22.3 Intensity level'], ['ls-21-4', '22.4 Beats'], ['ls-21-5', '22.5 Doppler effect']] },
     'LESSON-S3-23': { sem: '3', chapter: 23, title: 'Geometrical Optics', topics: ['S3-23.1 Spherical Mirrors', 'S3-23.2 Refraction at Spherical Surfaces', 'S3-23.3 Thin Lenses'], sims: 7,
-      toc: [['ls-22-1', '23.1 Spherical mirrors'], ['ls-22-2', '23.2 Refraction at spherical surfaces'], ['ls-22-3', '23.3 Thin lenses'], ['ls-22-4', 'Past-year questions']] },
+      toc: [['ls-22-sc', 'Sign convention reminder'], ['ls-22-1', '23.1 Spherical mirrors'], ['ls-22-2', '23.2 Refraction at spherical surfaces'], ['ls-22-3', '23.3 Thin lenses'], ['ls-22-4', 'Past-year questions']] },
     'LESSON-S3-24': { sem: '3', chapter: 24, title: 'Wave Optics', topics: ['S3-24.1 Huygens\'s Principle', 'S3-24.2 Interference', 'S3-24.3 Two-slit Interference Pattern', 'S3-24.4 Interference in A Thin Film', 'S3-24.5 Diffraction by A Single Slit', 'S3-24.6 Diffraction Gratings', 'S3-24.7 Polarisation', 'S3-24.8 Optical Waveguides'], sims: 7,
       toc: [['ls-23-1', '24.1 Huygens'], ['ls-23-2', '24.2 Interference'], ['ls-23-3', '24.3 Two slits'], ['ls-23-4', '24.4 Thin film'], ['ls-23-5', '24.5 Single slit'], ['ls-23-6', '24.6 Grating'], ['ls-23-7', '24.7 Polarisation'], ['ls-23-8', '24.8 Waveguides']] },
     'LESSON-S3-25': { sem: '3', chapter: 25, title: 'Quantum Physics', topics: ['S3-25.1 Photon', 'S3-25.2 Wave-Particle Duality', 'S3-25.3 Atomic Structure', 'S3-25.4 X-rays', 'S3-25.5 Nanoscience'], sims: 6,
@@ -129,7 +129,7 @@ ${qs}
   };
   Object.values(LESSONS).forEach(L0 => { L0.label = 'Full notes · Cikgu Suhaili'; });
   const BODY = {}, loading = {};
-  const VER = '20261111c';
+  const VER = '20261111d';
   function register(k, o) { BODY[k] = o; }
   function load(k, done) {
     if (BODY[k]) return done();
