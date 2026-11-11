@@ -10,7 +10,7 @@
 (function () {
   'use strict';
   const SOL = {}, loaded = {}, waiting = {};
-  const VER = '20261023a';
+  const VER = '20261111c';
 
   function add(k, sets) { SOL[k] = sets; }
 

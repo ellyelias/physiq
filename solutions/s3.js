@@ -240,10 +240,10 @@
     [
       ['**Two-slit interference:** the bright fringes are **equally spaced, of almost equal width and of almost equal intensity**.',
         '**Single-slit diffraction:** the **central maximum is much brighter** than the other maxima and **twice as wide** as each of them; the intensity of the other maxima falls off quickly.'],
-      ['Fringe separation Δx = λD/a = (589 × 10^(-9))(1.5) / (0.20 × 10^(-3))',
+      ['Fringe separation Δy = λD/a = (589 × 10^(-9))(1.5) / (0.20 × 10^(-3))',
         '= 4.4 × 10^(-3) m = **4.4 mm**',
-        'In water the wavelength becomes λ/n = 589/1.33 = 443 nm, so Δx is divided by 1.33:',
-        'Δx = 4.42/1.33 = **3.3 mm** (the fringes move closer together)'],
+        'In water the wavelength becomes λ/n = 589/1.33 = 443 nm, so Δy is divided by 1.33:',
+        'Δy = 4.42/1.33 = **3.3 mm** (the fringes move closer together)'],
       ['d = 1/600 mm = 1.667 × 10^(-6) m',
         'd sin θ = nλ, and sin θ ≤ 1 ⇒ n ≤ d/λ = 1.667 × 10^(-6) / (500 × 10^(-9)) = 3.33',
         'n must be a whole number, so the highest order is the **third order (n = 3)**'],
