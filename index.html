@@ -1170,7 +1170,8 @@
 <script src="physiq-realworld.js?v=20261115a"></script>
 <script src="physiq-clinic.js?v=20261111c"></script>
 <script src="physiq-clinic-s1.js?v=20261102c"></script>
-<script src="physiq-revision.js?v=20261111b"></script>
+<script src="physiq-revision.js?v=20261116a"></script>
+<script src="physiq-sketch.js?v=20261116a"></script>
 <script>
 (function(){
 
@@ -7303,8 +7304,8 @@ const NOTES_EXTRA = (function(){
       <button type="button" class="sym-btn sym-edit rv-sym" data-rq="${q}" data-act="clear" aria-label="Clear this box">Clear</button></div>`;
   }
   function rvPhotoRow(q){
-    return `<div class="sp-photo-row"><label class="sp-photo-btn"><span class="pt-when-type">Add photo of handwritten working</span><span class="pt-when-paper rv-snap-l" data-rq="${q}">Snap my answer to Question ${q}</span><input type="file" accept="image/*" multiple class="rv-photo-in" data-rq="${q}" hidden></label>
-      <span class="sp-photo-hint pt-when-type">For sketches, graphs and diagrams. The photos go into your PDF.</span>
+    return `<div class="sp-photo-row"><label class="sp-photo-btn"><span class="pt-when-type">Add photo of handwritten working</span><span class="pt-when-paper rv-snap-l" data-rq="${q}">Snap my answer to Question ${q}</span><input type="file" accept="image/*" multiple class="rv-photo-in" data-rq="${q}" hidden></label><button type="button" class="sp-photo-btn pt-when-type sk-draw" data-kind="rv" data-q="${q}">Draw my answer</button>
+      <span class="sp-photo-hint pt-when-type">For sketches, graphs and diagrams: draw them in the app or add a photo. Both go into your PDF.</span>
       <span class="sp-photo-hint pt-when-paper">Write all parts of Question ${q} on paper, then snap it. Add another photo for each extra page.</span></div>
       <div class="pt-photos rv-photos" data-rq="${q}"></div>`;
   }
@@ -10823,8 +10824,8 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     return `<textarea class="pt-box${sub ? ' pt-box-sub' : ''}" data-q="${n}" data-k="${n}|${j}" rows="3" maxlength="4000" placeholder="Type your answer and working here" aria-label="Your answer for Question ${n}, part ${j + 1}"></textarea>`;
   }
   function ptSelfHTML(n, total){
-    return `<div class="sp-photo-row"><label class="sp-photo-btn"><span class="pt-when-type">Add photo of handwritten working</span><span class="pt-when-paper pt-snap-l" data-q="${n}">Snap my answer to Question ${n}</span><input type="file" accept="image/*" multiple class="pt-photo-in" data-q="${n}" hidden></label>
-      <span class="sp-photo-hint pt-when-type">For sketches, graphs and diagrams. The photos go into your PDF.</span>
+    return `<div class="sp-photo-row"><label class="sp-photo-btn"><span class="pt-when-type">Add photo of handwritten working</span><span class="pt-when-paper pt-snap-l" data-q="${n}">Snap my answer to Question ${n}</span><input type="file" accept="image/*" multiple class="pt-photo-in" data-q="${n}" hidden></label><button type="button" class="sp-photo-btn pt-when-type sk-draw" data-kind="pt" data-q="${n}">Draw my answer</button>
+      <span class="sp-photo-hint pt-when-type">For sketches, graphs and diagrams: draw them in the app or add a photo. Both go into your PDF.</span>
       <span class="sp-photo-hint pt-when-paper">Write all parts of Question ${n} on paper, then snap it. Add another photo for each extra page.</span></div>
       <div class="pt-photos" data-q="${n}"></div>
       <div class="pt-self"><label for="pt-self-${n}">My own marks for Question ${n} (self-check, optional)</label>
@@ -10868,6 +10869,15 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   }
 
   let ptState = {pid: null, data: {ans: {}, self: {}}, photos: {}, last: {}, timer: null};
+  // "Draw my answer": sketch pad for students who type their answers (revision papers and past year papers)
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('.sk-draw'); if (!b || !window.PhysiQSketch) return;
+    const q = b.dataset.q;
+    window.PhysiQSketch.open('Draw your answer to Question ' + q, url => {
+      if (b.dataset.kind === 'rv'){ if (!rvState) return; (rvState.photos[q] = rvState.photos[q] || []).push(url); rvPhotosChanged(); rvRenderPhotos($('#tt-written-body'), q); }
+      else { (ptState.photos[q] = ptState.photos[q] || []).push(url); ptPhotosChanged(); ptRenderPhotos(q); }
+    });
+  });
 
   function ptQueue(el){
     const d = ptState.data;
