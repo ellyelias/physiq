@@ -7502,8 +7502,8 @@ const NOTES_EXTRA = (function(){
     }).join('');
     const key = p.mcq.map((q,i)=>`<td style="padding:4px 6px;text-align:center;border:1px solid var(--line);"><b>${i+1}</b><br>${'ABCD'[q.correctIndex]}</td>`).join('');
     return `<p class="status-msg" style="margin:6px 0;"><b>Data:</b> ${revText(p.data)}</p>
-      <h3 style="margin:14px 0 6px;color:var(--navy);">Section A · answer key</h3>
-      <div style="overflow-x:auto;"><table style="border-collapse:collapse;font-size:13px;"><tr>${key}</tr></table></div>${A}
+      ${p.mcq.length ? `<h3 style="margin:14px 0 6px;color:var(--navy);">Section A · answer key</h3>
+      <div style="overflow-x:auto;"><table style="border-collapse:collapse;font-size:13px;"><tr>${key}</tr></table></div>${A}` : ''}
       ${revWrittenHTML(p, true)}`;
   }
   function renderRevSchemes(){
@@ -7565,11 +7565,11 @@ const NOTES_EXTRA = (function(){
     $('#tt-rev-list').innerHTML = rps.map(p=>{
       const k = p.sem + ':' + p.id, mk = 'r:' + p.sem + ':' + revTestName(p);
       return `<div style="padding:8px 0;border-top:1px solid var(--line);">
-        <div style="font-weight:700;color:var(--navy);">Semester ${escapeHtml(String(p.sem))} · ${escapeHtml(p.title)}${line(mk, 'r:'+k)}</div>
+        <div style="font-weight:700;color:var(--navy);">Semester ${escapeHtml(String(p.sem))} · ${escapeHtml(p.title)}${p.mcq && p.mcq.length ? line(mk, 'r:'+k) : ''}</div>
         <div style="font-size:12.5px;color:var(--sub);margin:4px 0 6px;">${escapeHtml(p.blurb)}</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          <button class="btn-primary tt-start" data-kind="r" data-key="${k}" style="padding:6px 14px;font-size:13px;">${m && m.stats[mk] ? 'Section A · try again' : 'Section A · start test'}</button>
-          ${rvBtn('r', k, mk)}
+          ${p.mcq && p.mcq.length ? `<button class="btn-primary tt-start" data-kind="r" data-key="${k}" style="padding:6px 14px;font-size:13px;">${m && m.stats[mk] ? 'Section A · try again' : 'Section A · start test'}</button>
+          ${rvBtn('r', k, mk)}` : ''}
           <button class="btn-ghost tt-written" data-key="${k}" style="padding:6px 14px;font-size:13px;">Sections B &amp; C</button></div></div>`;
     }).join('');
     $$('#panel-tests .tt-start').forEach(b=>b.addEventListener('click', ()=>startTest(b.dataset.kind, b.dataset.key)));
