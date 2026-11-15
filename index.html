@@ -7558,10 +7558,10 @@ const NOTES_EXTRA = (function(){
         <span style="flex:1 1 200px;font-weight:700;color:var(--navy);">Semester ${sem} — Set ${n}${line('s:'+sem+':'+n, 's:'+sem+':'+n)}</span>
         ${btn('s', sem+':'+n, 's:'+sem+':'+n)}</div>`;
     }).join('');
-    // revision papers are listed in every semester view (repeat students may have the app on another semester)
-    const rps = revPapers(null).slice().sort((a,b)=> (String(a.sem) === sem ? -1 : 0) - (String(b.sem) === sem ? -1 : 0));
+    // only the revision papers of the semester chosen in the selector
+    const rps = revPapers(sem);
     $('#tt-rev-wrap').style.display = rps.length ? '' : 'none';
-    $('#tt-sem-label3').textContent = 'all semesters';
+    $('#tt-sem-label3').textContent = 'Semester ' + sem;
     $('#tt-rev-list').innerHTML = rps.map(p=>{
       const k = p.sem + ':' + p.id, mk = 'r:' + p.sem + ':' + revTestName(p);
       return `<div style="padding:8px 0;border-top:1px solid var(--line);">
