@@ -64,3 +64,9 @@
   .nn-item.c7{flex-direction:row;align-items:center;min-height:84px;}
 }
 @media (prefers-reduced-motion: reduce){.cc-pts li{transition:none;}}
+
+/* topic video (Cikgu Suhaili's YouTube explainer) */
+.cc-vids{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);}
+.cc-vh{font-weight:700;font-size:14px;letter-spacing:.02em;margin-bottom:8px;}
+.cc-vrow{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;}
+.cc-vrow .rl-vid.rl-tall{max-width:230px;flex:1 1 200px;margin:0;}

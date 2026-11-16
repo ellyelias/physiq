@@ -604,6 +604,13 @@
   const reduce = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
   const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.target._cc) e.target._cc.vis = e.isIntersecting; }), { rootMargin: '100px' }) : null;
 
+  // Cikgu Suhaili's own YouTube explainer for this topic, played inside PhysiQ (same tap-to-play player as Physics in Real Life)
+  function vidBlock(t) {
+    if (!t.vids || !t.vids.length) return '';
+    return `<div class="cc-vids"><div class="cc-vh">Watch the video</div><div class="cc-vrow">${t.vids.map(v => `<div class="rl-vid rl-tall"><button type="button" class="rl-play" data-rl-play="${esc(v.id)}" aria-label="Play video: ${esc(v.title)}"><img src="https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button>
+<div class="rl-vcap"><span>${esc(v.title)} · Cikgu Suhaili</span> <a href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">Open in YouTube ↗</a></div></div>`).join('')}</div></div>`;
+  }
+
   function widget(key) {
     const t = TOPICS[key], sc = SCENES[key](); if (sc.reset) sc.reset();
     const root = document.createElement('div'); root.className = 'cc-w'; root.dataset.topic = key;
@@ -617,7 +624,7 @@
 <div class="cc-ctl">${segs}${sls}${tgs}</div>
 <div class="cc-ctl cc-run"><button type="button" class="cc-btn cc-main" data-a="play">${reduce ? 'Play' : 'Pause'}</button><button type="button" class="cc-btn" data-a="restart">Restart</button>${fsOk ? '<button type="button" class="cc-btn" data-a="full">Full screen</button>' : ''}</div></div>
 <aside class="cc-side"><div class="cc-eq"><div>${t.eq}</div><small>${t.eqn}</small></div><ol class="cc-pts">${t.pts.map(p => `<li><span>${p}</span></li>`).join('')}</ol>
-<div class="cc-ctl"><button type="button" class="cc-btn" data-a="next">Next point</button><button type="button" class="cc-btn" data-a="all">Show all</button></div></aside></div>`;
+<div class="cc-ctl"><button type="button" class="cc-btn" data-a="next">Next point</button><button type="button" class="cc-btn" data-a="all">Show all</button></div></aside></div>${vidBlock(t)}`;
     const inst = { root, sc, cv: root.querySelector('canvas'), play: !reduce, vis: true, step: -1 };
     root._cc = inst;
     const playBtn = root.querySelector('[data-a="play"]'), lis = [...root.querySelectorAll('.cc-pts li')];

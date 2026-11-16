@@ -213,7 +213,7 @@
     } }));
 
   /* ---------- Ch 8 Ladder statics ---------- */
-  add('ladder', { lesson: 'LESSON-8', ch: 8, title: 'The ladder: moments and the floor force', sub: 'Uniform ladder against a smooth wall',
+  add('ladder', { vids: [{ id: 'rkgE3rdxwvw', title: 'Why Three Forces Meet at One Point' }], lesson: 'LESSON-8', ch: 8, title: 'The ladder: moments and the floor force', sub: 'Uniform ladder against a smooth wall',
     eq: 'Moment = F × d<sub>⊥</sub>', eqn: 'd⊥ is the perpendicular distance from the pivot to the line of action',
     pts: ['Take moments about the foot of the ladder, so the unknown floor forces have no moment.', 'Moment = force × <b>perpendicular distance</b> from the pivot to the line of action, not the distance along the ladder.',
       'Weight at the midpoint: perpendicular distance (L/2) cos θ. Smooth-wall reaction (horizontal): perpendicular distance L sin θ.',
@@ -358,7 +358,7 @@
     } }));
 
   /* ---------- Ch 8 Lamina with a hole (Statics revision paper Q6(b)) ---------- */
-  add('lamhole', { lesson: 'LESSON-8', ch: 8, title: 'Lamina with a hole: where is G?', sub: 'Treat the hole as a negative area, then hang the lamina from A',
+  add('lamhole', { vids: [{ id: '0WI6KiwTTWk', title: 'Centre of Gravity and Toppling' }], lesson: 'LESSON-8', ch: 8, title: 'Lamina with a hole: where is G?', sub: 'Treat the hole as a negative area, then hang the lamina from A',
     eq: 'x̄ = ' + FRAC('A<sub>1</sub>x<sub>1</sub> − A<sub>2</sub>x<sub>2</sub>', 'A<sub>1</sub> − A<sub>2</sub>'), eqn: 'Uniform lamina: weight ∝ area. A hole is a negative area.',
     pts: ['Areas: square 40 × 40 = 1600 cm<sup>2</sup>, hole π(10)<sup>2</sup> = 314.2 cm<sup>2</sup>. Areas alone are only the first step.',
       'Take moments about O (along the line parallel to AB). The square’s weight acts at O, so it has no moment.',
@@ -430,7 +430,7 @@
     } }));
 
   /* ---------- Ch 8 Toppling on a slope (Statics revision paper Q6(c)) ---------- */
-  add('topple', { lesson: 'LESSON-8', ch: 8, title: 'Toppling on a slope', sub: 'Follow the vertical line through G',
+  add('topple', { vids: [{ id: '0WI6KiwTTWk', title: 'Centre of Gravity and Toppling' }], lesson: 'LESSON-8', ch: 8, title: 'Toppling on a slope', sub: 'Follow the vertical line through G',
     eq: 'tan θ = ' + FRAC('width / 2', 'height / 2'), eqn: 'About to topple: the vertical through G passes through the lower edge',
     pts: ['As θ increases, the vertical line through G moves towards the lower edge of the block.',
       'While this line is inside the base, the weight’s moment about the lower edge turns the block <b>back</b>: it is stable.',
