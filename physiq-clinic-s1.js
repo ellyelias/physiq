@@ -1,6 +1,6 @@
 /* PhysiQ Concept Clinic, Semester 1: animations built from the mistakes in the marked STPM 2022 Paper 1 scripts.
    Topics: projectiles (Ch 2), terminal velocity and momentum signs (Ch 3), conical pendulum (Ch 5), g and r (Ch 6),
-   ladder statics (Ch 8), force–extension energy (Ch 9), adiabatic compression (Ch 11), conduction and convection (Ch 12).
+   ladder statics, plank on two supports, lamina with a hole and toppling (Ch 8), force–extension energy (Ch 9), adiabatic compression (Ch 11), conduction and convection (Ch 12).
    Registers with physiq-clinic.js, which must load first. */
 (function () {
   'use strict';
@@ -258,6 +258,231 @@
           L(['Three forces: W, S and R'], { w: 700 }); if (st >= 5) { L(['Their lines of action'], { c: C.gold, w: 700 }); L(['meet at one point P.'], { c: C.gold, w: 700 }); y += fs * 0.4; L(['So R is not vertical:'], { size: fs * 0.9 }); L(['it points from the foot to P.'], { size: fs * 0.9 }); L([`tan α = 2 tan θ → α = ${ang.toFixed(1)}°`], { size: fs * 0.9, c: C.red, w: 700 }); }
         }
       }
+    } }));
+
+  /* ---------- Ch 8 Plank on two supports (Statics revision paper Q3) ---------- */
+  add('plank', { lesson: 'LESSON-8', ch: 8, title: 'Plank on two supports: when does it tip?', sub: 'Moments about a support, and R = 0 at the point of tipping',
+    eq: 'Σ clockwise moments = Σ anticlockwise moments', eqn: 'Take moments about the support whose force you do not need',
+    pts: ['Uniform plank: the weight acts at the centre, 4.0/2 = <b>2.0 m</b> from A (not 20 m).',
+      'Take moments about P, so R<sub>P</sub> has no moment: R<sub>Q</sub>(2.5) = 200(1.5), so R<sub>Q</sub> = 120 N.',
+      'Then resolve vertically: R<sub>P</sub> = 200 − 120 = 80 N.',
+      'As the boy walks beyond Q, his moment about Q grows, so R<sub>P</sub> gets smaller and R<sub>Q</sub> gets larger.',
+      'On the point of tipping the plank just leaves P: <b>R<sub>P</sub> = 0</b>, and Q becomes the pivot.',
+      'Moments about Q: 400x = 200(1.0), so x = <b>0.50 m</b> beyond Q.'],
+    segs: [['mode', [['reac', 'Reactions at P and Q'], ['tip', 'Boy walks beyond Q']]]] },
+  () => ({ mode: 'reac', t: 0, reset() { this.t = 0; }, set(k, v) { this[k] = v; this.t = 0; },
+    draw(ctx, w, h, dt) {
+      const fs = FS(w); this.t += dt;
+      const x0 = w * 0.05, Lp = w * 0.5, s = Lp / 4, py = h * 0.5, th = Math.max(8, h * 0.022);
+      const X = m => x0 + m * s, mP = 0.5, mQ = 3.0, mG = 2.0;
+      const tip = this.mode === 'tip';
+      // boy position (m beyond Q) and tilt
+      let bx = 0, tilt = 0;
+      if (tip) {
+        const tw = Math.max(0, this.t - 1.2); bx = Math.min(0.78, tw * 0.16);
+        if (bx > 0.5) tilt = Math.min(8, (bx - 0.5) * 60) * d2r;
+        if (tw * 0.16 > 0.78 + 0.5) this.t = 0;
+      }
+      const RPv = tip ? Math.max(0, (200 - 400 * bx) / 2.5) : 80, RQv = tip ? 600 - RPv : 120;
+      const st = tip ? 9 : Math.floor(this.t / 1.1);
+      // pivot about Q for tilt
+      const Qx = X(mQ), Qy = py + th / 2;
+      const rot = (x, y) => { const dx = x - Qx, dy = y - Qy, c = Math.cos(tilt), sn = Math.sin(tilt); return [Qx + dx * c - dy * sn, Qy + dx * sn + dy * c]; };
+      // supports
+      [[mP, 'P'], [mQ, 'Q']].forEach(([m, l]) => { const x = X(m), y = py + th / 2; ctx.fillStyle = '#4E6B48'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - fs * 1.3, y + fs * 2.4); ctx.lineTo(x + fs * 1.3, y + fs * 2.4); ctx.closePath(); ctx.fill(); T(ctx, l, x, y + fs * 3.7, { size: fs * 1.1, a: 'center', w: 700 }); });
+      line(ctx, x0 - 10, py + th / 2 + fs * 2.4, X(4) + 20, py + th / 2 + fs * 2.4, C.muted, 2);
+      // plank (rotated about Q when tipping)
+      ctx.save(); ctx.translate(Qx, Qy); ctx.rotate(tilt); ctx.translate(-Qx, -Qy);
+      ctx.fillStyle = '#C9A86A'; ctx.fillRect(X(0), py - th / 2, Lp, th); ctx.strokeStyle = '#E2C98F'; ctx.lineWidth = 1; ctx.strokeRect(X(0), py - th / 2, Lp, th);
+      T(ctx, 'A', X(0) - 6, py + fs * 0.35, { size: fs * 1.1, a: 'right', w: 700 }); T(ctx, 'B', X(4) + 6, py + fs * 0.35, { size: fs * 1.1, w: 700 });
+      ctx.restore();
+      const k = h * 0.0011;   // arrow px per N
+      // weight at G
+      const [gx, gy] = rot(X(mG), py);
+      if (st >= 1) { arrow(ctx, gx, gy, gx, gy + 200 * k, C.gold, 3.5, 11); T(ctx, 'W = 200 N', gx + 6, gy + 200 * k + fs * 0.2, { size: fs * 0.9, c: C.gold, w: 700 }); dot(ctx, gx, gy, 4, C.gold); }
+      if (!tip && st >= 1) {
+        const dy = py - th / 2 - fs * 1.2; darrow(ctx, X(0), dy, X(mG), C.green, 2, 9);
+        T(ctx, '2.0 m  ✓', (X(0) + X(mG)) / 2, dy - fs * 0.45, { size: fs * 0.9, a: 'center', c: C.green, w: 700 });
+        T(ctx, 'not 20 m!', X(mG) + fs * 0.6, dy + fs * 0.3, { size: fs * 0.8, c: C.red, w: 700 });
+      }
+      // reactions
+      if (st >= 2) {
+        const known = tip || st >= 4;
+        const kr = h * 0.00036, lp = known ? Math.max(RPv * kr, 0) : 90 * kr, lq = known ? RQv * kr : 90 * kr;
+        const base = py + th / 2 + fs * 2.4;
+        if (lp > 2) arrow(ctx, X(mP), base + lp, X(mP), base, C.cyan, 3.5, 11);
+        R(ctx, ['R', '_P', known ? ` = ${RPv.toFixed(0)} N` : ' = ?'], X(mP) + fs * 1.5, base + Math.max(lp, fs) + fs * 0.3, { size: fs, c: tip && RPv < 0.5 ? C.red : C.cyan, w: 700 });
+        arrow(ctx, X(mQ), base + lq, X(mQ), base, C.violet, 3.5, 11);
+        R(ctx, ['R', '_Q', known ? ` = ${RQv.toFixed(0)} N` : ' = ?'], X(mQ) + fs * 1.5, base + Math.max(lq, fs) + fs * 0.3, { size: fs, c: C.violet, w: 700 });
+        if (tip && tilt > 0) { const [lx, ly] = rot(X(mP), py - th / 2); T(ctx, 'leaves P', lx, ly - fs * 0.8, { size: fs * 0.9, a: 'center', c: C.red, w: 700 }); }
+      }
+      // moment arms about P (reactions mode)
+      if (!tip && st >= 3) {
+        const ay = py + th / 2 + fs * 0.9;
+        line(ctx, X(mP), ay, X(mG), ay, C.gold, 3); T(ctx, '1.5 m', (X(mP) + X(mG)) / 2, ay + fs * 1.15, { size: fs * 0.85, a: 'center', c: C.gold, w: 700 });
+        const ay2 = py - th / 2 - fs * 3.6;
+        darrow(ctx, X(mP), ay2, X(mQ), C.violet, 2, 9); T(ctx, '2.5 m', (X(mP) + X(mQ)) / 2, ay2 - fs * 0.45, { size: fs * 0.85, a: 'center', c: C.violet, w: 700 });
+        T(ctx, 'pivot', X(mP) - fs * 0.9, py + th / 2 + fs * 3.7, { size: fs * 0.8, a: 'right', c: C.muted });
+      }
+      // boy
+      if (tip) {
+        const [ux, uy] = rot(X(mQ + bx), py - th / 2), hb = fs * 3.2;
+        ctx.strokeStyle = C.xr; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(ux, uy - hb - fs * 0.6, fs * 0.6, 0, 7); ctx.stroke();
+        line(ctx, ux, uy - hb, ux, uy - hb * 0.45, C.xr, 3); line(ctx, ux, uy - hb * 0.45, ux - fs * 0.6, uy, C.xr, 3); line(ctx, ux, uy - hb * 0.45, ux + fs * 0.6, uy, C.xr, 3);
+        line(ctx, ux - fs * 0.8, uy - hb * 0.8, ux + fs * 0.8, uy - hb * 0.8, C.xr, 3);
+        arrow(ctx, ux + fs * 1.4, uy - hb * 0.6, ux + fs * 1.4, uy - hb * 0.6 + 400 * k * 0.55, C.xr, 3, 10); T(ctx, '400 N', ux + fs * 1.8, uy - hb * 0.6 + 400 * k * 0.55, { size: fs * 0.85, c: C.xr, w: 700 });
+        const dyq = py - th / 2 - fs * 6.2;
+        line(ctx, X(mG), dyq, Qx, dyq, C.gold, 3); line(ctx, X(mG), dyq - 5, X(mG), dyq + 5, C.gold, 2); line(ctx, Qx, dyq - 5, Qx, dyq + 5, C.gold, 2);
+        T(ctx, '1.0 m', (X(mG) + Qx) / 2, dyq - fs * 0.45, { size: fs * 0.85, a: 'center', c: C.gold, w: 700 });
+        if (bx > 0.02) { line(ctx, Qx, dyq, X(mQ + bx), dyq, C.xr, 3); line(ctx, X(mQ + bx), dyq - 5, X(mQ + bx), dyq + 5, C.xr, 2); T(ctx, `x = ${bx.toFixed(2)} m`, Qx + 4, dyq - fs * 0.45, { size: fs * 0.85, c: C.xr, w: 700 }); }
+      }
+      // text panel
+      const x = w * 0.6; let y = h * 0.1; const L = (p, o) => { R(ctx, p, x, y, Object.assign({ size: fs, w: 600 }, o)); y += fs * 1.75; };
+      if (!tip) {
+        L(['Plank 4.0 m, weight 200 N'], { c: C.muted });
+        if (st >= 3) { L(['Moments about P:'], { c: C.muted }); L(['R', '_Q', '(2.5) = 200(1.5)'], { w: 700 }); }
+        if (st >= 4) L(['R', '_Q', ' = 120 N'], { size: fs * 1.35, f: DISP, w: 700, c: C.violet });
+        if (st >= 5) { L(['Resolve vertically:'], { c: C.muted }); L(['R', '_P', ' = 200 − 120 = 80 N'], { size: fs * 1.15, w: 700, c: C.cyan }); }
+        if (st >= 6) { y += fs * 0.4; L(['Pivot at P → R', '_P', ' drops out'], { size: fs * 0.9, c: C.muted }); L(['of the moment equation.'], { size: fs * 0.9, c: C.muted }); }
+        if (st >= 9) this.t = 6.6;
+      } else {
+        L(['Moments about Q:'], { c: C.muted });
+        L(['R', '_P', '(2.5) + 400x = 200(1.0)'], { w: 700 });
+        L(['R', '_P', ` = ${RPv.toFixed(0)} N`], { size: fs * 1.35, f: DISP, w: 700, c: RPv < 0.5 ? C.red : C.cyan });
+        if (bx >= 0.5) {
+          y += fs * 0.3; L(['About to tip:  R', '_P', ' = 0'], { w: 700, c: C.red });
+          L(['400x = 200(1.0)'], { w: 700 }); L(['x = 0.50 m beyond Q'], { size: fs * 1.3, f: DISP, w: 700, c: C.gold });
+          if (bx > 0.55) L(['Beyond this it tips about Q'], { size: fs * 0.9, c: C.muted });
+        } else { y += fs * 0.3; L(['As x grows, R', '_P', ' falls'], { size: fs * 0.9, c: C.muted }); L(['and R', '_Q', ' rises.'], { size: fs * 0.9, c: C.muted }); }
+      }
+    } }));
+
+  /* ---------- Ch 8 Lamina with a hole (Statics revision paper Q6(b)) ---------- */
+  add('lamhole', { lesson: 'LESSON-8', ch: 8, title: 'Lamina with a hole: where is G?', sub: 'Treat the hole as a negative area, then hang the lamina from A',
+    eq: 'x̄ = ' + FRAC('A<sub>1</sub>x<sub>1</sub> − A<sub>2</sub>x<sub>2</sub>', 'A<sub>1</sub> − A<sub>2</sub>'), eqn: 'Uniform lamina: weight ∝ area. A hole is a negative area.',
+    pts: ['Areas: square 40 × 40 = 1600 cm<sup>2</sup>, hole π(10)<sup>2</sup> = 314.2 cm<sup>2</sup>. Areas alone are only the first step.',
+      'Take moments about O (along the line parallel to AB). The square’s weight acts at O, so it has no moment.',
+      'The hole is <b>removed</b>, so its area goes in with a <b>minus</b> sign: (1600)(0) − (314.2)(10) = (1600 − 314.2) x̄.',
+      'x̄ = −2.44 cm: G is 2.44 cm from O, on the side <b>away from the hole</b>.',
+      'Suspended freely from A, the lamina turns until <b>G is vertically below A</b> (AG is vertical).',
+      'From A: along AB 20 − 2.44 = 17.56 cm, perpendicular to AB 20 cm, so tan θ = 20/17.56 and θ = 48.7°.',
+      'Without the hole G would be at O and θ would be 45°. The hole moves G, so the angle changes.'],
+    segs: [['mode', [['find', 'Find G'], ['hang', 'Hang from A']]]] },
+  () => ({ mode: 'find', t: 0, reset() { this.t = 0; }, set(k, v) { this[k] = v; this.t = 0; },
+    draw(ctx, w, h, dt) {
+      const fs = FS(w); this.t += dt;
+      const xb = -2.44, crit = Math.atan2(20, 17.56), phiEq = Math.PI / 2 - crit;
+      const holeCol = C.bg, sheet = '#6E8F5E', edge = '#A6C48F';
+      const x = w * 0.6; let y = h * 0.1; const L = (p, o) => { R(ctx, p, x, y, Object.assign({ size: fs, w: 600 }, o)); y += fs * 1.75; };
+      if (this.mode === 'find') {
+        const st = Math.floor(this.t / 1.3); if (st >= 10) this.t = 0;
+        const S = Math.min(h * 0.66, w * 0.4), k = S / 40, cx = w * 0.29, cy = h * 0.5, ox = cx, oy = cy;
+        const P = (u, v) => [ox + u * k, oy + v * k];
+        ctx.fillStyle = sheet; ctx.fillRect(cx - S / 2, cy - S / 2, S, S); ctx.strokeStyle = edge; ctx.lineWidth = 2; ctx.strokeRect(cx - S / 2, cy - S / 2, S, S);
+        T(ctx, 'A', cx - S / 2 - 6, cy - S / 2 - 4, { size: fs * 1.1, a: 'right', w: 700 }); T(ctx, 'B', cx + S / 2 + 6, cy - S / 2 - 4, { size: fs * 1.1, w: 700 });
+        T(ctx, 'C', cx + S / 2 + 6, cy + S / 2 + fs, { size: fs * 1.1, w: 700 }); T(ctx, 'D', cx - S / 2 - 6, cy + S / 2 + fs, { size: fs * 1.1, a: 'right', w: 700 });
+        line(ctx, cx - S / 2, cy, cx + S / 2, cy, rgba(C.ink, .35), 1.2, [5, 5]);
+        const [hx, hy] = P(10, 0), cut = Math.min(1, Math.max(0, (this.t - 1.3) / 1.0));
+        if (st >= 1) { ctx.fillStyle = rgba(holeCol, cut); ctx.beginPath(); ctx.arc(hx, hy, 10 * k, 0, 7); ctx.fill(); ctx.strokeStyle = C.red; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.stroke(); ctx.setLineDash([]); }
+        dot(ctx, ox, oy, 4.5, C.ink); T(ctx, 'O', ox - 4, oy - 8, { size: fs, a: 'right', w: 700 });
+        if (st >= 0) { arrow(ctx, ox, oy, ox, oy + h * 0.2, C.gold, 3.5, 11); T(ctx, '1600', ox - 6, oy + h * 0.2, { size: fs * 0.9, a: 'right', c: C.gold, w: 700 }); }
+        if (st >= 2) { arrow(ctx, hx, hy, hx, hy - h * 0.2 * 314.2 / 1600 * 2.2, C.red, 3.5, 11); T(ctx, '− 314.2', hx + 6, hy - h * 0.09, { size: fs * 0.9, c: C.red, w: 700 }); dot(ctx, hx, hy, 3.5, C.red); }
+        if (st >= 2) { darrow(ctx, ox, cy + S / 2 + fs * 1.4, hx, C.red, 2, 8); T(ctx, '10 cm', (ox + hx) / 2, cy + S / 2 + fs * 2.6, { size: fs * 0.85, a: 'center', c: C.red, w: 700 }); }
+        if (st >= 4) {
+          const f = Math.min(1, (this.t - 5.2) / 1.2), gx = ox + xb * k * f;
+          dot(ctx, gx, oy, 6, C.green); T(ctx, 'G', gx - 6, oy + fs * 1.4, { size: fs * 1.1, a: 'right', c: C.green, w: 700 });
+          if (f >= 1) { const yy = cy - S / 2 - fs * 1.2; line(ctx, gx, oy, gx, yy, rgba(C.green, .6), 1.2, [3, 3]); line(ctx, ox, oy, ox, yy, rgba(C.green, .6), 1.2, [3, 3]); line(ctx, gx, yy, ox, yy, C.green, 3); T(ctx, '2.44 cm', ox + 6, yy - fs * 0.3, { size: fs * 0.85, c: C.green, w: 700 }); arrow(ctx, gx - 4, yy - fs * 1.2, gx - fs * 3.2, yy - fs * 1.2, C.green, 2, 8); T(ctx, 'away from hole', gx - fs * 3.4, yy - fs * 0.9, { size: fs * 0.8, a: 'right', c: C.green, w: 700 }); }
+        }
+        L(['Areas (weight ∝ area):'], { c: C.muted });
+        L(['A', '_1', ' = 40', '^2', ' = 1600 cm', '^2'], { w: 700, c: C.gold });
+        if (st >= 1) L(['A', '_2', ' = π(10)', '^2', ' = 314.2 cm', '^2'], { w: 700, c: C.red });
+        if (st >= 3) { L(['Moments about O:'], { c: C.muted }); L(['(1600)(0) − (314.2)(10)'], { w: 700 }); L(['   = (1600 − 314.2) x̄'], { w: 700 }); }
+        if (st >= 4) L(['x̄ = −2.44 cm'], { size: fs * 1.4, f: DISP, w: 700, c: C.green });
+        if (st >= 5) { L(['Minus: G is on the side'], { size: fs * 0.9, c: C.muted }); L(['away from the hole.'], { size: fs * 0.9, c: C.muted }); }
+      } else {
+        const tt = this.t, k = Math.min(h * 0.8 / 56.6, w * 0.24 / 30), Ax = w * 0.3, Ay = h * 0.1;
+        const phi = tt < 0.8 ? 0 : phiEq * (1 - Math.exp(-0.55 * (tt - 0.8)) * Math.cos(2.4 * (tt - 0.8)));
+        const c = Math.cos(phi), sn = Math.sin(phi), P = (u, v) => [Ax + k * (u * c - v * sn), Ay + k * (u * sn + v * c)];
+        line(ctx, Ax, Ay, Ax, h * 0.97, rgba(C.ink, .45), 1.5, [7, 6]);
+        const cs = [P(0, 0), P(40, 0), P(40, 40), P(0, 40)];
+        ctx.fillStyle = sheet; ctx.beginPath(); cs.forEach((q, i) => i ? ctx.lineTo(...q) : ctx.moveTo(...q)); ctx.closePath(); ctx.fill(); ctx.strokeStyle = edge; ctx.lineWidth = 2; ctx.stroke();
+        const [hx, hy] = P(30, 20); ctx.fillStyle = holeCol; ctx.beginPath(); ctx.arc(hx, hy, 10 * k, 0, 7); ctx.fill();
+        [['A', 0, 0, -1, -1], ['B', 40, 0, 1, -1], ['C', 40, 40, 1, 1], ['D', 0, 40, -1, 1]].forEach(([l, u, v, du, dv]) => { const [px, py] = P(u + du * 3, v + dv * 3); T(ctx, l, px, py + fs * 0.4, { size: fs * 1.05, a: 'center', w: 700 }); });
+        const [Ox, Oy] = P(20, 20), [gx, gy] = P(17.56, 20);
+        dot(ctx, Ox, Oy, 3.5, rgba(C.ink, .7)); T(ctx, 'O', Ox + 6, Oy - 6, { size: fs * 0.85, c: C.muted });
+        line(ctx, Ax, Ay, gx, gy, C.green, 2.5); dot(ctx, gx, gy, 6, C.green); T(ctx, 'G', gx - 8, gy + fs * 0.4, { size: fs * 1.05, a: 'right', c: C.green, w: 700 });
+        dot(ctx, Ax, Ay, 6, C.ink); ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(Ax, Ay, 9, 0, 7); ctx.stroke();
+        const settled = tt > 6;
+        if (settled) {
+          const r = 40 * k * 0.42; ctx.strokeStyle = C.gold; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(Ax, Ay, r, phi, Math.PI / 2); ctx.stroke();
+          T(ctx, 'θ = 48.7°', Ax + r * 0.75 + 6, Ay + r * 0.95, { size: fs, c: C.gold, w: 700 });
+          const [m1x, m1y] = P(17.56, 0); line(ctx, gx, gy, m1x, m1y, rgba(C.cyan, .8), 2, [4, 4]);
+          T(ctx, '20 cm', (gx + m1x) / 2 + 6, (gy + m1y) / 2, { size: fs * 0.8, c: C.cyan, w: 700 }); T(ctx, '17.56 cm', (Ax + m1x) / 2 + 8, (Ay + m1y) / 2 - 4, { size: fs * 0.8, c: C.cyan, w: 700 });
+        }
+        L(['Hung freely from A:'], { c: C.muted }); L(['G comes to rest'], { w: 700 }); L(['vertically below A'], { w: 700, c: C.green });
+        if (settled) {
+          y += fs * 0.2; L(['From A: along AB = 20 − 2.44'], { size: fs * 0.9 }); L(['                       = 17.56 cm'], { size: fs * 0.9 }); L(['perpendicular to AB = 20 cm'], { size: fs * 0.9 });
+          L(['tan θ = 20 / 17.56'], { w: 700 }); L(['θ = 48.7°'], { size: fs * 1.4, f: DISP, w: 700, c: C.gold });
+          L(['No hole → G at O → 45°'], { size: fs * 0.85, c: C.muted });
+        }
+        if (tt > 13) this.t = 0;
+      }
+    } }));
+
+  /* ---------- Ch 8 Toppling on a slope (Statics revision paper Q6(c)) ---------- */
+  add('topple', { lesson: 'LESSON-8', ch: 8, title: 'Toppling on a slope', sub: 'Follow the vertical line through G',
+    eq: 'tan θ = ' + FRAC('width / 2', 'height / 2'), eqn: 'About to topple: the vertical through G passes through the lower edge',
+    pts: ['As θ increases, the vertical line through G moves towards the lower edge of the block.',
+      'While this line is inside the base, the weight’s moment about the lower edge turns the block <b>back</b>: it is stable.',
+      'When the line falls <b>outside the base</b>, the weight produces a moment (torque) about the lower edge that <b>turns the block over</b>. Write both ideas for full marks.',
+      'About to topple: the vertical through G passes exactly through the lower edge.',
+      'tan θ = (0.10/2)/(0.30/2) = 0.05/0.15, so θ = 18.4°.',
+      'The block must not slide first: friction holds it, so only toppling is possible.'],
+    sliders: [['th', 'Angle θ', 0, 24, 0.5, 0, '°', 1]] },
+  () => ({ th: 0, man: false, t: 0, psi: 0, hold: 0,
+    reset() { this.t = 0; this.psi = 0; this.hold = 0; this.man = false; this.th = 0; }, set(k, v) { this.th = v; this.man = true; this.psi = 0; },
+    draw(ctx, w, h, dt) {
+      const fs = FS(w), crit = Math.atan(0.05 / 0.15) / d2r;
+      if (!this.man) {
+        this.t += dt;
+        if (this.t < 7) this.th = crit * Math.min(1, this.t / 6);
+        else if (this.t < 8.4) this.th = crit;
+        else this.th = Math.min(22, crit + (this.t - 8.4) * 2.5);
+      }
+      const over = this.th > crit + 0.05;
+      if (over) this.psi = Math.min(Math.PI / 2, this.psi + dt * (0.3 + this.psi * 3)); else this.psi = 0;
+      if (!this.man && this.psi >= Math.PI / 2) { this.hold += dt; if (this.hold > 2) this.reset(); }
+      const th = this.th * d2r, c = Math.cos(th), sn = Math.sin(th);
+      const Hx = w * 0.56, Hy = h * 0.92, Ls = w * 0.54, k = h * 0.42 / 0.30, Wb = 0.10 * k, Hb = 0.30 * k;
+      const e1 = [-c, -sn], n = [sn, -c];
+      ctx.fillStyle = '#34482F'; ctx.beginPath(); ctx.moveTo(Hx, Hy); ctx.lineTo(Hx - Ls * c, Hy - Ls * sn); ctx.lineTo(Hx - Ls * c, Hy); ctx.closePath(); ctx.fill();
+      line(ctx, Hx, Hy, Hx - Ls * c, Hy - Ls * sn, C.muted, 2.5); line(ctx, w * 0.01, Hy, Hx + w * 0.03, Hy, C.muted, 2);
+      if (this.th > 0.5) { ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(Hx, Hy, fs * 3, Math.PI, Math.PI + th); ctx.stroke(); T(ctx, `θ = ${this.th.toFixed(1)}°`, Hx - fs * 3.4, Hy - fs * 0.5, { size: fs * 0.85, a: 'right', w: 700 }); }
+      const d0 = Hb * 1.18, Pv = [Hx + e1[0] * d0, Hy + e1[1] * d0];
+      const ps = this.psi, cp = Math.cos(ps), sp = Math.sin(ps);
+      const Q = (a, b) => { const dx = a * e1[0] + b * n[0], dy = a * e1[1] + b * n[1]; return [Pv[0] + dx * cp - dy * sp, Pv[1] + dx * sp + dy * cp]; };
+      const cs = [Q(0, 0), Q(Wb, 0), Q(Wb, Hb), Q(0, Hb)];
+      ctx.fillStyle = '#C9A86A'; ctx.beginPath(); cs.forEach((q, i) => i ? ctx.lineTo(...q) : ctx.moveTo(...q)); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#E2C98F'; ctx.lineWidth = 2; ctx.stroke();
+      const [gx, gy] = Q(Wb / 2, Hb / 2);
+      const outside = gx > Pv[0] + 0.5, atEdge = Math.abs(gx - Pv[0]) <= 1.5 && !over;
+      const col = over ? C.red : atEdge ? C.gold : C.green;
+      line(ctx, gx, gy, gx, Hy + 4, rgba(col, .95), 2, [6, 5]); dot(ctx, gx, gy, 6, col); T(ctx, 'G', gx - 9, gy + fs * 0.4, { size: fs * 1.05, a: 'right', c: C.dark, w: 800 });
+      arrow(ctx, gx, gy, gx, gy + h * 0.13, C.gold, 3, 10); T(ctx, 'W', gx + 6, gy + h * 0.13, { size: fs, c: C.gold, w: 700 });
+      dot(ctx, Pv[0], Pv[1], 5.5, C.xr); T(ctx, 'lower edge', Pv[0] + 8, Pv[1] + fs * 1.3, { size: fs * 0.8, c: C.xr, w: 700 });
+      // moment arc about the lower edge
+      if (this.th > 2 && ps < 0.6) {
+        const r = Hb * 0.55, a0 = Math.atan2(gy - Pv[1], gx - Pv[0]), cw = outside || over;
+        ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(Pv[0], Pv[1], r, a0 - 0.35, a0 + 0.35); ctx.stroke();
+        const ae = cw ? a0 + 0.35 : a0 - 0.35, tx = Pv[0] + r * Math.cos(ae), ty = Pv[1] + r * Math.sin(ae), dir = cw ? 1 : -1;
+        arrow(ctx, tx - dir * 6 * -Math.sin(ae), ty - dir * 6 * Math.cos(ae), tx + dir * 4 * -Math.sin(ae), ty + dir * 4 * Math.cos(ae), col, 2.5, 10);
+      }
+      const x = w * 0.6; let y = h * 0.1; const L = (p, o) => { R(ctx, p, x, y, Object.assign({ size: fs, w: 600 }, o)); y += fs * 1.75; };
+      L([`θ = ${this.th.toFixed(1)}°`], { size: fs * 1.4, f: DISP, w: 700 });
+      if (over) { L(['Vertical through G is'], { c: C.red, w: 700 }); L(['OUTSIDE the base'], { c: C.red, w: 700 }); L(['W gives a moment about the'], { size: fs * 0.9 }); L(['lower edge → turns it over'], { size: fs * 0.9, w: 700, c: C.red }); }
+      else if (atEdge) { L(['About to topple:'], { c: C.gold, w: 700 }); L(['vertical through G passes'], { size: fs * 0.9 }); L(['through the lower edge'], { size: fs * 0.9 }); }
+      else { L(['Vertical through G is'], { c: C.green, w: 700 }); L(['inside the base: stable'], { c: C.green, w: 700 }); L(['W’s moment turns it back'], { size: fs * 0.9 }); }
+      y += fs * 0.4;
+      if (atEdge || over || this.th > crit - 3) { L(['tan θ = (0.10/2) / (0.30/2)'], { w: 700 }); L(['tan θ = 0.05 / 0.15'], { w: 700 }); L(['θ = 18.4°'], { size: fs * 1.35, f: DISP, w: 700, c: C.gold }); }
     } }));
 
   /* ---------- Ch 9 Force–extension energy ---------- */
