@@ -548,7 +548,7 @@
 <link rel="stylesheet" href="physiq-poster.css?v=20261022d">
 <link rel="stylesheet" href="physiq-lessons.css?v=20261022d">
 <link rel="stylesheet" href="physiq-flashcards.css?v=20261030b">
-<link rel="stylesheet" href="physiq-clinic.css?v=20261116a">
+<link rel="stylesheet" href="physiq-clinic.css?v=20261119a">
 </head>
 <body>
 <div class="app">
@@ -1168,9 +1168,10 @@
 <script src="physiq-solutions.js?v=20261111c"></script>
 <script src="physiq-flashcards.js?v=20261022b"></script>
 <script src="physiq-realworld.js?v=20261115a"></script>
-<script src="physiq-clinic.js?v=20261116a"></script>
+<script src="physiq-clinic.js?v=20261119a"></script>
 <script src="physiq-clinic-s1.js?v=20261116b"></script>
-<script src="physiq-revision.js?v=20261116b"></script>
+<script src="physiq-clinic-setb.js?v=20261119a"></script>
+<script src="physiq-revision.js?v=20261119a"></script>
 <script src="physiq-sketch.js?v=20261116a"></script>
 <script>
 (function(){
@@ -7326,6 +7327,38 @@ const NOTES_EXTRA = (function(){
     closeQ();
     return html;
   }
+  // Animated worked solutions (Concept Clinic engine), one per question part. Locked until the student has downloaded their answers.
+  function rvUnlock(){
+    if (!rvState || !rvState.paper.clinic || rvState.data.unlocked) return false;
+    rvState.data.unlocked = true; rvStore(rvState.key, rvState.data); rvAnimRender(); return true;
+  }
+  function rvAnimRender(){
+    const box = $('#rv-anim'); if (!box || !rvState) return;
+    const p = rvState.paper, map = p.clinic, PCq = window.PhysiQClinic; if (!map || !PCq) { box.remove(); return; }
+    if (!rvState.data.unlocked){
+      box.innerHTML = `<h3 class="pt-sec">Animated explanations</h3>
+        <p class="pt-note">Every question has a step-by-step animated explanation. They unlock after you tap <b>Download my answers (PDF)</b>, so try every question on your own first.</p>
+        <p class="pt-note" style="font-size:1.6em;margin:4px 0 0;" aria-hidden="true">🔒</p>`;
+      return;
+    }
+    const qs = Object.keys(map), parts = q => map[q].map(k => ({k, t: PCq.topics[k]})).filter(o => o.t);
+    box.innerHTML = `<h3 class="pt-sec">Animated explanations</h3>
+      <p class="pt-note">Pick a question and a part. Tap <b>Next point</b> to go one step at a time; the animation follows each step. <b>Show all</b> plays every step in turn.</p>
+      <div class="rv-anim-q" role="group" aria-label="Question">${qs.map((q, i) => `<button type="button" class="btn-ghost rv-anim-b" data-aq="${q}" aria-pressed="${i === 0}">Question ${q}</button>`).join('')}</div>
+      <div class="rv-anim-p" role="group" aria-label="Part" style="margin-top:8px;"></div>
+      <div class="rv-anim-host" style="margin-top:12px;"></div>`;
+    const pbox = box.querySelector('.rv-anim-p'), host = box.querySelector('.rv-anim-host');
+    const showPart = k => { host.innerHTML = `<div class="cc-mount" data-cc="${k}"></div>`; PCq.mountAll(host); pbox.querySelectorAll('[data-ak]').forEach(b => b.setAttribute('aria-pressed', b.dataset.ak === k)); };
+    const showQ = q => {
+      box.querySelectorAll('[data-aq]').forEach(b => b.setAttribute('aria-pressed', b.dataset.aq === q));
+      const ps = parts(q);
+      pbox.innerHTML = ps.map((o, i) => `<button type="button" class="btn-ghost rv-anim-b" data-ak="${o.k}" aria-pressed="${i === 0}">${escapeHtml(o.t.qlabel.replace(/^.*Question \d+/, 'Part ') )}</button>`).join('');
+      if (ps.length) showPart(ps[0].k);
+    };
+    box.querySelector('.rv-anim-q').addEventListener('click', e => { const b = e.target.closest('[data-aq]'); if (b) showQ(b.dataset.aq); });
+    pbox.addEventListener('click', e => { const b = e.target.closest('[data-ak]'); if (b) showPart(b.dataset.ak); });
+    showQ(qs[0]);
+  }
   function openRevWritten(key){
     const p = revPaper(key); if (!p) return;
     const d = rvLoad(key) || {}; d.ans = d.ans || {};
@@ -7353,8 +7386,10 @@ const NOTES_EXTRA = (function(){
           <p class="status-msg" id="rv-send-status" role="status"></p>
           <textarea id="rv-copy-fallback" class="pt-box" rows="6" readonly hidden aria-label="All your answers as text"></textarea>
         </div>
+        ${p.clinic ? '<div class="pt-submit rv-anim" id="rv-anim"></div>' : ''}
       </div>`;
     rvWire(box);
+    rvAnimRender();
     $('#tt-home').style.display = 'none';
     $('#tt-written-card').style.display = 'block';
     window.scrollTo(0,0);
@@ -7435,7 +7470,7 @@ const NOTES_EXTRA = (function(){
     rvFlush();
     const text = rvText($('#rv-name').value.trim() || '(no name)'), st = $('#rv-send-status'), fb = $('#rv-copy-fallback');
     const showFallback = () => { fb.value = text; fb.hidden = false; fb.focus(); fb.select(); st.textContent = 'Select all the text in the box below and copy it.'; };
-    try{ navigator.clipboard.writeText(text).then(() => { st.textContent = 'All your typed answers are copied (photos are only in the PDF). Paste them into WhatsApp.'; fb.hidden = true; }, showFallback); }catch(e){ showFallback(); }
+    try{ navigator.clipboard.writeText(text).then(() => { st.textContent = 'All your typed answers are copied (photos are only in the PDF). Paste them into WhatsApp.'; fb.hidden = true; if (rvUnlock()) st.textContent += ' The animated explanations are now unlocked below.'; }, showFallback); }catch(e){ showFallback(); }
   }
   async function rvBuildPdf(name){
     const p = rvState.paper, w = ptPdfWriter(), NAVY = '#1F3A68', GREY = '#5b6676';
@@ -7477,6 +7512,7 @@ const NOTES_EXTRA = (function(){
       const safe = name.replace(/[^\p{L}\p{N} _-]+/gu, '').trim().slice(0, 40) || 'answers';
       await dl.save({filename: `${safe} - Revision ${rvState.paper.code} B and C answers.pdf`, data: blob});
       st.textContent = 'PDF saved. Now send it to your teacher on WhatsApp: attach it as a Document.';
+      if (rvUnlock()) st.textContent += ' The animated explanations are now unlocked below.';
     }catch(e){
       const code = e && e.code;
       if (code === 'declined') st.textContent = 'Download cancelled.';
@@ -7512,7 +7548,7 @@ const NOTES_EXTRA = (function(){
     const ps = revPapers(null);
     box.innerHTML = ps.length ? ps.map(p=>`<details style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;">
       <summary style="cursor:pointer;font-weight:700;color:var(--navy);">Semester ${p.sem} · ${escapeHtml(p.title)}</summary>
-      <div class="btn-row" style="margin:8px 0 0;"><a class="btn-primary" style="text-decoration:none;" href="downloads/qa/PhysiQ_Rev_Sem${encodeURIComponent(p.sem)}_${encodeURIComponent(p.id)}.pdf?v=20261116a" download="${escapeHtml(p.title.replace(/[·]/g, '-'))} - Marking scheme.pdf">Download marking scheme (PDF)</a><button class="btn-ghost rev-print" data-key="${p.sem}:${p.id}">Print</button></div>
+      <div class="btn-row" style="margin:8px 0 0;"><a class="btn-primary" style="text-decoration:none;" href="downloads/qa/PhysiQ_Rev_Sem${encodeURIComponent(p.sem)}_${encodeURIComponent(p.id)}.pdf?v=20261119a" download="${escapeHtml(p.title.replace(/[·]/g, '-'))} - Marking scheme.pdf">Download marking scheme (PDF)</a><button class="btn-ghost rev-print" data-key="${p.sem}:${p.id}">Print</button></div>
       <div class="rev-scheme-body" data-key="${p.sem}:${p.id}"></div></details>`).join('') : '<p class="empty">No revision papers yet.</p>';
     box.querySelectorAll('details').forEach(d=>d.addEventListener('toggle', ()=>{
       const body = d.querySelector('.rev-scheme-body');
@@ -11090,7 +11126,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       st.textContent = 'Select all the text in the box below and copy it.';
     };
     try{
-      navigator.clipboard.writeText(text).then(() => { st.textContent = 'All your typed answers are copied (photos are only in the PDF). Paste them into WhatsApp.'; fb.hidden = true; }, showFallback);
+      navigator.clipboard.writeText(text).then(() => { st.textContent = 'All your typed answers are copied (photos are only in the PDF). Paste them into WhatsApp.'; fb.hidden = true; if (rvUnlock()) st.textContent += ' The animated explanations are now unlocked below.'; }, showFallback);
     }catch(e){ showFallback(); }
   }
 
@@ -11259,6 +11295,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       const safe = name.replace(/[^\p{L}\p{N} _-]+/gu, '').trim().slice(0, 40) || 'answers';
       await dl.save({filename: `${safe} - STPM ${p.id} answers.pdf`, data: blob});
       st.textContent = 'PDF saved. Now send it to your teacher on WhatsApp: attach it as a Document.';
+      if (rvUnlock()) st.textContent += ' The animated explanations are now unlocked below.';
     }catch(e){
       const code = e && e.code;
       if (code === 'declined') st.textContent = 'Download cancelled.';

@@ -4,6 +4,8 @@ Uses the app's own revSchemeHTML rendering (Teacher Dashboard), so the PDF match
 import asyncio, os
 from playwright.async_api import async_playwright
 BASE = 'http://localhost:8765/'
+# papers whose marking scheme PDF is a hand-built detailed Q&A document (LaTeX); never overwrite them here
+KEEP = {'1:s1-set-b'}
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
@@ -18,6 +20,7 @@ async def main():
         css = await pg.evaluate("[...document.querySelectorAll('style')].map(s=>s.outerHTML).join('') + [...document.querySelectorAll('link[rel=stylesheet]')].map(l=>'<link rel=\"stylesheet\" href=\"'+l.href+'\">').join('')")
         os.makedirs('downloads/qa', exist_ok=True)
         for it in items:
+            if it['key'] in KEEP: print('kept', it['key']); continue
             html = await pg.evaluate("k => document.querySelector(`.rev-scheme-body[data-key=\"${k}\"]`).innerHTML", it['key'])
             sem, pid = it['key'].split(':')
             doc = f"""<!doctype html><html><head><meta charset="utf-8"><base href="{BASE}">{css}

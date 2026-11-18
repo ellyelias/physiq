@@ -595,9 +595,9 @@
       pts: ['Keep at least <b>4 significant figures</b> in all working.', 'Carry the unrounded value from an earlier part into the next part (use the calculator memory).', 'Round only the final answer, normally to 3 s.f., and always give the unit.'] }
   };
   // Semester 1 topics are added by physiq-clinic-s1.js through PhysiQClinic.add()
-  const order = sem => Object.keys(TOPICS).filter(k => TOPICS[k].sem === String(sem));
+  const order = sem => Object.keys(TOPICS).filter(k => TOPICS[k].sem === String(sem) && !TOPICS[k].paper);  // revision-paper solutions stay with their paper
   const lessonTopics = k => Object.keys(TOPICS).filter(t => TOPICS[t].lesson === k);
-  const chLabel = t => t.ch ? `Chapter ${t.ch}` : 'All chapters';
+  const chLabel = t => t.qlabel || (t.ch ? `Chapter ${t.ch}` : 'All chapters');
 
   /* ---------- widget ---------- */
   const LIVE = new Set();
@@ -637,8 +637,8 @@
       if (a === 'play') { inst.play = !inst.play; playBtn.textContent = inst.play ? 'Pause' : 'Play'; }
       else if (a === 'restart') sc.reset();
       else if (a === 'full') { try { const p = document.fullscreenElement ? document.exitFullscreen() : root.requestFullscreen(); if (p && p.catch) p.catch(() => {}); } catch (err) {} }
-      else if (a === 'next') { root.classList.add('cc-stepping'); inst.step = (inst.step + 1) % lis.length; lis.forEach((l, i) => { l.classList.toggle('cur', i === inst.step); l.classList.toggle('done', i < inst.step); }); }
-      else if (a === 'all') { root.classList.remove('cc-stepping'); inst.step = -1; lis.forEach(l => l.classList.remove('cur', 'done')); }
+      else if (a === 'next') { root.classList.add('cc-stepping'); inst.step = (inst.step + 1) % lis.length; lis.forEach((l, i) => { l.classList.toggle('cur', i === inst.step); l.classList.toggle('done', i < inst.step); }); if (sc.onStep) sc.onStep(inst.step); }
+      else if (a === 'all') { root.classList.remove('cc-stepping'); inst.step = -1; lis.forEach(l => l.classList.remove('cur', 'done')); if (sc.onStep) sc.onStep(-1); }
     });
     root.querySelectorAll('.cc-sl input').forEach(inp => {
       const sl = t.sliders.find(s => s[0] === inp.dataset.k), out = inp.parentNode.querySelector('output');
