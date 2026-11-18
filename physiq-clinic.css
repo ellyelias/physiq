@@ -70,8 +70,3 @@
 .cc-vh{font-weight:700;font-size:14px;letter-spacing:.02em;margin-bottom:8px;}
 .cc-vrow{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;}
 .cc-vrow .rl-vid.rl-tall{max-width:230px;flex:1 1 200px;margin:0;}
-
-/* Revision paper Set B: question and part pickers above the animated explanations */
-.rv-anim-q,.rv-anim-p{display:flex;flex-wrap:wrap;gap:8px;}
-.rv-anim-b{padding:6px 14px;font-size:13px;border-radius:999px;cursor:pointer;}
-.rv-anim-b[aria-pressed="true"]{background:var(--navy);color:#fff;}
