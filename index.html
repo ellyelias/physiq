@@ -1170,7 +1170,7 @@
 <script src="physiq-realworld.js?v=20261115a"></script>
 <script src="physiq-clinic.js?v=20261119b"></script>
 <script src="physiq-clinic-s1.js?v=20261116b"></script>
-<script src="physiq-revision.js?v=20261119b"></script>
+<script src="physiq-revision.js?v=20261120a"></script>
 <script src="physiq-sketch.js?v=20261116a"></script>
 <script>
 (function(){
@@ -7326,6 +7326,24 @@ const NOTES_EXTRA = (function(){
     closeQ();
     return html;
   }
+  // Cikgu Suhaili's YouTube explanation for each question, played inside PhysiQ. Locked until the student has downloaded (or copied) their answers; always open in Admin preview.
+  function rvUnlock(){
+    if (!rvState || !rvState.paper.videos || rvState.data.unlocked) return false;
+    rvState.data.unlocked = true; rvStore(rvState.key, rvState.data); rvVidsRender(); return true;
+  }
+  function rvVidsRender(){
+    const box = $('#rv-vids'); if (!box || !rvState) return;
+    const vids = rvState.paper.videos || {}, qs = Object.keys(vids);
+    if (!qs.length){ box.remove(); return; }
+    if (!rvState.data.unlocked && !rvAdmin()){
+      box.innerHTML = `<h3 class="pt-sec">Video explanations</h3><p class="pt-note">Every question has a full video explanation. The videos unlock after you tap <b>Download my answers (PDF)</b>, so try every question on your own first. 🔒</p>`;
+      return;
+    }
+    const e = s => escapeHtml(String(s));
+    box.innerHTML = `<h3 class="pt-sec">Video explanations</h3><p class="pt-note">Watch the explanation for each question, then check your answers again.</p>
+      <div class="rv-vids">${qs.map(q => { const v = vids[q]; return `<div class="rv-vq"><h4 style="margin:12px 0 6px;">Question ${e(q)}</h4><div class="rl-vid rl-tall"><button type="button" class="rl-play" data-rl-play="${e(v.id)}" aria-label="Play video: Question ${e(q)}, ${e(v.title)}"><img src="https://i.ytimg.com/vi/${e(v.id)}/hqdefault.jpg" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button>
+<div class="rl-vcap"><span>${e(v.title)} · Cikgu Suhaili</span><a href="https://www.youtube.com/watch?v=${e(v.id)}" target="_blank" rel="noopener">Open in YouTube ↗</a></div></div></div>`; }).join('')}</div>`;
+  }
   function openRevWritten(key){
     const p = revPaper(key); if (!p) return;
     const d = rvLoad(key) || {}; d.ans = d.ans || {};
@@ -7353,8 +7371,10 @@ const NOTES_EXTRA = (function(){
           <p class="status-msg" id="rv-send-status" role="status"></p>
           <textarea id="rv-copy-fallback" class="pt-box" rows="6" readonly hidden aria-label="All your answers as text"></textarea>
         </div>
+        ${p.videos ? '<div class="pt-submit" id="rv-vids"></div>' : ''}
       </div>`;
     rvWire(box);
+    rvVidsRender();
     $('#tt-home').style.display = 'none';
     $('#tt-written-card').style.display = 'block';
     window.scrollTo(0,0);
@@ -7435,7 +7455,7 @@ const NOTES_EXTRA = (function(){
     rvFlush();
     const text = rvText($('#rv-name').value.trim() || '(no name)'), st = $('#rv-send-status'), fb = $('#rv-copy-fallback');
     const showFallback = () => { fb.value = text; fb.hidden = false; fb.focus(); fb.select(); st.textContent = 'Select all the text in the box below and copy it.'; };
-    try{ navigator.clipboard.writeText(text).then(() => { st.textContent = 'All your typed answers are copied (photos are only in the PDF). Paste them into WhatsApp.'; fb.hidden = true; }, showFallback); }catch(e){ showFallback(); }
+    try{ navigator.clipboard.writeText(text).then(() => { st.textContent = 'All your typed answers are copied (photos are only in the PDF). Paste them into WhatsApp.'; fb.hidden = true; if (rvUnlock()) st.textContent += ' The video explanations are now unlocked below.'; }, showFallback); }catch(e){ showFallback(); }
   }
   async function rvBuildPdf(name){
     const p = rvState.paper, w = ptPdfWriter(), NAVY = '#1F3A68', GREY = '#5b6676';
@@ -7477,6 +7497,7 @@ const NOTES_EXTRA = (function(){
       const safe = name.replace(/[^\p{L}\p{N} _-]+/gu, '').trim().slice(0, 40) || 'answers';
       await dl.save({filename: `${safe} - Revision ${rvState.paper.code} B and C answers.pdf`, data: blob});
       st.textContent = 'PDF saved. Now send it to your teacher on WhatsApp: attach it as a Document.';
+      if (rvUnlock()) st.textContent += ' The video explanations are now unlocked below.';
     }catch(e){
       const code = e && e.code;
       if (code === 'declined') st.textContent = 'Download cancelled.';
