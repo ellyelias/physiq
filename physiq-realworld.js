@@ -103,6 +103,8 @@
         { id: 've6XGKZxYxA', title: 'Richard Hammond inside a car struck by lightning (Top Gear)', channel: 'BBC Studios', type: 'Real demonstration' }] },
     { sem: '2', ch: 13, title: 'How a lightning rod works', physics: 'A Van de Graaff generator shows charge gathering on a pointed conductor and the strong electric field that lets charge leak away safely.',
       videos: [{ id: 'wGc3q4dVOS0', title: 'Demonstration of How Lightning Rods Work', type: 'Live demonstration' }] },
+    { sem: '2', ch: 14, title: 'Flying above a storm? You’re inside a capacitor', physics: 'The cloud base (negative) and the ground (induced positive) are the two plates and the air is the dielectric. As charge builds up, E = V/d grows; once it passes the dielectric strength of dry air (about 3 × 10⁶ V m⁻¹) the air breaks down and the capacitor discharges as lightning.',
+      card: 'ls-14-vid-storm', videos: [{ id: '9m7edneVOWw', tall: true, title: 'Flying Above a Storm? You’re Inside a Capacitor', channel: 'Cikgu Suhaili', type: 'PhysiQ animation' }] },
     { sem: '2', ch: 14, title: 'A defibrillator is a capacitor', physics: 'The defibrillator charges a capacitor to a high voltage, then discharges its stored energy, U = ½CV², through the patient’s chest in a few milliseconds.',
       videos: [{ id: 'f7p-RaySkDI', title: 'Example: A Defibrillator is a Capacitor', type: 'Worked example' }] },
     { sem: '2', ch: 15, title: 'Choosing the right fuse', physics: 'Current heats a wire; a thin fuse wire with a large current density gets hot fastest and melts, breaking the circuit before the cables overheat.',
