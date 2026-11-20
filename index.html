@@ -1090,6 +1090,30 @@
       <p class="status-msg" style="margin:0 0 8px;">Pick a student to see every topic in their semester: whether the Pretest and Posttest have been taken, and whether each topic was answered correctly.</p>
       <select id="rdash-cl-pick"><option value="">Choose a student…</option></select>
       <div id="rdash-checklist" style="margin-top:12px;overflow-x:auto;"></div>
+      <h3 style="margin:26px 0 6px;color:var(--navy);">Submissions checklist</h3>
+      <p class="status-msg" style="margin:0 0 8px;">Papers students send on paper or WhatsApp (past year papers, and Sections B &amp; C of the revision papers). Tap a cell to tick it as submitted and type the mark. Ticks are saved to your Google Sheet, so they show on every device.</p>
+      <div class="btn-row" style="margin-top:0;flex-wrap:wrap;">
+        <select id="sub-sem" style="flex:1 1 120px;width:auto;"><option value="1">Semester 1</option><option value="2">Semester 2</option><option value="3">Semester 3</option></select>
+        <select id="sub-batch" style="flex:1 1 150px;width:auto;"></select>
+        <button class="btn-ghost" id="sub-add">+ Add task</button>
+      </div>
+      <p class="status-msg" id="sub-sync" style="margin:6px 0 0;"></p>
+      <div id="sub-matrix" style="margin-top:10px;overflow-x:auto;"></div>
+      <div id="sub-editor" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:999;background:var(--card,#fff);border-top:3px solid var(--navy);box-shadow:0 -6px 24px rgba(0,0,0,.18);padding:16px 18px 22px;">
+        <div style="font-weight:700;color:var(--navy);font-size:16px;" id="sub-ed-title"></div>
+        <div style="color:var(--sub);font-size:13px;margin:2px 0 12px;" id="sub-ed-task"></div>
+        <label style="display:flex;align-items:center;gap:10px;font-size:16px;margin:0 0 12px;"><input type="checkbox" id="sub-ed-done" style="width:24px;height:24px;"> Submitted</label>
+        <div style="display:flex;gap:10px;align-items:flex-end;">
+          <div style="flex:1;"><label style="font-size:13px;">Mark (optional)</label><input type="number" inputmode="decimal" id="sub-ed-score" style="width:100%;box-sizing:border-box;"></div>
+          <div style="flex:1;"><label style="font-size:13px;">Out of</label><input type="number" inputmode="decimal" id="sub-ed-out" style="width:100%;box-sizing:border-box;"></div>
+        </div>
+        <div class="btn-row" style="margin-top:14px;"><button class="btn-primary" id="sub-ed-save">Save</button><button class="btn-ghost" id="sub-ed-clear">Clear</button><button class="btn-ghost" id="sub-ed-cancel">Cancel</button></div>
+      </div>
+      <div id="sub-addbox" style="display:none;margin-top:10px;" class="card">
+        <label>New task name</label><input type="text" id="sub-add-name" placeholder="e.g. PhysiQ task 13 Nov: Mechanics (Topics 1–9)">
+        <label style="margin-top:8px;">Out of (leave blank if no mark)</label><input type="number" id="sub-add-out">
+        <div class="btn-row" style="margin-top:10px;"><button class="btn-primary" id="sub-add-save">Add</button><button class="btn-ghost" id="sub-add-cancel">Cancel</button></div>
+      </div>
       <h3 style="margin:26px 0 6px;color:var(--navy);">Chapter &amp; semester tests</h3>
       <p class="status-msg" style="margin:0 0 8px;">Each cell shows the student's best score for that test, the time taken on that attempt, and the number of attempts. The semester and batch filters above apply here too. Scores are also saved to the <b>Tests</b> sheet in your Google Sheet.</p>
       <div class="btn-row" style="margin-top:0;"><button class="btn-ghost" id="tdash-export">Export tests CSV</button><span class="status-msg" id="tdash-sync" style="align-self:center;margin:0 0 0 8px;"></span></div>
@@ -7902,6 +7926,183 @@ const NOTES_EXTRA = (function(){
     const logRows = att.slice(0,60).map(r=>`<tr style="border-bottom:1px solid var(--line);"><td style="padding:5px 8px;white-space:nowrap;">${escapeHtml(new Date(r.timestamp).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}))}</td><td style="padding:5px 8px;">${escapeHtml(r.name)}</td><td style="padding:5px 8px;">S${r.semester}</td><td style="padding:5px 8px;white-space:nowrap;">${escapeHtml(r.test)}</td><td style="padding:5px 8px;white-space:nowrap;">${r.score}/${r.total} (${r.percentage}%)</td><td style="padding:5px 8px;white-space:nowrap;">${fmtDur(r.durationSec)}</td></tr>`).join('');
     $('#tdash-log').innerHTML = att.length ? `<table style="border-collapse:collapse;font-size:12.5px;width:100%;"><thead><tr style="text-align:left;border-bottom:2px solid var(--line);"><th style="padding:5px 8px;">When</th><th style="padding:5px 8px;">Student</th><th style="padding:5px 8px;">Sem</th><th style="padding:5px 8px;">Test</th><th style="padding:5px 8px;">Score</th><th style="padding:5px 8px;">Time</th></tr></thead><tbody>${logRows}</tbody></table>` : '';
   }
+  // ----- submissions checklist (papers sent on paper / WhatsApp), synced through the key-value store -----
+  const SUB_KEY = 'submissions';
+  const SUB_LS = 'physiq_submissions_doc';
+  const SUB_SEED_AT = '2026-11-13T00:00:00.000Z';
+  const SUB_SEED = {
+    cells: [
+      ['1','2018','Ng Siqi',53],['1','2021','Ng Siqi',54],['1','2022','Ng Siqi',49],['1','2023','Ng Siqi',49],
+      ['1','2021','Loh Jeng Yin Aaron',47],['1','2022','Loh Jeng Yin Aaron',45],['1','s1-set-a','Loh Jeng Yin Aaron',27],
+      ['1','2024','Milashini a/p Ramu',50],
+      ['1','2023','Nur Rabbiha binti Shahrudin',50],['1','s1-set-a','Nur Rabbiha binti Shahrudin',37],['1','thermal','Nur Rabbiha binti Shahrudin',39],
+      ['1','2025u1','Damia binti Affandi',39],['1','thermal','Damia binti Affandi',9],
+      ['3','s3-2024','Tan Xin Ji',53],['3','s3-2025','Tan Xin Ji',35,45],['3','s3-set-b','Tan Xin Ji',26],['3','s3-set-c','Tan Xin Ji',26]
+    ],
+    tasks: [['1','c-1112','PhysiQ task 12 Nov: Thermal Physics (Topics 10–12)',null],['1','c-1113','PhysiQ task 13 Nov: Mechanics (Topics 1–9)',null]]
+  };
+  function subSeedDoc(){
+    const d = {cells:{}, tasks:{}};
+    SUB_SEED.cells.forEach(([sem,t,n,score,out])=>{ d.cells[sem+'|'+t+'|'+n] = {done:true, score, out: out == null ? null : out, at:SUB_SEED_AT}; });
+    SUB_SEED.tasks.forEach(([sem,id,label,out])=>{ d.tasks[sem+'|'+id] = {label, out, at:SUB_SEED_AT}; });
+    return d;
+  }
+  function subMerge(a, b){
+    const out = {cells:{}, tasks:{}};
+    ['cells','tasks'].forEach(k=>{
+      const A = (a && a[k]) || {}, B = (b && b[k]) || {};
+      new Set(Object.keys(A).concat(Object.keys(B))).forEach(id=>{
+        const x = A[id], y = B[id];
+        out[k][id] = !x ? y : !y ? x : (String(x.at) >= String(y.at) ? x : y);
+      });
+    });
+    return out;
+  }
+  function subLocal(){ try{ return JSON.parse(localStorage.getItem(SUB_LS) || 'null') || subSeedDoc(); }catch(e){ return subSeedDoc(); } }
+  function subLocalSave(d){ try{ localStorage.setItem(SUB_LS, JSON.stringify(d)); }catch(e){} }
+  let subDoc = subLocal(), subRemoteOk = false;
+  async function subPull(){
+    if (!GAS_READY) return false;
+    try{
+      const res = await fetch(GAS_WEBAPP_URL + '?action=get&key=' + SUB_KEY);
+      const j = await res.json();
+      if (!j || !j.ok) return false;
+      const remote = j.value ? JSON.parse(j.value) : subSeedDoc();
+      subDoc = subMerge(subMerge(subSeedDoc(), remote), subDoc);
+      subLocalSave(subDoc);
+      return true;
+    }catch(e){ console.warn('submissions: sheet not reachable', e); return false; }
+  }
+  async function subPush(){
+    subLocalSave(subDoc);
+    const msg = $('#sub-sync');
+    if (!GAS_READY){ msg.textContent = 'Saved on this device only.'; return; }
+    msg.textContent = 'Saving…';
+    const ok = await subPull();   // merge in anything saved on another device first
+    try{
+      await fetch(GAS_WEBAPP_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({key:SUB_KEY, value: JSON.stringify(subDoc)})});
+      msg.textContent = ok ? 'Saved to Google Sheet.' : 'Saved. (Google Sheet was slow to answer; it will catch up next time.)';
+    }catch(e){ msg.textContent = 'Google Sheet not reachable — saved on this device; it will sync next time.'; }
+    renderSubs();
+  }
+  const SUB_SHORT = n => {
+    const m = {'Loh Jeng Yin Aaron':'Aaron','Nur Rabbiha binti Shahrudin':'Rabbiha','Hiew Jun Ven':'Hiew','Tan Xin Ji':'Xin Ji','Ng Siqi':'Siqi','Rajveer Singh':'Rajveer'};
+    return m[n] || n.split(' ')[0];
+  };
+  function subTasks(sem){
+    const list = [];
+    let pp = [];
+    try{ pp = PAST_PAPERS.filter(p => (p.sem || 1) === +sem); }catch(e){}
+    pp.slice().sort((a,b)=> String(b.id).replace(/\D/g,'').localeCompare(String(a.id).replace(/\D/g,'')) || String(a.id).localeCompare(String(b.id)))
+      .forEach(p=> list.push({id:p.id, label:p.label.replace(/^STPM (\d{4}) · Paper \d/, 'STPM $1').replace(/\((also |retyped|new format)[^)]*\)/,'').replace('(Repeat, U1)','U1').replace('(Repeat, U3)','Ulangan').trim(), out:60, kind:'past'}));
+    revPapers(sem).forEach(p=>{
+      let m = 0; const walk = o => { if (Array.isArray(o)) o.forEach(walk); else if (o && typeof o === 'object'){ if (typeof o.m === 'number' && !o.parts) m += o.m; Object.values(o).forEach(walk); } };
+      walk(p.written || []);
+      list.push({id:p.id, label: p.title.replace(/^Revision Paper · /,'Revision ').replace(/^Trial Paper · /,'Trial ').replace(/^Practice Exercise · /,'Practice ') + (p.mcq && p.mcq.length ? ' — Sections B & C' : ''), out: m || null, kind:'rev'});
+    });
+    Object.keys(subDoc.tasks).filter(k=>k.split('|')[0] === String(sem)).forEach(k=>{
+      const t = subDoc.tasks[k]; if (t.del) return;
+      list.push({id:k.split('|')[1], label:t.label, out:t.out, kind:'custom'});
+    });
+    return list;
+  }
+  const subBatchFor = sem => String(sem) === '1' ? 'STPM 2027' : 'STPM 2026';
+  function fillSubBatch(){
+    const sel = $('#sub-batch'), sem = $('#sub-sem').value, cur = sel.value;
+    sel.innerHTML = Object.keys(ROSTER).map(b=>`<option value="${escapeHtml(b)}">Batch ${escapeHtml(b)}</option>`).join('');
+    sel.value = cur && sel.dataset.touched ? cur : subBatchFor(sem);
+  }
+  function renderSubs(){
+    const box = $('#sub-matrix'); if (!box) return;
+    const sem = $('#sub-sem').value, batch = $('#sub-batch').value || subBatchFor(sem);
+    const names = ROSTER[batch] || [];
+    const tasks = subTasks(sem);
+    const cell = (t, n) => subDoc.cells[sem+'|'+t.id+'|'+n];
+    const outOf = (t, c) => (c && c.out != null && c.out !== '') ? +c.out : t.out;
+    const th = t => `<th style="padding:6px 6px;text-align:center;white-space:nowrap;">${t}</th>`;
+    const stat = names.map(n=>{
+      let cnt = 0, got = 0, poss = 0;
+      tasks.forEach(t=>{ const c = cell(t,n); if (c && c.done){ cnt++; const o = outOf(t,c); if (c.score != null && c.score !== '' && o){ got += +c.score; poss += o; } } });
+      return {cnt, pct: poss ? Math.round(got/poss*100) : null};
+    });
+    const rows = tasks.map(t=>{
+      const tds = names.map(n=>{
+        const c = cell(t,n);
+        const k = encodeURIComponent(sem+'|'+t.id+'|'+n);
+        if (!c || !c.done) return `<td data-sub="${k}" style="padding:6px;text-align:center;color:#c9cdc6;cursor:pointer;font-size:18px;">+</td>`;
+        const o = outOf(t,c), hasS = c.score != null && c.score !== '';
+        const pct = hasS && o ? c.score/o*100 : null;
+        const bg = pct == null ? '#e6f4ea' : pct >= 75 ? '#e6f4ea' : pct >= 50 ? '#fff6e0' : '#fdeaea';
+        const txt = hasS ? `<b>${c.score}</b>${o ? `<span style="font-size:11px;">/${o}</span>` : ''}` : '<b style="color:#1e7d3a;font-size:18px;">✓</b>';
+        return `<td data-sub="${k}" style="padding:6px;text-align:center;white-space:nowrap;background:${bg};cursor:pointer;">${txt}</td>`;
+      }).join('');
+      return `<tr style="border-bottom:1px solid var(--line);"><td style="padding:6px 8px;position:sticky;left:0;background:var(--card,#fff);min-width:118px;max-width:150px;font-size:12px;line-height:1.3;">${escapeHtml(t.label)}${t.out ? ` <span style="color:var(--sub);">/${t.out}</span>` : ''}${t.kind==='custom' ? ` <a href="#" data-subdel="${encodeURIComponent(sem+'|'+t.id)}" style="color:var(--sub);font-size:11px;">remove</a>` : ''}</td>${tds}</tr>`;
+    }).join('');
+    box.innerHTML = `<table style="border-collapse:collapse;font-size:13px;min-width:100%;">
+      <thead><tr style="border-bottom:2px solid var(--line);"><th style="padding:6px 8px;text-align:left;position:sticky;left:0;background:var(--card,#fff);">Task</th>${names.map(n=>th(escapeHtml(SUB_SHORT(n)))).join('')}</tr>
+      <tr style="background:#f3f5ef;"><td style="padding:6px 8px;font-weight:700;position:sticky;left:0;background:#f3f5ef;">Submitted</td>${stat.map(s=>`<td style="padding:6px;text-align:center;font-weight:700;">${s.cnt}</td>`).join('')}</tr>
+      <tr style="background:#f3f5ef;border-bottom:2px solid var(--line);"><td style="padding:6px 8px;font-weight:700;position:sticky;left:0;background:#f3f5ef;">Overall %</td>${stat.map(s=>`<td style="padding:6px;text-align:center;font-weight:700;">${s.pct == null ? '—' : s.pct + '%'}</td>`).join('')}</tr></thead>
+      <tbody>${rows}</tbody></table>`;
+    box.querySelectorAll('[data-sub]').forEach(td=> td.addEventListener('click', ()=> openSubEditor(decodeURIComponent(td.dataset.sub))));
+    box.querySelectorAll('[data-subdel]').forEach(a=> a.addEventListener('click', ev=>{
+      ev.preventDefault();
+      const k = decodeURIComponent(a.dataset.subdel), t = subDoc.tasks[k];
+      if (!t || !confirmSafe('Remove the task "' + t.label + '"?')) return;
+      subDoc.tasks[k] = Object.assign({}, t, {del:true, at:new Date().toISOString()});
+      subPush();
+    }));
+  }
+  function confirmSafe(msg){ try{ return window.confirm(msg); }catch(e){ return true; } }
+  let subEditKey = null;
+  function openSubEditor(key){
+    subEditKey = key;
+    const [sem, tid, name] = key.split('|');
+    const t = subTasks(sem).find(x=>x.id === tid) || {label:tid, out:null};
+    const c = subDoc.cells[key];
+    $('#sub-ed-title').textContent = name;
+    $('#sub-ed-task').textContent = t.label;
+    $('#sub-ed-done').checked = c ? !!c.done : true;
+    $('#sub-ed-score').value = c && c.score != null ? c.score : '';
+    $('#sub-ed-out').value = c && c.out != null ? c.out : (t.out || '');
+    $('#sub-editor').style.display = 'block';
+    setTimeout(()=> $('#sub-ed-score').focus(), 50);
+  }
+  function closeSubEditor(){ $('#sub-editor').style.display = 'none'; subEditKey = null; }
+  $('#sub-ed-cancel').addEventListener('click', closeSubEditor);
+  $('#sub-ed-clear').addEventListener('click', ()=>{
+    if (!subEditKey) return;
+    subDoc.cells[subEditKey] = {done:false, score:null, out:null, at:new Date().toISOString()};
+    closeSubEditor(); renderSubs(); subPush();
+  });
+  $('#sub-ed-save').addEventListener('click', ()=>{
+    if (!subEditKey) return;
+    const [sem, tid] = subEditKey.split('|');
+    const t = subTasks(sem).find(x=>x.id === tid) || {out:null};
+    const sv = $('#sub-ed-score').value.trim(), ov = $('#sub-ed-out').value.trim();
+    const done = $('#sub-ed-done').checked || sv !== '';
+    subDoc.cells[subEditKey] = {done, score: sv === '' ? null : +sv, out: (ov === '' || +ov === t.out) ? null : +ov, at:new Date().toISOString()};
+    closeSubEditor(); renderSubs(); subPush();
+  });
+  $('#sub-sem').addEventListener('change', ()=>{ fillSubBatch(); renderSubs(); });
+  $('#sub-batch').addEventListener('change', ()=>{ $('#sub-batch').dataset.touched = '1'; renderSubs(); });
+  $('#sub-add').addEventListener('click', ()=>{ $('#sub-addbox').style.display = 'block'; $('#sub-add-name').focus(); });
+  $('#sub-add-cancel').addEventListener('click', ()=>{ $('#sub-addbox').style.display = 'none'; });
+  $('#sub-add-save').addEventListener('click', ()=>{
+    const label = $('#sub-add-name').value.trim(); if (!label) return;
+    const ov = $('#sub-add-out').value.trim();
+    subDoc.tasks[$('#sub-sem').value + '|c-' + Date.now().toString(36)] = {label, out: ov === '' ? null : +ov, at:new Date().toISOString()};
+    $('#sub-add-name').value = ''; $('#sub-add-out').value = ''; $('#sub-addbox').style.display = 'none';
+    renderSubs(); subPush();
+  });
+  async function initSubs(){
+    fillSubBatch(); renderSubs();
+    $('#sub-sync').textContent = 'Loading from Google Sheet…';
+    subRemoteOk = await subPull();
+    $('#sub-sync').textContent = subRemoteOk ? 'Synced with Google Sheet.' : 'Google Sheet not reachable — showing this device only.';
+    renderSubs();
+  }
+  document.addEventListener('physiq-teacher-unlocked', initSubs);
+
   $('#tdash-export').addEventListener('click', ()=>{
     const rows = window._tdashRows || [];
     const q = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
