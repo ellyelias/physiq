@@ -82,6 +82,12 @@ ${example('10.8', `What is the average translational kinetic energy of a molecul
   eq(`⟨<i>K</i>⟩ = ${fr('3', '2')}<i>kT</i> = ${fr('3', '2')}(1.38 × 10<sup>−23</sup>)(300) = <b>6.21 × 10<sup>−21</sup> J</b>`))}
 ${example('10.9', `One mole of oxygen (32 g) behaves as an ideal gas at 273 K and 1.01 × 10<sup>5</sup> Pa. Calculate (a) its volume, (b) its density, (c) the rms speed of its molecules, (d) the average translational kinetic energy of a molecule.`,
   steps([`(a) <i>V</i> = ${fr('<i>nRT</i>', '<i>p</i>')} = ${fr('(1)(8.31)(273)', '1.01 × 10<sup>5</sup>')} = <b>2.25 × 10<sup>−2</sup> m<sup>3</sup></b>`, `(b) ρ = ${fr('0.032', '2.25 × 10<sup>−2</sup>')} = <b>1.42 kg m<sup>−3</sup></b>`, `(c) <i>c</i><sub>rms</sub> = ${sq(fr('3<i>p</i>', 'ρ'))} = ${sq(fr('3(1.01 × 10<sup>5</sup>)', '1.42'))} = <b>461 m s<sup>−1</sup></b>`, `(d) ⟨<i>K</i>⟩ = ${fr('3', '2')}(1.38 × 10<sup>−23</sup>)(273) = <b>5.65 × 10<sup>−21</sup> J</b>`]) + note('The slide answer for (c), 5.94 × 10<sup>−10</sup> m s<sup>−1</sup>, is a slip; the rms speed of oxygen at 273 K is about 461 m s<sup>−1</sup>.'))}
+<div id="ls-10-vid-fog">
+${h4('Watch: Why does your windscreen fog up?')}
+<p>Temperature is a measure of the mean kinetic energy of the molecules. When water vapour molecules hit glass that is colder than the dew point of the air, they lose kinetic energy and stick together as tiny droplets: fog.</p>
+<div class="rl-vid rl-tall"><button type="button" class="rl-play" data-rl-play="-3h_B86EnMw" aria-label="Play video: Why does your windscreen fog up?"><img src="https://i.ytimg.com/vi/-3h_B86EnMw/hqdefault.jpg" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button>
+<div class="rl-vcap"><span>Why does your windscreen fog up? · Cikgu Suhaili</span> <a href="https://www.youtube.com/watch?v=-3h_B86EnMw" target="_blank" rel="noopener">Open in YouTube ↗</a></div></div>
+</div>
 `)}
 
 ${sec('10-4', '10.4 Degrees of freedom and equipartition of energy', `
