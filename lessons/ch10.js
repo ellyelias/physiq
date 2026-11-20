@@ -93,6 +93,9 @@ ${ul([`A monatomic molecule moves in three independent directions (<i>x</i>, <i>
 ${h4('Variation of the degrees of freedom of a diatomic molecule with temperature')}
 ${table(['Temperature', 'Modes of motion active', '<i>f</i>'], [['very low (about 30 K)', 'translational only', '3'], ['room temperature (about 300 K)', 'translational + rotational', '5'], ['very high (about 3000 K)', 'translational + rotational + vibrational', '7']])}
 <p>Rotational and vibrational modes are "frozen out" at low temperature because the energy gaps between their quantum levels are large compared with <i>kT</i>. As the temperature rises, <i>kT</i> becomes large enough to excite them, so the degrees of freedom, and the molar heat capacity, increase. (Vibration adds 2: kinetic and potential energy of the vibration.)</p>
+${h4('Watch: Does <i>f</i> change with temperature?')}
+<div class="rl-vid rl-tall"><button type="button" class="rl-play" data-rl-play="Ve58DueOAIo" aria-label="Play video: Does f change with temperature?"><img src="https://i.ytimg.com/vi/Ve58DueOAIo/hqdefault.jpg" alt="" loading="lazy"><span class="rl-pb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></button>
+<div class="rl-vcap"><span>Does f change with temperature? · Cikgu Suhaili</span> <a href="https://www.youtube.com/watch?v=Ve58DueOAIo" target="_blank" rel="noopener">Open in YouTube ↗</a></div></div>
 `)}
 
 ${sec('10-5', '10.5 Internal energy of an ideal gas', `
