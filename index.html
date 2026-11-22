@@ -1194,7 +1194,7 @@
 <script src="physiq-realworld.js?v=20261120c"></script>
 <script src="physiq-clinic.js?v=20261119b"></script>
 <script src="physiq-clinic-s1.js?v=20261116b"></script>
-<script src="physiq-revision.js?v=20261120d"></script>
+<script src="physiq-revision.js?v=20261122a"></script>
 <script src="physiq-sketch.js?v=20261116a"></script>
 <script>
 (function(){
@@ -7285,15 +7285,18 @@ const NOTES_EXTRA = (function(){
   const revTestName = p => 'Rev ' + p.code;
   const revFig = (p, f) => f && p.figures[f] ? `<div class="dgfig">${p.figures[f]}</div>` : '';
   const revText = s => mathify(escapeHtml(s)).replace(/\n/g, '<br>');
+  // correction to a printed paper (red, shown under the question)
+  const revCorr = s => s ? `<div class="rev-corr" style="margin:8px 0;padding:6px 10px;border:1px solid #c62828;border-left:4px solid #c62828;background:#fff5f5;color:#c62828;border-radius:6px;line-height:1.55;"><b>Correction:</b> ${revText(s)}</div>` : '';
   // Sections B and C. withScheme = true adds the MPM answer points (teacher only).
   function revWrittenHTML(p, withScheme){
     return p.written.map(b=>{
+      if (b.corr && !b.sub) return revCorr(b.corr);
       if (b.sec) return `<h3 style="margin:20px 0 4px;color:var(--navy);">${escapeHtml(b.sec)}</h3><p class="status-msg" style="margin:0 0 6px;">${escapeHtml(b.note||'')}</p>`;
       if (b.h) return `<div style="margin:16px 0 6px;font-weight:700;color:var(--navy);">${escapeHtml(b.h)}</div>`;
       if (b.fig) return revFig(p, b.fig);
       if (b.p) return `<div style="margin:6px 0;line-height:1.6;">${revText(b.p)}</div>`;
       if (b.sub){
-        let h = `<div style="margin:8px 0 4px;line-height:1.6;">${revText(b.sub)} <b style="white-space:nowrap;">[${b.m} mark${b.m > 1 ? 's' : ''}]</b></div>`;
+        let h = `<div style="margin:8px 0 4px;line-height:1.6;">${revText(b.sub)} <b style="white-space:nowrap;">[${b.m} mark${b.m > 1 ? 's' : ''}]</b></div>${revCorr(b.corr)}`;
         if (withScheme) h += `<div style="margin:4px 0 10px 14px;padding:8px 12px;border-left:3px solid #c62828;background:#fff7f7;border-radius:4px;"><b style="color:#c62828;">Answer</b>${b.ansFig ? revFig(p, b.ansFig) : ''}${b.ans.map(a=>`<div style="margin:3px 0;line-height:1.6;">${revText(a)}</div>`).join('')}</div>`;
         return h;
       }
@@ -7340,10 +7343,11 @@ const NOTES_EXTRA = (function(){
       if (b.sec){ closeQ(); html += `<h3 class="pt-sec">${escapeHtml(b.sec)} <span>${escapeHtml(b.note || '')}</span></h3>`; return; }
       if (b.h){ closeQ(); q = parseInt(b.h, 10); html += `<div class="rv-q" data-rq="${q}"><div style="margin:16px 0 6px;font-weight:700;color:var(--navy);">${escapeHtml(b.h)}</div>`; return; }
       if (b.fig){ html += revFig(p, b.fig); return; }
+      if (b.corr && !b.sub){ html += revCorr(b.corr); return; }
       if (b.p){ html += `<div style="margin:6px 0;line-height:1.6;">${revText(b.p)}</div>`; return; }
       if (b.sub){
         const sub = /^\((i{1,3}|iv|v)\)/.test(b.sub);
-        html += `<div style="margin:8px 0 2px;line-height:1.6;">${revText(b.sub)} <b style="white-space:nowrap;">[${b.m} mark${b.m > 1 ? 's' : ''}]</b></div>
+        html += `<div style="margin:8px 0 2px;line-height:1.6;">${revText(b.sub)} <b style="white-space:nowrap;">[${b.m} mark${b.m > 1 ? 's' : ''}]</b></div>${revCorr(b.corr)}
           <textarea class="pt-box${sub ? ' pt-box-sub' : ''} rv-box" data-rk="${q}|${j}" data-rq="${q}" rows="3" maxlength="4000" placeholder="Type your answer and working here" aria-label="Your answer for Question ${q}"></textarea>`;
       }
     });
@@ -7541,7 +7545,7 @@ const NOTES_EXTRA = (function(){
       const opts = q.options.map((o,k)=>`<div style="margin:2px 0;${k === q.correctIndex ? 'font-weight:700;color:#c62828;' : ''}">${L[k]}. ${revText(o)}</div>`).join('');
       const notes = q.options.map((o,k)=> k === q.correctIndex ? '' : `<div style="margin:2px 0;color:#1e3a8a;"><b>${L[k]}:</b> ${revText(q.optionNotes[k]||'')}</div>`).join('');
       return `<div style="margin:12px 0;padding-top:10px;border-top:1px solid var(--line);">
-        <div style="line-height:1.6;"><b>Question ${i+1}.</b> ${revText(q.question)}</div>${revFig(p, q.fig)}
+        <div style="line-height:1.6;"><b>Question ${i+1}.</b> ${revText(q.question)}</div>${revFig(p, q.fig)}${revCorr(q.correction)}
         <div style="margin:6px 0;">${opts}</div>
         <div style="margin:6px 0;line-height:1.6;color:#c62828;"><b>Answer: ${L[q.correctIndex]}.</b><br>${revText(q.explanation).replace(/(^|<br>)(Given|Formula|Working|Answer|Key point|Check):/g,'$1<b>$2:</b>')}</div>
         <div style="margin:6px 0 0;"><b style="color:#1e3a8a;">Why the other options are wrong</b>${notes}</div></div>`;
@@ -7707,7 +7711,7 @@ const NOTES_EXTRA = (function(){
     $('#tt-progress-fill').style.width = `${(index/questions.length)*100}%`;
     $('#tt-label-badge').textContent = ttState.title.toUpperCase();
     $('#tt-qtag').innerHTML = escapeHtml(stripSem(q.topic)) + srcPillHTML(q);
-    $('#tt-qtext').innerHTML = mathify(escapeHtml(q.question));
+    $('#tt-qtext').innerHTML = mathify(escapeHtml(q.question)) + (q.correction ? revCorr(q.correction) : '');
     $('#tt-diagram').innerHTML = (window.PHYSIQ_DIAGRAMS && window.PHYSIQ_DIAGRAMS[q.id]) || '';
     const el = $('#tt-choices');
     el.innerHTML = q.options.map((o,i)=>`<button class="rchoice" data-idx="${i}">${String.fromCharCode(65+i)}. ${mathify(escapeHtml(o))}</button>`).join('');
@@ -7778,7 +7782,7 @@ const NOTES_EXTRA = (function(){
       return `<details id="tt-rq-${i}" style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;scroll-margin-top:70px;"${ok?'':' open'}>
         <summary style="cursor:pointer;font-weight:700;color:${ok?'#2e7d32':'#c62828'};">Q${i+1} · ${ok?'Correct ✓':'Wrong ✗'} · ${escapeHtml(q.difficulty)} · ${escapeHtml(stripSem(q.topic))}${q.source ? ' · ' + escapeHtml(q.source) : ''}</summary>
         <div style="margin-top:8px;white-space:pre-wrap;">${mathify(escapeHtml(q.question))}</div>
-        ${dg ? `<div style="margin:8px 0;">${dg}</div>` : ''}
+        ${dg ? `<div style="margin:8px 0;">${dg}</div>` : ''}${q.correction ? revCorr(q.correction) : ''}
         <div style="margin-top:8px;">${opts}</div>
         ${known ? '' : '<div style="font-size:12px;color:var(--sub);margin-top:4px;">The option you chose was not saved for this attempt, only whether it was right or wrong.</div>'}
         <div style="margin-top:10px;white-space:pre-wrap;"><b>Solution:</b> ${exp}</div>

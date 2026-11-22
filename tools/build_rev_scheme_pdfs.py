@@ -5,7 +5,7 @@ import asyncio, os
 from playwright.async_api import async_playwright
 BASE = 'http://localhost:8765/'
 # papers whose marking scheme PDF is a hand-built detailed Q&A document (LaTeX); never overwrite them here
-KEEP = {'1:s1-set-b', '1:s1-trial-2027'}
+KEEP = {'1:s1-set-b', '1:s1-trial-2027', '1:s1-trial-2027-2'}
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
