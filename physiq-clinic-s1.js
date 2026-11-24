@@ -1,5 +1,5 @@
 /* PhysiQ Concept Clinic, Semester 1: animations built from the mistakes in the marked STPM 2022 Paper 1 scripts.
-   Topics: projectiles (Ch 2), terminal velocity and momentum signs (Ch 3), conical pendulum (Ch 5), g and r (Ch 6),
+   Topics: projectiles (Ch 2), terminal velocity and momentum signs (Ch 3), power of a lift (Ch 4), conical pendulum (Ch 5), g and r (Ch 6),
    ladder statics, plank on two supports, lamina with a hole and toppling (Ch 8), force–extension energy (Ch 9), adiabatic compression (Ch 11), conduction and convection (Ch 12).
    Registers with physiq-clinic.js, which must load first. */
 (function () {
@@ -141,6 +141,59 @@
       if (t > 5.4) R(ctx, ['= 0.20(−3.0 − 5.0) = −1.6 N s   ✓'], bx0, by0 + fs * 1.7, { size: fs * 1.1, w: 700, c: C.green });
       if (t > 6.6) R(ctx, ['0.20(3.0 − 5.0) = −0.40 N s   ✗  sign of v forgotten'], bx0, by0 + fs * 3.3, { size: fs * 1.0, w: 700, c: C.red });
       if (t > 7.6) T(ctx, 'The wall pushes the ball to the left (negative direction).', bx0, by0 + fs * 4.9, { size: fs * 0.95, c: C.ink });
+    } }));
+
+  /* ---------- Ch 4 Power of a lift ---------- */
+  add('liftpower', { vids: [{ id: 'EcZTwpOcgbE', title: 'Power of a Lift' }], lesson: 'LESSON-4', ch: 4, title: 'Power of a lift: add all three jobs', sub: 'KE + PE + work against friction, then divide by t in seconds',
+    eq: 'P = ' + FRAC('ΔK + ΔU + W<sub>f</sub>', 't'), eqn: 'Average power of the lifting mechanism, t in seconds',
+    pts: ['Work done by the lifting mechanism = gain in KE + gain in PE + work against friction.',
+      'ΔK = ½mv<sup>2</sup> − ½mu<sup>2</sup> = ½(1000)(4.0)<sup>2</sup> − 0 = 8 000 J',
+      'ΔU = mgh = (1000)(9.81)(25) = 245 250 J', 'W<sub>f</sub> = fh = (500)(25) = 12 500 J',
+      'W = 265 750 J, so P = W/t = 265 750/60 = <b>4.43 × 10<sup>3</sup> W</b>. Convert 1.0 min to 60 s first.',
+      'P = W/t gives the average power. P = Fv gives the power at one instant. At constant speed, ΔK = 0 and F = mg + f, so both methods agree.'],
+    segs: [['mode', [['q', 'Q22(b)'], ['const', 'Constant speed'], ['trap', 'Common mistakes']]]] },
+  () => ({ mode: 'q', t: 0, reset() { this.t = 0; }, set(k, v) { this[k] = v; this.reset(); },
+    draw(ctx, w, h, dt) {
+      const fs = FS(w), m = this.mode; this.t += dt; if (this.t > 14) this.t = 0;
+      const t = this.t, rise = m === 'const' ? clamp(t / 5, 0, 1) : (x => x * x)(clamp(t / 5, 0, 1));
+      const sx0 = w * 0.05, sx1 = w * 0.21, top = h * 0.2, bot = h * 0.9, cw = (sx1 - sx0) * 0.72, ch = (bot - top) * 0.2;
+      const xm = (sx0 + sx1) / 2, yb = bot - 4 - rise * (bot - top - ch - 8);
+      ctx.fillStyle = rgba(C.line, .6); ctx.fillRect(sx0, top, sx1 - sx0, bot - top);
+      line(ctx, sx0, top, sx0, bot, C.muted, 3); line(ctx, sx1, top, sx1, bot, C.muted, 3); line(ctx, sx0 - 10, bot, sx1 + 10, bot, C.muted, 3);
+      rrect(ctx, sx0 - 6, top - h * 0.09, sx1 - sx0 + 12, h * 0.09, 6); ctx.fillStyle = '#2E4630'; ctx.fill();
+      T(ctx, 'MOTOR', xm, top - h * 0.03, { size: fs * 0.7, a: 'center', c: C.gold, w: 700 });
+      line(ctx, xm, top, xm, yb - ch, '#C9D1DC', 2.5);
+      rrect(ctx, xm - cw / 2, yb - ch, cw, ch, 6); ctx.fillStyle = '#3A5236'; ctx.fill(); ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.stroke();
+      T(ctx, '1000 kg', xm, yb - ch / 2 + fs * 0.3, { size: fs * 0.75, a: 'center', c: C.ink, w: 700 });
+      if (rise > 0 && rise < 1) { [xm - cw / 2 - 6, xm + cw / 2 + 6].forEach(x => { for (let i = 0; i < 3; i++) line(ctx, x, yb - ch * rnd(), x + (x < xm ? -6 : 6), yb - ch * rnd() + 8, rnd() < .5 ? C.red : C.xr, 2); }); }
+      const v = m === 'const' ? 0.42 : 4.0 * clamp(t / 5, 0, 1);
+      R(ctx, ['v = ' + v.toFixed(1) + ' m s', '^−1'], xm, h * 0.06, { size: fs * 0.85, a: 'center', c: C.cyan, w: 700 });
+      const x = w * 0.27; let y = h * 0.12;
+      const gap = Math.max(fs * 1.75, h * 0.07), L = (p, o) => { R(ctx, p, x, y, Object.assign({ size: fs, w: 600 }, o)); y += gap; };
+      const bars = (p, list) => { const bw = w * 0.36; list.forEach(([lab, col, val]) => { R(ctx, lab, x, y + fs * 0.2, { size: fs * 0.85, c: col, w: 700 });
+          rrect(ctx, x + w * 0.11, y - fs * 0.6, bw, fs, 4); ctx.fillStyle = rgba(C.line, .9); ctx.fill();
+          const ww = bw * val / 245250 * p; if (ww > 0) { rrect(ctx, x + w * 0.11, y - fs * 0.6, Math.max(ww, 8), fs, 4); ctx.fillStyle = col; ctx.fill(); }
+          T(ctx, (Math.round(val * p)).toLocaleString('en').replace(/,/g, ' ') + ' J', x + w * 0.11 + bw + 8, y + fs * 0.2, { size: fs * 0.85, c: col, w: 700 }); y += Math.max(fs * 1.6, h * 0.065); }); };
+      if (m === 'q') {
+        L(['Where the motor’s work goes'], { size: fs * 1.2, f: DISP, w: 700, c: C.gold });
+        bars(clamp(t / 5, 0, 1), [[['ΔK'], C.cyan, 8000], [['ΔU'], C.green, 245250], [['W', '_f'], C.red, 12500]]); y += fs * 0.4;
+        if (t > 5.5) L(['W = 8 000 + 245 250 + 12 500 = 265 750 J']);
+        if (t > 6.8) L(['t = 1.0 min = 60 s'], { c: C.xr, w: 700 });
+        if (t > 8) { y += fs * 0.3; L(['P = 265 750 / 60 = 4.43 × 10', '^3', ' W  ✓'], { size: fs * 1.25, w: 700, c: C.green }); }
+      } else if (m === 'const') {
+        L(['Same lift, constant speed'], { size: fs * 1.2, f: DISP, w: 700, c: C.gold });
+        L(['v = 25/60 = 0.417 m s', '^−1', ' all the way, so ΔK = 0'], { size: fs * 0.95 });
+        bars(clamp(t / 5, 0, 1), [[['ΔK'], C.cyan, 0], [['ΔU'], C.green, 245250], [['W', '_f'], C.red, 12500]]); y += fs * 0.3;
+        if (t > 5.5) L(['W/t = (245 250 + 12 500)/60 = 4.30 × 10', '^3', ' W']);
+        if (t > 7) L(['Fv = (mg + f)v = (9810 + 500)(0.417)'], { c: C.ink });
+        if (t > 8.2) L(['   = 4.30 × 10', '^3', ' W  ✓  same answer'], { w: 700, c: C.green });
+      } else {
+        L(['Three ways to lose the marks'], { size: fs * 1.2, f: DISP, w: 700, c: C.gold });
+        if (t > 1) { L(['mgh/t = 245 250/60 = 4.09 × 10', '^3', ' W  ✗'], { c: C.red, w: 700 }); L(['KE and friction left out'], { size: fs * 0.85, c: C.muted }); }
+        if (t > 3) { L(['265 750/1.0 = 265 750 W  ✗'], { c: C.red, w: 700 }); L(['t must be in seconds, not minutes'], { size: fs * 0.85, c: C.muted }); }
+        if (t > 5) { L(['P = Fv with v = 4.0 m s', '^−1', '  ✗'], { c: C.red, w: 700 }); L(['That is power at the top only, not the average'], { size: fs * 0.85, c: C.muted }); }
+        if (t > 7) { y += fs * 0.3; L(['(ΔK + ΔU + W', '_f', ')/t = 4.43 × 10', '^3', ' W  ✓'], { size: fs * 1.15, w: 700, c: C.green }); }
+      }
     } }));
 
   /* ---------- Ch 5 Conical pendulum ---------- */
