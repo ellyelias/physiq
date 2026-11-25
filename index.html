@@ -17609,6 +17609,83 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
     ]
   };
 
+  TYPED["s3-2026"] = {
+    marks:{A:20, B:14, C:26}, cNote:"Answer all questions.",
+    A: [
+      {q:`A pendulum bob that undergoes simple harmonic motion after being released from <i>P</i> is shown in the diagram below.`, fig:"q1",
+       q2:`Which statement is true about the motion of the pendulum bob?`,
+       opts:["The acceleration of the pendulum bob at <i>Q</i> is zero.","The acceleration of the pendulum bob is always constant.","The acceleration of the pendulum bob is directly proportional to the displacement, <i>x</i>.","The acceleration of the pendulum bob is directly proportional to the square of displacement, <i>x</i><sup>2</sup>."]},
+      {q:`A car that travels at a speed of 25 m s<sup>−1</sup> collides with a huge spring and causes the spring to compress for 5.0 m. If the car and the spring can be considered as spring-mass system performing a simple harmonic motion, how long will the car be in contact with the spring?`,
+       opts:["0.31 s","0.63 s","1.3 s","2.6 s"]},
+      {q:`A pulse which moves with uniform velocity along a string attached to a wall and then reflected by the wall is shown in the diagram below.`, fig:"q3",
+       q2:`Which graph represents the variation of displacement, <i>y</i>, with time, <i>t</i>, for <i>X</i> on the string?`,
+       optImgs:["q3oA","q3oB","q3oC","q3oD"]},
+      {q:`A beam of sunlight on the surface of the Earth is converged by a lens onto an area 150 times smaller than its original area. Which is the new intensity of the beam?<br>[Assume that the average intensity of sunlight on the surface of the Earth is 700 W m<sup>−2</sup>.]`,
+       opts:["0.214 W m<sup>−2</sup>","4.67 W m<sup>−2</sup>","1.05 × 10<sup>5</sup> W m<sup>−2</sup>","1.58 × 10<sup>7</sup> W m<sup>−2</sup>"]},
+      {q:`Which graph does <b>not</b> correspond to the equation of particle displacement, <i>y</i>, as a function of time, <i>t</i>?`,
+       optImgs:["q5oA","q5oB","q5oC","q5oD"], wide:true},
+      {q:`The sound intensity level for a normal conversation is 50 dB while that of a busy traffic is 80 dB. Which is the value of ${frac('sound intensity for a busy traffic','sound intensity for a normal conversation')}?`,
+       opts:["2.0","30","1000","4000"]},
+      {q:`A cylinder of length 45 cm is partially filled with water. The height of the water is adjusted so that resonance occurs at a fundamental frequency of 420 Hz. Which is the height of the water column?<br>[Assume that the speed of sound is 345 m s<sup>−1</sup>.]`,
+       opts:["3.93 cm","20.5 cm","24.5 cm","41.1 cm"]},
+      {q:`The side-view mirror of a car is designed as a convex mirror because the image formed will be`,
+       opts:["virtual and upright","virtual and larger","larger and upright","real and larger"]},
+      {q:`A diverging meniscus lens has the radii of curvatures of 10.0 cm and 15.0 cm. The refractive index of the lens is 1.50. If the lens is placed in the water with a refractive index of 1.33, the focal length of the lens is`,
+       opts:["−235 cm","−53.0 cm","47.0 cm","265 cm"]},
+      {q:`Circular wavefronts are produced from a point source as shown in the diagram below.`, fig:"q10",
+       q2:`The wavefronts move in the direction of propagation of waves. Which statement is true about the wavefronts?`,
+       opts:[`The distance between two successive wavefronts is ${frac('<i>λ</i>','2')}.`,"Every point on the wavefront acts as a source of wavelets.","The new wavefront is the circumference of all the wavelets.","The wavefront spreads out in the forward direction at a greater speed than the wave."]},
+      {q:`Interference occurs when two waves from coherent sources meet. Which statement is true about the two waves?`,
+       opts:["The two waves must have the same amplitude.","The two waves must propagate with different speeds.","The two waves must have a constant phase difference.","The two waves must propagate at different frequencies."]},
+      {q:`A monochromatic beam of light of wavelength 560 nm is directed normally to a diffraction grating which has 600 lines per mm. Which is the highest order of the diffraction pattern that could be produced?`,
+       opts:["1","2","3","4"]},
+      {q:`Which is <b>not</b> the advantage of using fibre optic cables in telecommunications compared to copper cables?`,
+       opts:["Noise-resistant","Heavier than copper","Carries more information","Low loss of energy when sending signals"]},
+      {q:`According to de Broglie hypothesis, the wavelength of a particle, <i>λ</i>, is related to the momentum, <i>p</i>, by`,
+       opts:[`<i>λ</i> ∝ ${frac('1','<i>p</i>')}`,"<i>λ</i> ∝ <i>p</i>","<i>λ</i> ∝ <i>p</i><sup>2</sup>",`<i>λ</i> ∝ ${frac('1','√<i>p</i>')}`]},
+      {q:`Electrons are emitted when a metal plate is illuminated by an electromagnetic radiation. Which statement is true if the intensity of the electromagnetic radiation is increased?`,
+       opts:["More electrons and a larger maximum kinetic energy will be emitted.","More electrons and the same maximum kinetic energy will be emitted.","The same number of electrons and a larger maximum kinetic energy will be emitted.","The same number of electrons and the same maximum kinetic energy will be emitted."]},
+      {q:`The characteristic X-rays can be produced by bombarding a metal target with electrons. The X-rays are produced when`,
+       opts:["the incoming electrons fill the vacant valence shells","the electrons in the innermost shells are captured by nuclei","the electrons from outer shells fill the vacant innermost shells","the incoming electrons radiate all the energy in the form of electromagnetic waves"]},
+      {q:`Which statement is <b>not true</b> about nanoscience?`,
+       opts:["Nanogold can be a good chemical catalyst.","Nanoparticles enhance electrical transport in electronic devices.","Physical properties of particles substantially changes at nanoscale.","Gravity is dominant compared to electromagnetic forces between nanoparticles."]},
+      {q:`The mass of an atom <sup><i>A</i></sup><sub><i>Z</i></sub><i>X</i> is <i>M</i>. If the mass of a proton is <i>M</i><sub>p</sub>, the mass of a neutron is <i>M</i><sub>n</sub> and the mass of an electron is <i>M</i><sub>e</sub>, which is the mass defect of nucleus <i>X</i>?`,
+       opts:["<i>ZM</i><sub>p</sub> + (<i>A</i> − <i>Z</i>)<i>M</i><sub>n</sub> + <i>ZM</i><sub>e</sub> − <i>M</i>","<i>AM</i><sub>p</sub> + (<i>A</i> − <i>Z</i>)<i>M</i><sub>n</sub> − <i>AM</i><sub>e</sub> − <i>M</i>","<i>ZM</i><sub>p</sub> + (<i>A</i> − <i>Z</i>)<i>M</i><sub>n</sub> − <i>ZM</i><sub>e</sub> − <i>M</i>","<i>AM</i><sub>p</sub> + (<i>A</i> − <i>Z</i>)<i>M</i><sub>n</sub> + <i>AM</i><sub>e</sub> − <i>M</i>"]},
+      {q:`A radioactive isotope <i>X</i> contains 10<sup>20</sup> atoms and its half-life is 24 hours. What is the initial activity of the isotope?`,
+       opts:["8.023 × 10<sup>14</sup> Bq","1.157 × 10<sup>15</sup> Bq","2.888 × 10<sup>18</sup> Bq","4.167 × 10<sup>18</sup> Bq"]},
+      {q:`Which is true about nuclear fusion?`,
+       opts:["A nucleus splits into individual nucleons.","A heavy nucleus splits into lighter nuclei.","Two nucleons combined to form a nucleus.","Two light nuclei combined to form a heavier nucleus."]}
+    ],
+    B: [
+      {n:21, stem:`An ambulance travels at a speed of 108 km h<sup>−1</sup> and emits a siren with a frequency of 500 Hz, while a police car travels at a speed of 72 km h<sup>−1</sup> in the opposite direction and emits a siren with a frequency of 520 Hz.<br>[The speed of sound in the air is 343 m s<sup>−1</sup>.]`, parts:[
+        ["(a)","Calculate the apparent frequencies heard by the driver of the police car and the driver of the ambulance.",3],
+        ["(b)","Calculate the beat frequency of the driver of the police car.",2],
+        ["(c)","If the police car is stationary, determine the change in beat frequency of the driver of the police car.",2]]},
+      {n:22, stem:`A key is placed 10 cm from a convex lens and 40 cm from the concave lens as shown in the diagram below.`, fig:"q22", parts:[
+        ["","The focal lengths of the convex lens and the concave lens are 15 cm and 12 cm respectively.",""],
+        ["(a)","Calculate the distance of the image formed by the convex lens.",2],
+        ["(b)","Calculate the distance of the final image.",2],
+        ["(c)","Determine the magnification of the final image.",3]]}
+    ],
+    C: [
+      {n:23, stem:"", parts:[
+        ["(a)","State <b>three</b> characteristics of a standing wave.",3],
+        ["(b)","A string is attached to an oscillator that passes over a frictionless pulley to a load of mass 2.0 kg as shown in the diagram below.",""],
+        ["fig","q23"],
+        ["","The string has a length of 1.50 m and a linear density of 0.0060 kg m<sup>−1</sup>. When the oscillator is switched on, standing waves are produced.",""],
+        ["(i)","Sketch the third harmonic of the standing waves and label the position of nodes and antinodes.",2],
+        ["(ii)","Calculate the frequency of the third harmonic.",5],
+        ["(c)","State <b>three</b> differences between electromagnetic wave and mechanical wave.",3]]},
+      {n:24, stem:"", parts:[
+        ["(a)","",""],
+        ["(i)","State <b>two</b> important observations in photoelectric effect experiments.",2],
+        ["(ii)","Explain the observations in (a)(i) by using the concept of quantisation of light.",4],
+        ["(b)","In a photoelectric experiment, a metal target with a work function of 2.14 eV is illuminated by a radiation of wavelength 560 nm.",""],
+        ["(i)","Determine the maximum velocity of the photoelectrons.",3],
+        ["(ii)","Determine the stopping potential of the photoelectrons.",4]]}
+    ]
+  };
+
   TYPED["s3-2025"] = {
     A: [
       {q:`A particle in an oscillatory system returns to an equilibrium position in the shortest time. Which is true about the oscillatory system?`,
@@ -19113,6 +19190,12 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
       ["18","(a)(ii) 50 V; (iii) C = 2.21 × 10⁻¹¹ F, U = 2.77 × 10⁻⁸ J"],
       ["19","(c) J = 2.67 × 10⁶ A m⁻², E = 0.273 V m⁻¹, σ = 9.78 × 10⁶ Ω⁻¹ m⁻¹, τ = mσ/(ne²) = 2.5 × 10⁻¹⁵ s"],
       ["20","(b)(i) external resistance 10 Ω, I = 1.04 A, V_KL = 5.22 V; (ii) εI = 12.5 W; (iii) R_x = 3.33 Ω"]]},
+    {id:"s3-2026", sem:3, label:"STPM 2026 · Paper 3 (new format)", pages:7, keySrc:"Worked answers by Cikgu Suhaili (MPM has not published the 2026 report yet)",
+     key:"CBDCDCCAABCBBABCDAAD", note:"New format: Section A has 20 questions; Sections B and C are both compulsory.\n\nThis scan has a student's pen marks. Ignore them: some circled options are wrong.\n\nQuestion 21: \"opposite direction\" is taken as the two vehicles moving towards each other. If they move away from each other: (a) 433 Hz and 448 Hz; (b) 87 Hz; (c) 27 Hz.",
+     answers:[["21","(a) police driver: 500(343 + 20)/(343 − 30) = 580 Hz; ambulance driver: 520(343 + 30)/(343 − 20) = 600 Hz; (b) 580 − 520 = 60 Hz; (c) 500(343)/(343 − 30) = 548 Hz, beat = 28 Hz, so the beat frequency decreases by 32 Hz"],
+      ["22","(a) v = −30 cm: 30 cm from the convex lens, on the same side as the key (virtual); (b) u = 60 cm, v = −10 cm: 10 cm from the concave lens (virtual); (c) m = 3 × 1/6 = 0.5 (upright)"],
+      ["23","(a) Any three: nodes and antinodes at fixed positions; amplitude varies from zero (node) to maximum (antinode); no net transfer of energy; adjacent nodes are λ/2 apart; particles between adjacent nodes vibrate in phase. (b)(i) three loops, 4 nodes and 3 antinodes, a node at each end; (ii) T = 19.6 N, v = √(T/μ) = 57.2 m s⁻¹, λ = 2(1.50)/3 = 1.00 m, f = 57.2 Hz. (c) EM waves need no medium, are always transverse and are oscillating electric and magnetic fields travelling at 3.00 × 10⁸ m s⁻¹; mechanical waves need a medium, can be transverse or longitudinal and are oscillating particles"],
+      ["24","(a)(i) no emission below the threshold frequency however intense the light; K_max increases with frequency and does not depend on intensity (also: instantaneous emission; photocurrent ∝ intensity). (ii) light is photons of energy hf; one photon gives all its energy to one electron; emission only if hf ≥ W₀ (f₀ = W₀/h); K_max = hf − W₀ depends on f only, intensity changes only the number of photons. (b)(i) E = hc/λ = 3.552 × 10⁻¹⁹ J, K_max = 1.28 × 10⁻²⁰ J, v_max = 1.68 × 10⁵ m s⁻¹; (ii) V_s = K_max/e = 0.080 V"]]},
     {id:"s3-2025", sem:3, label:"STPM 2025 · Paper 3", pages:7, keySrc:"Worked answers (MPM has not published the 2025 report yet)",
      key:"DDABCADBCCCCDCB", note:"This scan has a student's pen marks. Ignore them: some circled options are wrong.",
      answers:[["16","(a) x = −0.060 cos (5.24t) m; (b) v = 0.272 m s⁻¹; (c) a_max = Aω² = 1.64 m s⁻²"],
@@ -19434,7 +19517,7 @@ ${nf('dQ', 'dt')} = ${nf('390 × 4.0 × 10⁻⁴ × (100 − 79.6)', '0.10')} [1
   // learn.js asks PQ for the student's name
   const PQ = {studentName: () => ACT.name(), setName: n => ACT.setName(n)};
 
-  const QA_READY = ["2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025","2025u1","2026","s2-2013","s2-2014","s2-2015","s2-2016","s2-2017","s2-2018","s2-2019","s2-2020","s2-2021","s2-2022","s2-2023","s2-2024","s2-2025","s2-2026","s3-2013","s3-2013u","s3-2014","s3-2014u","s3-2015","s3-2015u","s3-2016","s3-2017","s3-2018","s3-2019","s3-2020","s3-2021","s3-2022","s3-2023","s3-2024","s3-2025","u2-2013","u2-2014","u2-2015","u2-2016","u2-2017","u2-2018","u2-2019","u2-2020","u2-2021","u2-2022","u2-2023","u2-2024","u2-2025"];
+  const QA_READY = ["2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025","2025u1","2026","s2-2013","s2-2014","s2-2015","s2-2016","s2-2017","s2-2018","s2-2019","s2-2020","s2-2021","s2-2022","s2-2023","s2-2024","s2-2025","s2-2026","s3-2013","s3-2013u","s3-2014","s3-2014u","s3-2015","s3-2015u","s3-2016","s3-2017","s3-2018","s3-2019","s3-2020","s3-2021","s3-2022","s3-2023","s3-2024","s3-2025","s3-2026","u2-2013","u2-2014","u2-2015","u2-2016","u2-2017","u2-2018","u2-2019","u2-2020","u2-2021","u2-2022","u2-2023","u2-2024","u2-2025"];
   // ---------- teacher dashboard: every student's activity (from the Activity sheet) ----------
   let actRows = [];
   function actPct(c, t){ return t ? Math.round(c / t * 100) : 0; }
