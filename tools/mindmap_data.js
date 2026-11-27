@@ -1279,6 +1279,62 @@ module.exports = K => ({
 
 
 
+  'S1-TECH': {
+    kicker: 'Semester 1 · 960/1',
+    topRight: 'Answering technique mind map',
+    hubTitle: 'Answering<br>Technique',
+    idea: '**Never lose a mark on technique.** Then make sure the concept is right: wrong physics scores nothing.',
+    hubAt: 0,
+    boxes: [
+      { t: 'How marks are given', c: 'blue', col: 'L', body: [
+        ['num', ['**Correct formula** written (e.g. $a = r\\alpha$ scores)', '**Wrong physics** → no marks for substitution', '**Answer + unit** (usually 1 mark)']],
+        ['note', '**Exception:** memorised projectile $H$, $T$, $R$ earn **no** formula mark. Show them from the equations of motion.'],
+        ['b', ['**ECF:** a wrong (a) used correctly in (b) still scores.', '**Graphs:** label both axes.']],
+      ] },
+      { t: 'Constants & significant figures', c: 'green', col: 'L', body: [
+        ['kv', [['Section A', 'calculator constants OK (saves time)'], ['Sections B, C', 'constants from the **data list**']]],
+        ['b', ['Safe: **least s.f. in the data** (A-level).', '4 s.f. is only **accepted**.', 'Never 1 s.f.; 5 s.f. = wrong.', 'Penalty once per script, but 1 mark counts.']],
+        ['sub', ['Example', ['p', '$F = \\dfrac{(6.67\\times10^{-11})(90)(90)}{(0.40)^2}$'], ['p', '$= 3.4\\times10^{-6}$ N']], 'green'],
+      ] },
+      { t: 'State, define, explain', c: 'pink', col: 'M', body: [
+        ['b', ['**State/define:** a sentence, no explanation, not a formula alone.', '**Explain:** in sequence. Ask "if this happens, what follows?"']],
+        ['sub', ['Statement must match formula', ['p', '"gravitational **force**"'], ['f', 'F = -\\dfrac{Gm_1m_2}{r^2}'], ['p', '"gravitational **attractive** force"'], ['f', 'F = \\dfrac{Gm_1m_2}{r^2}']], 'pink'],
+        ['p', 'Work done = **scalar product** $\\mathbf{F}\\cdot\\mathbf{s}$.'],
+      ] },
+      { t: 'Complete definitions', c: 'orange', col: 'M', body: [
+        ['kv', [['Stress', '**longitudinal** force per unit c.s.a.'], ['Strain', 'extension per unit **original** length'], ['Escape velocity', '**minimum** velocity to escape **completely**'], ['Equilibrium', 'ΣF = 0 **in any direction**; Στ = 0 **about any axis**']]],
+        ['note', 'Follow the A-level reference books in the syllabus. A Mayer derivation by integration was **not accepted**.'],
+      ] },
+      { t: 'Kinematics', c: 'purple', col: 'R', body: [
+        ['tbl', [['Find', 'Use (vertical unless stated)'], ['$H$', '$v^2 = u^2 + 2as$, $v_y = 0$'], ['$T$', '$s = ut + \\tfrac12at^2$, $s_y = 0$'], ['$R$', '$T$, then $x = (u\\cos\\theta)T$']]],
+        ['b', ['$R = \\dfrac{u^2\\sin2\\theta}{g}$ for MCQ only, **no height difference**.', '$s < 0$ only when it ends **below the start**.', '**One** equation, not $t_1 + t_2 + t_3$.']],
+        ['sub', ['Example', ['p', 'Thrown up at 5.0 m s⁻¹ from 10.0 m:'], ['p', '$-10 = 5t - 5t^2$ → $t = 2.0$ s']], 'purple'],
+      ] },
+      { t: 'Circular motion & gravitation', c: 'red', col: 'R', body: [
+        ['f', '\\Delta\\mathbf{v} = \\mathbf{v} - \\mathbf{u},\\quad |\\Delta v| = 2v\\sin\\tfrac{\\theta}{2}'],
+        ['p', 'Label forces → which gives the centripetal force → resultant $= \\dfrac{mv^2}{r}$.'],
+        ['p', 'Change = **final − initial**; orbit change: **conservation of energy**.'],
+      ] },
+    ],
+    rows: [
+      { cols: '1fr 1fr 1fr', boxes: [
+        { t: 'Statics', c: 'amber', col: 'W', body: [
+          ['b', ['Longest side = **largest force**: check.', 'Three forces meet at **one point**.', 'Smooth wall: reaction ⊥ wall. Rough floor: friction **towards** wall.']],
+          ['p', 'Resolve, then take moments about the point an unknown **passes through**.'],
+        ] },
+        { t: 'Deformation', c: 'sky', col: 'W', body: [
+          ['p', '$F$ on each end: 16 N means 16 N.'],
+          ['p', '$E$ depends on the **material** only (stiffness); $k = \\dfrac{EA}{L}$ depends on size.'],
+          ['p', 'In $E = \\dfrac{FL}{Ae}$, $F$ is the **tension**, not always $mg$: $2F\\sin\\theta = mg$.'],
+        ] },
+        { t: 'Ch 10–12 (one Section C yearly)', c: 'navy', col: 'W', body: [
+          ['b', ['$p = \\tfrac13\\rho\\langle c^2\\rangle$; Mayer: $C_{p,m} - C_{V,m} = R$.', 'Constant V: $dW = 0$, so $dU = dQ$.', 'Diamond: non-metal, conducts very well.', 'Composite: same $\\dfrac{dQ}{dt}$ in each layer.', 'Lagged: $\\dfrac{dQ}{dt}$ constant → straight line; unlagged → curve.']],
+        ] },
+      ] },
+    ],
+    tips: ['Section A: CONV, equation solver, constants.', 'Short method = time to check.', 'Use Modules 1, 2, 3.', 'Analyse graphs, do not memorise.'],
+  },
+
   'S3-TECH': {
     sem: 3,
     kicker: 'Semester 3 · Sections B &amp; C',
